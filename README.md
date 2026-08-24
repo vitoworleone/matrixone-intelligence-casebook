@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="100%" />
+</p>
+
 <div align="center">
 
 # MatrixOne Intelligence Casebook
@@ -11,7 +15,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/architecture/casebook-overview.svg" alt="从企业数据到可信 AI 交付的产品闭环" width="900" />
+  <img src="assets/architecture/casebook-overview.png" alt="从企业数据到可信 AI 交付的产品闭环" width="900" />
 </p>
 
 > [!IMPORTANT]

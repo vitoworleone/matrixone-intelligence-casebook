@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="100%" />
+</p>
+
 <div align="center">
 
 # MatrixOne Intelligence Casebook
@@ -11,7 +15,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/architecture/casebook-overview.svg" alt="Product loop from enterprise data to trustworthy AI delivery" width="900" />
+  <img src="assets/architecture/casebook-overview.png" alt="Product loop from enterprise data to trustworthy AI delivery" width="900" />
 </p>
 
 > [!IMPORTANT]
