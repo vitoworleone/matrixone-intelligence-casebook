@@ -6,7 +6,7 @@
     "y": -3000,
     "width": 10000,
     "height": 7500,
-    "backgroundColor": "#0b1739",
+    "backgroundColor": "#ffffff",
     "fillStyle": "solid",
     "strokeColor": "transparent",
     "strokeWidth": 0,
@@ -26,12 +26,14 @@
     "y": 24,
     "width": 1156,
     "height": 800,
-    "backgroundColor": "#102a43",
+    "backgroundColor": "#fff8ee",
     "fillStyle": "solid",
-    "strokeColor": "#4a9eed",
+    "strokeColor": "#d9d2ef",
     "strokeWidth": 2,
     "roughness": 1,
-    "roundness": { "type": 3 }
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -40,7 +42,7 @@
     "y": 68,
     "text": "ENTERPRISE AI PRODUCT LOOP",
     "fontSize": 18,
-    "strokeColor": "#7dd3fc"
+    "strokeColor": "#6d5bd0"
   },
   {
     "type": "text",
@@ -49,7 +51,7 @@
     "y": 106,
     "text": "从企业数据到可信 AI 交付",
     "fontSize": 34,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#24145f"
   },
   {
     "type": "text",
@@ -58,7 +60,7 @@
     "y": 158,
     "text": "Evidence flows forward. Learning loops back.",
     "fontSize": 16,
-    "strokeColor": "#a0a0a0"
+    "strokeColor": "#6b647d"
   },
   {
     "type": "rectangle",
@@ -67,14 +69,19 @@
     "y": 82,
     "width": 200,
     "height": 48,
-    "backgroundColor": "#1e3a5f",
+    "backgroundColor": "#eeeaff",
     "fillStyle": "solid",
-    "strokeColor": "#7dd3fc",
+    "strokeColor": "#7866d5",
     "strokeWidth": 2,
-    "roundness": { "type": 3 },
-    "label": { "text": "DATA  ->  VALUE", "fontSize": 16, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "DATA  ->  VALUE",
+      "fontSize": 16,
+      "strokeColor": "#312466"
+    }
   },
-
   {
     "type": "ellipse",
     "id": "n1",
@@ -82,11 +89,15 @@
     "y": 205,
     "width": 58,
     "height": 58,
-    "backgroundColor": "#1e3a5f",
+    "backgroundColor": "#eaf3ff",
     "fillStyle": "solid",
-    "strokeColor": "#4a9eed",
+    "strokeColor": "#4e82df",
     "strokeWidth": 3,
-    "label": { "text": "01", "fontSize": 20, "strokeColor": "#e5e5e5" }
+    "label": {
+      "text": "01",
+      "fontSize": 20,
+      "strokeColor": "#274b8e"
+    }
   },
   {
     "type": "rectangle",
@@ -95,11 +106,13 @@
     "y": 246,
     "width": 190,
     "height": 264,
-    "backgroundColor": "#1e3a5f",
+    "backgroundColor": "#eaf3ff",
     "fillStyle": "solid",
-    "strokeColor": "#4a9eed",
+    "strokeColor": "#4e82df",
     "strokeWidth": 2,
-    "roundness": { "type": 3 }
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -108,7 +121,7 @@
     "y": 282,
     "text": "AI-READY DATA",
     "fontSize": 16,
-    "strokeColor": "#7dd3fc"
+    "strokeColor": "#3565b9"
   },
   {
     "type": "text",
@@ -117,7 +130,7 @@
     "y": 322,
     "text": "Document\nIntelligence",
     "fontSize": 23,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#24145f"
   },
   {
     "type": "text",
@@ -126,7 +139,7 @@
     "y": 398,
     "text": "Parse · structure\nclassify · govern",
     "fontSize": 16,
-    "strokeColor": "#cbd5e1"
+    "strokeColor": "#4b5563"
   },
   {
     "type": "rectangle",
@@ -135,14 +148,19 @@
     "y": 462,
     "width": 148,
     "height": 32,
-    "backgroundColor": "#102a43",
+    "backgroundColor": "#ffffff",
     "fillStyle": "solid",
-    "strokeColor": "#4a9eed",
+    "strokeColor": "#4e82df",
     "strokeWidth": 1,
-    "roundness": { "type": 3 },
-    "label": { "text": "Schema + metadata", "fontSize": 14, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "Schema + metadata",
+      "fontSize": 14,
+      "strokeColor": "#274b8e"
+    }
   },
-
   {
     "type": "arrow",
     "id": "a12",
@@ -150,8 +168,17 @@
     "y": 376,
     "width": 42,
     "height": 0,
-    "points": [[0, 0], [42, 0]],
-    "strokeColor": "#06b6d4",
+    "points": [
+      [
+        0,
+        0
+      ],
+      [
+        42,
+        0
+      ]
+    ],
+    "strokeColor": "#28a5a5",
     "strokeWidth": 3,
     "endArrowhead": "arrow"
   },
@@ -162,11 +189,15 @@
     "y": 205,
     "width": 58,
     "height": 58,
-    "backgroundColor": "#1a4d4d",
+    "backgroundColor": "#e8f8f5",
     "fillStyle": "solid",
-    "strokeColor": "#06b6d4",
+    "strokeColor": "#28a5a5",
     "strokeWidth": 3,
-    "label": { "text": "02", "fontSize": 20, "strokeColor": "#e5e5e5" }
+    "label": {
+      "text": "02",
+      "fontSize": 20,
+      "strokeColor": "#176b70"
+    }
   },
   {
     "type": "rectangle",
@@ -175,11 +206,13 @@
     "y": 246,
     "width": 190,
     "height": 264,
-    "backgroundColor": "#1a4d4d",
+    "backgroundColor": "#e8f8f5",
     "fillStyle": "solid",
-    "strokeColor": "#06b6d4",
+    "strokeColor": "#28a5a5",
     "strokeWidth": 2,
-    "roundness": { "type": 3 }
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -188,7 +221,7 @@
     "y": 282,
     "text": "KNOWLEDGE",
     "fontSize": 16,
-    "strokeColor": "#67e8f9"
+    "strokeColor": "#187f84"
   },
   {
     "type": "text",
@@ -197,7 +230,7 @@
     "y": 322,
     "text": "Traceable\nRAG",
     "fontSize": 23,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#24145f"
   },
   {
     "type": "text",
@@ -206,7 +239,7 @@
     "y": 398,
     "text": "Retrieve · rerank\ncite · abstain",
     "fontSize": 16,
-    "strokeColor": "#cbd5e1"
+    "strokeColor": "#4b5563"
   },
   {
     "type": "rectangle",
@@ -215,14 +248,19 @@
     "y": 462,
     "width": 148,
     "height": 32,
-    "backgroundColor": "#102a43",
+    "backgroundColor": "#ffffff",
     "fillStyle": "solid",
-    "strokeColor": "#06b6d4",
+    "strokeColor": "#28a5a5",
     "strokeWidth": 1,
-    "roundness": { "type": 3 },
-    "label": { "text": "Citation trail", "fontSize": 14, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "Citation trail",
+      "fontSize": 14,
+      "strokeColor": "#176b70"
+    }
   },
-
   {
     "type": "arrow",
     "id": "a23",
@@ -230,8 +268,17 @@
     "y": 376,
     "width": 42,
     "height": 0,
-    "points": [[0, 0], [42, 0]],
-    "strokeColor": "#8b5cf6",
+    "points": [
+      [
+        0,
+        0
+      ],
+      [
+        42,
+        0
+      ]
+    ],
+    "strokeColor": "#8064d9",
     "strokeWidth": 3,
     "endArrowhead": "arrow"
   },
@@ -242,11 +289,15 @@
     "y": 205,
     "width": 58,
     "height": 58,
-    "backgroundColor": "#2d1b69",
+    "backgroundColor": "#f0ecff",
     "fillStyle": "solid",
-    "strokeColor": "#8b5cf6",
+    "strokeColor": "#8064d9",
     "strokeWidth": 3,
-    "label": { "text": "03", "fontSize": 20, "strokeColor": "#e5e5e5" }
+    "label": {
+      "text": "03",
+      "fontSize": 20,
+      "strokeColor": "#5035a1"
+    }
   },
   {
     "type": "rectangle",
@@ -255,11 +306,13 @@
     "y": 246,
     "width": 190,
     "height": 264,
-    "backgroundColor": "#2d1b69",
+    "backgroundColor": "#f0ecff",
     "fillStyle": "solid",
-    "strokeColor": "#8b5cf6",
+    "strokeColor": "#8064d9",
     "strokeWidth": 2,
-    "roundness": { "type": 3 }
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -268,7 +321,7 @@
     "y": 282,
     "text": "EXECUTION",
     "fontSize": 16,
-    "strokeColor": "#c4b5fd"
+    "strokeColor": "#684cc0"
   },
   {
     "type": "text",
@@ -277,7 +330,7 @@
     "y": 322,
     "text": "Agent +\nTools",
     "fontSize": 23,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#24145f"
   },
   {
     "type": "text",
@@ -286,7 +339,7 @@
     "y": 398,
     "text": "Plan · act · retry\nhuman approval",
     "fontSize": 16,
-    "strokeColor": "#cbd5e1"
+    "strokeColor": "#4b5563"
   },
   {
     "type": "rectangle",
@@ -295,14 +348,19 @@
     "y": 462,
     "width": 148,
     "height": 32,
-    "backgroundColor": "#102a43",
+    "backgroundColor": "#ffffff",
     "fillStyle": "solid",
-    "strokeColor": "#8b5cf6",
+    "strokeColor": "#8064d9",
     "strokeWidth": 1,
-    "roundness": { "type": 3 },
-    "label": { "text": "Tool + audit logs", "fontSize": 14, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "Tool + audit logs",
+      "fontSize": 14,
+      "strokeColor": "#5035a1"
+    }
   },
-
   {
     "type": "arrow",
     "id": "a34",
@@ -310,8 +368,17 @@
     "y": 376,
     "width": 42,
     "height": 0,
-    "points": [[0, 0], [42, 0]],
-    "strokeColor": "#f59e0b",
+    "points": [
+      [
+        0,
+        0
+      ],
+      [
+        42,
+        0
+      ]
+    ],
+    "strokeColor": "#e59a43",
     "strokeWidth": 3,
     "endArrowhead": "arrow"
   },
@@ -322,11 +389,15 @@
     "y": 205,
     "width": 58,
     "height": 58,
-    "backgroundColor": "#5c3d1a",
+    "backgroundColor": "#fff2df",
     "fillStyle": "solid",
-    "strokeColor": "#f59e0b",
+    "strokeColor": "#e59a43",
     "strokeWidth": 3,
-    "label": { "text": "04", "fontSize": 20, "strokeColor": "#e5e5e5" }
+    "label": {
+      "text": "04",
+      "fontSize": 20,
+      "strokeColor": "#915415"
+    }
   },
   {
     "type": "rectangle",
@@ -335,11 +406,13 @@
     "y": 246,
     "width": 190,
     "height": 264,
-    "backgroundColor": "#5c3d1a",
+    "backgroundColor": "#fff2df",
     "fillStyle": "solid",
-    "strokeColor": "#f59e0b",
+    "strokeColor": "#e59a43",
     "strokeWidth": 2,
-    "roundness": { "type": 3 }
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -348,7 +421,7 @@
     "y": 282,
     "text": "QUALITY",
     "fontSize": 16,
-    "strokeColor": "#fcd34d"
+    "strokeColor": "#a56216"
   },
   {
     "type": "text",
@@ -357,7 +430,7 @@
     "y": 322,
     "text": "Evaluation",
     "fontSize": 23,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#24145f"
   },
   {
     "type": "text",
@@ -366,7 +439,7 @@
     "y": 398,
     "text": "Rubric · golden set\nbadcase loop",
     "fontSize": 16,
-    "strokeColor": "#cbd5e1"
+    "strokeColor": "#4b5563"
   },
   {
     "type": "rectangle",
@@ -375,14 +448,19 @@
     "y": 462,
     "width": 148,
     "height": 32,
-    "backgroundColor": "#102a43",
+    "backgroundColor": "#ffffff",
     "fillStyle": "solid",
-    "strokeColor": "#f59e0b",
+    "strokeColor": "#e59a43",
     "strokeWidth": 1,
-    "roundness": { "type": 3 },
-    "label": { "text": "Eval report", "fontSize": 14, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "Eval report",
+      "fontSize": 14,
+      "strokeColor": "#915415"
+    }
   },
-
   {
     "type": "arrow",
     "id": "a45",
@@ -390,8 +468,17 @@
     "y": 376,
     "width": 42,
     "height": 0,
-    "points": [[0, 0], [42, 0]],
-    "strokeColor": "#22c55e",
+    "points": [
+      [
+        0,
+        0
+      ],
+      [
+        42,
+        0
+      ]
+    ],
+    "strokeColor": "#43a76c",
     "strokeWidth": 3,
     "endArrowhead": "arrow"
   },
@@ -402,11 +489,15 @@
     "y": 205,
     "width": 58,
     "height": 58,
-    "backgroundColor": "#1a4d2e",
+    "backgroundColor": "#e9f7ee",
     "fillStyle": "solid",
-    "strokeColor": "#22c55e",
+    "strokeColor": "#43a76c",
     "strokeWidth": 3,
-    "label": { "text": "05", "fontSize": 20, "strokeColor": "#e5e5e5" }
+    "label": {
+      "text": "05",
+      "fontSize": 20,
+      "strokeColor": "#246c43"
+    }
   },
   {
     "type": "rectangle",
@@ -415,11 +506,13 @@
     "y": 246,
     "width": 190,
     "height": 264,
-    "backgroundColor": "#1a4d2e",
+    "backgroundColor": "#e9f7ee",
     "fillStyle": "solid",
-    "strokeColor": "#22c55e",
+    "strokeColor": "#43a76c",
     "strokeWidth": 3,
-    "roundness": { "type": 3 }
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -428,7 +521,7 @@
     "y": 282,
     "text": "DELIVERY",
     "fontSize": 16,
-    "strokeColor": "#86efac"
+    "strokeColor": "#2d8050"
   },
   {
     "type": "text",
@@ -437,7 +530,7 @@
     "y": 322,
     "text": "Trusted AI",
     "fontSize": 23,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#24145f"
   },
   {
     "type": "text",
@@ -446,7 +539,7 @@
     "y": 398,
     "text": "PoC · acceptance\nrollout · observe",
     "fontSize": 16,
-    "strokeColor": "#cbd5e1"
+    "strokeColor": "#4b5563"
   },
   {
     "type": "rectangle",
@@ -455,14 +548,19 @@
     "y": 462,
     "width": 148,
     "height": 32,
-    "backgroundColor": "#102a43",
+    "backgroundColor": "#ffffff",
     "fillStyle": "solid",
-    "strokeColor": "#22c55e",
+    "strokeColor": "#43a76c",
     "strokeWidth": 1,
-    "roundness": { "type": 3 },
-    "label": { "text": "Business value", "fontSize": 14, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "Business value",
+      "fontSize": 14,
+      "strokeColor": "#246c43"
+    }
   },
-
   {
     "type": "rectangle",
     "id": "guardrail-zone",
@@ -470,12 +568,14 @@
     "y": 548,
     "width": 820,
     "height": 76,
-    "backgroundColor": "#e5dbff",
+    "backgroundColor": "#f1edff",
     "fillStyle": "solid",
-    "strokeColor": "#8b5cf6",
+    "strokeColor": "#d8d0f5",
     "strokeWidth": 1,
-    "opacity": 22,
-    "roundness": { "type": 3 }
+    "opacity": 100,
+    "roundness": {
+      "type": 3
+    }
   },
   {
     "type": "text",
@@ -484,7 +584,7 @@
     "y": 572,
     "text": "GOVERNANCE RAIL",
     "fontSize": 16,
-    "strokeColor": "#c4b5fd"
+    "strokeColor": "#6b50c5"
   },
   {
     "type": "text",
@@ -493,7 +593,7 @@
     "y": 572,
     "text": "Human approval   ·   Security & privacy   ·   Cost & latency   ·   Observability",
     "fontSize": 16,
-    "strokeColor": "#e5e5e5"
+    "strokeColor": "#4c4660"
   },
   {
     "type": "arrow",
@@ -502,8 +602,25 @@
     "y": 510,
     "width": -928,
     "height": 202,
-    "points": [[0, 0], [0, 202], [-928, 202], [-928, 0]],
-    "strokeColor": "#4a9eed",
+    "points": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        202
+      ],
+      [
+        -928,
+        202
+      ],
+      [
+        -928,
+        0
+      ]
+    ],
+    "strokeColor": "#6887d8",
     "strokeWidth": 3,
     "strokeStyle": "dashed",
     "endArrowhead": "arrow"
@@ -515,12 +632,18 @@
     "y": 681,
     "width": 444,
     "height": 58,
-    "backgroundColor": "#1e3a5f",
+    "backgroundColor": "#eef4ff",
     "fillStyle": "solid",
-    "strokeColor": "#4a9eed",
+    "strokeColor": "#6887d8",
     "strokeWidth": 2,
-    "roundness": { "type": 3 },
-    "label": { "text": "反馈闭环  ·  Badcases  ·  Metrics  ·  User signals", "fontSize": 17, "strokeColor": "#e5e5e5" }
+    "roundness": {
+      "type": 3
+    },
+    "label": {
+      "text": "反馈闭环  ·  Badcases  ·  Metrics  ·  User signals",
+      "fontSize": 17,
+      "strokeColor": "#354a82"
+    }
   },
   {
     "type": "text",
@@ -529,6 +652,6 @@
     "y": 770,
     "text": "Build evidence. Measure quality. Earn trust.",
     "fontSize": 16,
-    "strokeColor": "#a0a0a0"
+    "strokeColor": "#6b647d"
   }
 ]
