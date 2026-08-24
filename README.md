@@ -4,11 +4,19 @@
 
 <div align="center">
 
-# MatrixOne Intelligence Casebook
+# 🐱 MatrixOne Intelligence Casebook
 
 ### 企业级 AI 数据产品案例集
 
-**多模态文档解析 · 可溯源 RAG · Agentic Workflow · 评测驱动迭代**
+<p>
+  <a href="docs/02-document-intelligence/"><img src="https://img.shields.io/badge/01-%F0%9F%93%84%20Document%20Intelligence-EAF3FF?style=flat-square&labelColor=4E82DF" alt="01 Document Intelligence" /></a>
+  <a href="docs/02-document-intelligence/"><img src="https://img.shields.io/badge/02-%F0%9F%94%8E%20Traceable%20RAG-E8F8F5?style=flat-square&labelColor=28A5A5" alt="02 Traceable RAG" /></a>
+  <a href="docs/03-agentic-data-workflow/"><img src="https://img.shields.io/badge/03-%F0%9F%9B%A0%EF%B8%8F%20Agentic%20Workflow-F0ECFF?style=flat-square&labelColor=8064D9" alt="03 Agentic Workflow" /></a>
+  <a href="docs/04-solution-poc/"><img src="https://img.shields.io/badge/04-%E2%9C%85%20Evaluation-FFF2DF?style=flat-square&labelColor=E59A43" alt="04 Evaluation" /></a>
+  <a href="docs/04-solution-poc/"><img src="https://img.shields.io/badge/05-%F0%9F%9B%A1%EF%B8%8F%20Trusted%20AI-E9F7EE?style=flat-square&labelColor=43A76C" alt="05 Trusted AI" /></a>
+</p>
+
+<sub>多模态文档解析 · 可溯源 RAG · Agentic Workflow · 评测驱动迭代</sub>
 
 [案例总览](docs/00-portfolio/case-map.md) · [能力证据矩阵](docs/00-portfolio/jd-evidence-matrix.md) · [文档智能](docs/02-document-intelligence/) · [Agent 工作流](docs/03-agentic-data-workflow/) · [解决方案 PoC](docs/04-solution-poc/) · [English](README_EN.md)
 

@@ -4,11 +4,19 @@
 
 <div align="center">
 
-# MatrixOne Intelligence Casebook
+# 🐱 MatrixOne Intelligence Casebook
 
 ### Enterprise AI Product Casebook
 
-**Multimodal Document Intelligence · Traceable RAG · Agentic Workflows · Evaluation-Driven Iteration**
+<p>
+  <a href="docs/02-document-intelligence/"><img src="https://img.shields.io/badge/01-%F0%9F%93%84%20Document%20Intelligence-EAF3FF?style=flat-square&labelColor=4E82DF" alt="01 Document Intelligence" /></a>
+  <a href="docs/02-document-intelligence/"><img src="https://img.shields.io/badge/02-%F0%9F%94%8E%20Traceable%20RAG-E8F8F5?style=flat-square&labelColor=28A5A5" alt="02 Traceable RAG" /></a>
+  <a href="docs/03-agentic-data-workflow/"><img src="https://img.shields.io/badge/03-%F0%9F%9B%A0%EF%B8%8F%20Agentic%20Workflow-F0ECFF?style=flat-square&labelColor=8064D9" alt="03 Agentic Workflow" /></a>
+  <a href="docs/04-solution-poc/"><img src="https://img.shields.io/badge/04-%E2%9C%85%20Evaluation-FFF2DF?style=flat-square&labelColor=E59A43" alt="04 Evaluation" /></a>
+  <a href="docs/04-solution-poc/"><img src="https://img.shields.io/badge/05-%F0%9F%9B%A1%EF%B8%8F%20Trusted%20AI-E9F7EE?style=flat-square&labelColor=43A76C" alt="05 Trusted AI" /></a>
+</p>
+
+<sub>Multimodal Document Intelligence · Traceable RAG · Agentic Workflows · Evaluation-Driven Iteration</sub>
 
 [Cases](docs/00-portfolio/case-map.md) · [Evidence Matrix](docs/00-portfolio/jd-evidence-matrix.md) · [中文](README.md)
 
