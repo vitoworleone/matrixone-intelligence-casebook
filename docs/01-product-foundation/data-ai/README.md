@@ -37,6 +37,7 @@ Data + AI 不是把数据库、文档和大模型简单拼接在一起，而是�
 ## 专题调研
 
 - [训练数据集格式](training-data/training-dataset-formats.md)：LlamaFactory 数据集快照、微调与偏好学习 schema、任务类型与数据格式的对应关系。
+- [Easy Dataset 产品调研](training-data/easy-dataset-product-research.md)：面向 LLM 微调、RAG 与评测数据集构建的产品能力、一次试用记录和常见任务数据格式。
 
 ## 如何阅读这份调研
 
