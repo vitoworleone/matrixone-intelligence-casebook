@@ -4,6 +4,10 @@
 
 Show how enterprise documents can be parsed, converted into structured information, retrieved with citations, and improved through an evaluation-driven product loop.
 
+## RAG 调研资料
+
+[`rag/`](rag/) 收录检索增强生成相关的原始调研稿，正文保持原样，仅统一文件名与资源路径。
+
 ## Required artifacts
 
 1. `product-brief.md`: users, scenario, outcome, and MVP boundary.
