@@ -6,6 +6,7 @@ Show how enterprise documents can be parsed, converted into structured informati
 
 ## RAG 调研资料
 
+- [Matrixflow RAG 架构与能力地图](rag/README.md)：基于当前代码的架构、能力边界与调研映射。
 - [RAG 能力与平台调研](rag/rag-research.md)：平台能力、分块、召回、数据合成与文档解析的原始调研稿。
 - [RAG 策略与选型](rag/rag-strategy-and-selection.md)：是否投入 RAG、如何评估价值，以及如何选择实施路径。
 
