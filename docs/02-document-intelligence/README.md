@@ -6,7 +6,8 @@ Show how enterprise documents can be parsed, converted into structured informati
 
 ## RAG 调研资料
 
-[RAG 调研](rag/rag-research.md) 收录检索增强生成相关的原始调研稿，正文保持原样，仅统一文件名与资源路径。
+- [RAG 能力与平台调研](rag/rag-research.md)：平台能力、分块、召回、数据合成与文档解析的原始调研稿。
+- [RAG 策略与选型](rag/rag-strategy-and-selection.md)：是否投入 RAG、如何评估价值，以及如何选择实施路径。
 
 ## Required artifacts
 
