@@ -34,6 +34,10 @@ Data + AI 不是把数据库、文档和大模型简单拼接在一起，而是�
 | [05 · MatrixOne Intelligence：产品体验与信息架构](chapters/05-product-experience.md) | 如何让数据处理、模型配置与应用使用形成连贯体验？ | 以 Workspace、向导式流程、可视化编排、可观测性和反馈机制连接用户路径。 |
 | [06 · Haystack 能力复用与示例应用](chapters/06-haystack-enablement.md) | 如何把已有 Haystack 能力转化为可配置、可体验的产品能力？ | 围绕 Pipeline 构建文档问答、企业 Chatbot、多语言检索和 Agent 等 Quickstart，并补齐监控与调优。 |
 
+## 专题调研
+
+- [训练数据集格式](training-data/training-dataset-formats.md)：LlamaFactory 数据集快照、微调与偏好学习 schema、任务类型与数据格式的对应关系。
+
 ## 如何阅读这份调研
 
 **想先判断机会与定位**：从第 1 章理解市场和用户，再阅读第 4 章收敛产品战略，最后用第 5 章检验体验是否能承接这条主线。
