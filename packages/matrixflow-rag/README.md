@@ -92,21 +92,5 @@
 - [Python SDK API](source/moi-core/docs/api/python-sdk-api.md)
 - [SDK 使用指南](source/moi-core/docs/guide/SDK_GUIDE.md)
 - [Agent A2A API](source/moi-core/docs/api/agent-a2a-api.md)
-- [Agent Runtime v2 Trace](source/moi-core/docs/design/agent-runtime-v2-trace.md)
 
-### 运行分析与验收
-
-- [Semantic Model 慢查询分析](source/docs/analysis/20260706-prod-semantic-models-slow-query.md)
-- [知识库流水线可靠性扫描](source/docs/analysis/20260707-kb-pipeline-reliability-scan.md)
-- [同库 Catalog 表克隆验收](source/dev/docs/doing/2026-07-07-kb-catalog-table-clone-same-db-acceptance.md)
-- [知识库产品矩阵 Skill](source/skills/kb-product-matrix/)
-- [最近一次通过的矩阵报告](source/skills/kb-product-matrix/testdata/last-passed-matrix-report.json)
-
-### 设计与规划资料
-
-- [Agent Runtime A2A 设计](source/moi-core/docs/design/agent-runtime-a2a.md)
-- [Agent 原型资源路线图](source/moi-core/docs/design/agent-prototype-resource-roadmap.md)
-
-设计与规划资料用于解释目标和演进方向，不能单独作为当前生产能力的证明。
-
-该快照覆盖知识库前后端、接入工作流、多粒度索引、资源目录、Agent 知识工具、文本与视觉检索、Rerank、SDK、证据展示、运行分析、验收矩阵及相关测试。审阅结论见 [Matrixflow 知识库代码与文档核验](../../docs/02-document-intelligence/rag/matrixflow-knowledge-code-and-doc-audit.md)。
+该快照覆盖知识库前后端、接入工作流、多粒度索引、资源目录、Agent 知识工具、文本与视觉检索、Rerank、SDK、证据展示、评测及相关测试。

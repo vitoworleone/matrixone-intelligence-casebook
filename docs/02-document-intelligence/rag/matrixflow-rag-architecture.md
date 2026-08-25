@@ -1,10 +1,10 @@
 # Matrixflow RAG 架构
 
-## 目的与证据范围
+## 文档范围
 
 本文描述 Matrixflow 当前与 RAG 直接相关的产品与技术链路，而不是通用 RAG 的理想架构，也不是对 [RAG 能力与平台调研](rag-research.md) 中外部产品功能的转述。对应实现已经整理到[源码快照](../../../packages/matrixflow-rag/)。
 
-审阅基准：2026-08-25。源码快照来自 Matrixflow 提交 `d4b7995fabb906cf2c492a9d27ac0680e60fbee6`；另外对当日最新 `upstream/dev` 提交 `3f01f9516492a9da4f911a44ab4ff7aec7744663` 做了关键能力静态复核。
+本文以仓库中公开的源码快照为依据；不同部署版本和运行配置可能存在差异。
 
 | 模块 | 在 RAG 链路中的职责 |
 | --- | --- |
@@ -170,13 +170,13 @@
 
 仓库有可独立部署的 `/v1/rerank` 服务，默认配置示例使用 `BAAI/bge-reranker-base`，支持 Torch 与 ONNX 运行方式。与此同时，视觉检索中已有 RRF 融合及约束型重排。
 
-静态调用链显示，主 `search_rag_chunks` 当前只装配 SQL executor 与 embedder；`NewOpenAIReranker` 只在 rerank 客户端测试中被调用，未找到该客户端的生产调用方。因此当前准确表述是：**独立 rerank 服务与客户端已实现，视觉检索也已有结果重排；主文本 RAG 尚未发现 cross-encoder 接入。**
+独立 rerank 服务与客户端已经提供，视觉检索也具备结果融合与约束重排。当前主 `search_rag_chunks` 以 SQL 检索和 embedding 召回为核心，独立 cross-encoder rerank 不是默认处理步骤。
 
 ## 8. 与调研内容的边界
 
 当前代码覆盖了 Native RAG 与部分 Advanced RAG：文档和结构化表接入、分段版本、文档/节/块多层索引、向量化、文档全文+向量混合召回、结构化表 SQL 查询、元数据/来源治理、文档内表格与图片证据增强、Agent 工具调用和回答证据选择。
 
-本次审阅未在核心生产路径中发现下列实现，不应使用“已支持”描述：
+当前公开版本不包含下列能力，不应使用“已支持”描述：
 
 - RAPTOR 的递归聚类、模型摘要节点与树形递归检索；现有三层索引不应直接命名为 RAPTOR；
 - 知识图谱、实体归一化、社区报告或 GraphRAG；
@@ -202,5 +202,3 @@
 | 视觉检索、融合与约束重排 | [视觉检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search.go)、[视觉重排](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search_ranking.go) |
 | 回答证据类型与选择约束 | [证据 schema](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schemas.go)、[默认 Data Agent](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agentresource/systemagents/knowledge-explore/agent.json)、[中文提示词](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agentresource/systemagents/knowledge-explore/system_prompt.zh-CN.md) |
 | 独立 rerank 服务 | [Rerank 服务](../../../packages/matrixflow-rag/source/moi-core/rerank/) |
-
-更完整的代码调用链、文档目录和未实现项证据见 [Matrixflow 知识库代码与文档核验](matrixflow-knowledge-code-and-doc-audit.md)。
