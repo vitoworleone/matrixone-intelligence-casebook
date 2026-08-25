@@ -2,15 +2,15 @@
 
 ## 目的与证据范围
 
-本文描述 Matrixflow 当前与 RAG 直接相关的代码路径，而不是通用 RAG 的理想架构，也不是对 `rag-research.md` 中外部产品功能的转述。重点审阅范围如下：
+本文描述 Matrixflow 当前与 RAG 直接相关的产品与技术链路，而不是通用 RAG 的理想架构，也不是对 [RAG 能力与平台调研](rag-research.md) 中外部产品功能的转述。对应实现已经整理到[源码快照](../../../packages/matrixflow-rag/)。
 
-| 代码区域 | 在 RAG 链路中的职责 |
+| 模块 | 在 RAG 链路中的职责 |
 | --- | --- |
-| `moi-backend/pkg/session/semantic_model_*` | 知识库、来源、来源作业、分段版本与向量绑定的生命周期。 |
-| `moi-core/agent-tools/knowledge` | Agent 可调用的文件定位、文本分段检索、视觉检索、检索上下文与结果呈现。 |
-| `moi-core/rerank` | 可部署的独立 rerank 服务。 |
-| `moi-frontend/modules/moi-knowledge` | 知识库创建、来源选择、分段/来源治理等用户入口。 |
-| `openxml_service` 与解析工作流 | Office 文档解析能力的上游服务；本文不把所有解析细节等同于 RAG 检索能力。 |
+| [知识库生命周期](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/) | 知识库、来源、来源作业、分段版本与向量绑定的生命周期。 |
+| [Agent 知识工具](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/) | Agent 可调用的文件定位、文本分段检索、视觉检索、检索上下文与结果呈现。 |
+| [Rerank 服务](../../../packages/matrixflow-rag/source/moi-core/rerank/) | 可部署的独立 rerank 服务。 |
+| [知识库产品入口](../../../packages/matrixflow-rag/source/moi-frontend/modules/moi-knowledge/) | 知识库创建、来源选择、分段与来源治理。 |
+| 文档解析工作流 | Office 文档解析能力的上游服务；本文不把所有解析细节等同于 RAG 检索能力。 |
 
 未进行端到端运行验证时，本文不推断模型实际回答质量、召回率或 UI 中每一个开关是否已开放。
 
@@ -150,14 +150,14 @@
 
 详细的逐项对照见 [Matrixflow RAG 能力映射与边界](matrixflow-rag-capability-map.md)。
 
-## 代码证据索引
+## 源码索引
 
 | 主题 | 主要实现位置 |
 | --- | --- |
-| 知识库接口、来源与分段版本语义 | `moi-backend/pkg/session/semantic_model_interface.go`、`moi-backend/pkg/handlers/session/semantic_model.md` |
-| 来源作业及 RAG ingest | `moi-backend/pkg/session/semantic_model_kb_jobs.go` |
-| 文本/图片向量与分段物化 | `moi-backend/pkg/session/semantic_model_segments.go` |
-| 知识工具契约与结果上下文 | `moi-core/agent-tools/knowledge/schema_core.go`、`context.go`、`tools.go` |
-| 全文+向量检索、证据扩展、表格/图片处理 | `moi-core/agent-tools/knowledge/service/rag_retrieval.go` |
-| 视觉融合与约束重排 | `moi-core/agent-tools/knowledge/service/visual_search_ranking.go` |
-| 独立 rerank 服务 | `moi-core/rerank/README.md` |
+| 知识库接口、来源与分段版本语义 | [接口与版本](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_interface.go)、[API 说明](../../../packages/matrixflow-rag/source/moi-backend/pkg/handlers/session/semantic_model.md) |
+| 来源作业及 RAG ingest | [来源作业](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_kb_jobs.go) |
+| 文本/图片向量与分段物化 | [分段与向量](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_segments.go) |
+| 知识工具契约与结果上下文 | [工具结构](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schema_core.go)、[上下文](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/context.go)、[工具实现](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/tools.go) |
+| 全文+向量检索、证据扩展、表格/图片处理 | [文本 RAG 检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/rag_retrieval.go) |
+| 视觉检索、融合与约束重排 | [视觉检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search.go)、[视觉重排](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search_ranking.go) |
+| 独立 rerank 服务 | [Rerank 服务](../../../packages/matrixflow-rag/source/moi-core/rerank/) |

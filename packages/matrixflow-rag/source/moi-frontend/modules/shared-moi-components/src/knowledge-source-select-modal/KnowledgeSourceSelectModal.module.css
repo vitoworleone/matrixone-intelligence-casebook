@@ -1,0 +1,656 @@
+.goldenRatioModal {
+  aspect-ratio: 1.618 / 1;
+  height: auto;
+  max-height: calc(100dvh - 48px);
+  padding-bottom: 0;
+}
+
+.goldenRatioModalContainer {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.goldenRatioModalBody {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.stepContent {
+  animation: knowledgeCreateStepIn var(--moi-motion-duration-base, 220ms)
+    var(--moi-motion-ease-decelerate, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes knowledgeCreateStepIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sourceChoice {
+  --source-choice-motion-duration: 280ms;
+  --source-choice-motion-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 24px 28px 40px;
+  transition: grid-template-columns var(--source-choice-motion-duration) var(--source-choice-motion-easing);
+}
+
+.sourceChoiceSingle {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sourceChoiceInteractive:has(.sourceChoiceCardLocal:hover),
+.sourceChoiceInteractive:has(.sourceChoiceCardLocal:focus-visible) {
+  grid-template-columns: minmax(0, 3fr) minmax(220px, 1fr);
+}
+
+.sourceChoiceInteractive:has(.sourceChoiceCardCatalog:hover),
+.sourceChoiceInteractive:has(.sourceChoiceCardCatalog:focus-visible) {
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 3fr);
+}
+
+.sourceChoiceCard {
+  width: 100%;
+  min-width: 0;
+  min-height: 280px;
+  height: auto;
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadiusLG, 8px);
+  background: var(--moi-colorBgContainer, #ffffff);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+:global(.ant-btn).sourceChoiceCardLocal:hover,
+:global(.ant-btn).sourceChoiceCardLocal:focus-visible {
+  border-color: var(--moi-colorPrimary, #1677ff);
+  background: color-mix(in srgb, var(--moi-colorPrimaryBg, #e6f4ff) 22%, var(--moi-colorBgContainer, #ffffff));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--moi-colorPrimary, #1677ff) 18%, transparent);
+  outline: none;
+}
+
+:global(.ant-btn).sourceChoiceCardCatalog:hover,
+:global(.ant-btn).sourceChoiceCardCatalog:focus-visible {
+  border-color: var(--moi-colorSuccess, #52c41a) !important;
+  background: color-mix(in srgb, var(--moi-colorSuccessBg, #f6ffed) 24%, var(--moi-colorBgContainer, #ffffff));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--moi-colorSuccess, #52c41a) 16%, transparent);
+  outline: none;
+}
+
+.sourceChoiceIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--moi-borderRadiusLG, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+}
+
+.sourceChoiceIconLocal {
+  color: var(--moi-colorPrimary, #1677ff);
+  background: var(--moi-colorPrimaryBg, #e6f4ff);
+}
+
+.sourceChoiceIconCatalog {
+  color: var(--moi-colorSuccess, #52c41a);
+  background: var(--moi-colorSuccessBg, #f6ffed);
+}
+
+.sourceChoiceTitle {
+  font-size: 20px;
+  text-align: center;
+  white-space: normal;
+}
+
+.sourceChoiceCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.sourceChoiceDescriptionReveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    grid-template-rows var(--source-choice-motion-duration) var(--source-choice-motion-easing),
+    opacity var(--source-choice-motion-duration) var(--source-choice-motion-easing),
+    transform var(--source-choice-motion-duration) var(--source-choice-motion-easing);
+}
+
+.sourceChoiceDescription {
+  min-height: 0;
+  overflow: hidden;
+  color: var(--moi-colorTextTertiary, #8c8c8c);
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: normal;
+}
+
+.sourceChoiceInteractive:has(.sourceChoiceCardLocal:hover) .sourceChoiceCardLocal .sourceChoiceDescriptionReveal,
+.sourceChoiceInteractive:has(.sourceChoiceCardLocal:focus-visible) .sourceChoiceCardLocal .sourceChoiceDescriptionReveal,
+.sourceChoiceInteractive:has(.sourceChoiceCardCatalog:hover) .sourceChoiceCardCatalog .sourceChoiceDescriptionReveal,
+.sourceChoiceInteractive:has(.sourceChoiceCardCatalog:focus-visible) .sourceChoiceCardCatalog .sourceChoiceDescriptionReveal {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.createSteps {
+  display: grid;
+  grid-template-columns: auto minmax(48px, 1fr) auto;
+  align-items: center;
+  max-width: 720px;
+  margin: 4px auto 28px;
+  color: var(--moi-colorTextTertiary, #8c8c8c);
+}
+
+.createStepItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 88px;
+  color: var(--moi-colorTextTertiary, #8c8c8c);
+}
+
+.createStepItemActive {
+  color: var(--moi-colorText, #262626);
+}
+
+.createStepNumber {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--moi-colorBorder, #d9d9d9);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  background: var(--moi-colorBgContainer, #ffffff);
+}
+
+.createStepItemActive .createStepNumber {
+  border-color: var(--moi-colorText, #262626);
+  background: var(--moi-colorText, #262626);
+  color: var(--moi-colorBgContainer, #ffffff);
+}
+
+.createStepLine {
+  height: 1px;
+  background: var(--moi-colorSplit, #f0f0f0);
+}
+
+.createModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.createFlow {
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadiusLG, 8px);
+  background: var(--moi-colorBgContainer, #ffffff);
+  padding: 18px;
+}
+
+.createFlowHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sourceModePill {
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadius, 6px);
+  background: var(--moi-colorFillQuaternary, #fafafa);
+  color: var(--moi-colorTextSecondary, #595959);
+  padding: 4px 10px;
+}
+
+.loadKindCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.loadKindCard {
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadiusLG, 8px);
+  background: var(--moi-colorBgContainer, #ffffff);
+  padding: 16px 18px;
+  height: auto;
+  min-height: 92px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+.loadKindCard:hover,
+.loadKindCard:focus-visible {
+  border-color: var(--moi-colorPrimary, #1677ff);
+  outline: none;
+}
+
+.loadKindCard:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.loadKindCardActive {
+  border-color: var(--moi-colorPrimary, #1677ff);
+  background: var(--moi-colorPrimaryBg, #e6f4ff);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--moi-colorPrimary, #1677ff) 18%, transparent);
+}
+
+.loadKindIcon {
+  flex-shrink: 0;
+  padding: 8px;
+  font-size: 24px;
+  color: var(--moi-colorPrimary, #1677ff);
+  background: var(--moi-colorPrimaryBgHover, #bae0ff);
+  border-radius: var(--moi-borderRadiusLG, 8px);
+}
+
+.loadKindText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.loadKindText :global(.ant-typography) {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.sourcePanel {
+  border-top: 1px solid var(--moi-colorSplit, #f0f0f0);
+  padding-top: 18px;
+}
+
+.uploadTip {
+  color: var(--moi-colorText, #262626);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.uploadButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.uploadButtons :global(.ant-upload-wrapper) {
+  display: block;
+}
+
+.localFileList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadius, 6px);
+  padding: 8px;
+}
+
+.localFileRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+}
+
+.localFileName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--moi-colorText, #262626);
+}
+
+.structuredImportPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.structuredSourceTargetGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.structuredColumn,
+.structuredSection {
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadius, 6px);
+  background: var(--moi-colorBgContainer, #ffffff);
+  padding: 14px;
+}
+
+.structuredColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.structuredPanelTitle {
+  display: block;
+}
+
+.structuredSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.structuredConfigGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.structuredSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.structuredFieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.structuredField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.structuredFieldLabel {
+  color: var(--moi-colorTextSecondary, #595959);
+  font-size: 13px;
+}
+
+.structuredFieldError {
+  color: var(--moi-colorError, #ff4d4f);
+  font-size: 12px;
+}
+
+.structuredColumnHeader,
+.structuredColumnRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.1fr) minmax(260px, 1.4fr) 72px minmax(150px, 1fr) minmax(130px, 0.9fr) 56px;
+  gap: 8px;
+  align-items: center;
+}
+
+.structuredColumnHeader {
+  color: var(--moi-colorTextSecondary, #595959);
+  font-size: 12px;
+  padding: 0 4px;
+}
+
+.structuredColumnField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.structuredColumnMobileLabel {
+  display: none;
+  color: var(--moi-colorTextSecondary, #595959);
+  font-size: 12px;
+}
+
+.structuredColumnRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.structuredConfigRows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.structuredConfigRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--moi-colorText, #262626);
+  min-width: 0;
+}
+
+.structuredConfigRow :global(.ant-radio-group) {
+  flex: 1;
+  min-width: 0;
+}
+
+.structuredCsvGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.structuredCsvGrid .structuredConfigRow {
+  grid-column: 1 / -1;
+}
+
+.structuredPreviewPanel {
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadius, 6px);
+  background: var(--moi-colorFillQuaternary, #fafafa);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.structuredSheetList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.structuredSheetButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.structuredPreviewRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.structuredPreviewRow {
+  display: grid;
+  grid-template-columns: 32px minmax(100px, 0.8fr) minmax(0, 1.6fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+}
+
+.structuredPreviewIndex {
+  border-radius: var(--moi-borderRadiusSM, 4px);
+  background: var(--moi-colorPrimaryBg, #e6f4ff);
+  color: var(--moi-colorPrimary, #1677ff);
+  text-align: center;
+  font-weight: 600;
+  padding: 2px 6px;
+}
+
+.structuredPreviewValues {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.structuredPreviewValue {
+  max-width: 120px;
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadiusSM, 4px);
+  background: var(--moi-colorBgContainer, #ffffff);
+  padding: 2px 6px;
+}
+
+.catalogSelectorHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.catalogSelectorTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.catalogTreePanel {
+  min-height: 260px;
+  border: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+  border-radius: var(--moi-borderRadius, 6px);
+  background: var(--moi-colorBgContainer, #ffffff);
+  padding: 12px;
+}
+
+@media (max-width: 575px) {
+  .goldenRatioModal {
+    height: min(640px, calc(100dvh - 24px));
+    max-height: calc(100dvh - 24px);
+  }
+}
+
+@media (max-width: 991px) {
+  .structuredColumnHeader {
+    display: none;
+  }
+
+  .structuredColumnRow {
+    grid-template-columns: 1fr;
+  }
+
+  .structuredColumnMobileLabel {
+    display: block;
+  }
+}
+
+@media (max-width: 860px) {
+  .loadKindCards,
+  .structuredSourceTargetGrid,
+  .structuredConfigGrid,
+  .structuredFieldGrid,
+  .structuredCsvGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sourceChoice {
+    gap: 16px;
+    padding: 20px 4px 24px;
+  }
+
+  .sourceChoiceCard {
+    min-height: 180px;
+  }
+
+  .sourceChoiceDescriptionReveal {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: none;
+  }
+
+  .createFlowHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .catalogSelectorHeader {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 575px) {
+  .sourceChoice,
+  .sourceChoiceInteractive:has(.sourceChoiceCardLocal:hover),
+  .sourceChoiceInteractive:has(.sourceChoiceCardLocal:focus-visible),
+  .sourceChoiceInteractive:has(.sourceChoiceCardCatalog:hover),
+  .sourceChoiceInteractive:has(.sourceChoiceCardCatalog:focus-visible) {
+    grid-template-columns: 1fr;
+  }
+
+  .sourceChoiceCard {
+    min-height: 148px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepContent {
+    animation: none;
+  }
+
+  .sourceChoice,
+  .sourceChoiceDescriptionReveal {
+    transition: none;
+  }
+}

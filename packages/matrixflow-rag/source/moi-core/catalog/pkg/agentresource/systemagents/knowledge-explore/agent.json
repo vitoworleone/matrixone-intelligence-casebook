@@ -1,0 +1,89 @@
+{
+  "id": "explore",
+  "name": "Data Agent",
+  "description": "Default resource-backed knowledge conversation agent.",
+  "icon": "compass",
+  "runtime": {
+    "provider": "default",
+    "profile": "default"
+  },
+  "source_ref": "knowledge-explore",
+  "prompt_path": "systemagents/knowledge-explore/system_prompt.en-US.md",
+  "binding": {
+    "tool_refs": [
+      {
+        "id": "find_rag_files",
+        "kind": "tool"
+      },
+      {
+        "id": "search_rag_chunks",
+        "kind": "tool"
+      },
+      {
+        "id": "search_visual_image",
+        "kind": "tool"
+      },
+      {
+        "id": "read_parsed_markdown",
+        "kind": "tool"
+      },
+      {
+        "id": "search_parsed_markdown",
+        "kind": "tool"
+      },
+      {
+        "id": "describe_schema",
+        "kind": "tool"
+      },
+      {
+        "id": "query_sql",
+        "kind": "tool"
+      },
+      {
+        "id": "select_final_sources",
+        "kind": "tool"
+      },
+      {
+        "id": "read_artifact",
+        "kind": "tool"
+      },
+      {
+        "id": "read_artifact_page",
+        "kind": "tool"
+      },
+      {
+        "id": "write_file",
+        "kind": "tool"
+      },
+      {
+        "id": "read_file",
+        "kind": "tool"
+      }
+    ]
+  },
+  "metadata": {
+    "default_agent": true,
+    "feature": "knowledge-explore"
+  },
+  "i18n": {
+    "zh-CN": {
+      "name": "Data Agent",
+      "description": "面向已绑定知识库的默认数据问答智能体。",
+      "display_tags": [
+        "知识库",
+        "问答",
+        "数据"
+      ],
+      "prompt_path": "systemagents/knowledge-explore/system_prompt.zh-CN.md"
+    },
+    "en-US": {
+      "name": "Data Agent",
+      "description": "Default resource-backed knowledge conversation agent.",
+      "display_tags": [
+        "knowledge",
+        "data",
+        "QA"
+      ]
+    }
+  }
+}

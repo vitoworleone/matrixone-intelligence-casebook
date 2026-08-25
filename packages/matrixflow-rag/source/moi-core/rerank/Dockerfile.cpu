@@ -1,0 +1,20 @@
+FROM ccr.ccs.tencentyun.com/mocloud/python:3.11-slim
+
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    TRANSFORMERS_CACHE=/app/.cache/huggingface \
+    HF_HOME=/app/.cache/huggingface
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY rerank/requirements.txt /app/requirements.txt
+COPY rerank/requirements-base.txt /app/requirements-base.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY rerank /app/rerank
+
+EXPOSE 8010
+CMD ["uvicorn", "rerank.app:app", "--host", "0.0.0.0", "--port", "8010"]

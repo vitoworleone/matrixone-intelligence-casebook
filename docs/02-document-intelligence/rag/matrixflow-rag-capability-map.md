@@ -94,14 +94,14 @@ DataFlow 中“原始文件 → 分段 → 多跳 QA”一类流程可以是未�
 
 > Matrixflow 已完整覆盖 RAGFlow 的 GraphRAG、RAPTOR、自动问题生成、可配置关键词权重、预设行业分块模板和深度联网检索。
 
-## 代码证据索引
+## 源码索引
 
 | 能力 | 代码/文档位置 |
 | --- | --- |
-| 来源、分段、版本和治理接口 | `moi-backend/pkg/session/semantic_model_interface.go`、`moi-backend/pkg/handlers/session/semantic_model.md` |
-| 来源作业与 ingest 推进 | `moi-backend/pkg/session/semantic_model_kb_jobs.go` |
-| embedding、文本/图片向量、版本物化 | `moi-backend/pkg/session/semantic_model_segments.go` |
-| 检索范围、工具请求与命中 schema | `moi-core/agent-tools/knowledge/schema_core.go` |
-| 主文本混合召回、表格/图片证据增强 | `moi-core/agent-tools/knowledge/service/rag_retrieval.go` |
-| 视觉融合与重排 | `moi-core/agent-tools/knowledge/service/visual_search_ranking.go` |
-| 可部署 rerank 服务 | `moi-core/rerank/README.md` |
+| 来源、分段、版本和治理接口 | [接口与版本](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_interface.go)、[API 说明](../../../packages/matrixflow-rag/source/moi-backend/pkg/handlers/session/semantic_model.md) |
+| 来源作业与 ingest 推进 | [来源作业](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_kb_jobs.go) |
+| embedding、文本/图片向量、版本物化 | [分段与向量](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_segments.go) |
+| 检索范围、工具请求与命中 schema | [工具结构](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schema_core.go) |
+| 主文本混合召回、表格/图片证据增强 | [文本 RAG 检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/rag_retrieval.go) |
+| 视觉融合与重排 | [视觉检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search.go)、[视觉重排](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search_ranking.go) |
+| 可部署 rerank 服务 | [Rerank 服务](../../../packages/matrixflow-rag/source/moi-core/rerank/) |

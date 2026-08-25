@@ -1,0 +1,282 @@
+components:
+  AudioToDocument:
+    init_parameters:
+      asr_model: sensevoice-v1
+      enable_noise_reduction: false
+      enable_speaker_diarization: false
+      max_segment_duration: 30.0
+      min_silence_duration: 0.5
+    type: byoa.integrations.components.converters.audio_to_document.AudioToDocument
+  DOCXToDocument:
+    init_parameters:
+      image_process_types:
+      - caption
+      - ocr
+    type: byoa.integrations.components.converters.enhanced_docx_to_document.EnhancedDOCXToDocument
+  DocumentContentImageFiller:
+    init_parameters: {}
+    type: byoa.integrations.components.converters.document_content_image_filler.DocumentContentImageFiller
+  DocumentEmbedder:
+    init_parameters:
+      api_base_url: https://api.siliconflow.cn/v1
+      api_key:
+        env_vars:
+        - SILICONFLOW_API_KEY
+        strict: true
+        type: env_var
+      batch_size: 32
+      dimensions: null
+      embedding_separator: '
+
+        '
+      meta_fields_to_embed: []
+      model: BAAI/bge-m3
+      organization: null
+      prefix: ''
+      progress_bar: true
+      suffix: ''
+    type: haystack.components.embedders.openai_document_embedder.OpenAIDocumentEmbedder
+  DocumentJoiner:
+    init_parameters:
+      join_mode: concatenate
+      sort_by_score: true
+      top_k: null
+      weights: null
+    type: haystack.components.joiners.document_joiner.DocumentJoiner
+  DocumentJoiner-Result:
+    init_parameters:
+      join_mode: concatenate
+      sort_by_score: true
+      top_k: null
+      weights: null
+    type: haystack.components.joiners.document_joiner.DocumentJoiner
+  DocumentSplitter:
+    init_parameters:
+      split_length: 200
+      split_overlap: 0
+      split_unit: char
+    type: byoa.integrations.components.enhance_document_splitter.EnhancedDocumentSplitter
+  DocumentWriter:
+    init_parameters:
+      document_store:
+        init_parameters:
+          connection_string:
+            env_vars:
+            - DATABASE_SYNC_URI
+            strict: true
+            type: env_var
+          embedding_dimension: 1024
+          keyword_index_name: haystack_keyword_index
+          recreate_table: false
+          table_name: embedding_results
+          vector_function: cosine_similarity
+        type: byoa.integrations.document_stores.mo_document_store.MOIDocumentStore
+      policy: NONE
+    type: haystack.components.writers.document_writer.DocumentWriter
+  FileRouterComponent:
+    init_parameters:
+      additional_mimetypes: null
+      mime_types:
+      - text/plain
+      - text/markdown
+      - image/.*
+      - audio/.*
+      - video/.*
+      - application/pdf
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - application/vnd.openxmlformats-officedocument.presentationml.presentation
+    type: haystack.components.routers.file_type_router.FileTypeRouter
+  ImageCaptionDocumentSplitter:
+    init_parameters:
+      split_length: 200
+      split_overlap: 0
+      split_unit: char
+    type: byoa.integrations.components.enhance_document_splitter.EnhancedDocumentSplitter
+  ImageCaptionToDocument:
+    init_parameters: {}
+    type: byoa.integrations.components.converters.image_caption_to_document.ImageCaptionToDocument
+  ImageOCRDocumentSplitter:
+    init_parameters:
+      split_length: 200
+      split_overlap: 0
+      split_unit: char
+    type: byoa.integrations.components.enhance_document_splitter.EnhancedDocumentSplitter
+  ImageOCRToDocument:
+    init_parameters:
+      model: stepfun-ai/GOT-OCR2_0
+      tokenizer: stepfun-ai/GOT-OCR2_0
+    type: byoa.integrations.components.converters.image_ocr_to_document.ImageOCRToDocument
+  ImageToDocument:
+    init_parameters:
+      image_process_types:
+      - caption
+      - ocr
+    type: byoa.integrations.components.converters.image_to_document.ImageToDocument
+  MagicPDFToDocument:
+    init_parameters:
+      image_process_types:
+      - caption
+      - ocr
+    type: byoa.integrations.components.converters.magic_pdf_to_document.MagicPDFToDocument
+  MetadataRouter:
+    init_parameters:
+      rules:
+        image_caption:
+          conditions:
+          - field: meta.content_type
+            operator: ==
+            value: image
+          - field: meta.process_type
+            operator: ==
+            value: caption
+          operator: AND
+        image_ocr:
+          conditions:
+          - field: meta.content_type
+            operator: ==
+            value: image
+          - field: meta.process_type
+            operator: ==
+            value: ocr
+          operator: AND
+        text:
+          conditions:
+          - field: meta.content_type
+            operator: ==
+            value: text
+          operator: AND
+    type: haystack.components.routers.metadata_router.MetadataRouter
+  MoiDocumentCleaner:
+    init_parameters:
+      deduplication_by_md5: false
+      deduplication_by_similarity: true
+      deduplication_ngram_ratio: 0.5
+      filter_special_char_ratio: 0.5
+      remove_html_labels: true
+      remove_invisible_char: true
+      remove_persional_message: true
+      remove_poison_word: true
+      remove_sensitive_words: true
+      remove_url: true
+      traditional_chinese_to_simple: true
+      unicode_normalization: true
+    type: byoa.integrations.components.cleaner.moi_document_cleaner.MoiDocumentCleaner
+  MoiDocumentCleaner-ImageCaption:
+    init_parameters:
+      deduplication_by_md5: false
+      deduplication_by_similarity: true
+      deduplication_ngram_ratio: 0.5
+      filter_special_char_ratio: 0.5
+      remove_html_labels: true
+      remove_invisible_char: true
+      remove_persional_message: true
+      remove_poison_word: true
+      remove_sensitive_words: true
+      remove_url: true
+      traditional_chinese_to_simple: true
+      unicode_normalization: true
+    type: byoa.integrations.components.cleaner.moi_document_cleaner.MoiDocumentCleaner
+  MoiDocumentCleaner-ImageOCR:
+    init_parameters:
+      deduplication_by_md5: false
+      deduplication_by_similarity: true
+      deduplication_ngram_ratio: 0.5
+      filter_special_char_ratio: 0.5
+      remove_html_labels: true
+      remove_invisible_char: true
+      remove_persional_message: true
+      remove_poison_word: true
+      remove_sensitive_words: true
+      remove_url: true
+      traditional_chinese_to_simple: true
+      unicode_normalization: true
+    type: byoa.integrations.components.cleaner.moi_document_cleaner.MoiDocumentCleaner
+  PPTXToDocument:
+    init_parameters:
+      image_process_types:
+      - caption
+      - ocr
+    type: byoa.integrations.components.converters.enhanced_pptx_to_document.EnhancedPPTXToDocument
+  PlainToDocument:
+    init_parameters: {}
+    type: byoa.integrations.components.converters.enhanced_plain_to_document.EnhancedPlainToDocument
+  PythonExecutor:
+    init_parameters:
+      python_code: ''
+      return_error: true
+      timeout: 15
+    type: byoa.integrations.components.python_executor.PythonExecutor
+  VideoToDocument:
+    init_parameters:
+      asr_model: sensevoice-v1
+      enable_noise_reduction: true
+      enable_speaker_diarization: true
+      max_segment_duration: 30.0
+      min_silence_duration: 0.5
+    type: byoa.integrations.components.converters.video_to_document.VideoToDocument
+connection_type_validation: true
+connections:
+- receiver: PlainToDocument.sources
+  sender: FileRouterComponent.text/plain
+- receiver: PlainToDocument.sources
+  sender: FileRouterComponent.text/markdown
+- receiver: ImageToDocument.sources
+  sender: FileRouterComponent.image/.*
+- receiver: AudioToDocument.sources
+  sender: FileRouterComponent.audio/.*
+- receiver: VideoToDocument.sources
+  sender: FileRouterComponent.video/.*
+- receiver: MagicPDFToDocument.sources
+  sender: FileRouterComponent.application/pdf
+- receiver: DOCXToDocument.sources
+  sender: FileRouterComponent.application/vnd.openxmlformats-officedocument.wordprocessingml.document
+- receiver: PPTXToDocument.sources
+  sender: FileRouterComponent.application/vnd.openxmlformats-officedocument.presentationml.presentation
+- receiver: DocumentJoiner.documents
+  sender: PlainToDocument.documents
+- receiver: DocumentJoiner.documents
+  sender: MagicPDFToDocument.documents
+- receiver: DocumentJoiner.documents
+  sender: ImageToDocument.documents
+- receiver: DocumentJoiner.documents
+  sender: DOCXToDocument.documents
+- receiver: DocumentJoiner.documents
+  sender: PPTXToDocument.documents
+- receiver: DocumentJoiner.documents
+  sender: VideoToDocument.documents
+- receiver: DocumentJoiner.documents
+  sender: AudioToDocument.documents
+- receiver: MetadataRouter.documents
+  sender: DocumentJoiner.documents
+- receiver: MoiDocumentCleaner.documents
+  sender: MetadataRouter.text
+- receiver: ImageOCRToDocument.documents
+  sender: MetadataRouter.image_ocr
+- receiver: ImageCaptionToDocument.documents
+  sender: MetadataRouter.image_caption
+- receiver: DocumentSplitter.documents
+  sender: MoiDocumentCleaner.documents
+- receiver: DocumentJoiner-Result.documents
+  sender: DocumentSplitter.documents
+- receiver: MoiDocumentCleaner-ImageOCR.documents
+  sender: ImageOCRDocumentSplitter.documents
+- receiver: MoiDocumentCleaner-ImageCaption.documents
+  sender: ImageCaptionDocumentSplitter.documents
+- receiver: ImageOCRDocumentSplitter.documents
+  sender: ImageOCRToDocument.documents
+- receiver: DocumentJoiner-Result.documents
+  sender: MoiDocumentCleaner-ImageOCR.documents
+- receiver: ImageCaptionDocumentSplitter.documents
+  sender: ImageCaptionToDocument.documents
+- receiver: DocumentJoiner-Result.documents
+  sender: MoiDocumentCleaner-ImageCaption.documents
+- receiver: PythonExecutor.documents
+  sender: DocumentJoiner-Result.documents
+- receiver: DocumentContentImageFiller.documents
+  sender: DocumentEmbedder.documents
+- receiver: DocumentWriter.documents
+  sender: DocumentContentImageFiller.documents
+- receiver: DocumentEmbedder.documents
+  sender: PythonExecutor.documents
+max_runs_per_component: 100
+metadata: {}

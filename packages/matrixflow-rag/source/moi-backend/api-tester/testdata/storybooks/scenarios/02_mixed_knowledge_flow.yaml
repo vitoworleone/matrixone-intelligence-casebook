@@ -1,0 +1,88 @@
+schema_version: "1"
+id: mixed_knowledge_flow
+title: 多文档混合知识库检索闭环
+profile: ci
+requires: [knowledge, explore, llm, embedding, parser]
+steps:
+  - id: create_knowledge
+    adapter: knowledge
+    action: create_from_assets
+    with:
+      name_prefix: sb_mixed_kb
+      assets:
+        - assets/mixed_policy.md
+        - assets/mixed_metrics.md
+    expect:
+      source_count: 2
+
+  - id: wait_knowledge
+    adapter: knowledge
+    action: wait_until_indexed
+    with:
+      model_id:
+        $ref: steps.create_knowledge.model_id
+      timeout_s: 360
+    expect:
+      source_count: 2
+      job_count: 2
+
+  - id: create_explore_session
+    adapter: explore
+    action: create_session
+    with:
+      title_prefix: sb_mixed_qa
+
+  - id: verify_cross_document_answer
+    adapter: explore
+    action: query_knowledge
+    with:
+      session_id:
+        $ref: steps.create_explore_session.session_id
+      message_session_id:
+        $ref: steps.create_explore_session.message_session_id
+      model_ids:
+        - $ref: steps.create_knowledge.model_id
+      question: Return the policy identifier and metrics identifier exactly, and nothing else.
+    expect:
+      answer_contains: [MIX-POLICY-4821, MIX-METRIC-6507]
+
+  - id: append_knowledge
+    adapter: knowledge
+    action: append_from_assets
+    with:
+      model_id:
+        $ref: steps.create_knowledge.model_id
+      assets: [assets/mixed_append.md]
+    expect:
+      source_count: 3
+
+  - id: wait_appended_knowledge
+    adapter: knowledge
+    action: wait_until_indexed
+    with:
+      model_id:
+        $ref: steps.create_knowledge.model_id
+      timeout_s: 360
+    expect:
+      source_count: 3
+      job_count: 3
+
+  - id: create_appended_explore_session
+    adapter: explore
+    action: create_session
+    with:
+      title_prefix: sb_mixed_append_qa
+
+  - id: verify_appended_document_answer
+    adapter: explore
+    action: query_knowledge
+    with:
+      session_id:
+        $ref: steps.create_appended_explore_session.session_id
+      message_session_id:
+        $ref: steps.create_appended_explore_session.message_session_id
+      model_ids:
+        - $ref: steps.create_knowledge.model_id
+      question: Return the appended identifier exactly, and nothing else.
+    expect:
+      answer_contains: [MIX-APPEND-7391]

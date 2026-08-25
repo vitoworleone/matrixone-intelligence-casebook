@@ -1,0 +1,91 @@
+.card {
+  height: 100%;
+  position: relative;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardClickable {
+  cursor: pointer;
+}
+
+.cardReadonly {
+  cursor: default;
+}
+
+.cardBody {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--moi-colorBgContainer, #ffffff);
+}
+
+.content {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.iconWrapper {
+  background: var(--moi-colorFillQuaternary, #f5f5f5);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.folderIconBg {
+  display: flex;
+  padding: 4px;
+  border-radius: 4px;
+  background-color: var(--moi-colorPrimary, #1677ff);
+  flex-shrink: 0;
+}
+
+.folderIcon {
+  font-size: 16px;
+  color: var(--moi-colorTextLightSolid, #ffffff);
+}
+
+.title {
+  font-size: 16px;
+}
+
+.remark {
+  margin-bottom: 8px;
+  color: var(--moi-colorTextSecondary, #8c8c8c);
+  min-height: 44px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--moi-colorBorderSecondary, #f0f0f0);
+}
+
+.statText {
+  font-size: 12px;
+}
+
+.dialogButton {
+  margin-left: auto;
+  border-color: var(--moi-colorPrimaryBorder, #91caff);
+  color: var(--moi-colorPrimary, #1677ff);
+  background: var(--moi-colorPrimaryBg, #e6f4ff);
+  border-radius: 6px;
+}
+
+.dialogButton:hover {
+  color: var(--moi-colorPrimaryTextHover, #0958d9) !important;
+  border-color: var(--moi-colorPrimaryBorderHover, #69b1ff) !important;
+  background: var(--moi-colorPrimaryBgHover, #bae0ff) !important;
+}
