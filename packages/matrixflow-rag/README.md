@@ -62,4 +62,4 @@
 - [后端知识库 API 测试](source/moi-backend/api-tester/tests/knowledge/)
 - [端到端与集成测试](source/moi-core/tests/)
 
-该快照覆盖知识库前后端、接入工作流、资源目录、Agent 知识工具、文本与视觉检索、Rerank、SDK、证据展示、评测及相关测试。Office 文档解析器和通用存储层属于共享上游基础设施，没有复制到本 RAG 包中。
+该快照覆盖知识库前后端、接入工作流、资源目录、Agent 知识工具、文本与视觉检索、Rerank、SDK、证据展示、评测及相关测试。
