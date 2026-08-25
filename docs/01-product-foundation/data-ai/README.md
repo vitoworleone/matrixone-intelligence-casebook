@@ -22,7 +22,6 @@ Data + AI 不是把数据库、文档和大模型简单拼接在一起，而是�
   <img src="assets/data-ai-research-to-product.png" alt="Data 加 AI 调研到 MatrixOne Intelligence 产品最小闭环导览" width="100%" />
 </p>
 
-可编辑源文件：[Excalidraw](assets/data-ai-research-to-product.excalidraw) · [SVG](assets/data-ai-research-to-product.svg)
 
 ## 章节导读
 
