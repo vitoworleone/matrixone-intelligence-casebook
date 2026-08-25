@@ -9,6 +9,10 @@ Show how enterprise documents can be parsed, converted into structured informati
 - [RAG 能力与平台调研](rag/rag-research.md)：平台能力、分块、召回、数据合成与文档解析的原始调研稿。
 - [RAG 策略与选型](rag/rag-strategy-and-selection.md)：是否投入 RAG、如何评估价值，以及如何选择实施路径。
 
+## 质量评估调研
+
+- [数据质量与文档解析效果评测](evaluation/data-quality-and-parsing-evaluation.md)：微调数据集质量、数据选择方法与文档解析评测框架。
+
 ## Required artifacts
 
 1. `product-brief.md`: users, scenario, outcome, and MVP boundary.
