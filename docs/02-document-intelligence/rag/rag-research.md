@@ -124,7 +124,7 @@ RAGFlow 提供了多种业务场景的分块模版
 
 | 场景 | 适用文件类型 | 切片与召回策略 |
 | --- | --- | --- |
-| 通用 | MD、DOCX、PPT、PDF、TXT、XLS、JPG、JSON、HTML.. | 切片<br>• 页面分块**并行任务**解析，每块的页数用户可自定义（默认12页一块）<br>• 先按照文本标识符分段，再根据文本大小合并分段（分段合并至不大于设置的文本块大小值）<br>• 表格转 HTML：<br>◦ 这里的表格是指 xls、xlsx<br>◦ 未开启该功能时，表格会被解析为键值对，因此仅适用于简单表格<br>◦ 已开启该功能时，表格会被解析为 HTML 格式，并按照 12 行一个分块<br>召回<br>• 为文件设置元数据，使用 json 来定义，元数据参与检索召回<br>• 关键词提取：为每个分块自动提取 N 个**关键字**，N 默认 0，最大 30，N 不是越大越好，太大边际效应会降低，1000 个字符的分段建议设置为 3-5，可手动增改关键字。<br>• 页面排名：在聊天助手回答**多知识库检索**时，该排名值的设置会影响最终检索评分，最终评分 = 检索评分 + 页面排名<br>• 问题提取：为每个分块提取 M 个**问题**，M 默认 0，最大 10 ，M 不是越大越好，太大边际效应会降低，1000 个字符的分段建议设置 1-2，可手动增改问题。这些问题用于提高用户查询的匹配度。 --跟 MaxKB 的 “分段关联问题” 差不多<br>• [标签集](https://ragflow.io/docs/dev/use_tag_sets)：知识库级别，用户手动维护一个封闭集，再将文本块自动关联这些标签。<br>• RAPTOR 策略：一种检索增强策略，将分好的块**根据语义相似性递归聚类**，旨在解决多跳问答问题。用户可以设置分块总结token数、分块间相似度阈值和最大聚类数，此过程会消耗大量计算资源。<br>![RAGFlow RAPTOR retrieval](../../../assets/screenshots/rag-research/ragflow-raptor-retrieval.png)<br>• 知识图谱：一种检索增强策略，将分好的块，旨在解决多跳回答和复杂问题的正确性。<br>◦ 实体类型：提供默认（组织、人员、事件和类别），也可以增删<br>◦ 提供两种构建方式：General、Light<br>◦ 实体归一化：默认关，打开后会合并相似实体<br>◦ 社区报告生成：默认关，为每个社区（由关系连接的实体群体）生成摘要 |
+| 通用 | MD、DOCX、PPT、PDF、TXT、XLS、JPG、JSON、HTML.. | 切片<br>• 页面分块**并行任务**解析，每块的页数用户可自定义（默认12页一块）<br>• 先按照文本标识符分段，再根据文本大小合并分段（分段合并至不大于设置的文本块大小值）<br>• 表格转 HTML：<br>◦ 这里的表格是指 xls、xlsx<br>◦ 未开启该功能时，表格会被解析为键值对，因此仅适用于简单表格<br>◦ 已开启该功能时，表格会被解析为 HTML 格式，并按照 12 行一个分块<br>召回<br>• 为文件设置元数据，使用 json 来定义，元数据参与检索召回<br>• 关键词提取：为每个分块自动提取 N 个**关键字**，N 默认 0，最大 30，N 不是越大越好，太大边际效应会降低，1000 个字符的分段建议设置为 3-5，可手动增改关键字。<br>• 页面排名：在聊天助手回答**多知识库检索**时，该排名值的设置会影响最终检索评分，最终评分 = 检索评分 + 页面排名<br>• 问题提取：为每个分块提取 M 个**问题**，M 默认 0，最大 10 ，M 不是越大越好，太大边际效应会降低，1000 个字符的分段建议设置 1-2，可手动增改问题。这些问题用于提高用户查询的匹配度。 --跟 MaxKB 的 “分段关联问题” 差不多<br>• [标签集](https://github.com/infiniflow/ragflow/blob/main/docs/guides/dataset/configuration.md)：知识库级别，用户手动维护一个封闭集，再将文本块自动关联这些标签。<br>• RAPTOR 策略：一种检索增强策略，将分好的块**根据语义相似性递归聚类**，旨在解决多跳问答问题。用户可以设置分块总结token数、分块间相似度阈值和最大聚类数，此过程会消耗大量计算资源。<br>![RAGFlow RAPTOR retrieval](../../../assets/screenshots/rag-research/ragflow-raptor-retrieval.png)<br>• 知识图谱：一种检索增强策略，将分好的块，旨在解决多跳回答和复杂问题的正确性。<br>◦ 实体类型：提供默认（组织、人员、事件和类别），也可以增删<br>◦ 提供两种构建方式：General、Light<br>◦ 实体归一化：默认关，打开后会合并相似实体<br>◦ 社区报告生成：默认关，为每个社区（由关系连接的实体群体）生成摘要 |
 | Q&A | xlsx、csv、txt | 原始文件要求<br>• xls：两列组成，问题、答案<br>• csv、txt：UTF-8编码，并 TAP 分开问题和答案<br>切片：无说明，猜测是一行一个分块<br>召回：只有标签集和页面排名 |
 | 表格 | xlsx、csv、txt | 原始文件要求<br>• 第一行必须是标题列<br>• 列名必须是有意义的术语，方便 LLM 理解，最好写成这样 gender/sex(male,female)<br>切片<br>• 每一行一个块<br>召回：只有页面排名 |
 | 简历 | docx、pdf、txt | 切片：no，做结构化提取，模版预置且看不到、改不了<br>召回：只有标签集和页面排名 |
@@ -208,9 +208,9 @@ RAGFlow 提供了多种业务场景的分块模版
 
 一体化 AI 应用程序，可以执行 RAG、AI Agent 等
 
-github：GitHub \- Mintplex\-Labs/anything\-llm: The all\-in\-one Desktop & Docker AI application with built\-in RAG, AI agents, No\-code agent builder, MCP compatibility,  and more\.
+GitHub：[Mintplex Labs / AnythingLLM](https://github.com/Mintplex-Labs/anything-llm)
 
-文档：https://docs\.anythingllm\.com/
+文档：[AnythingLLM 官方文档](https://docs.anythingllm.com/)
 
 没有找到什么关于分段和召回策略的细节说明，比较黑盒
 
