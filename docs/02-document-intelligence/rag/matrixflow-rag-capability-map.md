@@ -4,7 +4,7 @@
 
 本表把 [RAG 能力与平台调研](rag-research.md) 中出现的能力与 Matrixflow 当前代码事实分开标注：
 
-审阅基准：2026-08-25，Matrixflow 源码提交 `d4b7995fabb906cf2c492a9d27ac0680e60fbee6`。下文所说的“当前”均指该版本。
+审阅基准：2026-08-25。源码快照来自 Matrixflow 提交 `d4b7995fabb906cf2c492a9d27ac0680e60fbee6`；另外对当日最新 `upstream/dev` 提交 `3f01f9516492a9da4f911a44ab4ff7aec7744663` 做了同项静态检索。下文所说的“当前”指这次核验范围。
 
 - **已实现**：在本次审阅范围内能找到生产代码路径或接口语义；
 - **部分具备**：有底层服务或相邻能力，但没有确认该能力已经接入目标主链路；
@@ -21,6 +21,7 @@
 | 结构化表查询 | 选定 Catalog 表后，通过 `describe_schema` 检查范围和字段，再由 `query_sql` 执行只读 SQL。 | 已实现 | 这是 SQL / NL2SQL 链路，不是把表数据 embedding 后纳入全文+向量 RAG。 |
 | 文档解析后入库 | `rag_ingest` 来源作业与解析/向量行发布后创建当前分段版本。 | 已实现 | 解析质量、格式覆盖和 OCR 效果需单独评测。 |
 | 文本分段管理 | 初始导入、编辑、新增、启停、删除、重嵌入、历史版本切换。 | 已实现 | 未确认有面向所有业务场景的用户可配置切片规则。 |
+| 文档/节/块多层索引 | 默认 ingest 通过 `moi:retrieval.index.multilevel` 生成 `doc / section / chunk` 条目；文件定位读取 doc 层，分段召回读取 chunk 层，文件级表格命中可使用 section 范围扩展。 | 已实现 | 文档层和节层内容由确定性拼接/截断生成，不是递归聚类或 LLM 摘要；一般文本仍按 parent 邻近范围扩展。 |
 | 向量化 | 文本 embedding model 与 vector table 绑定；版本物化时写入向量行。 | 已实现 | 模型可选范围取决于运行环境配置。 |
 | 图像向量化 | 可选图片向量表和图片 embedding model，单独管理兼容性与分段。 | 已实现 | 不代表每一种文档都必然生成图片向量。 |
 | 全文检索 | `fulltext` 路由。 | 已实现 | 不是 BM25 或关键词权重开关的同义词。 |
@@ -45,7 +46,8 @@
 
 | 调研能力 | Matrixflow 对应实现 | 状态 | 表述边界 |
 | --- | --- | --- | --- |
-| Rerank 服务 | 仓库提供独立 `/v1/rerank` 服务。 | 部分具备 | 未确认主文本 `SearchRAGChunks` 在生产请求中调用该服务。 |
+| 独立 Rerank 服务 | 仓库提供 `/v1/rerank` 服务、Go 客户端与测试。 | 已实现 | 这是可部署能力，不代表所有检索链路已经接入。 |
+| 主文本 Cross-encoder Rerank | `search_rag_chunks` 当前装配 SQL executor 与 embedder；没有找到 `NewOpenAIReranker` 或 rerank 客户端的生产调用。 | 未发现接入 | 不能把独立服务存在写成主文本召回已经完成二阶段重排。 |
 | 视觉候选融合 | 文本/图片视觉命中按 reciprocal rank fusion 聚合。 | 已实现 | 这是视觉检索的评分路径。 |
 | 视觉约束重排 | 面向对象或文本/表格区域的约束匹配、加分与重排。 | 已实现 | 不应称为通用 cross-encoder rerank。 |
 | 查询改写 | 本轮未找到核心链路实现。 | 未发现 | 不要以“多轮优化”或“问题优化”作为已交付功能。 |
@@ -59,8 +61,8 @@
 
 | 调研能力 | Matrixflow 对应实现 | 状态 | 表述边界 |
 | --- | --- | --- | --- |
-| 知识图谱 / GraphRAG | 本轮未在知识库、检索或 Agent 工具生产路径中找到实体、关系、图查询、社区报告实现。 | 未发现 | 不要以“支持知识图谱检索”对外描述。 |
-| RAPTOR | 本轮未找到递归聚类、摘要节点或多层树检索实现。 | 未发现 | 不要将邻近分段扩展写成 RAPTOR。 |
+| 知识图谱 / GraphRAG | 当前代码和最新 `upstream/dev` 中未在知识库、检索或 Agent 工具生产路径找到实体、关系、图存储/查询、社区发现或社区报告实现。 | 未发现 | 前端 mock 中的“知识图谱”能力描述不是生产实现证据。 |
+| RAPTOR | 已实现确定性的文档/节/块多层索引；文件级表格命中可按 section 扩展，但未找到递归聚类、模型生成摘要节点或树形递归检索。 | 未发现 RAPTOR 实现 | 可以说“多粒度索引已实现”，不能把它直接命名为 RAPTOR。 |
 | 多跳检索 | Agent 可调用检索工具，但未确认自动问题分解、循环检索或多跳编排策略。 | 未确认 | 可以说“具备供 Agent 使用的检索工具”，不能说“已实现自动多跳 RAG”。 |
 | 自反思 / 自评 | 本轮未找到 Agent 对检索/回答自动反思与重试闭环。 | 未发现 | 不要按 Agentic RAG 完整闭环表述。 |
 | 事实核验 / Verifier | 本轮未找到 NLI、规则或检索式事实核验链路。 | 未发现 | 证据提供不等于已验证事实正确。 |
@@ -105,6 +107,7 @@ DataFlow 中“原始文件 → 分段 → 多跳 QA”一类流程可以是未�
 | 来源、分段、版本和治理接口 | [接口与版本](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_interface.go)、[API 说明](../../../packages/matrixflow-rag/source/moi-backend/pkg/handlers/session/semantic_model.md) |
 | 来源作业与 ingest 推进 | [来源作业](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_kb_jobs.go) |
 | embedding、文本/图片向量、版本物化 | [分段与向量](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_segments.go) |
+| 文档/节/块多层索引 | [多层索引 WorkItem](../../../packages/matrixflow-rag/source/moi-core/workers/go-worker/pkg/workitems/retrieval_index_multilevel.go)、[索引器](../../../packages/matrixflow-rag/source/moi-core/workers/go-worker/pkg/workitems/multilevel/indexer.go)、[默认 ingest](../../../packages/matrixflow-rag/source/moi-core/workflows/rag-ingest-default-v1.yaml) |
 | 检索范围、工具请求与命中 schema | [工具结构](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schema_core.go) |
 | 结构化表 schema 与只读 SQL | [Schema 查询](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/describe_schema.go)、[SQL 查询](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/query_sql.go) |
 | SQL、文档与视觉工具的范围装配 | [工具过滤与提示词](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agents/platform_knowledge_tool_filter.go)、[知识工具装配](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agents/platform_knowledge_tools.go) |
@@ -112,3 +115,5 @@ DataFlow 中“原始文件 → 分段 → 多跳 QA”一类流程可以是未�
 | 视觉融合与重排 | [视觉检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search.go)、[视觉重排](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search_ranking.go) |
 | 回答证据类型与选择约束 | [证据 schema](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schemas.go)、[默认 Data Agent](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agentresource/systemagents/knowledge-explore/agent.json)、[中文提示词](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agentresource/systemagents/knowledge-explore/system_prompt.zh-CN.md) |
 | 可部署 rerank 服务 | [Rerank 服务](../../../packages/matrixflow-rag/source/moi-core/rerank/) |
+
+完整的代码检索证据、历史边界和 Matrixflow 知识库文档目录见 [Matrixflow 知识库代码与文档核验](matrixflow-knowledge-code-and-doc-audit.md)。

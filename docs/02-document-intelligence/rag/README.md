@@ -23,12 +23,16 @@
 | --- | --- | --- |
 | 知识库接入 | 支持本地文件、Catalog 文件、Catalog 表及来源选择；来源通过持久化作业推进。 | 已实现 |
 | 分段与索引 | 初始分段导入、编辑/新增/启停/删除、重嵌入、历史版本切换；文本和可选图片向量分开管理。 | 已实现 |
+| 多粒度索引 | 默认 ingest 可生成 `doc / section / chunk` 三层条目；检索以 doc 定位文件、以 chunk 召回，文件级表格命中可按 section 范围扩展证据。 | 已实现 |
 | 文本检索 | 全文和 `vector_l2` 两条路由并行取候选、合并排序，再扩展邻近证据。 | 已实现 |
 | 表格与图像证据 | 命中后可聚焦表格行，并关联嵌入图片与邻近图片；视觉检索融合文本和图片命中。 | 已实现 |
 | 来源治理 | source 启用状态、有效期、标签和当前索引版本会影响可检索范围。 | 已实现 |
-| Agent 调用 | Agent 可以使用 `FindRAGFiles` 和 `SearchRAGChunks` 取得检索结果。 | 已实现 |
-| Rerank | 提供独立 rerank 服务；视觉检索有 RRF 与约束重排。未确认主文本 RAG 已接入 cross-encoder。 | 部分具备 |
-| GraphRAG / RAPTOR | 本轮审阅未在上述生产链路中找到实现。 | 不应宣称已实现 |
+| Agent 调用 | Agent 可以使用 `find_rag_files` 和 `search_rag_chunks` 取得检索结果。 | 已实现 |
+| 独立 Cross-encoder Rerank | 提供 `/v1/rerank` 服务、Go 客户端与测试。 | 已实现 |
+| 主文本检索接入 Rerank | 当前 `search_rag_chunks` 只装配 SQL executor 与 embedder，未找到独立 rerank 客户端的生产调用方。 | 未接入当前主链路 |
+| 视觉融合与重排 | 视觉检索有 RRF 融合及区域/对象约束重排。 | 已实现 |
+| GraphRAG | 未找到实体关系抽取、图存储/图查询或社区报告生产链路。 | 未发现 |
+| RAPTOR | 已有非递归的三层索引，但未找到递归聚类、模型摘要节点与树形检索。 | 未发现 RAPTOR 实现 |
 
 ## 文档导航
 
@@ -36,6 +40,7 @@
 - [RAG 策略与选型](rag-strategy-and-selection.md)：是否投入 RAG、优先场景与选型维度。
 - [Matrixflow RAG 架构](matrixflow-rag-architecture.md)：数据如何进入知识库、如何被检索、如何变成 Agent 可用证据。
 - [Matrixflow RAG 能力映射与边界](matrixflow-rag-capability-map.md)：将调研能力逐项映射到当前实现，并标出尚未确认或未发现的部分。
+- [Matrixflow 知识库代码与文档核验](matrixflow-knowledge-code-and-doc-audit.md)：代码调用链、Rerank/GraphRAG/RAPTOR 结论、源码快照缺项与 Matrixflow 内部文档索引。
 - [Matrixflow RAG 源码快照](../../../packages/matrixflow-rag/)：知识库、检索、视觉搜索、Agent 工具、Rerank 与对应测试。
 
 ## 阅读边界

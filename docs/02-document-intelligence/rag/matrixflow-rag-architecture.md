@@ -4,11 +4,12 @@
 
 本文描述 Matrixflow 当前与 RAG 直接相关的产品与技术链路，而不是通用 RAG 的理想架构，也不是对 [RAG 能力与平台调研](rag-research.md) 中外部产品功能的转述。对应实现已经整理到[源码快照](../../../packages/matrixflow-rag/)。
 
-审阅基准：2026-08-25，Matrixflow 源码提交 `d4b7995fabb906cf2c492a9d27ac0680e60fbee6`。下文所说的“当前”均指该版本。
+审阅基准：2026-08-25。源码快照来自 Matrixflow 提交 `d4b7995fabb906cf2c492a9d27ac0680e60fbee6`；另外对当日最新 `upstream/dev` 提交 `3f01f9516492a9da4f911a44ab4ff7aec7744663` 做了关键能力静态复核。
 
 | 模块 | 在 RAG 链路中的职责 |
 | --- | --- |
 | [知识库生命周期](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/) | 知识库、来源、来源作业、分段版本与向量绑定的生命周期。 |
+| [RAG ingest 与多层索引](../../../packages/matrixflow-rag/source/moi-core/workers/go-worker/pkg/workitems/) | 文档解析后的切分，以及 doc/section/chunk 三层索引条目的生成。 |
 | [Agent 知识工具](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/) | Agent 可调用的文件定位、文本分段检索、视觉检索、检索上下文与结果呈现。 |
 | [结构化表查询](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/) | 在选定 Catalog 表范围内进行 schema 检查和只读 SQL 查询。 |
 | [Agent 范围与工具装配](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agents/) | 根据知识范围分别启用 SQL、文档 RAG、视觉检索和最终证据选择能力。 |
@@ -69,6 +70,18 @@
 
 文本与图片索引并非同一字段的不同展示。后端为它们维护独立表与兼容性校验，视觉检索再在结果层完成融合。
 
+### 2.3 文档、节与块的多粒度索引
+
+默认 `rag-ingest-default-v1` 工作流在切分后执行 `moi:retrieval.index.multilevel`，并默认启用多层索引。该 WorkItem 为每份文件生成三类条目：
+
+- `doc`：拼接文档开头若干 chunk，并按字符上限截断，供 `find_rag_files` 定位文件；
+- `section`：按连续 chunk 数量与字节预算分组，记录 `chunk_start` / `chunk_end`；
+- `chunk`：保留原始 chunk 内容，补充文件级全局 `chunk_index`、`doc_id`、`section_id` 与 `index_version`。
+
+`search_rag_chunks` 的全文与向量召回都只搜索 `chunk` 层。对带文件级 `chunk_index_scope` 的表格命中，检索会查询覆盖锚点的 `section`，再读取该 section 范围内的 chunk；一般文本命中则按 `parent_index` 邻近范围扩展。因此，多粒度索引确实已进入 ingest 和检索生产路径，但 section 不是每类命中的统一扩展方式。
+
+这不是 RAPTOR：当前文档层与节层内容采用确定性拼接、分组和截断，没有递归聚类、LLM 摘要节点或递归树检索。
+
 ## 3. 结构化表查询链路
 
 当 Agent 的知识范围包含 Catalog 表时，运行时会为结构化表启用两类工具：
@@ -109,7 +122,7 @@
 1. 全文路由（`fulltext`）；
 2. 向量 L2 路由（`vector_l2`）。
 
-返回的候选会合并、去重和排序。代码会另外计算查询词的字面匹配信号，用于候选之间的稳定排序；这不是调研中“可由用户配置关键词权重”的产品开关。响应会记录实际路由、全文/向量行数和 embedding model，便于调用方解释一次检索来自哪里。
+两条路由都以 `level = 'chunk'` 为条件。返回的候选会合并、去重和排序。代码会另外计算查询词的字面匹配信号，用于候选之间的稳定排序；这不是调研中“可由用户配置关键词权重”的产品开关。响应会记录实际路由、全文/向量行数和 embedding model，便于调用方解释一次检索来自哪里。
 
 ### 4.4 从命中块到可读证据
 
@@ -157,15 +170,15 @@
 
 仓库有可独立部署的 `/v1/rerank` 服务，默认配置示例使用 `BAAI/bge-reranker-base`，支持 Torch 与 ONNX 运行方式。与此同时，视觉检索中已有 RRF 融合及约束型重排。
 
-本次审阅没有确认主 `search_rag_chunks` 链路调用该 `/v1/rerank` 服务。因此当前准确表述是：**具备可部署 rerank 能力，且视觉检索已有结果重排；主文本 RAG 的 cross-encoder 接入状态待运行链路验证。**
+静态调用链显示，主 `search_rag_chunks` 当前只装配 SQL executor 与 embedder；`NewOpenAIReranker` 只在 rerank 客户端测试中被调用，未找到该客户端的生产调用方。因此当前准确表述是：**独立 rerank 服务与客户端已实现，视觉检索也已有结果重排；主文本 RAG 尚未发现 cross-encoder 接入。**
 
 ## 8. 与调研内容的边界
 
-当前代码覆盖了 Native RAG 与部分 Advanced RAG：文档和结构化表接入、分段版本、向量化、文档全文+向量混合召回、结构化表 SQL 查询、元数据/来源治理、文档内表格与图片证据增强、Agent 工具调用和回答证据选择。
+当前代码覆盖了 Native RAG 与部分 Advanced RAG：文档和结构化表接入、分段版本、文档/节/块多层索引、向量化、文档全文+向量混合召回、结构化表 SQL 查询、元数据/来源治理、文档内表格与图片证据增强、Agent 工具调用和回答证据选择。
 
 本次审阅未在核心生产路径中发现下列实现，不应使用“已支持”描述：
 
-- RAPTOR 递归聚类；
+- RAPTOR 的递归聚类、模型摘要节点与树形递归检索；现有三层索引不应直接命名为 RAPTOR；
 - 知识图谱、实体归一化、社区报告或 GraphRAG；
 - 自动关键词提取、自动问题提取、页面排名；
 - RAGFlow 风格的简历/法律/书籍/手册等预设切片模板；
@@ -181,6 +194,7 @@
 | 知识库接口、来源与分段版本语义 | [接口与版本](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_interface.go)、[API 说明](../../../packages/matrixflow-rag/source/moi-backend/pkg/handlers/session/semantic_model.md) |
 | 来源作业及 RAG ingest | [来源作业](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_kb_jobs.go) |
 | 文本/图片向量与分段物化 | [分段与向量](../../../packages/matrixflow-rag/source/moi-backend/pkg/session/semantic_model_segments.go) |
+| 文档/节/块多层索引 | [多层索引 WorkItem](../../../packages/matrixflow-rag/source/moi-core/workers/go-worker/pkg/workitems/retrieval_index_multilevel.go)、[索引器](../../../packages/matrixflow-rag/source/moi-core/workers/go-worker/pkg/workitems/multilevel/indexer.go)、[测试](../../../packages/matrixflow-rag/source/moi-core/workers/go-worker/pkg/workitems/multilevel/indexer_test.go) |
 | 知识工具契约与结果上下文 | [工具结构](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schema_core.go)、[上下文](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/context.go)、[工具实现](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/tools.go) |
 | 结构化表 schema 与只读 SQL | [Schema 查询](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/describe_schema.go)、[SQL 查询](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/query_sql.go) |
 | SQL、文档与视觉工具的范围装配 | [工具过滤与提示词](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agents/platform_knowledge_tool_filter.go)、[知识工具装配](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agents/platform_knowledge_tools.go) |
@@ -188,3 +202,5 @@
 | 视觉检索、融合与约束重排 | [视觉检索](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search.go)、[视觉重排](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/service/visual_search_ranking.go) |
 | 回答证据类型与选择约束 | [证据 schema](../../../packages/matrixflow-rag/source/moi-core/agent-tools/knowledge/schemas.go)、[默认 Data Agent](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agentresource/systemagents/knowledge-explore/agent.json)、[中文提示词](../../../packages/matrixflow-rag/source/moi-core/catalog/pkg/agentresource/systemagents/knowledge-explore/system_prompt.zh-CN.md) |
 | 独立 rerank 服务 | [Rerank 服务](../../../packages/matrixflow-rag/source/moi-core/rerank/) |
+
+更完整的代码调用链、文档目录和未实现项证据见 [Matrixflow 知识库代码与文档核验](matrixflow-knowledge-code-and-doc-audit.md)。

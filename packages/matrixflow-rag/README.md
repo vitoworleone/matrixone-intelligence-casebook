@@ -35,6 +35,15 @@
 - [视觉融合与约束重排](source/moi-core/agent-tools/knowledge/service/visual_search_ranking.go)
 - [视觉检索测试](source/moi-core/agent-tools/knowledge/service/visual_search_test.go)
 
+## RAG ingest 与多粒度索引
+
+- [默认 RAG ingest 工作流](source/moi-core/workflows/rag-ingest-default-v1.yaml)
+- [知识库索引组合 WorkItem](source/moi-core/workers/go-worker/pkg/workitems/user_composite.go)
+- [文档/节/块多层索引 WorkItem](source/moi-core/workers/go-worker/pkg/workitems/retrieval_index_multilevel.go)
+- [多层索引器与测试](source/moi-core/workers/go-worker/pkg/workitems/multilevel/)
+- [WorkItem 注册](source/moi-core/workers/go-worker/pkg/worker/workitems.go)
+- [WorkItem 行为说明](source/moi-core/docs/workflow/WORKITEMS.md)
+
 ## Rerank 服务
 
 - [Rerank 完整目录](source/moi-core/rerank/)
@@ -42,6 +51,8 @@
 - [Python 服务入口](source/moi-core/rerank/app.py)
 - [Go 客户端](source/moi-core/rerank/openai.go)
 - [Go 客户端测试](source/moi-core/rerank/openai_test.go)
+
+独立服务与客户端已经实现；当前快照没有发现主文本 `search_rag_chunks` 对该客户端的生产调用。视觉检索的 RRF 与约束重排是另一条已实现路径。
 
 ## 接入工作流与资源目录
 
@@ -62,4 +73,40 @@
 - [后端知识库 API 测试](source/moi-backend/api-tester/tests/knowledge/)
 - [端到端与集成测试](source/moi-core/tests/)
 
-该快照覆盖知识库前后端、接入工作流、资源目录、Agent 知识工具、文本与视觉检索、Rerank、SDK、证据展示、评测及相关测试。
+## Matrixflow 知识库文档
+
+### 当前契约与使用说明
+
+- [知识库 Workflow 治理接入手册](source/docs/handbooks/knowledge-base-workflow-governance.md)
+- [Backend 与 Core 集成手册](source/docs/handbooks/moi-backend-moi-core-integration.md)
+- [知识库 API 与行为说明](source/moi-backend/pkg/handlers/session/semantic_model.md)
+- [内置 Skill 与工具清单](source/docs/moi-built-in-skills-and-tools.md)
+- [RAG ingest 工作流说明](source/moi-core/docs/workflow/RAG_INGEST.md)
+- [WorkItem 行为说明](source/moi-core/docs/workflow/WORKITEMS.md)
+- [知识库前端说明与设计](source/moi-frontend/modules/moi-knowledge/)
+
+### API、SDK 与 Agent 运行时
+
+- [Catalog API](source/moi-core/docs/api/catalog-api.md)
+- [Go SDK API](source/moi-core/docs/api/go-sdk-api.md)
+- [Python SDK API](source/moi-core/docs/api/python-sdk-api.md)
+- [SDK 使用指南](source/moi-core/docs/guide/SDK_GUIDE.md)
+- [Agent A2A API](source/moi-core/docs/api/agent-a2a-api.md)
+- [Agent Runtime v2 Trace](source/moi-core/docs/design/agent-runtime-v2-trace.md)
+
+### 运行分析与验收
+
+- [Semantic Model 慢查询分析](source/docs/analysis/20260706-prod-semantic-models-slow-query.md)
+- [知识库流水线可靠性扫描](source/docs/analysis/20260707-kb-pipeline-reliability-scan.md)
+- [同库 Catalog 表克隆验收](source/dev/docs/doing/2026-07-07-kb-catalog-table-clone-same-db-acceptance.md)
+- [知识库产品矩阵 Skill](source/skills/kb-product-matrix/)
+- [最近一次通过的矩阵报告](source/skills/kb-product-matrix/testdata/last-passed-matrix-report.json)
+
+### 设计与规划资料
+
+- [Agent Runtime A2A 设计](source/moi-core/docs/design/agent-runtime-a2a.md)
+- [Agent 原型资源路线图](source/moi-core/docs/design/agent-prototype-resource-roadmap.md)
+
+设计与规划资料用于解释目标和演进方向，不能单独作为当前生产能力的证明。
+
+该快照覆盖知识库前后端、接入工作流、多粒度索引、资源目录、Agent 知识工具、文本与视觉检索、Rerank、SDK、证据展示、运行分析、验收矩阵及相关测试。审阅结论见 [Matrixflow 知识库代码与文档核验](../../docs/02-document-intelligence/rag/matrixflow-knowledge-code-and-doc-audit.md)。

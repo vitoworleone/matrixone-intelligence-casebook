@@ -1,0 +1,519 @@
+{
+  "ok": true,
+  "status": "MATRIX_PASSED",
+  "suffix": "matrix-20260814-011324",
+  "workspace_id": "7313faa5-d542-6a60-b4d3-1b7c106a142c",
+  "endpoint": "http://127.0.0.1:19050/newmoi",
+  "frontend": "http://localhost:18000",
+  "generated_at": "2026-08-14T01:13:31+08:00",
+  "checks": [
+    {
+      "cell": "M1",
+      "name": "create_empty",
+      "pass": true,
+      "detail": "name=kb-matrix-empty-matrix-20260814-011324"
+    },
+    {
+      "cell": "M1",
+      "name": "get",
+      "pass": true,
+      "detail": "id=1"
+    },
+    {
+      "cell": "M1",
+      "name": "get_name",
+      "pass": true,
+      "detail": "kb-matrix-empty-matrix-20260814-011324"
+    },
+    {
+      "cell": "M1",
+      "name": "list",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "cell": "M1",
+      "name": "list_contains",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "cell": "M1",
+      "name": "list_catalogs",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "cell": "M1",
+      "name": "empty_database_created",
+      "pass": true,
+      "detail": "database_id=2 path=Knowledge Base Catalog/kb-matrix-empty-matrix-20260814-011324"
+    },
+    {
+      "cell": "M1",
+      "name": "update_same_name",
+      "pass": true,
+      "detail": "kb-matrix-empty-matrix-20260814-011324"
+    },
+    {
+      "cell": "M1",
+      "name": "update_rename_rejected",
+      "pass": true,
+      "detail": "[ErrParamInvalid] Knowledge base name cannot be changed (request_id: 8c224ea5-405a-42d2-962e-e16cb2b2e6c5)"
+    },
+    {
+      "cell": "M1",
+      "name": "get_after_update",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "cell": "M1",
+      "name": "name_unchanged_after_rename_attempt",
+      "pass": true,
+      "detail": "kb-matrix-empty-matrix-20260814-011324"
+    },
+    {
+      "cell": "M1",
+      "name": "delete",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "cell": "M5",
+      "name": "list_workflow_templates",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "cell": "M5",
+      "name": "template_standard_rag_present",
+      "pass": true,
+      "detail": "key=standard_rag"
+    },
+    {
+      "cell": "M10",
+      "name": "template_image_index_present",
+      "pass": true,
+      "detail": "key=standard_rag_with_image_index"
+    },
+    {
+      "cell": "M2",
+      "name": "create_user_table",
+      "pass": true,
+      "detail": "kb_matrix_tbl_matrix_20260814_011324"
+    },
+    {
+      "cell": "M2",
+      "name": "table_id",
+      "pass": true,
+      "detail": "table_id=1"
+    },
+    {
+      "cell": "M2",
+      "name": "create_kb_with_table",
+      "pass": true,
+      "detail": "kb-matrix-table-matrix-20260814-011324"
+    },
+    {
+      "cell": "M2",
+      "name": "domain_not_user_catalog",
+      "pass": true,
+      "detail": "domain.catalog_id=2 user_catalog=3"
+    },
+    {
+      "cell": "M2",
+      "name": "kb_name",
+      "pass": true,
+      "detail": "kb-matrix-table-matrix-20260814-011324"
+    },
+    {
+      "cell": "M2",
+      "name": "kb_db_physical_name",
+      "pass": true,
+      "detail": "name=\"kb-matrix-table-matrix-20260814-011324\" display_name=\"\" want_name=\"kb-matrix-table-matrix-20260814-011324\""
+    },
+    {
+      "cell": "M2",
+      "name": "list_sources",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "cell": "M2",
+      "name": "list_has_table_source",
+      "pass": true,
+      "detail": "display=\"kb_matrix_tbl_matrix_20260814_011324\" n=1"
+    },
+    {
+      "cell": "M3",
+      "name": "open_csv",
+      "pass": true,
+      "detail": "optools/matrixflow/moi-connector/agent_home_guide_sample_files/team_member_map.csv"
+    },
+    {
+      "cell": "M3",
+      "name": "connector_local_upload",
+      "pass": true,
+      "detail": "team_member_map.csv"
+    },
+    {
+      "cell": "M3",
+      "name": "upload_ids",
+      "pass": true,
+      "detail": "attempt=1 conn_file_ids=[637915000008] file_ids=[e1b2f6e1-3f5f-4346-bd89-5f85fd04034c]"
+    },
+    {
+      "cell": "M3",
+      "name": "create_structured_kb",
+      "pass": true,
+      "detail": "kb-matrix-struct-matrix-20260814-011324"
+    },
+    {
+      "cell": "M3",
+      "name": "domain_catalog_positive",
+      "pass": true,
+      "detail": "catalog_id=2"
+    },
+    {
+      "cell": "M3",
+      "name": "structured_settled",
+      "pass": true,
+      "detail": "attempt=1 status=source:succeeded/reg_struct_matrix_20260814_011324 structSourceOK=true"
+    },
+    {
+      "cell": "M3",
+      "name": "list_sources_final",
+      "pass": true,
+      "detail": "3"
+    },
+    {
+      "cell": "M3",
+      "name": "has_source_row",
+      "pass": true,
+      "detail": "n=1"
+    },
+    {
+      "cell": "M4",
+      "name": "upload_local_file",
+      "pass": true,
+      "detail": "MatrixOne_Local_matrix-20260814-011324.pdf"
+    },
+    {
+      "cell": "M4",
+      "name": "local_file_id",
+      "pass": true,
+      "detail": "file_id=fd88d924-f4b3-47ff-833e-53941869bb77"
+    },
+    {
+      "cell": "M4",
+      "name": "create_kb_local_file",
+      "pass": true,
+      "detail": "kb-matrix-local-matrix-20260814-011324"
+    },
+    {
+      "cell": "M4",
+      "name": "ingest_succeeded",
+      "pass": true,
+      "detail": "4"
+    },
+    {
+      "cell": "M5",
+      "name": "domain_not_source_catalog",
+      "pass": true,
+      "detail": "domain.catalog_id=2 source_catalog=3"
+    },
+    {
+      "cell": "M5",
+      "name": "source_jobs_settled",
+      "pass": true,
+      "detail": "reconcile_required=false total=0"
+    },
+    {
+      "cell": "M5",
+      "name": "source_type",
+      "pass": true,
+      "detail": "file"
+    },
+    {
+      "cell": "M5",
+      "name": "ingest_succeeded",
+      "pass": true,
+      "detail": "succeeded"
+    },
+    {
+      "cell": "M5",
+      "name": "segment_version",
+      "pass": true,
+      "detail": "kb-segver-4aac7a277cd52e1baf8e8634"
+    },
+    {
+      "cell": "M5",
+      "name": "index_version",
+      "pass": true,
+      "detail": "1786641252052"
+    },
+    {
+      "cell": "M5",
+      "name": "raw_volume_no_source",
+      "pass": true,
+      "detail": "raw_volume_id=11"
+    },
+    {
+      "cell": "M5",
+      "name": "has_artifact",
+      "pass": true,
+      "detail": "parsed=316e69e7-49c6-4ffa-889a-1d2d335496fd"
+    },
+    {
+      "cell": "M5",
+      "name": "source_role_not_output",
+      "pass": true,
+      "detail": "role=\"\""
+    },
+    {
+      "cell": "M5",
+      "name": "lineage_source_to_output",
+      "pass": true,
+      "detail": "output=18f93b34-35ba-42ad-8e12-fa820532d8cb parsed=316e69e7-49c6-4ffa-889a-1d2d335496fd"
+    },
+    {
+      "cell": "M5",
+      "name": "artifact_role_output",
+      "pass": true,
+      "detail": "role=\"output\" row=18f93b34-35ba-42ad-8e12-fa820532d8cb"
+    },
+    {
+      "cell": "M5",
+      "name": "execution_completed",
+      "pass": true,
+      "detail": "id=6e190822-b835-4948-9200-95489a151f78 status=completed visible=true start=started"
+    },
+    {
+      "cell": "M6",
+      "name": "create_session",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "cell": "M6",
+      "name": "stream_text",
+      "pass": true,
+      "detail": "文档说 MatrixOne 通过统一架构将数据组件和技术栈减少了多少？"
+    },
+    {
+      "cell": "M6",
+      "name": "parse_sse",
+      "pass": true,
+      "detail": "completed"
+    },
+    {
+      "cell": "M6",
+      "name": "final_completed",
+      "pass": true,
+      "detail": "completed"
+    },
+    {
+      "cell": "M6",
+      "name": "answer_has_80",
+      "pass": true,
+      "detail": "根据文档，MatrixOne 通过统一架构，将引入的**数据组件和技术栈数量减少了 80%**。\n\n具体而言，文档指出：随着业务演进，企业使用的数据引擎和中间件..."
+    },
+    {
+      "cell": "M6",
+      "name": "source_ref_hit",
+      "pass": true,
+      "detail": "task=task-6ab8689d-f17b-515e-98fc-840eb1b93b73 refs=1"
+    },
+    {
+      "cell": "M7",
+      "name": "append_sources",
+      "pass": true,
+      "detail": "eb16921e-6bf8-4765-9185-b87700fa2bc9"
+    },
+    {
+      "cell": "M7",
+      "name": "append_source_listed",
+      "pass": true,
+      "detail": "row=kb-source-62697deeaa62d80599d7a858 file=eb16921e-6bf8-4765-9185-b87700fa2bc9"
+    },
+    {
+      "cell": "M8",
+      "name": "create_entry",
+      "pass": true,
+      "detail": "id=1"
+    },
+    {
+      "cell": "M8",
+      "name": "list_entries",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "cell": "M8",
+      "name": "list_contains_entry",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "cell": "M8",
+      "name": "delete_entry",
+      "pass": true,
+      "detail": "<nil>"
+    },
+    {
+      "cell": "M9",
+      "name": "delete_source",
+      "pass": true,
+      "detail": "row=kb-source-62697deeaa62d80599d7a858 err=<nil>"
+    },
+    {
+      "cell": "M9",
+      "name": "source_removed",
+      "pass": true,
+      "detail": "kb-source-62697deeaa62d80599d7a858"
+    },
+    {
+      "cell": "M5",
+      "name": "check_existence",
+      "pass": true,
+      "detail": "ok"
+    },
+    {
+      "cell": "M10",
+      "name": "create_with_image_index",
+      "pass": true,
+      "detail": "6"
+    },
+    {
+      "cell": "M10",
+      "name": "get_model",
+      "pass": true,
+      "detail": "6"
+    },
+    {
+      "cell": "M10",
+      "name": "source_jobs_settled",
+      "pass": true,
+      "detail": "reconcile_required=false total=0"
+    },
+    {
+      "cell": "M10",
+      "name": "image_index_config_present",
+      "pass": true,
+      "detail": "files metadata mentions image index"
+    },
+    {
+      "cell": "M10",
+      "name": "ingest_succeeded",
+      "pass": true,
+      "detail": "succeeded"
+    },
+    {
+      "cell": "M10",
+      "name": "segment_version",
+      "pass": true,
+      "detail": "kb-segver-dce7ddc662e36bf0559a81d9"
+    },
+    {
+      "cell": "M10",
+      "name": "index_version",
+      "pass": true,
+      "detail": "1786641292882"
+    },
+    {
+      "cell": "M10",
+      "name": "list_workflows",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "cell": "M10",
+      "name": "workflow_bound",
+      "pass": true,
+      "detail": "kb-matrix-img-matrix-20260814-011324-Document Parsing"
+    },
+    {
+      "cell": "M10",
+      "name": "execution_completed",
+      "pass": true,
+      "detail": "id=cef8eca6-d10c-4861-b63d-12630f149423 status=completed visible=true start=started workflow=kb-rag-workflow-f760e416792d2373ae790f76"
+    },
+    {
+      "cell": "M11",
+      "name": "create_session",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "cell": "M11",
+      "name": "stream_text",
+      "pass": true,
+      "detail": "文档说 MatrixOne 通过统一架构将数据组件和技术栈减少了多少？"
+    },
+    {
+      "cell": "M11",
+      "name": "parse_sse",
+      "pass": true,
+      "detail": "completed"
+    },
+    {
+      "cell": "M11",
+      "name": "final_completed",
+      "pass": true,
+      "detail": "completed"
+    },
+    {
+      "cell": "M11",
+      "name": "answer_has_80",
+      "pass": true,
+      "detail": "根据文档，MatrixOne 通过一体化架构，使用单个数据库即可服务多种数据应用，**引入的数据组件和技术栈减少了 80%**，大大简化了数据架构的复杂度。"
+    },
+    {
+      "cell": "M11",
+      "name": "source_ref_hit",
+      "pass": true,
+      "detail": "task=task-8f0239b1-f71a-5fd0-9daf-f6308d52e4a4 refs=1"
+    }
+  ],
+  "artifacts": {
+    "catalog_id": 3,
+    "database_id": 3,
+    "m10_execution_id": "cef8eca6-d10c-4861-b63d-12630f149423",
+    "m10_execution_workflow_id": "kb-rag-workflow-f760e416792d2373ae790f76",
+    "m10_files_excerpt": "{\"embedding_model\":\"bge-m3\",\"file_ids\":[],\"image_distance_metric\":\"cosine\",\"image_embedding_backend_id\":\"-900002\",\"image_embedding_dimension\":1536,\"image_embedding_model\":\"efficientnet-b3\",\"image_preprocess_version\":\"efficientnet-b3-v1-rgb-300-letterbox-imagenet\",\"image_vector_table\":\"kb_6_image_index\",\"vector_table\":\"kb_6_text_index\"}",
+    "m10_model_id": "6",
+    "m10_source_file_id": "6ae565d4-4b43-4e9d-bf2e-206399630671",
+    "m10_workflow_id": "kb-rag-workflow-f760e416792d2373ae790f76",
+    "m10_workflow_name": "kb-matrix-img-matrix-20260814-011324-Document Parsing",
+    "m11_answer_excerpt": "根据文档，MatrixOne 通过一体化架构，使用单个数据库即可服务多种数据应用，**引入的数据组件和技术栈减少了 80%**，大大简化了数据架构的复杂度。",
+    "m11_session_id": "2",
+    "m11_task_id": "task-8f0239b1-f71a-5fd0-9daf-f6308d52e4a4",
+    "m1_database_id": 2,
+    "m1_database_path": "Knowledge Base Catalog/kb-matrix-empty-matrix-20260814-011324",
+    "m1_model_id": "1",
+    "m2_kb_database_name": "kb-matrix-table-matrix-20260814-011324",
+    "m2_model_id": "2",
+    "m3_model_id": "3",
+    "m3_struct_attempt": 1,
+    "m3_struct_attempts": 1,
+    "m4_file_id": "fd88d924-f4b3-47ff-833e-53941869bb77",
+    "m4_model_id": "4",
+    "m5_artifact_row_id": "18f93b34-35ba-42ad-8e12-fa820532d8cb",
+    "m5_execution_id": "6e190822-b835-4948-9200-95489a151f78",
+    "m5_model_id": "5",
+    "m5_output_file_id": "18f93b34-35ba-42ad-8e12-fa820532d8cb",
+    "m5_parsed_file_id": "316e69e7-49c6-4ffa-889a-1d2d335496fd",
+    "m5_processed_volume_id": 12,
+    "m5_raw_volume_id": 11,
+    "m5_source_file_id": "ed963eb4-279f-4230-8665-07301cb30407",
+    "m6_answer_excerpt": "根据文档，MatrixOne 通过统一架构，将引入的**数据组件和技术栈数量减少了 80%**。\n\n具体而言，文档指出：随着业务演进，企业使用的数据引擎和中间件数量不断增加，每个数据引擎依赖 5+ 个必要组件并存储 3+ 份数据副本，导��...",
+    "m6_session_id": "1",
+    "m6_task_id": "task-6ab8689d-f17b-515e-98fc-840eb1b93b73",
+    "m7_append_file_id": "eb16921e-6bf8-4765-9185-b87700fa2bc9",
+    "m7_append_row_id": "kb-source-62697deeaa62d80599d7a858",
+    "m8_entry_id": 1,
+    "volume_id": 4
+  },
+  "note": "local Product SDK matrix golden sample; sanitized; no PAT/secrets"
+}
