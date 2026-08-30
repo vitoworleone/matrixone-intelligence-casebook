@@ -8,25 +8,19 @@
 >
 > <strong>中文</strong> · <a href="README_EN.md">English</a>
 
-## 案例导航
+## 内容导航
 
-### 01 · [文档智能与 RAG 设计](docs/prd/document-intelligence/)
+### [MOI Platform PRD](docs/prd/)
 
-复杂文档如何被解析为可检索、可追溯的知识。
+数据接入、工作流处理、知识检索、Agent 应用、API 集成与平台治理的产品需求集合。
 
-文档解析 · 结构化提取 · RAG 设计 · 引用溯源 · 评测方案
+### [RAG 产品研究](docs/research/rag/)
 
-### 02 · [长程 Agent 系统设计](docs/prd/agentic-data-workflow/)
+围绕企业知识检索、复杂文档理解与可追溯证据的研究与设计判断。
 
-多步骤任务如何规划、协作、恢复和验证。
+### [POC 方案集](docs/poc/moi-solution-playbook/)
 
-Agent 架构 · 工具契约 · 状态与记忆 · 失败恢复 · 评测方案
-
-### 03 · [AI 产品评测与 PoC](docs/poc/enterprise-ai-solution/)
-
-如何用评测、验收和复盘判断 AI 产品能否交付。
-
-场景澄清 · PoC 范围 · 验收标准 · 风险管理 · 推广计划
+从场景澄清、验证范围到验收与复盘的交付方法。
 
 ## 仓库内容
 
@@ -38,4 +32,4 @@ assets/     公开可用的架构图、工作流图与研究配图
 
 ## 延伸阅读
 
-[产品调研](docs/research/) · [平台 PRD](docs/prd/moi-platform/) · [POC 方案集](docs/poc/moi-solution-playbook/) · [产品原型](product/moi-platform-prototype/) · [能力证据矩阵](docs/prd/casebook/jd-evidence-matrix.md) · [公开边界](DISCLAIMER.md)
+[产品调研](docs/research/) · [平台 PRD](docs/prd/) · [POC 方案集](docs/poc/moi-solution-playbook/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)

@@ -8,26 +8,20 @@
 >
 > <a href="README.md">中文</a> · <strong>English</strong>
 
-## Case index
+## Contents
 
-### 01 · [Document Intelligence & RAG Design](docs/prd/document-intelligence/)
+### [MOI Platform PRDs](docs/prd/)
 
-How complex documents become searchable, traceable knowledge.
+Product requirements spanning data ingestion, workflow processing, knowledge retrieval, Agent applications, API integration, and platform governance.
 
-Parsing · Structured extraction · RAG design · Citations · Evaluation
+### [RAG Research](docs/research/rag/)
 
-### 02 · [Long-Horizon Agent System Design](docs/prd/agentic-data-workflow/)
+Research and design judgment for enterprise knowledge retrieval, complex document understanding, and traceable evidence.
 
-How multi-step tasks are planned, coordinated, recovered, and verified.
+### [PoC Playbook](docs/poc/moi-solution-playbook/)
 
-Agent architecture · Tool contracts · State and memory · Recovery · Evaluation
-
-### 03 · [AI Product Evaluation & PoC](docs/poc/enterprise-ai-solution/)
-
-How evaluation, acceptance, and retrospectives determine whether an AI product is ready to deliver.
-
-Problem framing · PoC scope · Acceptance criteria · Risks · Rollout planning
+A delivery approach from problem framing and validation scope through acceptance and retrospective.
 
 ## Further reading
 
-[Research](docs/research/) · [Platform PRDs](docs/prd/moi-platform/) · [PoC playbook](docs/poc/moi-solution-playbook/) · [Product prototype](product/moi-platform-prototype/) · [Evidence matrix](docs/prd/casebook/jd-evidence-matrix.md) · [Publication policy](DISCLAIMER.md)
+[Research](docs/research/) · [Platform PRDs](docs/prd/) · [PoC playbook](docs/poc/moi-solution-playbook/) · [Product prototype](product/moi-platform-prototype/) · [Publication policy](DISCLAIMER.md)
