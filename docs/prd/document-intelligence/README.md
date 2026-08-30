@@ -1,8 +1,8 @@
-# Case 01: Document Intelligence
+# Case 01: Document Intelligence & RAG Design
 
 ## Case goal
 
-Show how enterprise documents can be parsed, converted into structured information, retrieved with citations, and improved through an evaluation-driven product loop.
+Show how complex documents can become searchable, traceable knowledge through parsing, structured extraction, RAG design, citations, and evaluation.
 
 ## Supporting research
 

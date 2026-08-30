@@ -1,8 +1,8 @@
-# Case 02: Agentic Data Workflow
+# Case 02: Long-Horizon Agent System Design
 
 ## Case goal
 
-Show how an AI agent turns a multi-step request into controlled work: plans tasks, calls tools, tracks state, validates outputs, and escalates uncertainty to a person.
+Show how an AI agent plans, coordinates, recovers, and verifies multi-step work while keeping state and human intervention visible.
 
 ## Required artifacts
 

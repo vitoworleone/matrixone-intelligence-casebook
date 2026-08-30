@@ -9,12 +9,12 @@
 ### 企业级 AI 数据产品案例集
 
 <p>
-  <a href="docs/prd/document-intelligence/"><img src="https://img.shields.io/badge/01-%F0%9F%93%84%20Document%20Intelligence-EAF3FF?style=flat-square&labelColor=4E82DF" alt="01 Document Intelligence" /></a>
-  <a href="docs/prd/agentic-data-workflow/"><img src="https://img.shields.io/badge/02-%F0%9F%9B%A0%EF%B8%8F%20Agentic%20Workflow-F0ECFF?style=flat-square&labelColor=8064D9" alt="02 Agentic Workflow" /></a>
-  <a href="docs/poc/enterprise-ai-solution/"><img src="https://img.shields.io/badge/03-%E2%9C%85%20Enterprise%20AI%20PoC-FFF2DF?style=flat-square&labelColor=E59A43" alt="03 Enterprise AI PoC" /></a>
+  <a href="docs/prd/document-intelligence/"><img src="https://img.shields.io/badge/01-%F0%9F%93%84%20Document%20Intelligence%20%26%20RAG-EAF3FF?style=flat-square&labelColor=4E82DF" alt="01 Document Intelligence and RAG" /></a>
+  <a href="docs/prd/agentic-data-workflow/"><img src="https://img.shields.io/badge/02-%F0%9F%9B%A0%EF%B8%8F%20Long--Horizon%20Agent%20Systems-F0ECFF?style=flat-square&labelColor=8064D9" alt="02 Long-Horizon Agent Systems" /></a>
+  <a href="docs/poc/enterprise-ai-solution/"><img src="https://img.shields.io/badge/03-%E2%9C%85%20AI%20Evaluation%20%26%20PoC-FFF2DF?style=flat-square&labelColor=E59A43" alt="03 AI Evaluation and PoC" /></a>
 </p>
 
-<sub>多模态文档解析 · 可溯源 RAG · Agentic Workflow · 评测驱动迭代</sub>
+<sub>文档智能与 RAG · 长程 Agent 系统 · AI 产品评测与 PoC</sub>
 
 [产品调研](docs/research/) · [PRD](docs/prd/) · [PoC](docs/poc/) · [产品实现](product/) · [English](README_EN.md)
 
@@ -33,17 +33,17 @@
 
 本案例集围绕三个问题展开：
 
-1. 如何把复杂企业文档转化为可追溯、可复核的 AI-Ready 数据？
-2. 如何让 Agent 在调用工具、管理任务状态和处理失败时保持可控？
-3. 如何把产品能力组织成客户可理解、可验收、可复制的 AI 解决方案？
+1. 复杂文档如何被解析为可检索、可追溯的知识？
+2. 多步骤 Agent 如何规划、协作、恢复和验证？
+3. 如何用评测、验收和复盘判断 AI 产品能否交付？
 
 ## 三个案例
 
 | 案例 | 要解决的问题 | 面试官可验证的产物 |
 | --- | --- | --- |
-| [01 · Document Intelligence](docs/prd/document-intelligence/) | 复杂文档解析、结构化提取、检索问答与引用溯源。 | 架构、PRD、Prompt 版本、Golden Set、Rubric 与 Badcase。 |
-| [02 · Agentic Data Workflow](docs/prd/agentic-data-workflow/) | 多步骤任务中的规划、工具调用、状态追踪与人工接管。 | Agent 设计、工作流、工具契约、失败恢复与评测方案。 |
-| [03 · Enterprise AI Solution PoC](docs/poc/enterprise-ai-solution/) | 将企业问题转化为可落地、可验收、可推广的 AI 方案。 | 需求澄清、方案设计、PoC、验收标准、推广与风险管理。 |
+| [01 · 文档智能与 RAG 设计](docs/prd/document-intelligence/) | 复杂文档如何被解析为可检索、可追溯的知识。 | 文档解析、结构化提取、RAG 设计、引用溯源与评测方案。 |
+| [02 · 长程 Agent 系统设计](docs/prd/agentic-data-workflow/) | 多步骤任务如何规划、协作、恢复和验证。 | Agent 架构、工具契约、状态与记忆、失败恢复与评测方案。 |
+| [03 · AI 产品评测与 PoC](docs/poc/enterprise-ai-solution/) | 如何用评测、验收和复盘判断 AI 产品能否交付。 | 场景澄清、PoC 范围、验收标准、风险管理与推广计划。 |
 
 ## AI Native 能力，不只是一份技术清单
 
@@ -64,17 +64,17 @@
 ```text
 产品定位与能力地图
         ↓
-Document Intelligence：从原始文档到可评测的 AI 输出
+文档智能与 RAG 设计：从原始文档到可追溯的知识
         ↓
-Agentic Data Workflow：从单次回答到可控任务执行
+长程 Agent 系统设计：从单次回答到可控任务执行
         ↓
-Solution PoC：从产品能力到客户可验收交付
+AI 产品评测与 PoC：从产品能力到可验收交付
 ```
 
 1. 阅读 [产品定位](docs/prd/casebook/positioning.md) 和 [能力证据矩阵](docs/prd/casebook/jd-evidence-matrix.md)。
 2. 从 [产品调研](docs/research/) 进入 RAG、数据质量与 Data + AI 的研究结论。
-3. 查看 [文档智能](docs/prd/document-intelligence/) 与 [Agent 工作流](docs/prd/agentic-data-workflow/) 的 PRD。
-4. 最后进入 [解决方案 PoC](docs/poc/enterprise-ai-solution/)，理解能力如何变成客户价值与验收结果。
+3. 查看 [文档智能与 RAG 设计](docs/prd/document-intelligence/) 与 [长程 Agent 系统设计](docs/prd/agentic-data-workflow/) 的 PRD。
+4. 最后进入 [AI 产品评测与 PoC](docs/poc/enterprise-ai-solution/)，理解产品如何被验证、验收与复盘。
 
 ## 仓库结构
 

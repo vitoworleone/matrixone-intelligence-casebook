@@ -1,8 +1,8 @@
-# Case 03: Enterprise AI Solution PoC
+# Case 03: AI Product Evaluation & PoC
 
 ## Case goal
 
-Turn the two product capabilities into a sales- and delivery-ready enterprise solution without exposing a real customer or internal project.
+Show how an AI product is evaluated, scoped, accepted, and reviewed before it is positioned for enterprise delivery, without exposing a real customer or internal project.
 
 ## Required artifacts
 
