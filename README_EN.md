@@ -1,26 +1,14 @@
 <p align="center">
-  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="100%" />
+  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
-<div align="center">
+# MatrixOne Intelligence Casebook
 
-# 🐱 MatrixOne Intelligence Casebook
+> An enterprise AI product casebook: from document understanding and task execution to verifiable delivery.
+>
+> <a href="README.md">中文</a> · <strong>English</strong>
 
-### Enterprise AI Product Casebook
-
-<sub><a href="README.md">中文</a> · <strong>English</strong></sub>
-
-</div>
-
-<p align="center">
-  <img src="assets/architecture/casebook-overview.png" alt="Product loop from enterprise data to trustworthy AI delivery" width="900" />
-</p>
-
-## The Product Loop
-
-This casebook explains how enterprise data, models, tools, workflows, evaluation, and human judgment work together to deliver reliable AI products.
-
-## Cases
+## Case index
 
 ### 01 · [Document Intelligence & RAG Design](docs/prd/document-intelligence/)
 
