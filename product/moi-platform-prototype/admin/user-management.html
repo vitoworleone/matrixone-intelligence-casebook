@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 管理后台 · 用户管理</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <link rel="stylesheet" href="../styles/admin.css">
+  <style>
+    /* Tab nav */
+    .um-tabs { display: flex; gap: 0; border-bottom: 1px solid #f0f0f0; margin-bottom: 18px; }
+    .um-tab { padding: 10px 20px; font-size: 14px; font-weight: 500; color: rgba(0,0,0,0.55); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+    .um-tab:hover { color: rgba(0,0,0,0.88); }
+    .um-tab.active { color: #1677ff; font-weight: 600; border-bottom-color: #1677ff; }
+    .um-panel { display: none; }
+    .um-panel.active { display: block; }
+    /* Tag chip */
+    .tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 500; margin-right: 4px; margin-bottom: 2px; white-space: nowrap; }
+    .tag-chip-empty { color: rgba(0,0,0,0.25); font-size: 11px; }
+    /* Selection bar */
+    .um-selbar { display: none; align-items: center; gap: 12px; padding: 10px 14px; background: #e6f4ff; border: 1px solid #91d5ff; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+    .um-selbar.show { display: flex; }
+    /* Filter dropdown */
+    .um-tag-pop { position: fixed; background: #fff; border: 1px solid #e5e6eb; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); z-index: 9999; display: flex; flex-direction: column; max-height: 360px; width: 240px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="admin-layout">
+    <div class="admin-sidebar" id="adminSidebar"></div>
+    <div class="admin-main">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <div class="admin-page-title">用户管理</div>
+          <div class="admin-page-desc" style="margin-bottom:0">统一用户体系 · 管理用户角色权限 · 普通用户列表与分组标签</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="um-tabs">
+        <div class="um-tab active" data-tab="staff" onclick="switchUmTab('staff',this)">管理用户</div>
+        <div class="um-tab" data-tab="regular" onclick="switchUmTab('regular',this)">普通用户</div>
+        <div class="um-tab" data-tab="tags" onclick="switchUmTab('tags',this)">用户分组</div>
+      </div>
+
+      <!-- ============ Tab 1: 管理用户 ============ -->
+      <div class="um-panel active" id="umPanel-staff">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
+          <div style="flex:1;padding:10px 14px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:6px;font-size:12px;color:#0050b3;display:flex;align-items:flex-start;gap:8px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <div><strong>管理用户</strong> = 被分配了角色的 MO 用户。仅这些账户可以访问管理后台（含计费中心、Genesis 管理等模块），权限由角色决定。「添加管理用户」即从已注册的普通用户中选人并赋予角色，完成普通用户 → 管理用户的转变。</div>
+          </div>
+          <button class="btn-primary" style="flex-shrink:0" onclick="openUserModal()">+ 添加管理用户</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="position:relative">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="2.2" style="position:absolute;left:9px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="搜索用户名 / 邮箱 / MOI ID……" id="userSearch" oninput="renderUsers()" style="padding:6px 10px 6px 30px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-size:13px;width:240px;outline:none">
+          </div>
+          <select id="userRoleFilter" onchange="renderUsers()" style="padding:6px 10px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-size:13px;outline:none;background:#fff">
+            <option value="all">全部角色</option>
+          </select>
+          <button onclick="openTagFilterPop(event,'staff')" style="padding:6px 12px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:6px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+            按分组筛选 <span id="staffFilterTagCount" style="display:none;background:#1677ff;color:#fff;padding:0 6px;border-radius:8px;font-size:10px"></span>
+          </button>
+          <span style="font-size:12px;color:rgba(0,0,0,0.3);margin-left:auto;align-self:center" id="userCount"></span>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center" id="roleLegend"></div>
+        <div style="overflow-x:auto;background:#fff;border:1px solid #f0f0f0;border-radius:8px">
+          <table class="admin-table" style="min-width:1000px">
+            <thead><tr>
+              <th>用户</th>
+              <th>邮箱</th>
+              <th>手机号</th>
+              <th>角色</th>
+              <th>分组</th>
+              <th>状态</th>
+              <th>最近登录</th>
+              <th style="width:120px">操作</th>
+            </tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============ Tab 2: 普通用户 ============ -->
+      <div class="um-panel" id="umPanel-regular">
+        <div style="padding:10px 14px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;font-size:12px;color:#389e0d;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <div><strong>普通用户</strong> = 没有分配角色的 MOI 用户，只能访问 MOI 用户前端（数据连接、智能体、Genesis 等），无管理后台权限。在这里管理用户分组、启用/禁用账号；管理员可在「计费中心」给他们发放 Credit。</div>
+        </div>
+        <!-- 顶部工具栏 -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+          <div style="position:relative;width:340px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="regSearch" placeholder="搜索：姓名 / 手机 / 邮箱 / 账号 ID / 机构" oninput="renderRegularUsers()" style="width:100%;height:32px;padding:0 12px 0 34px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;outline:none">
+          </div>
+          <button onclick="openTagFilterPop(event,'regular')" style="padding:6px 12px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:6px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+            按分组筛选 <span id="regFilterTagCount" style="display:none;background:#1677ff;color:#fff;padding:0 6px;border-radius:8px;font-size:10px"></span>
+          </button>
+          <span style="font-size:12px;color:rgba(0,0,0,0.45)" id="regCount"></span>
+        </div>
+
+        <div style="overflow-x:auto;background:#fff;border:1px solid #f0f0f0;border-radius:8px">
+          <table class="admin-table" style="min-width:1100px">
+            <thead><tr>
+              <th>用户</th>
+              <th>邮箱</th>
+              <th>手机号</th>
+              <th>机构</th>
+              <th>分组</th>
+              <th>状态</th>
+              <th>最近登录</th>
+              <th style="width:120px">操作</th>
+            </tr></thead>
+            <tbody id="regUsersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============ Tab 3: 用户分组（标签管理）============ -->
+      <div class="um-panel" id="umPanel-tags">
+        <div style="padding:10px 14px;background:#fff7e6;border:1px solid #ffd591;border-radius:6px;font-size:12px;color:#ad6800;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <div><strong>用户分组</strong> = 给用户打的多对多标签，可同时包含管理用户和普通用户。用于「计费中心 → 批量发放」按组发放 Credit、运营活动定向投放等场景。</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:14px">
+          <button class="btn-primary" onclick="openTagModal()">+ 新建分组</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="tagsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 添加管理用户 弹窗 ===== -->
+  <div class="admin-modal-overlay" id="userModalOverlay" onclick="if(event.target===this)closeUserModal()">
+    <div class="admin-modal">
+      <div class="admin-modal-header"><h3 id="userModalTitle">添加管理用户</h3><button class="admin-modal-close" onclick="closeUserModal()">✕</button></div>
+      <div class="admin-modal-body" id="userModalBody"></div>
+      <div class="admin-modal-footer" id="userModalFooter"></div>
+    </div>
+  </div>
+
+  <!-- ===== 标签 CRUD 弹窗 ===== -->
+  <div class="admin-modal-overlay" id="tagModalOverlay" onclick="if(event.target===this)closeTagModal()">
+    <div class="admin-modal" style="width:680px;max-width:94vw">
+      <div class="admin-modal-header"><h3 id="tagModalTitle">新建分组</h3><button class="admin-modal-close" onclick="closeTagModal()">✕</button></div>
+      <div class="admin-modal-body" style="max-height:70vh;overflow-y:auto">
+        <!-- 基本信息 -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+          <div class="admin-form-group">
+            <label class="admin-form-label">分组名称 <span style="color:#ff4d4f">*</span></label>
+            <input class="admin-form-input" id="tagFormName" placeholder="如「双十一活动用户」">
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">颜色</label>
+            <div id="tagFormColors" style="display:flex;gap:6px;flex-wrap:wrap;padding-top:4px"></div>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">描述</label>
+          <input class="admin-form-input" id="tagFormDesc" placeholder="该分组的用途说明">
+        </div>
+
+        <!-- 成员管理（仅编辑模式显示） -->
+        <div id="tagMemberSection" style="display:none;border-top:1px solid #f0f0f0;padding-top:14px;margin-top:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <span style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88)">成员管理</span>
+              <span style="font-size:11px;color:rgba(0,0,0,0.45);margin-left:6px">共 <strong id="tagMemberCount">0</strong> 人</span>
+            </div>
+            <div style="display:flex;gap:6px" id="tagMemberToolbar">
+              <button class="btn-primary" style="padding:5px 12px;font-size:12px" onclick="openMemberPicker()">+ 加入成员</button>
+              <button id="tagMemberRemoveBtn" style="display:none;padding:5px 12px;border:1px solid #ff4d4f;background:#fff;color:#ff4d4f;border-radius:4px;font-size:12px;cursor:pointer" onclick="removeSelectedMembers()">- 移除选中（<span id="tagMemberSelCount">0</span>）</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <input type="text" id="tagMemberSearch" placeholder="搜索成员" oninput="renderTagMembers()" style="flex:1;height:30px;padding:0 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:12px;outline:none">
+            <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(0,0,0,0.55);cursor:pointer">
+              <input type="checkbox" id="tagMemberSelAll" onchange="tagMemberToggleAll(this.checked)" style="accent-color:#1677ff">
+              全选
+            </label>
+          </div>
+          <div id="tagMemberList" style="border:1px solid #e5e6eb;border-radius:6px;max-height:280px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="btn-sm" onclick="closeTagModal()">取消</button>
+        <button class="btn-primary" id="tagFormSubmit" onclick="submitTagForm()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 加入成员弹窗（多选）===== -->
+  <div class="admin-modal-overlay" id="memberPickerOverlay" onclick="if(event.target===this)closeMemberPicker()">
+    <div class="admin-modal" style="width:520px;max-width:94vw">
+      <div class="admin-modal-header"><h3>加入成员到分组</h3><button class="admin-modal-close" onclick="closeMemberPicker()">✕</button></div>
+      <div class="admin-modal-body" style="max-height:60vh;overflow-y:auto">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <input type="text" id="memberPickerSearch" placeholder="搜索：姓名 / 邮箱 / 手机 / ID" oninput="renderMemberPicker()" style="flex:1;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:12px;outline:none">
+          <span style="font-size:11px;color:rgba(0,0,0,0.55)">已选 <strong id="memberPickerCount">0</strong></span>
+        </div>
+        <div id="memberPickerList" style="border:1px solid #e5e6eb;border-radius:6px;max-height:380px;overflow-y:auto"></div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="btn-sm" onclick="closeMemberPicker()">取消</button>
+        <button class="btn-primary" onclick="confirmAddMembers()">确认加入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 批量打/移除标签 弹窗 ===== -->
+  <div class="admin-modal-overlay" id="batchTagOverlay" onclick="if(event.target===this)closeBatchTag()">
+    <div class="admin-modal" style="width:480px">
+      <div class="admin-modal-header"><h3 id="batchTagTitle">批量打标签</h3><button class="admin-modal-close" onclick="closeBatchTag()">✕</button></div>
+      <div class="admin-modal-body">
+        <div id="batchTagInfo" style="padding:10px 12px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:6px;font-size:12px;color:#0050b3;margin-bottom:14px"></div>
+        <div style="font-size:13px;color:rgba(0,0,0,0.65);margin-bottom:8px">勾选要操作的标签：</div>
+        <div id="batchTagList" style="border:1px solid #e5e6eb;border-radius:6px;max-height:280px;overflow-y:auto"></div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="btn-sm" onclick="closeBatchTag()">取消</button>
+        <button class="btn-primary" id="batchTagConfirm">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 角色权限说明 弹窗 ===== -->
+  <div class="admin-modal-overlay" id="rolePermOverlay" onclick="if(event.target===this)closeRolePermModal()">
+    <div class="admin-modal" style="width:880px;max-width:96vw">
+      <div class="admin-modal-header"><h3>角色权限说明</h3><button class="admin-modal-close" onclick="closeRolePermModal()">✕</button></div>
+      <div class="admin-modal-body" style="max-height:72vh;overflow-y:auto">
+        <!-- 设计原则 -->
+        <div style="padding:12px 14px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:6px;font-size:12px;color:#0050b3;margin-bottom:16px;line-height:1.7">
+          <div style="font-weight:600;margin-bottom:4px">设计原则</div>
+          <div><strong>运维管理员</strong> 管<strong>配置</strong>（技术域：渠道、模型、密钥、告警、平台监控等）。<br>
+          <strong>运营管理员</strong> 管<strong>价值流转</strong>（业务域：定价、Credit 发放、用户与分组管理、账单等）。<br>
+          两者操作面互斥。后续 MOI 后台新增模块按此原则归属。</div>
+        </div>
+        <!-- 角色权限表 -->
+        <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:#fafafa">
+                <th style="padding:12px 14px;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);width:160px;border-bottom:1px solid #f0f0f0">角色</th>
+                <th style="padding:12px 14px;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);border-bottom:1px solid #f0f0f0">权限范围</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5">
+                  <span style="display:inline-block;padding:3px 10px;border-radius:10px;background:#722ed115;color:#722ed1;font-weight:600;font-size:12px">超级管理员</span>
+                  <div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.35);margin-top:6px">super_admin</div>
+                </td>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.75);line-height:1.8">
+                  <strong>全部权限</strong>（兜底）<br>
+                  · 唯一可创建 / 编辑 / 删除「系统管理员」<br>
+                  · 唯一可查看完整操作审计<br>
+                  · <strong>自身不可被编辑或删除</strong>，系统初始化时唯一<br>
+                  · 通常 1 个，建议绑定对公邮箱或多人共管
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5">
+                  <span style="display:inline-block;padding:3px 10px;border-radius:10px;background:#1677ff15;color:#1677ff;font-weight:600;font-size:12px">系统管理员</span>
+                  <div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.35);margin-top:6px">sys_admin</div>
+                </td>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.75);line-height:1.8">
+                  <strong>几乎等同超管</strong>，负责日常管理<br>
+                  · Genesis 所有模块（配置 + 业务）完整读写<br>
+                  · 计费中心所有模块完整读写<br>
+                  · 用户管理：可创建 / 编辑 / 删除「运维 / 运营 / 只读」三类管理用户；可管理普通用户和分组<br>
+                  · <strong>唯一限制</strong>：不能管理其他系统管理员，也不能动超级管理员
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5">
+                  <span style="display:inline-block;padding:3px 10px;border-radius:10px;background:#13c2c215;color:#13c2c2;font-weight:600;font-size:12px">运维管理员</span>
+                  <div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.35);margin-top:6px">ops_tech</div>
+                </td>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.75);line-height:1.8">
+                  <strong>技术配置</strong>——保平台稳定运行<br>
+                  · Genesis 配置：渠道 / 模型 / 密钥 / 告警通知规则 / 操作审计——完整读写<br>
+                  · Genesis 监控：请求日志 / 运营看板 / 用量统计——完整读写<br>
+                  · <strong>不可访问</strong>：计费中心（任何钱相关）、管理员角色分配<br>
+                  · <strong>未来扩展</strong>：任何新模块的配置类页面默认归属本角色
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5">
+                  <span style="display:inline-block;padding:3px 10px;border-radius:10px;background:#fa8c1615;color:#fa8c16;font-weight:600;font-size:12px">运营管理员</span>
+                  <div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.35);margin-top:6px">ops_biz</div>
+                </td>
+                <td style="padding:14px;vertical-align:top;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.75);line-height:1.8">
+                  <strong>业务运营</strong>——管价值流转<br>
+                  · 计费中心：费用总览 / 用量明细 / 收支明细 / 价格设置 / Credit 发放——完整读写<br>
+                  · 用户管理：普通用户（增删改启停）/ 用户分组——完整读写<br>
+                  · Genesis 业务视图：运营看板 / 用量统计——只读（看活动效果）<br>
+                  · <strong>不可访问</strong>：Genesis 任何技术配置（渠道 / 模型 / 密钥 / 告警规则）、管理员角色分配<br>
+                  · <strong>未来扩展</strong>：任何新模块的定价、套餐、补贴、活动类页面默认归属本角色
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px;vertical-align:top">
+                  <span style="display:inline-block;padding:3px 10px;border-radius:10px;background:#d9d9d930;color:rgba(0,0,0,0.55);font-weight:600;font-size:12px">只读成员</span>
+                  <div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.35);margin-top:6px">readonly</div>
+                </td>
+                <td style="padding:14px;vertical-align:top;color:rgba(0,0,0,0.75);line-height:1.8">
+                  <strong>观察者</strong>——所有页面只读<br>
+                  · 全部管理后台页面——只读<br>
+                  · <strong>完全不可操作</strong>：不能改任何配置、不能发 Credit、不能创建 / 删除任何东西<br>
+                  · <strong>敏感数据屏蔽</strong>：密钥明文不可见（仅看到掩码）、用户手机 / 邮箱部分掩码<br>
+                  · 适用场景：客户演示、新员工 onboarding、外部审计临时访问
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- 层级示意 -->
+        <div style="margin-top:18px;padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:12px;color:rgba(0,0,0,0.65);line-height:1.9;white-space:pre">                  超级管理员
+                 ┌─────────┐
+                 │ 全部权限 │
+                 └────┬────┘
+                      │ 创建/管理
+                      ▼
+                 系统管理员
+                 ┌─────────────┐
+                 │ 几乎全部权限 │
+                 └──────┬──────┘
+                        │ 创建/管理
+        ┌───────────────┼────────────────┐
+        ▼               ▼                ▼
+  运维管理员       运营管理员         只读成员
+ ┌──────────┐    ┌──────────┐      ┌──────────┐
+ │ 技术配置  │←互→│ 业务运营  │       │ 全部只读  │
+ │渠道/模型 │ 斥 │定价/Credit│       │敏感数据掩 │
+ │密钥/告警 │    │用户/分组  │       │码        │
+ │平台监控  │    │账单/费用  │       │          │
+ └──────────┘    └──────────┘      └──────────┘</div>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="btn-primary" onclick="closeRolePermModal()">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/admin-data.js"></script>
+  <script src="../scripts/admin-common.js"></script>
+  <script>
+    // =========================
+    // Tab 切换
+    // =========================
+    function switchUmTab(name, el) {
+      document.querySelectorAll('.um-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      document.querySelectorAll('.um-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('umPanel-' + name).classList.add('active');
+      if (name === 'regular') renderRegularUsers();
+      if (name === 'tags') renderTagsGrid();
+    }
+
+    // =========================
+    // Tab 1: 管理用户（被赋予角色的 MO 用户）
+    // =========================
+    var builtinRoles = [
+      { id: 'super_admin', name: '超级管理员', desc: '全部权限，唯一可管理系统管理员，自身不可编辑/删除（系统兜底）', color: '#722ed1' },
+      { id: 'sys_admin',   name: '系统管理员', desc: '几乎等同超管，唯一限制是不能管理其他系统管理员',                 color: '#1677ff' },
+      { id: 'ops_tech',    name: '运维管理员', desc: '技术配置：渠道 / 模型 / 密钥 / 告警 / 平台监控',                  color: '#13c2c2' },
+      { id: 'ops_biz',     name: '运营管理员', desc: '业务运营：定价 / Credit 发放 / 用户与分组管理 / 账单',           color: '#fa8c16' },
+      { id: 'readonly',    name: '只读成员',   desc: '所有页面只读，敏感数据掩码，不可操作',                          color: '#d9d9d9' }
+    ];
+    var roleMap = {}; builtinRoles.forEach(function(r) { roleMap[r.id] = r; });
+
+    var roleFilterEl = document.getElementById('userRoleFilter');
+    builtinRoles.forEach(function(r) {
+      var opt = document.createElement('option'); opt.value = r.id; opt.textContent = r.name;
+      roleFilterEl.appendChild(opt);
+    });
+    document.getElementById('roleLegend').innerHTML = builtinRoles.map(function(r) {
+      return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:rgba(0,0,0,0.45)"><span style="width:8px;height:8px;border-radius:2px;background:' + r.color + '"></span>' + r.name + '</span>';
+    }).join('')
+      + '<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#1677ff;cursor:pointer;margin-left:6px;user-select:none" onclick="openRolePermModal()" title="查看每个角色具体能做什么">'
+      + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+      + '查看角色权限说明</span>';
+
+    var usersData = [
+      { id:'u0', moiId:'MOI-00001', name:'admin',      avatar:'A', email:'admin@matrixorigin.cn',     phone:'—',           role:'super_admin', status:true,  registered:'2026-01-01', lastLogin:'2026-05-20 09:30', isSystem:true },
+      { id:'u1', moiId:'MOI-10001', name:'陈工',       avatar:'陈', email:'chengong@matrixorigin.cn', phone:'138****1234', role:'sys_admin',   status:true,  registered:'2026-01-15', lastLogin:'2026-05-20 09:18' },
+      { id:'u2', moiId:'MOI-10002', name:'方佳俊',     avatar:'方', email:'fangjj@matrixorigin.cn',   phone:'138****6201', role:'sys_admin',   status:true,  registered:'2026-01-20', lastLogin:'2026-05-19 22:42' },
+      { id:'u3', moiId:'MOI-10003', name:'王运维',     avatar:'王', email:'wangwy@matrixorigin.cn',   phone:'139****3344', role:'ops_tech',    status:true,  registered:'2026-02-12', lastLogin:'2026-05-20 10:05' },
+      { id:'u4', moiId:'MOI-10004', name:'林渠道',     avatar:'林', email:'linqd@matrixorigin.cn',    phone:'136****3456', role:'ops_tech',    status:true,  registered:'2026-03-22', lastLogin:'2026-05-19 18:20' },
+      { id:'u5', moiId:'MOI-10005', name:'刘运营',     avatar:'刘', email:'liuyy@matrixorigin.cn',    phone:'139****5678', role:'ops_biz',     status:true,  registered:'2026-02-20', lastLogin:'2026-05-20 08:15' },
+      { id:'u6', moiId:'MOI-10006', name:'黄财务',     avatar:'黄', email:'huangcw@matrixorigin.cn',  phone:'137****9012', role:'ops_biz',     status:true,  registered:'2026-03-10', lastLogin:'2026-05-19 16:42' },
+      { id:'u7', moiId:'MOI-10007', name:'周强',       avatar:'周', email:'zhouqiang@matrixorigin.cn',phone:'132****0184', role:'readonly',    status:true,  registered:'2026-04-08', lastLogin:'2026-05-18 14:25' },
+      { id:'u8', moiId:'MOI-10008', name:'吴测试',     avatar:'吴', email:'wucs@matrixorigin.cn',     phone:'135****7890', role:'readonly',    status:false, registered:'2026-04-01', lastLogin:'2026-04-10 09:00' }
+    ];
+
+    var staffFilterTags = [];
+
+    function renderUsers() {
+      var q = (document.getElementById('userSearch').value || '').toLowerCase();
+      var rf = document.getElementById('userRoleFilter').value;
+      var filtered = usersData.filter(function(u) {
+        if (q && u.name.toLowerCase().indexOf(q)===-1 && u.email.toLowerCase().indexOf(q)===-1 && u.moiId.toLowerCase().indexOf(q)===-1) return false;
+        if (rf !== 'all' && u.role !== rf) return false;
+        if (staffFilterTags.length > 0) {
+          var uTags = window.getTagsForUser(u.id).map(function(t) { return t.id; });
+          if (!staffFilterTags.some(function(tid) { return uTags.indexOf(tid) !== -1; })) return false;
+        }
+        return true;
+      });
+      document.getElementById('userCount').textContent = filtered.length + ' 个用户';
+      var fb = document.getElementById('staffFilterTagCount');
+      if (staffFilterTags.length > 0) { fb.style.display = ''; fb.textContent = staffFilterTags.length; }
+      else { fb.style.display = 'none'; }
+
+      var html = filtered.map(function(u) {
+        var r = roleMap[u.role] || {name:u.role,color:'#d9d9d9'};
+        var tags = window.getTagsForUser(u.id);
+        var tagsHtml = tags.length === 0
+          ? '<span class="tag-chip-empty">— 未分组</span>'
+          : tags.map(function(t) { return '<span class="tag-chip" style="background:' + t.color + '15;color:' + t.color + '">' + t.name + '</span>'; }).join('');
+        return '<tr>'
+          + '<td><div style="display:flex;align-items:center;gap:10px">'
+          + '<div style="width:32px;height:32px;border-radius:50%;background:'+r.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0">'+u.avatar+'</div>'
+          + '<div><strong>'+u.name+'</strong>'+(u.isSystem?'<span style="font-size:10px;color:rgba(0,0,0,0.25);margin-left:4px">系统</span>':'')+'<div style="font-size:11px;color:rgba(0,0,0,0.3)">'+u.moiId+'</div></div></div></td>'
+          + '<td style="font-size:13px;color:rgba(0,0,0,0.55)">'+u.email+'</td>'
+          + '<td style="font-size:13px;color:rgba(0,0,0,0.55)">'+u.phone+'</td>'
+          + '<td><span class="role-badge" style="background:'+r.color+'15;color:'+r.color+'">'+r.name+'</span></td>'
+          + '<td>' + tagsHtml + '</td>'
+          + '<td><span class="status-badge"><span class="dot '+(u.status?'on':'off')+'"></span>'+(u.status?'启用':'禁用')+'</span></td>'
+          + '<td style="font-size:13px;color:rgba(0,0,0,0.55)">'+u.lastLogin+'</td>'
+          + '<td>'+(u.isSystem?'<span style="font-size:12px;color:rgba(0,0,0,0.2)">—</span>':'<div style="display:flex;gap:4px"><button class="btn-sm" onclick="editUser(\''+u.id+'\')">编辑</button><button class="btn-sm'+(u.status?' danger':'')+'" onclick="toggleUser(\''+u.id+'\')">'+(u.status?'禁用':'启用')+'</button></div>')+'</td></tr>';
+      }).join('');
+      document.getElementById('usersBody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(0,0,0,0.25)">暂无用户</td></tr>';
+    }
+
+    var selectedMoiAccount = null;
+
+    function openUserModal() {
+      selectedMoiAccount = null;
+      document.getElementById('userModalTitle').textContent = '添加管理用户';
+      var roleOpts = builtinRoles.filter(function(r){return r.id!=='super_admin';}).map(function(r){return '<option value="'+r.id+'">'+r.name+'</option>';}).join('');
+      document.getElementById('userModalBody').innerHTML = ''
+        + '<div class="admin-form-group"><label class="admin-form-label">选择注册用户</label>'
+        + '<div style="display:flex;gap:8px"><input class="admin-form-input" id="moiSearchInput" placeholder="搜索普通用户：姓名 / 账号 ID / 手机 / 邮箱" style="flex:1" oninput="searchMoi()" onkeydown="if(event.key===\'Enter\')searchMoi()"><button class="btn-primary" style="flex-shrink:0" onclick="searchMoi()">搜索</button></div>'
+        + '<div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:4px">从已注册的普通用户中选人并赋予角色</div>'
+        + '<div id="moiResults" style="margin-top:10px;max-height:200px;overflow-y:auto"></div></div>'
+        + '<div id="moiSelected" style="display:none;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:6px;padding:12px 16px;margin-bottom:16px">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between"><div><strong id="moiSelName"></strong><span style="font-size:12px;color:rgba(0,0,0,0.45);margin-left:8px" id="moiSelId"></span><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px" id="moiSelInfo"></div></div>'
+        + '<button style="padding:2px 8px;border-radius:4px;border:1px solid #d9d9d9;background:#fff;font-size:11px;cursor:pointer" onclick="clearMoiSel()">移除</button></div></div>'
+        + '<div class="admin-form-group"><label class="admin-form-label">分配角色</label><select class="admin-form-select" id="inviteRole" onchange="updateRoleDesc()">'+roleOpts+'</select>'
+        + '<div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:4px" id="roleDesc">'+builtinRoles[1].desc+'</div></div>';
+      document.getElementById('userModalFooter').innerHTML = '<button class="btn-sm" onclick="closeUserModal()">取消</button><button class="btn-primary" onclick="addUser()">添加</button>';
+      document.getElementById('userModalOverlay').classList.add('open');
+      searchMoi();
+    }
+
+    function updateRoleDesc() { var r=builtinRoles.find(function(x){return x.id===document.getElementById('inviteRole').value;}); document.getElementById('roleDesc').textContent=r?r.desc:''; }
+
+    // 候选池：已注册的普通用户（未被赋予角色的 MO 用户）
+    function searchMoi() {
+      var q=(document.getElementById('moiSearchInput').value||'').trim().toLowerCase();
+      var el=document.getElementById('moiResults');
+      var existing=usersData.map(function(u){return u.moiId;});
+      var matches=(window.ADMIN_USERS||[]).filter(function(a){
+        if(existing.indexOf(a.id)!==-1)return false;
+        if(!q)return true;
+        return a.id.toLowerCase().indexOf(q)!==-1||a.name.toLowerCase().indexOf(q)!==-1||a.phone.toLowerCase().indexOf(q)!==-1||a.email.toLowerCase().indexOf(q)!==-1||(a.org&&a.org.toLowerCase().indexOf(q)!==-1);
+      });
+      if(!matches.length){el.innerHTML='<div style="font-size:12px;color:rgba(0,0,0,0.35);padding:8px 0">未找到匹配的普通用户'+(q?'':'，所有注册用户均已是管理用户')+'</div>';return;}
+      el.innerHTML='<div style="font-size:11px;color:rgba(0,0,0,0.3);margin-bottom:6px">'+matches.length+' 个普通用户，点击选择：</div>'
+        +matches.map(function(a){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:6px;cursor:pointer;font-size:13px;border:1px solid #f0f0f0;margin-bottom:4px;transition:all 0.15s" onmouseover="this.style.borderColor=\'#1677ff\';this.style.background=\'#f0f5ff\'" onmouseout="this.style.borderColor=\'#f0f0f0\';this.style.background=\'\'" onclick="selectMoi(\''+a.id+'\')">'
+          +'<div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:#52c41a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">'+a.name.charAt(0)+'</div><div><strong>'+a.name+'</strong><div style="font-size:11px;color:rgba(0,0,0,0.35);font-family:monospace">'+a.id+(a.org?' · '+a.org:'')+'</div></div></div>'
+          +'<div style="text-align:right;font-size:12px;color:rgba(0,0,0,0.45)">'+a.email+'<br>'+a.phone+'</div></div>';}).join('');
+    }
+
+    function selectMoi(id) {
+      var a=(window.ADMIN_USERS||[]).find(function(x){return x.id===id;});if(!a)return;
+      selectedMoiAccount=a;
+      document.getElementById('moiResults').innerHTML='';
+      document.getElementById('moiSearchInput').value='';
+      document.getElementById('moiSelected').style.display='';
+      document.getElementById('moiSelName').textContent=a.name;
+      document.getElementById('moiSelId').textContent=a.id;
+      document.getElementById('moiSelInfo').textContent=a.email+(a.phone&&a.phone!=='—'?' · '+a.phone:'')+(a.org?' · '+a.org:'');
+    }
+
+    function clearMoiSel() { selectedMoiAccount=null; document.getElementById('moiSelected').style.display='none'; searchMoi(); }
+
+    function addUser() {
+      if(!selectedMoiAccount){alert('请先选择一个注册用户');return;}
+      var a=selectedMoiAccount;
+      usersData.push({id:'u'+Date.now(),moiId:a.id,name:a.name,avatar:a.name.charAt(0),email:a.email,phone:a.phone,role:document.getElementById('inviteRole').value,status:true,registered:(a.registeredAt||'').slice(0,10),lastLogin:a.lastLogin||'—'});
+      selectedMoiAccount=null; closeUserModal(); renderUsers(); renderRegularUsers();
+    }
+
+    function editUser(id) {
+      var u=usersData.find(function(x){return x.id===id;});if(!u||u.isSystem)return;
+      document.getElementById('userModalTitle').textContent='编辑用户';
+      var r=roleMap[u.role]||{};
+      var roleOpts=builtinRoles.filter(function(x){return x.id!=='super_admin';}).map(function(x){return '<option value="'+x.id+'"'+(u.role===x.id?' selected':'')+'>'+x.name+'</option>';}).join('');
+      var curTagIds = window.getTagsForUser(id).map(function(t) { return t.id; });
+      var tagListHtml = window.USER_TAGS.map(function(t) {
+        var checked = curTagIds.indexOf(t.id) !== -1 ? 'checked' : '';
+        return '<label style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #e5e6eb;border-radius:14px;font-size:12px;cursor:pointer;margin:0 4px 4px 0"><input type="checkbox" value="' + t.id + '" ' + checked + ' style="accent-color:#1677ff;width:13px;height:13px"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:' + t.color + '"></span>' + t.name + '</label>';
+      }).join('');
+      document.getElementById('userModalBody').innerHTML=''
+        +'<div style="background:#f5f7fa;border-radius:6px;padding:12px 16px;margin-bottom:16px"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:'+(r.color||'#d9d9d9')+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">'+u.avatar+'</div><div><strong>'+u.name+'</strong><div style="font-size:12px;color:rgba(0,0,0,0.45)">'+u.moiId+' · '+u.email+'</div></div></div></div>'
+        +'<div class="admin-form-group"><label class="admin-form-label">角色</label><select class="admin-form-select" id="editUserRole" onchange="var x=document.getElementById(\'editRoleDesc\');var rr=['+builtinRoles.map(function(b){return '{id:\''+b.id+'\',desc:\''+b.desc+'\'}'}).join(',')+'].find(function(z){return z.id===this.value}.bind(this));if(rr)x.textContent=rr.desc">'+roleOpts+'</select>'
+        +'<div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:4px" id="editRoleDesc">'+(r.desc||'')+'</div></div>'
+        +'<div class="admin-form-group"><label class="admin-form-label">分组</label><div id="editUserTags" style="padding:6px 0">'+(tagListHtml||'<span style="font-size:12px;color:rgba(0,0,0,0.35)">暂无可选分组，请先到「用户分组」tab 创建</span>')+'</div></div>';
+      document.getElementById('userModalFooter').innerHTML='<button class="btn-sm" onclick="closeUserModal()">取消</button><button class="btn-primary" onclick="saveUser(\''+id+'\')">保存</button>';
+      document.getElementById('userModalOverlay').classList.add('open');
+    }
+
+    function saveUser(id) {
+      var u=usersData.find(function(x){return x.id===id;});if(!u||u.isSystem)return;
+      u.role=document.getElementById('editUserRole').value;
+      // 同步分组
+      var picked = [];
+      document.querySelectorAll('#editUserTags input:checked').forEach(function(c) { picked.push(c.value); });
+      window.USER_TAGS.forEach(function(t) {
+        var idx = t.uids.indexOf(id);
+        var shouldHave = picked.indexOf(t.id) !== -1;
+        if (shouldHave && idx === -1) t.uids.push(id);
+        else if (!shouldHave && idx !== -1) t.uids.splice(idx, 1);
+      });
+      closeUserModal();
+      renderUsers();
+    }
+    function toggleUser(id) { var u=usersData.find(function(x){return x.id===id;});if(!u||u.isSystem)return;u.status=!u.status;renderUsers(); }
+    function closeUserModal() { document.getElementById('userModalOverlay').classList.remove('open'); }
+
+    renderUsers();
+
+    // =========================
+    // Tab 2: 普通用户
+    // =========================
+    var regFilterTags = []; // tag ids
+
+    function renderRegularUsers() {
+      var q = (document.getElementById('regSearch').value || '').trim().toLowerCase();
+      // 已被赋予角色的用户属于「管理用户」，不在普通用户列表中重复出现
+      var mgmtIds = usersData.map(function(u) { return u.moiId; });
+      var data = window.ADMIN_USERS.filter(function(u) { return mgmtIds.indexOf(u.id) === -1; });
+      if (q) {
+        data = data.filter(function(u) {
+          return u.name.toLowerCase().indexOf(q) !== -1
+              || u.phone.toLowerCase().indexOf(q) !== -1
+              || u.email.toLowerCase().indexOf(q) !== -1
+              || u.id.toLowerCase().indexOf(q) !== -1
+              || (u.org && u.org.toLowerCase().indexOf(q) !== -1);
+        });
+      }
+      if (regFilterTags.length > 0) {
+        data = data.filter(function(u) {
+          var uTags = window.getTagsForUser(u.id).map(function(t) { return t.id; });
+          return regFilterTags.some(function(tid) { return uTags.indexOf(tid) !== -1; });
+        });
+      }
+      document.getElementById('regCount').textContent = '共 ' + data.length + ' 个用户';
+      var fb = document.getElementById('regFilterTagCount');
+      if (regFilterTags.length > 0) { fb.style.display = ''; fb.textContent = regFilterTags.length; }
+      else { fb.style.display = 'none'; }
+
+      document.getElementById('regUsersBody').innerHTML = data.map(function(u) {
+        var tags = window.getTagsForUser(u.id);
+        var tagsHtml = tags.length === 0
+          ? '<span class="tag-chip-empty">— 未分组</span>'
+          : tags.map(function(t) { return '<span class="tag-chip" style="background:' + t.color + '15;color:' + t.color + '">' + t.name + '</span>'; }).join('');
+        var initial = u.name.charAt(0);
+        return '<tr>'
+          + '<td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:#52c41a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0">' + initial + '</div><div><strong>' + u.name + '</strong><div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.3)">' + u.id + '</div></div></div></td>'
+          + '<td style="font-size:13px;color:rgba(0,0,0,0.55)">' + u.email + '</td>'
+          + '<td style="font-size:13px;color:rgba(0,0,0,0.55)">' + u.phone + '</td>'
+          + '<td style="font-size:13px;color:rgba(0,0,0,0.65)">' + (u.org || '—') + '</td>'
+          + '<td>' + tagsHtml + '</td>'
+          + '<td><span class="status-badge"><span class="dot ' + (u.status ? 'on' : 'off') + '"></span>' + (u.status ? '启用' : '禁用') + '</span></td>'
+          + '<td style="font-family:monospace;font-size:12px;color:rgba(0,0,0,0.55)">' + u.lastLogin + '</td>'
+          + '<td><div style="display:flex;gap:4px"><button class="btn-sm" onclick="editRegularUser(\'' + u.id + '\')">编辑分组</button><button class="btn-sm' + (u.status ? ' danger' : '') + '" onclick="toggleRegularUser(\'' + u.id + '\')">' + (u.status ? '禁用' : '启用') + '</button></div></td>'
+          + '</tr>';
+      }).join('') || '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(0,0,0,0.25)">无匹配用户</td></tr>';
+    }
+
+    function toggleRegularUser(uid) {
+      var u = window.getUserById(uid);
+      if (!u) return;
+      u.status = !u.status;
+      renderRegularUsers();
+    }
+    function editRegularUser(uid) {
+      // 打开"编辑分组"弹窗（复用 batch tag 弹窗，单用户模式）
+      openSingleTagEdit(uid, 'regular');
+    }
+
+    // 当前操作的 kind 上下文：'staff' | 'regular'
+    function umGetCtx(kind) {
+      return { render: kind === 'staff' ? renderUsers : renderRegularUsers };
+    }
+    var currentBatchKind = 'regular';
+
+    // 标签筛选 popover（按 kind 区分）
+    function openTagFilterPop(e, kind) {
+      e.stopPropagation();
+      var existing = document.getElementById('tagFilterPop');
+      if (existing) { existing.remove(); return; }
+      var curFilter = kind === 'staff' ? staffFilterTags : regFilterTags;
+      var rect = e.currentTarget.getBoundingClientRect();
+      var pop = document.createElement('div');
+      pop.id = 'tagFilterPop';
+      pop.className = 'um-tag-pop';
+      pop.style.top = (rect.bottom + 4) + 'px';
+      pop.style.left = rect.left + 'px';
+      pop.setAttribute('data-kind', kind);
+      pop.onclick = function(ev) { ev.stopPropagation(); };
+      var listHtml = '<div style="flex:1;overflow-y:auto;padding:8px 0">';
+      window.USER_TAGS.forEach(function(t) {
+        var checked = curFilter.indexOf(t.id) !== -1;
+        listHtml += '<label style="display:flex;align-items:center;gap:8px;padding:6px 14px;cursor:pointer;font-size:13px" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'\'"><input type="checkbox" value="' + t.id + '"' + (checked ? ' checked' : '') + ' style="accent-color:#1677ff;width:14px;height:14px"><span class="tag-chip" style="background:' + t.color + '15;color:' + t.color + '">' + t.name + '</span><span style="color:rgba(0,0,0,0.45);font-size:11px;margin-left:auto">' + t.uids.length + '</span></label>';
+      });
+      listHtml += '</div>';
+      listHtml += '<div style="border-top:1px solid #f0f0f0;padding:8px 12px;display:flex;justify-content:space-between;background:#fafbfc">'
+        + '<span style="font-size:12px;color:rgba(0,0,0,0.55);cursor:pointer" onclick="document.querySelectorAll(\'#tagFilterPop input\').forEach(function(c){c.checked=false})">清空</span>'
+        + '<button class="btn-primary" style="padding:4px 14px;border-radius:4px;font-size:12px;font-weight:600" onclick="applyTagFilter()">确定</button>'
+        + '</div>';
+      pop.innerHTML = listHtml;
+      document.body.appendChild(pop);
+      setTimeout(function() {
+        document.addEventListener('click', function handler(ev) {
+          if (!pop.contains(ev.target)) { pop.remove(); document.removeEventListener('click', handler); }
+        });
+      }, 0);
+    }
+    function applyTagFilter() {
+      var pop = document.getElementById('tagFilterPop');
+      var kind = pop.getAttribute('data-kind');
+      var checked = [];
+      pop.querySelectorAll('input:checked').forEach(function(c) { checked.push(c.value); });
+      if (kind === 'staff') { staffFilterTags = checked; renderUsers(); }
+      else { regFilterTags = checked; renderRegularUsers(); }
+      pop.remove();
+    }
+
+    // =========================
+    // 单用户编辑标签（分组的批量管理在「用户分组」tab 完成）
+    // =========================
+    var singleTagUid = null;
+
+    function closeBatchTag() { document.getElementById('batchTagOverlay').classList.remove('open'); }
+
+    // 角色权限说明弹窗
+    function openRolePermModal() { document.getElementById('rolePermOverlay').classList.add('open'); }
+    function closeRolePermModal() { document.getElementById('rolePermOverlay').classList.remove('open'); }
+
+    // 单用户编辑标签：复用 batchTag 弹窗，存储/恢复模式
+    function openSingleTagEdit(uid, kind) {
+      singleTagUid = uid;
+      currentBatchKind = kind || 'regular';
+      // 找用户姓名（regular 用 ADMIN_USERS, staff 用 usersData）
+      var u = currentBatchKind === 'staff'
+        ? usersData.find(function(x) { return x.id === uid; })
+        : window.getUserById(uid);
+      var who = u ? u.name : uid;
+      var curTagIds = window.getTagsForUser(uid).map(function(t) { return t.id; });
+      document.getElementById('batchTagTitle').textContent = '编辑分组 · ' + who;
+      document.getElementById('batchTagInfo').innerHTML = '勾选要保留的分组（取消勾选则移除）';
+      var btn = document.getElementById('batchTagConfirm');
+      btn.textContent = '保存';
+      btn.style.background = '#1677ff';
+      btn.style.borderColor = '#1677ff';
+      btn.onclick = confirmSingleTagEdit;
+      var listHtml = '';
+      window.USER_TAGS.forEach(function(t) {
+        var checked = curTagIds.indexOf(t.id) !== -1 ? 'checked' : '';
+        listHtml += '<label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;font-size:13px"><input type="checkbox" value="' + t.id + '" ' + checked + ' style="accent-color:#1677ff;width:14px;height:14px"><span class="tag-chip" style="background:' + t.color + '15;color:' + t.color + '">' + t.name + '</span><span style="font-size:11px;color:rgba(0,0,0,0.55);margin-left:auto">' + t.desc + '</span></label>';
+      });
+      document.getElementById('batchTagList').innerHTML = listHtml;
+      document.getElementById('batchTagOverlay').classList.add('open');
+    }
+    function confirmSingleTagEdit() {
+      var uid = singleTagUid;
+      var picked = [];
+      document.querySelectorAll('#batchTagList input:checked').forEach(function(c) { picked.push(c.value); });
+      window.USER_TAGS.forEach(function(t) {
+        var idx = t.uids.indexOf(uid);
+        var shouldHave = picked.indexOf(t.id) !== -1;
+        if (shouldHave && idx === -1) t.uids.push(uid);
+        else if (!shouldHave && idx !== -1) t.uids.splice(idx, 1);
+      });
+      singleTagUid = null;
+      closeBatchTag();
+      umGetCtx(currentBatchKind).render();
+    }
+
+    // =========================
+    // Tab 3: 用户分组（标签管理）
+    // =========================
+    var TAG_COLOR_PALETTE = ['#1677ff','#722ed1','#fa8c16','#52c41a','#13c2c2','#eb2f96','#fa541c','#faad14','#f5222d','#2f54eb'];
+    var editingTagId = null;
+    var formColor = '#1677ff';
+
+    // 跨两个池子查找用户名
+    function _findUserName(uid) {
+      var u = window.getUserById(uid);
+      if (u) return u.name;
+      var s = usersData.find(function(x) { return x.id === uid; });
+      return s ? s.name : null;
+    }
+
+    function renderTagsGrid() {
+      document.getElementById('tagsGrid').innerHTML = window.USER_TAGS.map(function(t) {
+        // 统计管理员/普通用户人数
+        var adminCnt = t.uids.filter(function(id) { return usersData.find(function(x) { return x.id === id; }); }).length;
+        var regCnt = t.uids.filter(function(id) { return window.getUserById(id); }).length;
+        return '<div style="background:#fff;border:1px solid #f0f0f0;border-radius:10px;padding:14px 16px">'
+          + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">'
+          +   '<div style="flex:1;min-width:0">'
+          +     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+          +       '<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:' + t.color + '"></span>'
+          +       '<strong style="font-size:14px">' + t.name + '</strong>'
+          +     '</div>'
+          +     '<div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:8px">' + (t.desc || '—') + '</div>'
+          +     '<div style="font-size:11px;color:rgba(0,0,0,0.45)"><strong style="color:' + t.color + ';font-size:18px">' + t.uids.length + '</strong> 个成员'
+          +       (t.uids.length > 0 ? ' <span style="margin-left:6px">（管理用户 ' + adminCnt + ' · 普通 ' + regCnt + '）</span>' : '')
+          +     '</div>'
+          +   '</div>'
+          +   '<div style="display:flex;flex-direction:column;gap:4px">'
+          +     '<button class="btn-sm" onclick="openTagModal(\'' + t.id + '\')">编辑</button>'
+          +     '<button class="btn-sm danger" onclick="deleteTag(\'' + t.id + '\')">删除</button>'
+          +   '</div>'
+          + '</div>'
+          + '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #f0f0f0;display:flex;flex-wrap:wrap;gap:4px">'
+          +   t.uids.slice(0, 6).map(function(uid) {
+                var name = _findUserName(uid);
+                return name ? '<span style="font-size:11px;padding:2px 8px;background:#f5f5f5;border-radius:10px;color:rgba(0,0,0,0.65)">' + name + '</span>' : '';
+              }).join('')
+          +   (t.uids.length > 6 ? '<span style="font-size:11px;padding:2px 8px;color:rgba(0,0,0,0.45)">+' + (t.uids.length - 6) + ' 人</span>' : '')
+          +   (t.uids.length === 0 ? '<span style="font-size:11px;color:rgba(0,0,0,0.25)">尚无成员，点击「编辑」添加</span>' : '')
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    var tagMemberSelected = {}; // 当前在编辑分组中勾选的成员 uid
+
+    function openTagModal(tid) {
+      editingTagId = tid || null;
+      var t = tid ? window.getTagById(tid) : null;
+      document.getElementById('tagModalTitle').textContent = t ? '编辑分组' : '新建分组';
+      document.getElementById('tagFormName').value = t ? t.name : '';
+      document.getElementById('tagFormDesc').value = t ? t.desc : '';
+      formColor = t ? t.color : TAG_COLOR_PALETTE[0];
+      document.getElementById('tagFormColors').innerHTML = TAG_COLOR_PALETTE.map(function(c) {
+        var active = c === formColor;
+        return '<span onclick="pickTagColor(\'' + c + '\')" style="width:24px;height:24px;border-radius:6px;background:' + c + ';cursor:pointer;border:2px solid ' + (active ? '#000' : 'transparent') + ';box-shadow:0 0 0 1px #e5e6eb"></span>';
+      }).join('');
+      // 成员管理仅编辑模式可用
+      var memSec = document.getElementById('tagMemberSection');
+      if (t) {
+        memSec.style.display = '';
+        tagMemberSelected = {};
+        document.getElementById('tagMemberSearch').value = '';
+        renderTagMembers();
+      } else {
+        memSec.style.display = 'none';
+      }
+      document.getElementById('tagModalOverlay').classList.add('open');
+    }
+
+    // 获取所有用户（管理员 + 普通），统一返回 {id, name, type, org/role, email, phone}
+    function _allUsers() {
+      var staff = usersData.map(function(u) {
+        var r = roleMap[u.role] || {};
+        return { id: u.id, name: u.name, type: 'staff', sub: r.name || '管理用户', email: u.email, phone: u.phone };
+      });
+      var regular = window.ADMIN_USERS.map(function(u) {
+        return { id: u.id, name: u.name, type: 'regular', sub: u.org || '—', email: u.email, phone: u.phone };
+      });
+      return staff.concat(regular);
+    }
+
+    function renderTagMembers() {
+      if (!editingTagId) return;
+      var t = window.getTagById(editingTagId);
+      if (!t) return;
+      var q = (document.getElementById('tagMemberSearch').value || '').trim().toLowerCase();
+      var all = _allUsers();
+      var members = all.filter(function(u) { return t.uids.indexOf(u.id) !== -1; });
+      var filtered = q ? members.filter(function(u) {
+        return u.name.toLowerCase().indexOf(q) !== -1
+            || u.email.toLowerCase().indexOf(q) !== -1
+            || u.phone.toLowerCase().indexOf(q) !== -1
+            || u.id.toLowerCase().indexOf(q) !== -1;
+      }) : members;
+      document.getElementById('tagMemberCount').textContent = members.length;
+      if (filtered.length === 0) {
+        document.getElementById('tagMemberList').innerHTML = '<div style="padding:30px;text-align:center;color:rgba(0,0,0,0.35);font-size:12px">' + (members.length === 0 ? '尚无成员，点击「+ 加入成员」添加' : '无匹配成员') + '</div>';
+      } else {
+        document.getElementById('tagMemberList').innerHTML = filtered.map(function(u) {
+          var checked = tagMemberSelected[u.id] ? 'checked' : '';
+          var typeBadge = u.type === 'staff'
+            ? '<span style="font-size:10px;padding:1px 6px;background:#f0f5ff;color:#1677ff;border-radius:8px">管理用户</span>'
+            : '<span style="font-size:10px;padding:1px 6px;background:#f6ffed;color:#52c41a;border-radius:8px">普通</span>';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f5f5f5">'
+            + '<input type="checkbox" data-uid="' + u.id + '" ' + checked + ' onchange="tagMemberToggleSel(\'' + u.id + '\', this.checked)" style="accent-color:#1677ff">'
+            + '<div style="flex:1;min-width:0">'
+            +   '<div style="font-size:13px;font-weight:600">' + u.name + ' ' + typeBadge + '</div>'
+            +   '<div style="font-size:11px;color:rgba(0,0,0,0.55);margin-top:2px;font-family:monospace">' + u.id + ' · ' + u.sub + '</div>'
+            + '</div>'
+            + '<span onclick="removeMemberFromTag(\'' + u.id + '\')" style="cursor:pointer;color:rgba(0,0,0,0.35);font-size:13px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px" onmouseover="this.style.background=\'#fff1f0\';this.style.color=\'#ff4d4f\'" onmouseout="this.style.background=\'\';this.style.color=\'rgba(0,0,0,0.35)\'" title="移除">✕</span>'
+            + '</div>';
+        }).join('');
+      }
+      tagMemberUpdateToolbar();
+    }
+
+    function tagMemberToggleSel(uid, checked) {
+      if (checked) tagMemberSelected[uid] = true; else delete tagMemberSelected[uid];
+      tagMemberUpdateToolbar();
+    }
+    function tagMemberToggleAll(checked) {
+      document.querySelectorAll('#tagMemberList input[type="checkbox"]').forEach(function(cb) {
+        cb.checked = checked;
+        var uid = cb.getAttribute('data-uid');
+        if (checked) tagMemberSelected[uid] = true; else delete tagMemberSelected[uid];
+      });
+      tagMemberUpdateToolbar();
+    }
+    function tagMemberUpdateToolbar() {
+      var n = Object.keys(tagMemberSelected).length;
+      var btn = document.getElementById('tagMemberRemoveBtn');
+      btn.style.display = n > 0 ? '' : 'none';
+      document.getElementById('tagMemberSelCount').textContent = n;
+    }
+    function removeMemberFromTag(uid) {
+      if (!editingTagId) return;
+      var t = window.getTagById(editingTagId);
+      if (!t) return;
+      var idx = t.uids.indexOf(uid);
+      if (idx !== -1) t.uids.splice(idx, 1);
+      delete tagMemberSelected[uid];
+      renderTagMembers();
+    }
+    function removeSelectedMembers() {
+      if (!editingTagId) return;
+      var t = window.getTagById(editingTagId);
+      if (!t) return;
+      var uids = Object.keys(tagMemberSelected);
+      if (uids.length === 0) return;
+      if (!confirm('确认从分组「' + t.name + '」移除选中的 ' + uids.length + ' 个成员吗？')) return;
+      uids.forEach(function(uid) {
+        var idx = t.uids.indexOf(uid);
+        if (idx !== -1) t.uids.splice(idx, 1);
+      });
+      tagMemberSelected = {};
+      renderTagMembers();
+    }
+
+    // ===== 加入成员弹窗 =====
+    var memberPickerSelected = {};
+    function openMemberPicker() {
+      memberPickerSelected = {};
+      document.getElementById('memberPickerSearch').value = '';
+      renderMemberPicker();
+      document.getElementById('memberPickerOverlay').classList.add('open');
+    }
+    function closeMemberPicker() { document.getElementById('memberPickerOverlay').classList.remove('open'); }
+    function renderMemberPicker() {
+      if (!editingTagId) return;
+      var t = window.getTagById(editingTagId);
+      if (!t) return;
+      var q = (document.getElementById('memberPickerSearch').value || '').trim().toLowerCase();
+      // 候选 = 全部用户 - 已是成员的
+      var candidates = _allUsers().filter(function(u) { return t.uids.indexOf(u.id) === -1; });
+      if (q) {
+        candidates = candidates.filter(function(u) {
+          return u.name.toLowerCase().indexOf(q) !== -1
+              || u.email.toLowerCase().indexOf(q) !== -1
+              || u.phone.toLowerCase().indexOf(q) !== -1
+              || u.id.toLowerCase().indexOf(q) !== -1
+              || u.sub.toLowerCase().indexOf(q) !== -1;
+        });
+      }
+      document.getElementById('memberPickerCount').textContent = Object.keys(memberPickerSelected).length;
+      if (candidates.length === 0) {
+        document.getElementById('memberPickerList').innerHTML = '<div style="padding:30px;text-align:center;color:rgba(0,0,0,0.35);font-size:12px">' + (q ? '无匹配用户' : '所有用户已加入此分组') + '</div>';
+      } else {
+        document.getElementById('memberPickerList').innerHTML = candidates.map(function(u) {
+          var checked = memberPickerSelected[u.id] ? 'checked' : '';
+          var typeBadge = u.type === 'staff'
+            ? '<span style="font-size:10px;padding:1px 6px;background:#f0f5ff;color:#1677ff;border-radius:8px">管理用户</span>'
+            : '<span style="font-size:10px;padding:1px 6px;background:#f6ffed;color:#52c41a;border-radius:8px">普通</span>';
+          return '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f5f5f5;cursor:pointer" onmouseover="this.style.background=\'#fafbfc\'" onmouseout="this.style.background=\'\'">'
+            + '<input type="checkbox" ' + checked + ' onchange="memberPickerToggle(\'' + u.id + '\', this.checked)" style="accent-color:#1677ff">'
+            + '<div style="flex:1;min-width:0">'
+            +   '<div style="font-size:13px;font-weight:600">' + u.name + ' ' + typeBadge + '</div>'
+            +   '<div style="font-size:11px;color:rgba(0,0,0,0.55);margin-top:2px;font-family:monospace">' + u.id + ' · ' + u.sub + ' · ' + u.email + '</div>'
+            + '</div>'
+            + '</label>';
+        }).join('');
+      }
+    }
+    function memberPickerToggle(uid, checked) {
+      if (checked) memberPickerSelected[uid] = true; else delete memberPickerSelected[uid];
+      document.getElementById('memberPickerCount').textContent = Object.keys(memberPickerSelected).length;
+    }
+    function confirmAddMembers() {
+      if (!editingTagId) return;
+      var t = window.getTagById(editingTagId);
+      if (!t) return;
+      var uids = Object.keys(memberPickerSelected);
+      if (uids.length === 0) { alert('请勾选至少一个用户'); return; }
+      uids.forEach(function(uid) {
+        if (t.uids.indexOf(uid) === -1) t.uids.push(uid);
+      });
+      closeMemberPicker();
+      renderTagMembers();
+    }
+    function pickTagColor(c) {
+      formColor = c;
+      document.getElementById('tagFormColors').innerHTML = TAG_COLOR_PALETTE.map(function(cc) {
+        var active = cc === formColor;
+        return '<span onclick="pickTagColor(\'' + cc + '\')" style="width:24px;height:24px;border-radius:6px;background:' + cc + ';cursor:pointer;border:2px solid ' + (active ? '#000' : 'transparent') + ';box-shadow:0 0 0 1px #e5e6eb"></span>';
+      }).join('');
+    }
+    function closeTagModal() { document.getElementById('tagModalOverlay').classList.remove('open'); }
+    function submitTagForm() {
+      var name = document.getElementById('tagFormName').value.trim();
+      if (!name) { alert('请填写分组名称'); return; }
+      var desc = document.getElementById('tagFormDesc').value.trim();
+      if (editingTagId) {
+        var t = window.getTagById(editingTagId);
+        if (t) { t.name = name; t.desc = desc; t.color = formColor; }
+      } else {
+        // 重名校验
+        if (window.USER_TAGS.find(function(x) { return x.name === name; })) { alert('分组名「' + name + '」已存在'); return; }
+        window.USER_TAGS.push({ id: 'tag-' + Date.now(), name: name, desc: desc, color: formColor, uids: [] });
+      }
+      closeTagModal();
+      renderTagsGrid();
+      renderUsers();
+      if (document.getElementById('umPanel-regular').classList.contains('active')) renderRegularUsers();
+    }
+    function deleteTag(tid) {
+      var t = window.getTagById(tid);
+      if (!t) return;
+      if (!confirm('确认删除分组「' + t.name + '」吗？该操作不会删除用户，但会移除所有打标关系。')) return;
+      var idx = window.USER_TAGS.findIndex(function(x) { return x.id === tid; });
+      if (idx !== -1) window.USER_TAGS.splice(idx, 1);
+      renderTagsGrid();
+      renderUsers();
+      if (document.getElementById('umPanel-regular').classList.contains('active')) renderRegularUsers();
+    }
+  </script>
+</body>
+</html>

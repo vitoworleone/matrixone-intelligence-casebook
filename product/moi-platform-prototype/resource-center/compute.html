@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 计算资源</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    /* Page layout */
+    .compute-page { padding: 24px; }
+    .compute-toolbar {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .compute-toolbar .search-wrap {
+      position: relative; width: 240px;
+    }
+    .compute-toolbar .search-wrap input {
+      width: 100%; height: 32px; padding: 4px 32px 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 13px; outline: none; transition: all 0.2s;
+    }
+    .compute-toolbar .search-wrap input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .compute-toolbar .search-wrap input::placeholder { color: rgba(0,0,0,0.25); }
+    .compute-toolbar .search-wrap .search-icon {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      color: rgba(0,0,0,0.35); pointer-events: none;
+    }
+    .compute-toolbar .status-chips { display: flex; gap: 4px; }
+    .status-chip {
+      padding: 2px 10px; border: 1px solid #d9d9d9; border-radius: 12px; font-size: 12px;
+      cursor: pointer; color: rgba(0,0,0,0.55); background: #fff; transition: all 0.15s;
+      user-select: none; line-height: 20px;
+    }
+    .status-chip:hover { border-color: #1677ff; color: #1677ff; }
+    .status-chip.active { background: #e6f4ff; border-color: #1677ff; color: #1677ff; }
+    .compute-toolbar .spacer { flex: 1; }
+    .btn-primary {
+      padding: 4px 16px; height: 32px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      background: #1677ff; color: #fff; border: none; font-weight: 500; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { background: #4096ff; }
+
+    /* Resource list table */
+    .compute-table-wrap {
+      background: #fff; border-radius: 8px; border: 1px solid #f0f0f0; overflow: hidden;
+    }
+    .compute-table { width: 100%; border-collapse: collapse; }
+    .compute-table th {
+      text-align: left; padding: 12px 16px; font-size: 13px; color: rgba(0,0,0,0.65);
+      font-weight: 500; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+    }
+    .compute-table td {
+      padding: 14px 16px; font-size: 13px; color: rgba(0,0,0,0.88); border-bottom: 1px solid #f0f0f0;
+    }
+    .compute-table tr:last-child td { border-bottom: none; }
+    .compute-table tr:hover td { background: #fafafa; }
+    .compute-table .res-name {
+      font-weight: 500; color: #1677ff; cursor: pointer;
+    }
+    .compute-table .res-name:hover { text-decoration: underline; }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 2px 10px;
+      border-radius: 4px; font-weight: 500;
+    }
+    .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-running { background: #f6ffed; color: #52c41a; }
+    .status-running .dot { background: #52c41a; }
+    .status-suspended { background: #f5f5f5; color: rgba(0,0,0,0.45); }
+    .status-suspended .dot { background: rgba(0,0,0,0.25); }
+    .status-starting { background: #e6f4ff; color: #1677ff; }
+    .status-starting .dot { background: #1677ff; animation: pulse 1.2s infinite; }
+    .status-scaling { background: #fff7e6; color: #fa8c16; }
+    .status-scaling .dot { background: #fa8c16; animation: pulse 1.2s infinite; }
+    .status-error { background: #fff1f0; color: #ff4d4f; }
+    .status-error .dot { background: #ff4d4f; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Spec tag */
+    .spec-tag {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 12px;
+      padding: 2px 8px; border-radius: 4px; background: #f5f5f5; color: rgba(0,0,0,0.65);
+    }
+    .spec-tag.gpu { background: #f9f0ff; color: #722ed1; }
+    .spec-tag.mem { background: #e6fffb; color: #13c2c2; }
+
+    /* Action links */
+    .tbl-act-link {
+      color: #1677ff; cursor: pointer; font-size: 13px; background: none; border: none;
+      padding: 0; transition: color 0.2s; margin-right: 12px;
+    }
+    .tbl-act-link:hover { color: #4096ff; }
+    .tbl-act-link.danger { color: #ff4d4f; }
+    .tbl-act-link.danger:hover { color: #cf1322; }
+
+    /* Empty state */
+    .compute-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 80px 0; color: rgba(0,0,0,0.25); gap: 12px;
+    }
+    .compute-empty svg { width: 64px; height: 64px; color: rgba(0,0,0,0.08); }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45); z-index: 400; align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 8px; padding: 24px;
+      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08);
+    }
+    .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; color: rgba(0,0,0,0.88); }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 13px; color: rgba(0,0,0,0.88); margin-bottom: 6px; display: block; }
+    .form-input {
+      width: 100%; height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 14px; outline: none; transition: all 0.2s;
+    }
+    .form-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .form-input::placeholder { color: rgba(0,0,0,0.25); }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+    .modal-footer .btn {
+      padding: 4px 16px; height: 32px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      display: inline-flex; align-items: center; transition: all 0.2s;
+    }
+    .modal-footer .btn-cancel { background: #fff; border: 1px solid #d9d9d9; color: rgba(0,0,0,0.88); }
+    .modal-footer .btn-cancel:hover { border-color: #1677ff; color: #1677ff; }
+    .modal-footer .btn-ok { background: #1677ff; border: none; color: #fff; font-weight: 500; }
+    .modal-footer .btn-ok:hover { background: #4096ff; }
+
+    /* Spec cards */
+    .spec-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .spec-card {
+      border: 2px solid #f0f0f0; border-radius: 8px; padding: 14px; cursor: pointer;
+      transition: all 0.2s; background: #fff; position: relative;
+    }
+    .spec-card:hover { border-color: #91caff; }
+    .spec-card.selected { border-color: #1677ff; background: #f0f7ff; }
+    .spec-card .spec-name { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 8px; }
+    .spec-card .spec-family-tag {
+      position: absolute; top: 8px; right: 8px; font-size: 10px; padding: 1px 6px;
+      border-radius: 3px; font-weight: 500;
+    }
+    .spec-card .spec-family-tag.standard { background: #e6f4ff; color: #1677ff; }
+    .spec-card .spec-family-tag.memory { background: #e6fffb; color: #13c2c2; }
+    .spec-card .spec-family-tag.gpu { background: #f9f0ff; color: #722ed1; }
+    .spec-card .spec-family-tag.gpuInfer { background: #f9f0ff; color: #722ed1; }
+    .spec-card .spec-family-tag.gpuTrain { background: #fff0f6; color: #c41d7f; }
+    .spec-card .spec-detail { font-size: 12px; color: rgba(0,0,0,0.55); line-height: 1.8; }
+    .spec-card .spec-detail span { display: block; }
+    .spec-card .spec-ru { font-size: 11px; color: rgba(0,0,0,0.35); margin-top: 6px; padding-top: 6px; border-top: 1px solid #f0f0f0; }
+
+    /* Scaling config */
+    .scaling-row { display: flex; gap: 12px; align-items: center; }
+    .scaling-row .form-group { flex: 1; }
+    .scaling-row label { font-size: 12px; color: rgba(0,0,0,0.55); margin-bottom: 4px; display: block; }
+    .scaling-row input[type="number"] {
+      width: 100%; height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 14px; outline: none; transition: all 0.2s;
+    }
+    .scaling-row input[type="number"]:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+
+    /* Auto suspend select */
+    .form-select {
+      width: 100%; height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 14px; outline: none; background: #fff; cursor: pointer;
+    }
+
+    /* Detail drawer */
+    /* Detail page (full-page view) */
+    .detail-page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .detail-back {
+      display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+      border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; font-size: 13px;
+      color: rgba(0,0,0,0.65); cursor: pointer; transition: all 0.15s;
+    }
+    .detail-back:hover { border-color: #1677ff; color: #1677ff; }
+    .detail-page-title { font-size: 18px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .detail-page-body { max-width: 1280px; }
+    .info-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 24px; }
+    .detail-tabs { display: flex; gap: 24px; border-bottom: 1px solid #f0f0f0; margin: 4px 0 16px; }
+    .detail-tab { padding: 9px 2px; font-size: 14px; color: rgba(0,0,0,0.55); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
+    .detail-tab.active { color: #1677ff; font-weight: 600; border-bottom-color: #1677ff; }
+    .detail-tab:hover { color: #1677ff; }
+    .workload-item.clickable { cursor: pointer; border-radius: 6px; margin: 0 -6px; padding-left: 6px; padding-right: 6px; transition: background 0.15s; }
+    .workload-item.clickable:hover { background: #f7faff; }
+    .workload-item.clickable:hover .wl-name { color: #1677ff; }
+    .hist-row { cursor: pointer; transition: background 0.15s; }
+    .hist-row:hover { background: #f7faff; }
+    .hist-row:hover td:first-child { color: #1677ff; }
+    .detail-act {
+      height: 30px; padding: 0 14px; border: 1px solid #e5e6eb; border-radius: 6px;
+      background: #fff; font-size: 13px; color: rgba(0,0,0,0.65); cursor: pointer; transition: all 0.15s;
+    }
+    .detail-act:hover { border-color: #1677ff; color: #1677ff; }
+    .detail-act.danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+    .detail-drawer-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.25); z-index: 350;
+    }
+    .detail-drawer-overlay.show { display: block; }
+    .detail-drawer {
+      position: fixed; top: 0; right: -520px; width: 520px; height: 100vh;
+      background: #fff; z-index: 360; transition: right 0.3s ease;
+      box-shadow: -6px 0 16px rgba(0,0,0,0.08); display: flex; flex-direction: column;
+    }
+    .detail-drawer.show { right: 0; }
+    .drawer-header {
+      padding: 20px 24px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .drawer-header .drawer-title-area { display: flex; align-items: center; gap: 12px; }
+    .drawer-header .drawer-title { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .drawer-close {
+      width: 32px; height: 32px; border: none; background: none; cursor: pointer;
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      color: rgba(0,0,0,0.45); font-size: 18px; transition: all 0.15s;
+    }
+    .drawer-close:hover { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.88); }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .drawer-body::-webkit-scrollbar { width: 4px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    .info-card {
+      background: #fff; border-radius: 8px; border: 1px solid #f0f0f0; padding: 16px;
+      margin-bottom: 16px;
+    }
+    .info-card h4 {
+      font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid #f0f0f0;
+    }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+    .info-item { display: flex; gap: 8px; font-size: 13px; }
+    .info-label { color: rgba(0,0,0,0.45); white-space: nowrap; min-width: 80px; }
+    .info-value { color: rgba(0,0,0,0.88); }
+
+    /* Usage bar */
+    .usage-bar-wrap { margin-top: 8px; }
+    .usage-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: rgba(0,0,0,0.45); margin-bottom: 4px; }
+    .usage-bar { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+    .usage-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .usage-bar-fill.low { background: #52c41a; }
+    .usage-bar-fill.mid { background: #faad14; }
+    .usage-bar-fill.high { background: #ff4d4f; }
+
+    /* Workload list in drawer */
+    .workload-list { }
+    .workload-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 0;
+      border-bottom: 1px solid #f5f5f5; font-size: 13px;
+    }
+    .workload-item:last-child { border-bottom: none; }
+    .workload-item .wl-icon { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .workload-item .wl-icon.wf { background: #e6f4ff; color: #1677ff; }
+    .workload-item .wl-icon.nb { background: #f6ffed; color: #52c41a; }
+    .workload-item .wl-name { flex: 1; color: rgba(0,0,0,0.88); }
+    .workload-item .wl-status { font-size: 12px; color: rgba(0,0,0,0.45); }
+
+    /* Confirm dialog */
+    .confirm-content { font-size: 14px; color: rgba(0,0,0,0.65); line-height: 1.6; margin-bottom: 8px; }
+    .confirm-warn { font-size: 13px; color: #ff4d4f; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataConn">
+        <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="../data-connection/data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="../data-connection/data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataProc">
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item active" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="resCenter">
+        <a class="sub-item" href="catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item active" href="compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item" href="data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="compute-page" id="listPage">
+      <!-- Toolbar -->
+      <div class="compute-toolbar">
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="搜索计算资源……" oninput="renderList()">
+          <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+        </div>
+        <div class="status-chips">
+          <span class="status-chip" data-status="all" onclick="filterStatus(this)">全部</span>
+          <span class="status-chip" data-status="running" onclick="filterStatus(this)">运行中</span>
+          <span class="status-chip" data-status="suspended" onclick="filterStatus(this)">已暂停</span>
+        </div>
+        <div class="spacer"></div>
+        <span id="nodeTotal" style="font-size:13px;color:rgba(0,0,0,0.5);margin-right:14px;white-space:nowrap"></span>
+        <button class="refresh-btn" onclick="refreshData(this)" title="刷新">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="btn-primary" onclick="openCreateModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          新建计算资源
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="compute-table-wrap">
+        <table class="compute-table">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>类型</th>
+              <th>规格</th>
+              <th>节点数</th>
+              <th>自动暂停</th>
+              <th>状态</th>
+              <th>关联工作负载</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="computeTableBody"></tbody>
+        </table>
+        <div class="compute-empty" id="computeEmpty" style="display:none">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="8" y="20" width="20" height="24" rx="3"/><rect x="36" y="20" width="20" height="24" rx="3"/><path d="M18 16v4M46 16v4M18 44v4M46 44v4"/><path d="M14 30h8M42 30h8M14 36h8M42 36h8"/></svg>
+          <span>暂无计算资源</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail page (replaces drawer) -->
+    <div class="compute-page" id="detailPage" style="display:none">
+      <div class="detail-page-head">
+        <button class="detail-back" onclick="closeDrawer()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          返回
+        </button>
+        <span class="detail-page-title" id="detailPageTitle"></span>
+        <span id="detailPageStatus"></span>
+        <div style="flex:1"></div>
+        <div id="detailPageActions" style="display:flex;gap:8px"></div>
+      </div>
+      <div class="detail-page-body" id="detailPageBody"></div>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div class="modal-overlay" id="createModal" onclick="if(event.target===this)closeCreateModal()">
+    <div class="modal" style="width:940px">
+      <h3>新建计算资源</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">名称 <span style="color:#ff4d4f">*</span></label>
+          <input class="form-input" id="crName" type="text" placeholder="请输入计算资源名称" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label class="form-label">描述</label>
+          <input class="form-input" id="crDesc" type="text" placeholder="可选描述">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">类型 <span style="color:#ff4d4f">*</span></label>
+        <div style="display:flex;gap:10px">
+          <div id="kindCardTask" onclick="selectKind('task')" style="flex:1;border:1.5px solid #1677ff;background:#f0f7ff;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s">
+            <div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:4px">通用计算资源</div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.5);line-height:1.6">运行<b>非 SQL</b> 处理 · 规格分 CPU 通用型 / CPU 内存型 / GPU 推理型 / GPU 训练型</div>
+          </div>
+          <div id="kindCardQuery" onclick="selectKind('query')" style="flex:1;border:1.5px solid #f0f0f0;background:#fff;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s">
+            <div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:4px">SQL 计算资源</div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.5);line-height:1.6">仅运行 <b>SQL</b> · 规格为SQL 算力档</div>
+          </div>
+        </div>
+
+        <!-- 用途说明：默认隐藏，点按钮展开「消费方 × 计算资源」矩阵表 -->
+        <button type="button" id="kindHelpBtn" onclick="toggleKindHelp()" style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;background:none;border:none;padding:2px 0;cursor:pointer;font-size:12px;color:#1677ff">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>
+          <span>各功能分别用哪类计算资源？</span>
+          <svg id="kindHelpChevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .15s"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="kindHelpPanel" style="display:none;margin-top:8px;border:1px solid #e6eefb;background:#f7faff;border-radius:8px;padding:4px 4px 2px;overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;color:rgba(0,0,0,0.75)">
+            <thead>
+              <tr style="color:rgba(0,0,0,0.4);text-align:left">
+                <th style="padding:7px 10px;font-weight:500">消费方</th>
+                <th style="padding:7px 10px;font-weight:500;width:28%">SQL 资源</th>
+                <th style="padding:7px 10px;font-weight:500;width:28%">通用资源</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">SQL 编辑器 · 执行 MOI 表</td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span></td><td style="padding:7px 10px"><span style="color:rgba(0,0,0,0.25)">—</span></td></tr>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">SQL 编辑器 · 联邦查询</td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span></td><td style="padding:7px 10px"><span style="color:rgba(0,0,0,0.25)">—</span></td></tr>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">SQL 编辑器 · 外部目录直查</td><td style="padding:7px 10px"><span style="color:rgba(0,0,0,0.25)">—</span> <span style="font-size:11px;color:rgba(0,0,0,0.35)">下推源端</span></td><td style="padding:7px 10px"><span style="color:rgba(0,0,0,0.25)">—</span></td></tr>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">工作流</td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span> <span style="font-size:11px;color:rgba(0,0,0,0.5)">SQL / 读写表节点</span></td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span> <span style="font-size:11px;color:rgba(0,0,0,0.5)">非 SQL 节点</span></td></tr>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">结构化 载入 / 导出</td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span> <span style="font-size:11px;color:rgba(0,0,0,0.5)">读 / 写 MO 表</span></td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span> <span style="font-size:11px;color:rgba(0,0,0,0.5)">拉取 / 解析 / 映射 / 外部写</span></td></tr>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">非结构化 载入 / 导出</td><td style="padding:7px 10px"><span style="color:rgba(0,0,0,0.25)">—</span></td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span></td></tr>
+              <tr style="border-top:1px solid #eef2fb"><td style="padding:7px 10px">算子 API 发布</td><td style="padding:7px 10px"><span style="color:rgba(0,0,0,0.25)">—</span></td><td style="padding:7px 10px"><span style="color:#52c41a;font-weight:700">✓</span></td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:11px;color:rgba(0,0,0,0.4);padding:7px 10px 4px;line-height:1.6">两类不能跨用——通用资源无法执行 SQL、SQL 资源无法运行非 SQL 处理；同时涉及两边的（工作流、结构化载入 / 导出）需各挂一个。</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">选择规格 <span style="color:#ff4d4f">*</span></label>
+        <div class="spec-cards" id="specCards"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">弹性伸缩</label>
+        <div class="scaling-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label>最小节点数</label>
+            <input type="number" id="crMinNodes" value="1" min="1" max="10">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>最大节点数</label>
+            <input type="number" id="crMaxNodes" value="2" min="1" max="10">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>自动暂停</label>
+            <select class="form-select" id="crAutoSuspend">
+              <option value="5">5 分钟无活动</option>
+              <option value="10" selected>10 分钟无活动</option>
+              <option value="30">30 分钟无活动</option>
+              <option value="60">1 小时无活动</option>
+              <option value="0">不自动暂停</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closeCreateModal()">取消</button>
+        <button class="btn btn-ok" onclick="confirmCreate()">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal" onclick="if(event.target===this)closeConfirmModal()">
+    <div class="modal" style="width:420px">
+      <h3 id="confirmTitle">确认操作</h3>
+      <div class="confirm-content" id="confirmContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closeConfirmModal()">取消</button>
+        <button class="btn btn-ok" id="confirmOkBtn" onclick="execConfirm()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Linked workloads modal -->
+  <div class="modal-overlay" id="linkedModal" onclick="if(event.target===this)closeLinkedModal()">
+    <div class="modal" style="width:460px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 id="linkedModalTitle" style="margin:0">关联工作负载</h3>
+        <button onclick="closeLinkedModal()" style="width:30px;height:30px;border:none;background:none;cursor:pointer;border-radius:6px;font-size:16px;color:rgba(0,0,0,0.45)" onmouseover="this.style.background='rgba(0,0,0,0.04)'" onmouseout="this.style.background='none'">✕</button>
+      </div>
+      <div id="linkedModalBody"></div>
+    </div>
+  </div>
+
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/obj-perm.js"></script>
+  <script>
+
+// ===== Spec Definitions =====
+var SPECS = [
+  // 通用计算资源（跑非 SQL 处理）：CPU 通用型 / CPU 内存型 / GPU 推理型 / GPU 训练型
+  { id: 'CG1', kind: 'task', family: 'standard', familyName: 'CPU 通用型', cpu: 2, mem: 8,  gpu: 0, creditPerHour: 15 },
+  { id: 'CG2', kind: 'task', family: 'standard', familyName: 'CPU 通用型', cpu: 4, mem: 16, gpu: 0, creditPerHour: 30 },
+  { id: 'CG4', kind: 'task', family: 'standard', familyName: 'CPU 通用型', cpu: 8, mem: 32, gpu: 0, creditPerHour: 60 },
+  { id: 'CM2', kind: 'task', family: 'memory', familyName: 'CPU 内存型', cpu: 4, mem: 32, gpu: 0, creditPerHour: 40 },
+  { id: 'CM4', kind: 'task', family: 'memory', familyName: 'CPU 内存型', cpu: 8, mem: 64, gpu: 0, creditPerHour: 80 },
+  { id: 'GI1', kind: 'task', family: 'gpuInfer', familyName: 'GPU 推理型', cpu: 8,  mem: 32,  gpu: 1, gpuMem: 24, creditPerHour: 380 },
+  { id: 'GI4', kind: 'task', family: 'gpuInfer', familyName: 'GPU 推理型', cpu: 32, mem: 128, gpu: 4, gpuMem: 24, creditPerHour: 1525 },
+  { id: 'GT1', kind: 'task', family: 'gpuTrain', familyName: 'GPU 训练型', cpu: 12, mem: 96,  gpu: 1, gpuMem: 80, creditPerHour: 1040 },
+  { id: 'GT4', kind: 'task', family: 'gpuTrain', familyName: 'GPU 训练型', cpu: 48, mem: 384, gpu: 4, gpuMem: 80, creditPerHour: 4170 },
+  { id: 'GT8', kind: 'task', family: 'gpuTrain', familyName: 'GPU 训练型', cpu: 96, mem: 768, gpu: 8, gpuMem: 80, creditPerHour: 8340 },
+  // SQL 计算资源（只运行 SQL）：SQL 算力档
+  { id: 'Q1', kind: 'query', family: 'query', familyName: 'SQL 算力档', cpu: 4, mem: 16, gpu: 0, creditPerHour: 30 },
+  { id: 'Q2', kind: 'query', family: 'query', familyName: 'SQL 算力档', cpu: 8, mem: 32, gpu: 0, creditPerHour: 60 },
+  { id: 'Q4', kind: 'query', family: 'query', familyName: 'SQL 算力档', cpu: 16, mem: 64, gpu: 0, creditPerHour: 120 }
+];
+
+var KIND_LABEL = { query: 'SQL', task: '通用' };
+function kindTag(kind) {
+  var isQ = kind === 'query';
+  var bg = isQ ? '#e6f7ff' : '#f6ffed', co = isQ ? '#0958d9' : '#389e0d', bd = isQ ? '#91caff' : '#b7eb8f';
+  return '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:' + bg + ';color:' + co + ';border:1px solid ' + bd + '">' + (KIND_LABEL[kind] || kind) + '</span>';
+}
+
+// ===== Default Data =====
+var STORAGE_KEY = 'moi_compute_resources_v4';
+function getDefaultData() {
+  return [
+    {
+      id: 'crq0', name: '默认 SQL 资源', desc: '工作区默认 SQL 计算资源，供 SQL 编辑器、SQL 节点、结构化载入/导出读写 MO 表',
+      kind: 'query', specId: 'Q2', minNodes: 1, maxNodes: 3, currentNodes: 1,
+      autoSuspend: 10, status: 'running', isDefault: true,
+      createdAt: '2026-02-15 09:00', createdBy: '系统', createdRole: '系统',
+      nodes: [
+        { name: '节点 1', cpu: 28, mem: 41, tasks: [ { name: 'BI 报表 · 月度汇总查询', type: 'sql', elapsed: '8 秒', progress: '扫描 1.2M 行' } ] }
+      ],
+      history: [
+        { name: 'SQL 编辑器 · 明细查询', type: 'sql', startAt: '今天 15:20', duration: '3 秒', result: '成功' },
+        { name: '联邦查询 · 跨源关联', type: 'sql', startAt: '今天 14:05', duration: '45 秒', result: '成功' },
+        { name: '日报表 SQL 汇总', type: 'sql', startAt: '今天 09:00', duration: '2 分', result: '成功' }
+      ]
+    },
+    {
+      id: 'crq1', name: 'BI 专用资源', desc: '供 BI 直连与联邦查询使用的 SQL 算力',
+      kind: 'query', specId: 'Q4', minNodes: 1, maxNodes: 2, currentNodes: 0,
+      autoSuspend: 30, status: 'suspended', isDefault: false,
+      createdAt: '2026-03-08 10:00', createdBy: '张三', createdRole: '数据工程师',
+      nodes: [],
+      history: [ { name: 'BI 报表直连', type: 'sql', startAt: '昨天 18:30', duration: '1 分', result: '成功' } ]
+    },
+    {
+      id: 'cr1', name: '默认通用资源', desc: '工作区默认通用计算资源，供工作流非 SQL 节点、文档解析、载入/导出处理等',
+      kind: 'task', specId: 'CG2', minNodes: 1, maxNodes: 3, currentNodes: 2,
+      autoSuspend: 10, status: 'running', isDefault: true,
+      createdAt: '2026-02-15 09:00', createdBy: '系统', createdRole: '系统',
+      nodes: [
+        { name: '节点 1', cpu: 45, mem: 62, tasks: [ { name: '设备可靠性数据处理', type: 'workflow', elapsed: '12 分', progress: '文档解析 340/500' } ] },
+        { name: '节点 2', cpu: 38, mem: 55, tasks: [ { name: '数据质量分析', type: 'notebook', elapsed: '25 分', progress: '运行中' } ] }
+      ],
+      history: [
+        { name: '客户数据清洗', type: 'workflow', startAt: '今天 14:20', duration: '8 分', result: '成功' },
+        { name: '图片 OCR 批处理', type: 'workflow', startAt: '今天 13:00', duration: '15 分', result: '失败' },
+        { name: '合同信息批量提取', type: 'workflow', startAt: '今天 11:30', duration: '6 分', result: '成功' }
+      ]
+    },
+    {
+      id: 'cr2', name: 'GPU 推理资源', desc: '用于模型推理和嵌入计算',
+      specId: 'GI1', minNodes: 1, maxNodes: 2, currentNodes: 1,
+      autoSuspend: 30, status: 'running', isDefault: false,
+      createdAt: '2026-03-01 14:30', createdBy: '张三', createdRole: '数据工程师',
+      nodes: [
+        { name: '节点 1', cpu: 30, mem: 55, gpu: 48, tasks: [ { name: '文本嵌入批处理', type: 'workflow', elapsed: '6 分', progress: '嵌入 8.2K/12K' } ] }
+      ],
+      history: [ { name: '图文嵌入 · 知识库构建', type: 'workflow', startAt: '今天 10:00', duration: '22 分', result: '成功' } ]
+    },
+    {
+      id: 'cr3', name: '大规模数据处理', desc: '高内存配置，用于大文件解析和数据增强',
+      specId: 'CM4', minNodes: 2, maxNodes: 4, currentNodes: 0,
+      autoSuspend: 5, status: 'suspended', isDefault: false,
+      createdAt: '2026-03-05 10:00', createdBy: '李四', createdRole: '数据工程师',
+      nodes: [],
+      history: [ { name: '大文件解析增强', type: 'workflow', startAt: '昨天 16:00', duration: '35 分', result: '成功' } ]
+    },
+    {
+      id: 'cr4', name: '开发测试资源', desc: '轻量级资源，用于 Notebook 开发调试',
+      specId: 'CG1', minNodes: 1, maxNodes: 1, currentNodes: 1,
+      autoSuspend: 5, status: 'running', isDefault: false,
+      createdAt: '2026-03-10 16:00', createdBy: '王五', createdRole: '开发者',
+      nodes: [
+        { name: '节点 1', cpu: 12, mem: 28, tasks: [] }
+      ],
+      history: [ { name: '自定义去敏处理', type: 'notebook', startAt: '今天 14:00', duration: '4 分', result: '成功' } ]
+    },
+    {
+      id: 'cr5', name: 'GPU 训练集群', desc: '大规模 GPU 集群，用于模型微调训练',
+      specId: 'GT4', minNodes: 1, maxNodes: 2, currentNodes: 0,
+      autoSuspend: 60, status: 'suspended', isDefault: false,
+      createdAt: '2026-03-12 11:00', createdBy: '张三', createdRole: '数据工程师',
+      nodes: [],
+      history: []
+    }
+  ];
+}
+
+// 关联工作负载（配置上使用此资源的工作流 / Notebook / 载入等，含空闲）
+var LINKED_MAP = {
+  crq0: [ { type: 'sql', name: 'SQL 编辑器 · 交互查询' }, { type: 'workflow', name: '日报表 SQL 汇总' }, { type: 'load', name: '订单表增量载入' } ],
+  crq1: [ { type: 'sql', name: 'BI 报表直连' } ],
+  cr1: [ { type: 'workflow', name: '设备可靠性数据处理' }, { type: 'notebook', name: '数据质量分析' }, { type: 'workflow', name: '合同信息批量提取' }, { type: 'load', name: '非结构化文档载入' } ],
+  cr2: [ { type: 'workflow', name: '文本嵌入批处理' }, { type: 'workflow', name: '图文嵌入 · 知识库构建' } ],
+  cr3: [ { type: 'workflow', name: '大文件解析增强' } ],
+  cr4: [ { type: 'notebook', name: '自定义去敏处理' }, { type: 'notebook', name: '合同关键信息提取' } ],
+  cr5: []
+};
+function normalizeKind(list) {
+  list.forEach(function(r) {
+    if (!r.kind) r.kind = (r.specId && r.specId.charAt(0) === 'Q') ? 'query' : 'task';
+    if (!r.linked) r.linked = (LINKED_MAP[r.id] || []).slice();
+    if (!r.nodes) r.nodes = [];
+    if (!r.history) r.history = [];
+  });
+  return list;
+}
+function loadData() {
+  var raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    var d = normalizeKind(getDefaultData());
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    return d;
+  }
+  return normalizeKind(JSON.parse(raw));
+}
+function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+var resources = loadData();
+var currentFilter = 'all';
+var currentKindFilter = 'all';
+var selectedSpec = 'S2';
+var selectedKind = 'task';
+var confirmAction = null;
+var currentDetailId = null;
+
+// ===== Render Spec Cards =====
+function selectKind(kind) {
+  selectedKind = kind;
+  document.getElementById('kindCardTask').style.border = kind === 'task' ? '1.5px solid #1677ff' : '1.5px solid #f0f0f0';
+  document.getElementById('kindCardTask').style.background = kind === 'task' ? '#f0f7ff' : '#fff';
+  document.getElementById('kindCardQuery').style.border = kind === 'query' ? '1.5px solid #1677ff' : '1.5px solid #f0f0f0';
+  document.getElementById('kindCardQuery').style.background = kind === 'query' ? '#f0f7ff' : '#fff';
+  // 切类型后默认选该类型第一个规格
+  var first = SPECS.filter(function(s){ return s.kind === kind; })[0];
+  if (first) selectedSpec = first.id;
+  renderSpecCards();
+}
+
+function toggleKindHelp() {
+  var p = document.getElementById('kindHelpPanel');
+  var ch = document.getElementById('kindHelpChevron');
+  var show = (p.style.display === 'none' || !p.style.display);
+  p.style.display = show ? 'block' : 'none';
+  if (ch) ch.style.transform = show ? 'rotate(180deg)' : '';
+}
+
+function renderSpecCards() {
+  var html = '';
+  SPECS.filter(function(s){ return s.kind === selectedKind; }).forEach(function(s) {
+    var sel = s.id === selectedSpec ? ' selected' : '';
+    html += '<div class="spec-card' + sel + '" onclick="selectSpec(\'' + s.id + '\')">'
+      + '<span class="spec-family-tag ' + s.family + '">' + s.familyName + '</span>'
+      + '<div class="spec-name">' + s.id + '</div>'
+      + '<div class="spec-detail">'
+      + '<span>' + s.cpu + ' vCPU</span>'
+      + '<span>' + s.mem + ' GB 内存</span>'
+      + (s.gpu > 0 ? '<span>' + s.gpu + ' 卡 × ' + s.gpuMem + 'G 显存</span>' : '')
+      + '</div>'
+      + '<div class="spec-ru">' + s.creditPerHour + ' Credit / 小时 / 节点</div>'
+      + '</div>';
+  });
+  document.getElementById('specCards').innerHTML = html;
+}
+
+function selectSpec(id) {
+  selectedSpec = id;
+  renderSpecCards();
+}
+
+// ===== Status Helpers =====
+var STATUS_MAP = {
+  running: { label: '运行中', cls: 'status-running' },
+  suspended: { label: '已暂停', cls: 'status-suspended' },
+  starting: { label: '启动中', cls: 'status-starting' },
+  scaling: { label: '扩缩容中', cls: 'status-scaling' },
+  error: { label: '异常', cls: 'status-error' }
+};
+function statusBadge(st) {
+  var m = STATUS_MAP[st] || { label: st, cls: '' };
+  return '<span class="status-badge ' + m.cls + '"><span class="dot"></span>' + m.label + '</span>';
+}
+
+function specTag(specId) {
+  var s = SPECS.find(function(x) { return x.id === specId; });
+  if (!s) return specId;
+  var cls = s.gpu > 0 ? ' gpu' : (s.family === 'memory' ? ' mem' : '');
+  return '<span class="spec-tag' + cls + '">' + s.id + ' · ' + s.cpu + 'C/' + s.mem + 'G' + (s.gpu > 0 ? '/' + s.gpu + 'GPU' : '') + '</span>';
+}
+
+// ===== Render List =====
+function renderList() {
+  var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+  var filtered = resources.filter(function(r) {
+    if (currentFilter !== 'all' && r.status !== currentFilter) return false;
+    if (currentKindFilter !== 'all' && r.kind !== currentKindFilter) return false;
+    if (keyword && r.name.toLowerCase().indexOf(keyword) === -1 && r.desc.toLowerCase().indexOf(keyword) === -1) return false;
+    return true;
+  });
+
+  var nodeEl = document.getElementById('nodeTotal');
+  if (nodeEl) nodeEl.textContent = resources.length + ' 个计算资源';
+
+  var tbody = document.getElementById('computeTableBody');
+  var empty = document.getElementById('computeEmpty');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  var html = '';
+  filtered.forEach(function(r) {
+    var s = SPECS.find(function(x) { return x.id === r.specId; });
+    var suspendLabel = r.autoSuspend === 0 ? '不自动暂停' : r.autoSuspend + ' 分钟';
+    var linkCount = r.linked ? r.linked.length : 0;
+
+    html += '<tr>'
+      + '<td><span class="res-name" onclick="openDrawer(\'' + r.id + '\')">' + r.name + '</span>'
+      + (r.isDefault ? ' <span style="font-size:11px;color:rgba(0,0,0,0.35);background:#f5f5f5;padding:1px 6px;border-radius:3px">默认</span>' : '')
+      + '</td>'
+      + '<td>' + kindTag(r.kind) + '</td>'
+      + '<td>' + specTag(r.specId) + '</td>'
+      + '<td>' + r.currentNodes + ' <span style="color:rgba(0,0,0,0.4)">(' + r.minNodes + '-' + r.maxNodes + ')</span></td>'
+      + '<td>' + suspendLabel + '</td>'
+      + '<td>' + statusBadge(r.status) + '</td>'
+      + '<td>' + (linkCount > 0 ? '<span style="color:#1677ff;cursor:pointer" onclick="openLinkedModal(\'' + r.id + '\')">' + linkCount + ' 个</span>' : '<span style="color:rgba(0,0,0,0.25)">无</span>') + '</td>'
+      + '<td>' + r.createdAt + '</td>'
+      + '<td><button class="tbl-act-link" onclick="event.stopPropagation();ObjPerm.open(\'计算资源\', \'' + r.name + '\')">权限</button> ' + (!r.isDefault ? '<button class="tbl-act-link danger" onclick="doDelete(\'' + r.id + '\')">删除</button>' : '<span style="color:rgba(0,0,0,0.25)">-</span>') + '</td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+// ===== Filter =====
+function filterStatus(el) {
+  document.querySelectorAll('.status-chip').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  currentFilter = el.getAttribute('data-status');
+  renderList();
+}
+
+// ===== Create =====
+function openCreateModal() {
+  document.getElementById('crName').value = '';
+  document.getElementById('crDesc').value = '';
+  document.getElementById('crMinNodes').value = '1';
+  document.getElementById('crMaxNodes').value = '2';
+  document.getElementById('crAutoSuspend').value = '10';
+  selectKind('task');
+  selectedSpec = 'S2';
+  renderSpecCards();
+  // 用途说明默认收起
+  document.getElementById('kindHelpPanel').style.display = 'none';
+  var ch = document.getElementById('kindHelpChevron');
+  if (ch) ch.style.transform = '';
+  document.getElementById('createModal').classList.add('show');
+  setTimeout(function() { document.getElementById('crName').focus(); }, 100);
+}
+function closeCreateModal() { document.getElementById('createModal').classList.remove('show'); }
+
+function confirmCreate() {
+  var name = document.getElementById('crName').value.trim();
+  if (!name) { document.getElementById('crName').focus(); return; }
+  var minN = parseInt(document.getElementById('crMinNodes').value) || 1;
+  var maxN = parseInt(document.getElementById('crMaxNodes').value) || 2;
+  if (maxN < minN) maxN = minN;
+  var autoS = parseInt(document.getElementById('crAutoSuspend').value);
+
+  var now = new Date();
+  var ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0')
+    + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  var raw = localStorage.getItem('moi_user');
+  var creator = '用户';
+  if (raw) { try { creator = JSON.parse(raw).name || '用户'; } catch(e) {} }
+
+  var newNodes = [];
+  for (var i = 0; i < minN; i++) {
+    newNodes.push({ name: '节点 ' + (i + 1), cpu: Math.floor(Math.random() * 15) + 5, mem: Math.floor(Math.random() * 20) + 10, tasks: [] });
+  }
+  resources.push({
+    id: 'cr' + Date.now(),
+    name: name,
+    desc: document.getElementById('crDesc').value.trim(),
+    kind: selectedKind,
+    specId: selectedSpec,
+    minNodes: minN, maxNodes: maxN, currentNodes: minN,
+    autoSuspend: autoS,
+    status: 'running',
+    isDefault: false,
+    createdAt: ts, createdBy: creator, createdRole: '用户',
+    nodes: newNodes, history: [], linked: []
+  });
+  saveData(resources);
+  closeCreateModal();
+  renderList();
+}
+
+// ===== Actions =====
+function doSuspend(id) {
+  confirmAction = function() {
+    var r = resources.find(function(x) { return x.id === id; });
+    if (r) { r.status = 'suspended'; r.currentNodes = 0; r.cpuUsage = 0; r.memUsage = 0; r.load = 0; if (r.tasks) { r.tasks.running = []; r.tasks.queued = []; } }
+    saveData(resources);
+    renderList();
+    closeConfirmModal();
+    refreshDetail(id);
+  };
+  document.getElementById('confirmTitle').textContent = '暂停计算资源';
+  document.getElementById('confirmContent').innerHTML = '暂停后计算资源将停止运行，不再产生 Credit 消耗。<br>关联的工作负载将被中断。确定暂停？';
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function doResume(id) {
+  var r = resources.find(function(x) { return x.id === id; });
+  if (r) {
+    r.status = 'starting';
+    saveData(resources);
+    renderList();
+    refreshDetail(id);
+    setTimeout(function() {
+      r.status = 'running';
+      r.currentNodes = r.minNodes;
+      r.cpuUsage = Math.floor(Math.random() * 30) + 10;
+      r.memUsage = Math.floor(Math.random() * 40) + 15;
+      saveData(resources);
+      renderList();
+      refreshDetail(id);
+    }, 2000);
+  }
+}
+
+function doDelete(id) {
+  var r = resources.find(function(x) { return x.id === id; });
+  if (!r) return;
+  confirmAction = function() {
+    resources = resources.filter(function(x) { return x.id !== id; });
+    saveData(resources);
+    renderList();
+    closeConfirmModal();
+    refreshDetail(id, true);
+  };
+  document.getElementById('confirmTitle').textContent = '删除计算资源';
+  var warn = r.status === 'running' ? '<div class="confirm-warn">⚠ 该资源正在运行中，删除后关联工作负载将被中断。</div>' : '';
+  document.getElementById('confirmContent').innerHTML = '确定删除计算资源「' + r.name + '」？此操作不可恢复。' + warn;
+  document.getElementById('confirmOkBtn').style.background = '#ff4d4f';
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('show');
+  document.getElementById('confirmOkBtn').style.background = '';
+  confirmAction = null;
+}
+function execConfirm() { if (confirmAction) confirmAction(); }
+
+// ===== Task / workload icon (shared) =====
+function taskIcon(type) {
+  var m = {
+    workflow: ['#e6f4ff', '#1677ff', '<path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4"/>'],
+    notebook: ['#f6ffed', '#52c41a', '<rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4"/>'],
+    sql: ['#e6f7ff', '#0958d9', '<ellipse cx="7" cy="3.5" rx="5" ry="2"/><path d="M2 3.5v7c0 1.1 2.2 2 5 2s5-.9 5-2v-7"/>'],
+    load: ['#fff7e6', '#fa8c16', '<path d="M7 2v7M4 6l3 3 3-3M2 12h10"/>'],
+    export: ['#fff0f6', '#eb2f96', '<path d="M7 11V4M4 7l3-3 3 3M2 12h10"/>']
+  };
+  var c = m[type] || m.workflow;
+  return '<div class="wl-icon" style="background:' + c[0] + ';color:' + c[1] + '"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3">' + c[2] + '</svg></div>';
+}
+function linkedTypeLabel(t) { return ({ workflow: '工作流', notebook: 'Notebook', sql: 'SQL', load: '数据载入', export: '数据导出' })[t] || t; }
+// 正在执行的任务 → 跳「任务本身」（工作流 / Notebook / 载入 / 导出任务配置页）
+function taskHref(type) {
+  return ({
+    workflow: '../data-processing/workflow.html',
+    notebook: '../data-processing/notebook.html',
+    sql: '../data-processing/sql-editor.html',
+    load: '../data-connection/data-import.html',
+    export: '../data-connection/data-export.html'
+  })[type] || '../data-processing/workflow.html';
+}
+// 历史任务 → 跳「执行记录」（SQL 走 SQL 历史，其余走作业；作业页未上线前先落到作业监控入口）
+function jobHref(type) {
+  return type === 'sql' ? '../monitor/sql-history.html' : '../monitor/jobs.html';
+}
+function gotoTask(type) { window.location.href = taskHref(type); }
+function gotoJob(type) { window.location.href = jobHref(type); }
+function openLinkedModal(id) {
+  var r = resources.find(function(x) { return x.id === id; });
+  if (!r) return;
+  var list = r.linked || [];
+  var h = '<div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:12px">配置上使用此计算资源的工作负载（含空闲，共 ' + list.length + ' 个）</div>';
+  list.forEach(function(w) {
+    h += '<div class="workload-item">' + taskIcon(w.type) + '<span class="wl-name">' + linkedTypeLabel(w.type) + ' - ' + w.name + '</span></div>';
+  });
+  if (!list.length) h += '<div style="color:rgba(0,0,0,0.25);font-size:13px;text-align:center;padding:16px 0">暂无关联工作负载</div>';
+  document.getElementById('linkedModalTitle').textContent = '关联工作负载 · ' + r.name;
+  document.getElementById('linkedModalBody').innerHTML = h;
+  document.getElementById('linkedModal').classList.add('show');
+}
+function closeLinkedModal() { document.getElementById('linkedModal').classList.remove('show'); }
+
+// ===== Detail tabs (realtime load / history) =====
+function infoItem(label, value) {
+  return '<div class="info-item"><span class="info-label">' + label + '</span><span class="info-value">' + value + '</span></div>';
+}
+function switchDetailTab(el, tab) {
+  Array.prototype.forEach.call(el.parentElement.children, function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('tab-realtime').style.display = tab === 'realtime' ? '' : 'none';
+  document.getElementById('tab-history').style.display = tab === 'history' ? '' : 'none';
+}
+function renderRealtimeTab(r, s) {
+  if (r.status !== 'running' || !r.nodes.length) {
+    return '<div class="info-card"><div style="color:rgba(0,0,0,0.35);font-size:13px;text-align:center;padding:28px 0">资源当前无运行节点<br><span style="font-size:12px;color:rgba(0,0,0,0.25)">有任务时会按弹性伸缩策略自动拉起节点</span></div></div>';
+  }
+  var hasGpu = s && s.gpu > 0;
+  function bar(label, val) {
+    var cls = val > 80 ? 'high' : (val > 50 ? 'mid' : 'low');
+    return '<div class="usage-bar-wrap" style="margin-top:10px"><div class="usage-bar-label"><span>' + label + '</span><span>' + val + '%</span></div><div class="usage-bar"><div class="usage-bar-fill ' + cls + '" style="width:' + val + '%"></div></div></div>';
+  }
+  return r.nodes.map(function(n) {
+    var h = '<div class="info-card"><h4>' + n.name + ' <span style="font-size:12px;font-weight:400;color:rgba(0,0,0,0.4)">· 运行 ' + n.tasks.length + ' 个任务</span></h4>';
+    h += bar('CPU', n.cpu) + bar('内存', n.mem) + (hasGpu && n.gpu != null ? bar('GPU', n.gpu) : '');
+    h += '<div style="font-size:12px;color:rgba(0,0,0,0.45);margin:14px 0 6px">正在运行的任务</div>';
+    if (n.tasks.length) {
+      n.tasks.forEach(function(t) {
+        h += '<div class="workload-item clickable" onclick="gotoTask(\'' + t.type + '\')" title="查看任务详情">' + taskIcon(t.type) + '<span class="wl-name">' + t.name + '</span>'
+          + '<div style="text-align:right;flex-shrink:0"><div style="font-size:12px;color:rgba(0,0,0,0.55)">已运行 ' + (t.elapsed || '—') + '</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">' + (t.progress || '') + '</div></div></div>';
+      });
+    } else {
+      h += '<div style="color:rgba(0,0,0,0.25);font-size:12px;padding:4px 0 2px">空闲</div>';
+    }
+    return h + '</div>';
+  }).join('');
+}
+function renderHistoryTab(r) {
+  if (!r.history.length) {
+    return '<div class="info-card"><div style="color:rgba(0,0,0,0.35);font-size:13px;text-align:center;padding:28px 0">暂无历史任务</div></div>';
+  }
+  var rows = r.history.map(function(t) {
+    var resColor = t.result === '失败' ? '#cf1322' : (t.result === '成功' ? '#389e0d' : 'rgba(0,0,0,0.45)');
+    return '<tr class="hist-row" onclick="gotoJob(\'' + t.type + '\')" title="查看执行记录">'
+      + '<td style="padding:9px 10px;border-bottom:1px solid #f5f5f5"><span style="display:inline-flex;align-items:center;gap:8px">' + taskIcon(t.type) + t.name + '</span></td>'
+      + '<td style="padding:9px 10px;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.6)">' + linkedTypeLabel(t.type) + '</td>'
+      + '<td style="padding:9px 10px;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.6)">' + t.startAt + '</td>'
+      + '<td style="padding:9px 10px;border-bottom:1px solid #f5f5f5;color:rgba(0,0,0,0.6)">' + t.duration + '</td>'
+      + '<td style="padding:9px 10px;border-bottom:1px solid #f5f5f5;color:' + resColor + ';font-weight:500">' + t.result + '</td>'
+      + '</tr>';
+  }).join('');
+  return '<div class="info-card"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+    + '<thead><tr style="color:rgba(0,0,0,0.4);text-align:left"><th style="padding:8px 10px;font-weight:500;font-size:12px">任务</th><th style="padding:8px 10px;font-weight:500;font-size:12px">类型</th><th style="padding:8px 10px;font-weight:500;font-size:12px">开始时间</th><th style="padding:8px 10px;font-weight:500;font-size:12px">耗时</th><th style="padding:8px 10px;font-weight:500;font-size:12px">执行情况</th></tr></thead>'
+    + '<tbody>' + rows + '</tbody></table></div>';
+}
+
+// ===== Detail Drawer =====
+function openDrawer(id) {
+  var r = resources.find(function(x) { return x.id === id; });
+  if (!r) return;
+  var s = SPECS.find(function(x) { return x.id === r.specId; });
+
+  currentDetailId = id;
+  document.getElementById('detailPageTitle').textContent = r.name;
+  document.getElementById('detailPageStatus').innerHTML = statusBadge(r.status);
+  var acts = '';
+  if (!r.isDefault) acts += '<button class="detail-act danger" onclick="doDelete(\'' + r.id + '\')">删除</button>';
+  document.getElementById('detailPageActions').innerHTML = acts;
+
+  var suspendLabel = r.autoSuspend === 0 ? '不自动暂停' : r.autoSuspend + ' 分钟无活动';
+  var specText = s ? (s.familyName + ' · ' + s.id + '（' + s.cpu + 'C/' + s.mem + 'G' + (s.gpu > 0 ? ' / ' + s.gpu + '卡×' + s.gpuMem + 'G' : '') + '）') : r.specId;
+  var priceText = s ? (s.creditPerHour + ' Credit / 小时') : '—';
+
+  var html = '<div class="info-card"><h4>基本信息</h4>'
+    + '<div class="info-grid-4">'
+    + infoItem('规格', specText)
+    + infoItem('扩缩容节点数', r.currentNodes + ' (' + r.minNodes + '-' + r.maxNodes + ')')
+    + infoItem('自动暂停', suspendLabel)
+    + infoItem('单节点价格', priceText)
+    + '</div>'
+    + '<div class="info-grid-4" style="margin-top:14px">'
+    + infoItem('创建人', r.createdBy)
+    + infoItem('创建角色', r.createdRole || '—')
+    + infoItem('创建时间', r.createdAt)
+    + infoItem('描述', r.desc || '—')
+    + '</div></div>';
+
+  // Tabs: 实时负载 / 历史任务
+  html += '<div class="detail-tabs">'
+    + '<div class="detail-tab active" onclick="switchDetailTab(this,\'realtime\')">实时负载</div>'
+    + '<div class="detail-tab" onclick="switchDetailTab(this,\'history\')">历史任务</div>'
+    + '</div>'
+    + '<div id="tab-realtime">' + renderRealtimeTab(r, s) + '</div>'
+    + '<div id="tab-history" style="display:none">' + renderHistoryTab(r) + '</div>';
+
+  document.getElementById('detailPageBody').innerHTML = html;
+  document.getElementById('listPage').style.display = 'none';
+  document.getElementById('detailPage').style.display = '';
+  document.querySelector('.main').scrollTop = 0;
+}
+
+function closeDrawer() {
+  currentDetailId = null;
+  document.getElementById('detailPage').style.display = 'none';
+  document.getElementById('listPage').style.display = '';
+}
+
+// 详情页开着时，操作后刷新详情（资源被删则退回列表）
+function refreshDetail(id, deleted) {
+  if (document.getElementById('detailPage').style.display === 'none') return;
+  if (deleted || currentDetailId !== id) { closeDrawer(); return; }
+  openDrawer(id);
+}
+
+// ===== Init =====
+renderSpecCards();
+renderList();
+// Set "全部" chip active by default
+document.querySelector('.status-chip[data-status="all"]').classList.add('active');
+  </script>
+</body>
+</html>

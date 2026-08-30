@@ -1,0 +1,2581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 角色权限</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .um-page { padding: 24px; }
+    .um-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .um-count { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .um-search { height: 32px; width: 280px; padding: 0 12px 0 32px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.35)' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") 10px center no-repeat; }
+    .um-search:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .um-refresh { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff; font-size: 12px; color: rgba(0,0,0,0.65); cursor: pointer; }
+    .um-refresh:hover { border-color: #1677ff; color: #1677ff; }
+    .um-create-btn { height: 32px; padding: 0 16px; background: #1677ff; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .um-create-btn:hover { background: #4096ff; }
+    .um-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; }
+    .um-table th { text-align: left; padding: 12px 14px; font-size: 13px; color: rgba(0,0,0,0.55); font-weight: 500; background: #fafafa; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+    .um-table td { padding: 12px 14px; font-size: 13px; color: rgba(0,0,0,0.88); border-bottom: 1px solid #f5f5f5; }
+    .um-table tr:last-child td { border-bottom: none; }
+    .um-table tr:hover td { background: #fafafa; }
+    .um-status { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+    .um-status .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .um-status.normal .dot { background: #52c41a; }
+    .um-status.disabled .dot { background: #ff4d4f; }
+    .um-role-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; background: #e6f4ff; color: #1677ff; }
+    .um-action { color: #1677ff; cursor: pointer; font-size: 13px; background: none; border: none; padding: 0; margin-right: 12px; }
+    .um-action:hover { color: #4096ff; }
+    .um-action.danger { color: #ff4d4f; }
+    .um-action.danger:hover { color: #ff7875; }
+    .um-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 16px; font-size: 13px; color: rgba(0,0,0,0.55); }
+    .um-pager-btn { width: 28px; height: 28px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: rgba(0,0,0,0.65); }
+    .um-pager-btn.active { border-color: #1677ff; color: #1677ff; }
+    .um-pager select { height: 28px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 12px; padding: 0 4px; }
+
+    /* Modal */
+    .um-modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.45); z-index:400; align-items:center; justify-content:center; }
+    .um-modal-overlay.show { display:flex; }
+    .um-modal { background:#fff; border-radius:12px; width:900px; box-shadow:0 6px 30px rgba(0,0,0,0.12); max-height:90vh; display:flex; flex-direction:column; }
+    .rcp-tab { padding:9px 14px; font-size:13px; color:rgba(0,0,0,0.5); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+    .rcp-tab.active { color:#1677ff; border-bottom-color:#1677ff; font-weight:600; }
+    #createRoleModal .um-modal { width:1060px; max-width:94vw; }
+    .um-modal-header { display:flex; align-items:center; justify-content:space-between; padding:20px 28px 16px; }
+    .um-modal-header h3 { font-size:17px; font-weight:600; color:rgba(0,0,0,0.88); margin:0; }
+    .um-modal-close { width:32px; height:32px; border:none; background:none; cursor:pointer; border-radius:6px; display:flex; align-items:center; justify-content:center; color:rgba(0,0,0,0.45); font-size:18px; }
+    .um-modal-close:hover { background:rgba(0,0,0,0.04); color:rgba(0,0,0,0.88); }
+    .um-modal-body { padding:0 28px 16px; overflow-y:auto; flex:1; }
+    .um-modal-footer { display:flex; justify-content:flex-end; gap:8px; padding:16px 28px; border-top:1px solid #f0f0f0; }
+    .um-form-row { display:flex; align-items:flex-start; margin-bottom:16px; }
+    .um-form-label { width:70px; font-size:13px; color:rgba(0,0,0,0.88); font-weight:500; padding-top:8px; flex-shrink:0; }
+    .um-form-label .req { color:#ff4d4f; }
+    .um-form-input { width:100%; height:36px; padding:0 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; box-sizing:border-box; }
+    .um-form-input:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(5,145,255,0.1); }
+    .um-form-textarea { width:100%; height:72px; padding:8px 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; resize:vertical; font-family:inherit; box-sizing:border-box; }
+    .um-form-textarea:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(5,145,255,0.1); }
+    .um-char-count { text-align:right; font-size:12px; color:rgba(0,0,0,0.25); margin-top:4px; }
+    .um-btn { padding:0 20px; height:36px; border-radius:6px; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; }
+    .um-btn-cancel { background:#fff; border:1px solid #d9d9d9; color:rgba(0,0,0,0.65); }
+    .um-btn-cancel:hover { border-color:#1677ff; color:#1677ff; }
+    .um-btn-primary { background:#1677ff; border:none; color:#fff; font-weight:500; }
+    .um-btn-primary:hover { background:#4096ff; }
+    .um-btn-danger { background:#ff4d4f; border:none; color:#fff; font-weight:500; }
+    .um-btn-danger:hover { background:#ff7875; }
+    .um-btn[disabled], .um-btn-danger:disabled { background:#f5f5f5; color:rgba(0,0,0,0.25); border:1px solid #d9d9d9; cursor:not-allowed; }
+    /* Delete-role modal */
+    .dr-warn { display:flex; gap:10px; font-size:13.5px; line-height:1.75; color:rgba(0,0,0,0.7); }
+    .dr-warn svg { flex-shrink:0; color:#fa8c16; margin-top:1px; }
+    .dr-warn b { color:rgba(0,0,0,0.88); font-weight:600; }
+    .dr-warn-block { background:#fff7e6; border:1px solid #ffe7ba; border-radius:8px; padding:12px 14px; margin-bottom:18px; }
+    .dr-objs-head { font-size:13px; font-weight:600; color:rgba(0,0,0,0.75); margin-bottom:8px; }
+    .dr-objs { max-height:148px; overflow-y:auto; border:1px solid #f0f0f0; border-radius:8px; padding:6px; margin-bottom:18px; display:flex; flex-direction:column; gap:2px; }
+    .dr-obj { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:13px; }
+    .dr-obj:hover { background:rgba(0,0,0,0.02); }
+    .dr-obj-type { flex-shrink:0; font-size:11px; padding:1px 8px; border-radius:4px; background:rgba(0,74,240,0.08); color:#004af0; }
+    .dr-obj-name { color:rgba(0,0,0,0.82); }
+    .dr-opts { display:flex; flex-direction:column; gap:8px; }
+    .dr-opt { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border:1px solid #e8e8e8; border-radius:10px; cursor:pointer; transition:border-color .15s, background .15s; }
+    .dr-opt:hover { border-color:#bcd0ff; background:rgba(0,74,240,0.02); }
+    .dr-opt.on { border-color:#004af0; background:rgba(0,74,240,0.04); }
+    .dr-opt input { margin-top:3px; flex-shrink:0; }
+    .dr-opt-t { font-size:14px; color:rgba(0,0,0,0.88); font-weight:500; }
+    .dr-opt-d { font-size:12px; color:rgba(0,0,0,0.5); line-height:1.6; margin-top:2px; }
+    .dr-select { margin-top:8px; width:100%; height:32px; border:1px solid #d9d9d9; border-radius:6px; padding:0 10px; font-size:13px; color:rgba(0,0,0,0.78); background:#fff; }
+    .dr-select:disabled { background:#f5f5f5; color:rgba(0,0,0,0.3); cursor:not-allowed; }
+    .dr-manual-hint { margin-top:12px; background:#f0f5ff; border:1px solid #d6e4ff; border-radius:8px; padding:10px 14px; font-size:12.5px; line-height:1.7; color:#1d39c4; }
+    /* Permission picker */
+    .perm-tabs { display:flex; gap:0; border-bottom:2px solid #f0f0f0; margin-bottom:16px; }
+    .perm-tab { padding:8px 20px; font-size:13px; font-weight:500; color:rgba(0,0,0,0.45); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+    .perm-tab:hover { color:rgba(0,0,0,0.88); }
+    .perm-tab.active { color:#1677ff; border-bottom-color:#1677ff; }
+    .psrc-seg{display:inline-flex;border:1px solid #d9d9d9;border-radius:6px;overflow:hidden;vertical-align:middle}
+    .psrc-opt{padding:6px 14px;font-size:13px;color:rgba(0,0,0,0.6);cursor:pointer}
+    .psrc-opt+.psrc-opt{border-left:1px solid #d9d9d9}
+    .psrc-opt.active{background:#e6f0ff;color:#1677ff}
+    .perm-scope-tip{font-size:12px;color:rgba(0,0,0,0.5);background:#f7f9fc;border-radius:6px;padding:8px 12px;margin:8px 0 12px}
+    .perm-scope-tip b{color:#1677ff;font-weight:600}
+    .perm-items-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .perm-items-title{font-size:13px;font-weight:600;color:rgba(0,0,0,0.85)}
+    .perm-batch{font-size:12px;color:rgba(0,0,0,0.4)}
+    .perm-batch a{color:#1677ff;cursor:pointer;margin:0 2px}
+    .perm-row{display:flex;align-items:center;justify-content:space-between;padding:7px 4px;border-bottom:1px solid #f5f5f5}
+    .perm-row-name{font-size:13px;color:rgba(0,0,0,0.85);white-space:nowrap}
+    .perm-row-right{display:flex;align-items:center;gap:8px}
+    .scope-seg{display:inline-flex;border:1px solid #e3e3e3;border-radius:6px;overflow:hidden}
+    .scope-opt{padding:3px 11px;font-size:12px;color:rgba(0,0,0,0.45);cursor:pointer;white-space:nowrap}
+    .scope-opt+.scope-opt{border-left:1px solid #eee}
+    .scope-opt.on-none{background:#8c8c8c;color:#fff}
+    .scope-opt.on-some{background:#1677ff;color:#fff}
+    .scope-opt.on-all{background:#52c41a;color:#fff}
+    .perm-objchip{font-size:12px;color:#1677ff;background:#e6f0ff;border-radius:6px;padding:2px 8px;cursor:pointer;white-space:nowrap}
+    .perm-objchip.on{background:#1677ff;color:#fff}
+    .perm-grant{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:rgba(0,0,0,0.5);white-space:nowrap;cursor:pointer;user-select:none}
+    .perm-grant input{cursor:pointer;accent-color:#004af0;margin:0}
+    .perm-grant.disabled{color:rgba(0,0,0,0.25);cursor:not-allowed}
+    .perm-grant.disabled input{cursor:not-allowed}
+    .objpk-grant{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:rgba(0,0,0,0.5);white-space:nowrap;cursor:pointer;user-select:none}
+    .objpk-grant input{cursor:pointer;accent-color:#004af0;margin:0}
+    .objpk-grant.disabled{color:rgba(0,0,0,0.25);cursor:not-allowed}
+    .chip-caret{font-size:10px}
+    .perm-picker{margin:2px 0 8px;padding:10px 12px;background:#fafbfd;border:1px solid #eef0f4;border-radius:8px}
+    .perm-picker-search input{width:100%;height:30px;border:1px solid #d9d9d9;border-radius:6px;padding:0 10px;font-size:13px;box-sizing:border-box;margin-bottom:8px}
+    .perm-picker-list{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;max-height:170px;overflow:auto}
+    .perm-picker-item{display:flex;align-items:center;gap:7px;font-size:13px;padding:3px 0;cursor:pointer}
+    .perm-picker-foot{margin-top:8px;font-size:12px;color:rgba(0,0,0,0.4)}
+    .perm-sel-tag .sc-all{color:#52c41a;font-size:11px;margin:0 2px}
+    .perm-sel-tag .sc-some{color:#1677ff;font-size:11px;margin:0 2px}
+    .perm-pick-btn{height:26px;border:1px solid #1677ff;color:#1677ff;background:#fff;border-radius:6px;font-size:12px;padding:0 10px;cursor:pointer}
+    .perm-pick-btn:hover{background:#e6f0ff}
+    .objpk-wrap{display:flex;height:380px}
+    .objpk-left{flex:1.5;border-right:1px solid #f0f0f0;display:flex;flex-direction:column;min-width:0}
+    .objpk-right{flex:1;display:flex;flex-direction:column;min-width:0;background:#fafbfd}
+    .objpk-toolbar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f5f5f5}
+    .objpk-toolbar input{flex:1;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 10px;font-size:13px}
+    .objpk-selall{font-size:12px;color:rgba(0,0,0,0.5);display:flex;align-items:center;gap:5px;white-space:nowrap;cursor:pointer}
+    .objpk-list{flex:1;overflow:auto;padding:8px 16px;display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-content:start}
+    .objpk-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;cursor:pointer;color:rgba(0,0,0,0.85)}
+    .objpk-right-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0f0;font-size:13px;color:rgba(0,0,0,0.6)}
+    .objpk-right-head a{color:#1677ff;cursor:pointer;font-size:12px}
+    .objpk-chips{flex:1;overflow:auto;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+    .objpk-chip{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #d6eaff;border-radius:6px;padding:5px 10px;font-size:13px;color:#1677ff}
+    .objpk-chip .x{cursor:pointer;color:rgba(0,0,0,0.3);font-size:15px}
+    .perm-layout { display:flex; gap:0; border:1px solid #f0f0f0; border-radius:8px; height:420px; overflow:hidden; }
+    .perm-cats { width:180px; border-right:1px solid #f0f0f0; overflow-y:auto; flex-shrink:0; }
+    .perm-cat-group { border-bottom:1px solid #f5f5f5; }
+    .perm-cat-group:last-child { border-bottom:none; }
+    .perm-cat-group-title { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-size:12px; font-weight:600; color:rgba(0,0,0,0.55); cursor:pointer; transition:all 0.15s; user-select:none; }
+    .perm-cat-group-title:hover { background:rgba(0,0,0,0.02); color:rgba(0,0,0,0.88); }
+    .perm-cat-group-title .group-arrow { font-size:10px; color:rgba(0,0,0,0.25); transition:transform 0.2s; }
+    .perm-cat-group-title.open .group-arrow { transform:rotate(90deg); }
+    .perm-cat-group-title .group-count { font-size:11px; font-weight:400; color:rgba(0,0,0,0.25); margin-left:auto; margin-right:6px; }
+    .perm-cat-children { display:none; }
+    .perm-cat-children.open { display:block; }
+    .perm-cat-item { padding:12px 16px; font-size:13px; color:rgba(0,0,0,0.65); cursor:pointer; display:flex; justify-content:space-between; align-items:center; border-left:3px solid transparent; transition:all 0.15s; }
+    .perm-cat-item:hover { background:rgba(0,0,0,0.02); }
+    .perm-cat-item.active { color:#1677ff; background:#f0f7ff; border-left-color:#1677ff; font-weight:500; }
+    .perm-cat-count { font-size:12px; color:rgba(0,0,0,0.35); }
+    .perm-cat-item.active .perm-cat-count { color:#1677ff; }
+    .perm-items { flex:1.7; border-right:1px solid #f0f0f0; overflow-y:auto; padding:12px 16px; }
+    .perm-item { display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; color:rgba(0,0,0,0.88); cursor:pointer; }
+    .perm-item input { accent-color:#1677ff; width:15px; height:15px; cursor:pointer; }
+    .perm-item.select-all { font-weight:500; padding-bottom:10px; margin-bottom:6px; border-bottom:1px solid #f5f5f5; }
+    .perm-selected { flex:1; overflow-y:auto; padding:12px 16px; min-width:200px; max-width:280px; }
+    .perm-sel-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+    .perm-sel-header input { accent-color:#1677ff; width:15px; height:15px; }
+    .perm-sel-title { font-size:13px; font-weight:500; color:rgba(0,0,0,0.88); }
+    .perm-sel-clear { margin-left:auto; font-size:12px; color:#1677ff; cursor:pointer; border:none; background:none; }
+    .perm-sel-clear:hover { color:#4096ff; }
+    .perm-sel-group { margin-bottom:12px; }
+    .perm-sel-group-title { font-size:12px; color:rgba(0,0,0,0.45); margin-bottom:6px; }
+    .perm-sel-tags { display:flex; flex-wrap:wrap; gap:6px; }
+    .perm-sel-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:#fafafa; border:1px solid #f0f0f0; border-radius:4px; font-size:12px; color:rgba(0,0,0,0.65); }
+    .perm-sel-tag .tag-x { cursor:pointer; color:rgba(0,0,0,0.25); font-size:14px; line-height:1; }
+    .perm-sel-tag .tag-x:hover { color:#ff4d4f; }
+    .perm-scope-hint { margin:0 0 10px; padding:10px 12px; border-radius:10px; background:rgba(240,247,255,0.86); border:1px solid rgba(145,202,255,0.6); color:rgba(0,0,0,0.62); font-size:12px; line-height:1.55; }
+    .perm-scope-hint b { color:#004af0; }
+    .agent-auth-card { display:none; margin:-4px 0 18px 70px; padding:14px; border-radius:12px; background:linear-gradient(135deg, rgba(230,244,255,0.78), rgba(255,255,255,0.72)); border:1px solid rgba(145,202,255,0.72); box-shadow:0 8px 24px rgba(0,74,240,0.06), inset 0 1px 0 rgba(255,255,255,0.72); }
+    .agent-auth-card.show { display:block; }
+    .agent-auth-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:12px; }
+    .agent-auth-title { font-size:13px; font-weight:600; color:rgba(0,0,0,0.88); }
+    .agent-auth-sub { margin-top:2px; font-size:12px; color:rgba(0,0,0,0.52); line-height:1.55; }
+    .agent-auth-status { flex-shrink:0; display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,0.72); border:1px solid rgba(0,74,240,0.12); color:#004af0; font-size:12px; font-weight:500; }
+    .agent-auth-status .pulse { width:6px; height:6px; border-radius:50%; background:#00d4aa; box-shadow:0 0 0 4px rgba(0,212,170,0.12); }
+    .agent-cap-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:12px; }
+    .agent-cap-stat { min-height:54px; padding:10px; border-radius:10px; background:rgba(255,255,255,0.68); border:1px solid rgba(255,255,255,0.78); }
+    .agent-cap-stat strong { display:block; font-size:18px; line-height:1; color:rgba(0,0,0,0.88); }
+    .agent-cap-stat span { display:block; margin-top:5px; font-size:12px; color:rgba(0,0,0,0.45); }
+    .agent-cap-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+    .agent-cap-section { min-width:0; padding:10px; border-radius:10px; background:rgba(255,255,255,0.66); border:1px solid rgba(255,255,255,0.78); }
+    .agent-cap-section h4 { margin:0 0 8px; font-size:12px; font-weight:600; color:rgba(0,0,0,0.62); }
+    .agent-chip-list { display:flex; flex-wrap:wrap; gap:6px; }
+    .agent-chip { display:inline-flex; align-items:center; gap:4px; max-width:100%; padding:3px 8px; border-radius:6px; background:rgba(240,247,255,0.95); border:1px solid rgba(22,119,255,0.12); color:rgba(0,0,0,0.68); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .risk-badge { display:inline-flex; align-items:center; padding:1px 5px; border-radius:4px; font-size:10px; font-weight:600; line-height:1.4; }
+    .risk-badge.low { background:rgba(0,212,170,0.12); color:#008a70; }
+    .risk-badge.mid { background:rgba(250,173,20,0.14); color:#ad6800; }
+    .risk-badge.high { background:rgba(255,77,79,0.12); color:#cf1322; }
+    .agent-boundary-note { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+    .agent-boundary-note div { padding:9px 10px; border-radius:9px; background:rgba(255,255,255,0.66); border:1px solid rgba(255,255,255,0.76); font-size:12px; color:rgba(0,0,0,0.58); line-height:1.5; }
+    .agent-boundary-note b { color:rgba(0,0,0,0.82); }
+    .agent-impact-card { display:none; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,251,230,0.9); border:1px solid rgba(255,214,102,0.72); color:rgba(0,0,0,0.68); font-size:12px; line-height:1.55; }
+    .agent-impact-card.show { display:flex; }
+    .agent-impact-icon { width:22px; height:22px; flex-shrink:0; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#faad14; color:#fff; font-weight:700; font-size:13px; }
+    .agent-table-note { margin-top:4px; display:flex; flex-wrap:wrap; gap:4px; color:rgba(0,0,0,0.42); font-size:12px; line-height:1.4; }
+    .agent-table-pill { display:inline-flex; align-items:center; padding:1px 6px; border-radius:999px; background:#f0f7ff; color:#1677ff; border:1px solid #d6eaff; font-size:11px; }
+    @media (max-width: 1180px) {
+      .agent-cap-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .agent-cap-grid, .agent-boundary-note { grid-template-columns:1fr; }
+      .agent-auth-card { margin-left:0; }
+    }
+
+    .cascade-picker { display:none; position:absolute; top:100%; left:0; right:0; margin-top:4px; background:#fff; border:1px solid #d9d9d9; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:20; }
+    .cascade-picker.show { display:flex; }
+    .cascade-col { min-width:160px; max-height:240px; overflow-y:auto; border-right:1px solid #f0f0f0; }
+    .cascade-col:last-child { border-right:none; }
+    .cascade-item { padding:8px 14px; font-size:13px; color:rgba(0,0,0,0.88); cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:background 0.15s; }
+    .cascade-item:hover { background:#fafafa; }
+    .cascade-item.active { color:#1677ff; background:#f0f7ff; font-weight:500; }
+    .cascade-item .cascade-arrow { font-size:10px; color:rgba(0,0,0,0.25); }
+    .cascade-item.active .cascade-arrow { color:#1677ff; }
+    .cascade-item.leaf { cursor:pointer; }
+    .cascade-item.leaf:hover { background:#e6f4ff; }
+    .cascade-item.leaf.selected { background:#e6f4ff; color:#1677ff; }
+
+
+    /* Row/Col Permission Drawer */
+    .rc-drawer-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); z-index:1200; }
+    .rc-drawer-overlay.show { display:block; }
+    .rc-drawer { position:fixed; top:0; right:-860px; width:860px; height:100vh; background:#fff; box-shadow:-4px 0 20px rgba(0,0,0,0.1); z-index:1201; transition:right 0.3s; display:flex; flex-direction:column; }
+    .rc-drawer.open { right:0; }
+    .rc-drawer-header { display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid #f0f0f0; }
+    .rc-drawer-header .rc-close { width:28px; height:28px; border:none; background:none; cursor:pointer; font-size:16px; color:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; border-radius:4px; }
+    .rc-drawer-header .rc-close:hover { background:rgba(0,0,0,0.04); color:rgba(0,0,0,0.88); }
+    .rc-drawer-header .rc-title { font-size:15px; font-weight:600; color:rgba(0,0,0,0.88); }
+    .rc-drawer-tabs { display:flex; gap:0; border-bottom:2px solid #f0f0f0; padding:0 20px; }
+    .rc-drawer-tab { padding:10px 16px; font-size:13px; font-weight:500; color:rgba(0,0,0,0.45); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+    .rc-drawer-tab:hover { color:rgba(0,0,0,0.88); }
+    .rc-drawer-tab.active { color:#1677ff; border-bottom-color:#1677ff; }
+    .rc-drawer-body { flex:1; overflow-y:auto; padding:16px 20px; }
+    .rc-drawer-footer { display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; border-top:1px solid #f0f0f0; }
+    .rc-col-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+    .rc-col-row:last-child { border-bottom:none; }
+    .rc-col-row input[type=checkbox] { accent-color:#1677ff; width:16px; height:16px; cursor:pointer; flex-shrink:0; }
+    .rc-col-name { font-size:13px; color:rgba(0,0,0,0.88); font-weight:500; min-width:100px; }
+    .rc-col-type { font-size:12px; color:#1677ff; font-family:monospace; }
+    .rc-col-sample { flex:1; font-size:12px; color:rgba(0,0,0,0.35); text-align:center; }
+    .rc-col-action { width:28px; height:28px; border:1px solid #d9d9d9; border-radius:4px; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; color:rgba(0,0,0,0.45); font-size:14px; flex-shrink:0; }
+    .rc-col-action:hover { border-color:#1677ff; color:#1677ff; }
+    .rc-col-header { display:flex; align-items:center; gap:10px; padding:8px 0 10px; border-bottom:1px solid #f0f0f0; font-size:12px; color:rgba(0,0,0,0.45); font-weight:500; }
+
+    /* Row Permission Modal */
+    .rp-modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.45); z-index:1300; align-items:center; justify-content:center; }
+    .objpk-chip-r{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .objpk-rc{color:#1677ff;font-size:12px;cursor:pointer;border:1px solid #91caff;border-radius:4px;padding:1px 8px;white-space:nowrap}
+    .objpk-rc:hover{background:#e6f0ff}
+    .objpk-rc.configured{color:#389e0d;border-color:#b7eb8f;background:#f6ffed}
+    .objpk-chip.rc-done{border-color:#b7eb8f;background:#f6ffed}
+    .objpk-chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .objpk-hint{font-size:12px;color:#1677ff;background:#e6f0ff;border-radius:6px;padding:7px 10px;margin-bottom:8px;line-height:1.5}
+    .perm-rc-link{color:#1677ff;font-size:12px;cursor:pointer;border:1px solid #91caff;border-radius:4px;padding:2px 8px;white-space:nowrap}
+    .perm-rc-link:hover{background:#e6f0ff}
+    .objtree-row{display:flex;align-items:center;gap:6px;font-size:13px;padding:4px 0}
+    .objtree-caret{display:inline-block;width:14px;text-align:center;font-size:10px;color:rgba(0,0,0,0.35);cursor:pointer;transition:transform .15s;flex-shrink:0}
+    .objtree-caret.open{transform:rotate(90deg)}
+    .objtree-leaf{cursor:pointer}
+    .objtree-name{color:rgba(0,0,0,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .objtree-pname{cursor:pointer}
+    .objtree-type{font-size:11px;color:rgba(0,0,0,0.3);margin-left:4px}
+    .rp-modal-overlay.show { display:flex; }
+    .rp-modal { background:#fff; border-radius:12px; width:680px; box-shadow:0 6px 30px rgba(0,0,0,0.12); display:flex; flex-direction:column; }
+    .rp-modal-header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; }
+    .rp-modal-header h3 { font-size:16px; font-weight:600; color:rgba(0,0,0,0.88); margin:0; }
+    .rp-modal-close { width:32px; height:32px; border:none; background:none; cursor:pointer; border-radius:6px; display:flex; align-items:center; justify-content:center; color:rgba(0,0,0,0.45); font-size:18px; }
+    .rp-modal-close:hover { background:rgba(0,0,0,0.04); color:rgba(0,0,0,0.88); }
+    .rp-modal-body { padding:0 24px 16px; }
+    .rp-modal-footer { display:flex; justify-content:flex-end; gap:8px; padding:16px 24px; border-top:1px solid #f0f0f0; }
+    .rp-col-select { height:40px; padding:0 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; background:#fafafa; width:100%; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:8px; }
+    .rp-col-select .rp-col-name { color:rgba(0,0,0,0.88); font-weight:500; }
+    .rp-col-select .rp-col-type { color:#1677ff; font-family:monospace; font-size:12px; }
+    .rp-col-select select { border:none; background:transparent; font-size:13px; outline:none; flex:1; cursor:pointer; height:100%; }
+    .rp-expr-group { margin-top:16px; position:relative; padding-left:20px; }
+    .rp-expr-line { position:absolute; left:8px; top:0; bottom:0; width:2px; background:#f0f0f0; }
+    .rp-expr-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; position:relative; }
+    .rp-logic-btn { position:absolute; left:-20px; top:50%; transform:translate(-50%,-50%); width:36px; height:26px; border:none; border-radius:4px; background:#1677ff; color:#fff; font-size:12px; font-weight:600; cursor:pointer; z-index:2; }
+    .rp-logic-btn:hover { background:#4096ff; }
+    .rp-op-select { width:120px; height:36px; padding:0 8px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; cursor:pointer; background:#fff; flex-shrink:0; appearance:auto; }
+    .rp-op-select:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(5,145,255,0.1); }
+    .rp-val-input { flex:1; height:36px; padding:0 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; box-sizing:border-box; }
+    .rp-val-input:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(5,145,255,0.1); }
+    .rp-del-btn { width:28px; height:28px; border:none; background:none; cursor:pointer; color:rgba(0,0,0,0.25); font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+    .rp-del-btn:hover { color:#ff4d4f; background:rgba(255,77,79,0.06); }
+    .rp-add-expr { display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border:1px dashed #d9d9d9; border-radius:6px; background:#fff; font-size:13px; color:rgba(0,0,0,0.65); cursor:pointer; margin-top:4px; }
+    .rp-add-expr:hover { border-color:#1677ff; color:#1677ff; }
+
+    /* Row permission list in drawer */
+    .rp-list-item { display:flex; align-items:flex-start; gap:10px; padding:12px 0; border-bottom:1px solid #f5f5f5; }
+    .rp-list-item:last-child { border-bottom:none; }
+    .rp-list-col { font-size:13px; font-weight:500; color:rgba(0,0,0,0.88); min-width:100px; flex-shrink:0; padding-top:2px; }
+    .rp-list-col .rp-col-type { font-weight:400; }
+    .rp-list-exprs { flex:1; }
+    .rp-list-expr { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:#fafafa; border:1px solid #f0f0f0; border-radius:4px; font-size:12px; color:rgba(0,0,0,0.65); margin:2px 4px 2px 0; }
+    .rp-list-logic { display:inline-block; padding:1px 6px; font-size:11px; font-weight:600; color:#1677ff; background:#e6f4ff; border-radius:3px; margin:2px 4px 2px 0; vertical-align:middle; }
+    .rp-list-actions { display:flex; gap:4px; flex-shrink:0; padding-top:2px; }
+    .rp-list-actions button { width:28px; height:28px; border:1px solid #d9d9d9; border-radius:4px; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; color:rgba(0,0,0,0.45); font-size:13px; }
+    .rp-list-actions button:hover { border-color:#1677ff; color:#1677ff; }
+    .rp-list-actions button.danger:hover { border-color:#ff4d4f; color:#ff4d4f; }
+    .rp-empty { text-align:center; padding:40px; color:rgba(0,0,0,0.25); font-size:13px; }
+
+    /* @ tag autocomplete dropdown */
+    .rp-val-wrap { position:relative; flex:1; }
+    .rp-tag-dd { display:none; position:absolute; top:100%; left:0; right:0; margin-top:4px; background:#fff; border:1px solid #d9d9d9; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:20; max-height:200px; overflow-y:auto; }
+    .rp-tag-dd.show { display:block; }
+    .rp-tag-dd-item { padding:8px 14px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:background 0.15s; }
+    .rp-tag-dd-item:hover { background:#f0f7ff; }
+    .rp-tag-dd-item .tag-name { color:#1677ff; font-weight:500; }
+    .rp-tag-dd-item .tag-desc { color:rgba(0,0,0,0.35); font-size:12px; }
+    .rp-tag-dd-hint { padding:8px 14px; font-size:12px; color:rgba(0,0,0,0.35); border-bottom:1px solid #f0f0f0; }
+    .rp-val-input.has-tag { color:#1677ff; font-weight:500; }
+
+    /* Role inheritance */
+    .ri-tabs { display:flex; gap:0; border-bottom:2px solid #f0f0f0; margin-bottom:16px; }
+    .ri-tab { padding:8px 20px; font-size:13px; font-weight:500; color:rgba(0,0,0,0.45); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+    .ri-tab:hover { color:rgba(0,0,0,0.88); }
+    .ri-tab.active { color:#1677ff; border-bottom-color:#1677ff; }
+    .ri-list-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+    .ri-list-item:last-child { border-bottom:none; }
+    .ri-role-name { font-size:13px; font-weight:500; color:rgba(0,0,0,0.88); flex:1; }
+    .ri-role-desc { font-size:12px; color:rgba(0,0,0,0.35); }
+    .ri-remove { color:#ff4d4f; cursor:pointer; font-size:12px; background:none; border:none; padding:4px 8px; border-radius:4px; }
+    .ri-remove:hover { background:rgba(255,77,79,0.06); }
+    .ri-add-row { display:flex; align-items:center; gap:8px; margin-top:12px; }
+    .ri-add-select { flex:1; height:32px; padding:0 10px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; cursor:pointer; }
+    .ri-add-select:focus { border-color:#1677ff; }
+    .ri-empty { text-align:center; padding:24px; color:rgba(0,0,0,0.25); font-size:13px; }
+    .ri-graph { padding:16px 0; }
+    .ri-graph-node { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:500; margin:4px; cursor:pointer; transition:all 0.15s; }
+    .ri-graph-node.current { background:#1677ff; color:#fff; }
+    .ri-graph-node.inherit { background:#e6f4ff; color:#1677ff; border:1px solid #91caff; }
+    .ri-graph-node.grant { background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; }
+    .ri-graph-node.other { background:#fafafa; color:rgba(0,0,0,0.45); border:1px solid #f0f0f0; }
+    .ri-graph-arrow { display:inline-block; font-size:16px; color:rgba(0,0,0,0.25); margin:0 4px; vertical-align:middle; }
+    .ri-graph-row { display:flex; align-items:center; flex-wrap:wrap; padding:6px 0; }
+    .ri-graph-label { font-size:12px; color:rgba(0,0,0,0.45); min-width:80px; flex-shrink:0; }
+    .ri-inherit-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:2px; background:#e6f4ff; color:#1677ff; font-size:9px; margin-left:4px; vertical-align:middle; font-weight:700; }
+
+    /* DAG View */
+    .dag-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:600; }
+    .dag-overlay.show { display:flex; align-items:center; justify-content:center; }
+    .dag-container { background:#fff; border-radius:12px; width:90vw; height:80vh; box-shadow:0 8px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden; }
+    .dag-header { display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid #f0f0f0; }
+    .dag-header h3 { font-size:16px; font-weight:600; color:rgba(0,0,0,0.88); margin:0; }
+    .dag-header-actions { display:flex; align-items:center; gap:8px; }
+    .dag-hint { font-size:12px; color:rgba(0,0,0,0.35); }
+    .dag-canvas-wrap { flex:1; position:relative; overflow:hidden; background:#fafafa; }
+    .dag-canvas-wrap canvas { position:absolute; top:0; left:0; }
+
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataConn">
+        <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="../data-connection/data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="../data-connection/data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataProc">
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item active" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="resCenter">
+        <a class="sub-item" href="../resource-center/catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="../resource-center/compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item" href="../resource-center/data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="../resource-center/knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="um-page">
+      <div class="um-toolbar">
+        <span class="um-count">角色数：4</span>
+        <div style="flex:1"></div>
+        <input class="um-search" placeholder="搜索角色名/备注">
+        <button class="um-create-btn" onclick="openCreateRoleModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>新建角色</button>
+        <button class="um-create-btn" style="background:#fff;color:#1677ff;border:1px solid #1677ff" onclick="openDagView()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M5 9v2l7 7M19 9v2l-7 7"/></svg>继承关系图</button>
+      </div>
+      <table class="um-table">
+        <thead><tr><th>角色 ID</th><th>角色名</th><th>状态</th><th>创建时间 ⇅</th><th>更新时间 ⇅</th><th>备注</th><th>操作</th></tr></thead>
+        <tbody id="roleTableBody"></tbody>
+      </table>
+      <div class="um-pager"><span>&lt;</span><button class="um-pager-btn active">1</button><span>&gt;</span><select><option>10 条/页</option><option>20 条/页</option></select></div>
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/op-icons.js"></script>
+  <script>
+
+    var permGroups = [
+      {name:'Catalog 资源', cats:['目录','库','表','卷','模型','算子']},
+      {name:'数据连接', cats:['连接器','载入任务','导出任务']},
+      {name:'数据处理', cats:['工作流','工作流模板','计算资源','数据看板']},
+      {name:'智能体', cats:['智能体','技能','工具','知识库']},
+      {name:'共享与分发', cats:['发布订阅']},
+      {name:'监控运维', cats:['告警','日志','SQL历史']},
+      {name:'用户权限', cats:['用户','角色']}
+    ];
+
+    var permData = {
+      '目录': ['DC1-创建目录','DC2-查看目录列表','DC3-修改目录','DC4-删除目录','DB1-创建库 / CREATE DATABASE','DB2-查看库列表 / SHOW DATABASES'],
+      '库': ['DB3-修改库 / ALTER DATABASE','DB4-删除库 / DROP DATABASE','DT1-创建表 / CREATE TABLE','DT2-查看表列表 / SHOW TABLES','DV1-创建卷','DV2-查看卷列表','DT5-创建视图 / CREATE VIEW','MD2-添加自定义模型','MD1-查看模型列表','OP2-创建自定义算子','OP1-查看算子列表'],
+      '表': ['DT3-修改表 / ALTER TABLE','DT4-删除表 / DROP TABLE','DT6-修改视图 / ALTER VIEW','DT7-删除视图 / DROP VIEW','DT8-表查询 / SELECT','DT9-表写入 / INSERT','DT10-表更新 / UPDATE','DT11-表删除 / DELETE','DT12-表清除 / TRUNCATE','DT13-表引用 / REFERENCE','DT14-表索引 / INDEX'],
+      '卷': ['DV3-修改卷','DV4-删除卷','DV5-卷查询','DV6-卷写入'],
+      '模型': ['MD3-修改模型','MD4-删除模型','MD5-设为默认模型'],
+      '算子': ['OP3-修改算子','OP4-删除算子','OP5-发布算子','OP6-使用算子'],
+      '连接器': ['C1-创建连接器','C2-查看连接器列表','C3-连接器查询','C4-连接器修改','C5-连接器删除','C6-连接器使用'],
+      '载入任务': ['L1-创建载入任务','L2-查看载入任务列表','L3-载入任务查询','L4-载入任务修改','L5-载入任务删除'],
+      '导出任务': ['E1-创建导出任务','E2-查看导出任务列表','E3-导出任务查询','E4-导出任务修改','E5-导出任务删除'],
+      '工作流': ['W1-创建工作流','W2-运行工作流','W3-查看工作流列表','W4-工作流查询','W5-停止工作流','W6-修改工作流','W7-删除工作流'],
+      '工作流模板': ['WT1-创建工作流模板','WT2-查看工作流模板列表','WT3-修改工作流模板','WT4-删除工作流模板','WT5-发布模板版本'],
+      '计算资源': ['CR1-创建计算资源','CR2-查看计算资源列表','CR3-启停计算资源','CR4-修改计算资源','CR5-删除计算资源'],
+      '数据看板': ['DS1-创建数据看板','DS2-查看数据看板列表','DS3-看板查询','DS4-修改看板','DS5-删除看板'],
+      '智能体': ['AG1-创建智能体','AG2-查看智能体列表','AG3-修改智能体','AG4-删除智能体','AG5-使用智能体'],
+      '技能': ['SK1-创建技能','SK2-查看技能列表','SK3-修改技能','SK4-删除技能','SK5-使用技能'],
+      '工具': ['TL1-创建工具','TL2-查看工具列表','TL3-修改工具','TL4-删除工具','TL5-使用工具'],
+      '任务': ['TS1-查看任务','TS2-审批任务','TS3-终止任务'],
+      '知识库': ['K1-创建知识库','K2-查看知识库列表','K3-修改知识库','K4-删除知识库','K5-使用知识库'],
+      '发布订阅': ['PS1-发布数据','PS2-查看发布列表','PS3-修改发布','PS4-删除发布','PS5-查看订阅列表','PS6-添加订阅','PS7-修改订阅','PS8-删除订阅'],
+      '告警': ['A1-创建告警规则','A2-查看告警规则列表','A3-修改告警规则','A4-删除告警规则','A5-创建通知对象','A6-查看通知对象列表','A7-修改通知对象','A8-删除通知对象','A9-查看告警记录列表'],
+      '日志': ['LOG1-查看系统日志','LOG2-导出日志'],
+      'SQL历史': ['SH1-查看SQL历史','SH2-删除SQL历史'],
+      '用户': ['U1-创建用户','U2-查看用户列表','U3-修改用户密码','U4-修改用户角色','U5-修改用户信息','U6-启用/禁用用户','U7-删除用户','U8-查看用户日志','U9-用户标签管理'],
+      '角色': ['R1-创建角色','R2-查看角色列表','R3-修改角色','R4-删除角色','R5-启用/禁用角色','R6-查看角色日志','R7-角色继承']
+    };
+
+    // Role data model
+    var roles = [
+      {id:1, name:'超级管理员', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-01-15 10:00:00', remark:'系统内置，拥有所有权限', isSystem:true},
+      {id:2, name:'工作区管理员', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-20 14:30:00', remark:'管理工作区资源和成员'},
+      {id:3, name:'数据开发者', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-18 09:00:00', remark:'数据模式完整权限'},
+      {id:4, name:'智能体开发者', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-15 16:00:00', remark:'智能体模式完整权限'},
+      {id:5, name:'部门经理', status:'normal', created:'2025-03-20 10:00:00', updated:'2025-03-20 10:00:00', remark:'继承数据开发者权限'}
+    ];
+    // Inheritance: {roleId: [inheritedFromRoleIds]}
+    var roleInheritance = {
+      5: [3] // 部门经理 inherits from 数据开发者
+    };
+    // Ownership: which objects each role is the Owner of {roleId: [{type,name}]}
+    var roleOwnedObjects = {
+      2: [
+        {type:'工作流', name:'用户行为日志清洗'},
+        {type:'工作流', name:'订单宽表构建'},
+        {type:'表', name:'dwd_user_event'},
+        {type:'知识库', name:'产品 FAQ 知识库'},
+        {type:'连接器', name:'生产 MySQL 连接'},
+        {type:'智能体', name:'数据问答助手'}
+      ]
+    };
+    // 当前执行删除操作者所属角色（用于"全部转移给我"）
+    var currentOperatorRoleName = '超级管理员';
+    var delRoleCtx = { roleId: null, mode: 'self' };
+
+    function renderRoleTable() {
+      var tbody = document.getElementById('roleTableBody');
+      var html = '';
+      roles.forEach(function(r) {
+        var statusClass = r.status === 'normal' ? 'normal' : 'disabled';
+        var statusText = r.status === 'normal' ? '正常' : '禁用';
+        var hasRelation = hasInheritanceRelation(r.id);
+        html += '<tr>';
+        html += '<td>' + r.id + '</td>';
+        html += '<td>' + r.name + '</td>';
+        html += '<td><span class="um-status ' + statusClass + '"><span class="dot"></span>' + statusText + '</span></td>';
+        html += '<td>' + r.created + '</td>';
+        html += '<td>' + r.updated + '</td>';
+        html += '<td>' + r.remark + '</td>';
+        html += '<td style="white-space:nowrap">';
+        html += OPS.btn('perm', '权限查看', 'openViewPermModal(' + r.id + ')');
+        if (r.isSystem) {
+          html += OPS.btn('edit', '修改', '', false, { disabled: true, tip: '系统角色不可修改' });
+          html += OPS.btn('inherit', '继承', '', false, { disabled: true, tip: '系统角色不可继承' });
+          html += OPS.btn('disable', '禁用', '', false, { disabled: true, tip: '系统角色不可禁用' });
+          html += OPS.btn('del', '删除', '', false, { disabled: true, tip: '系统角色不可删除' });
+        } else {
+          html += OPS.btn('edit', '修改', 'openEditRoleModal(' + r.id + ')');
+          html += OPS.btn('inherit', '继承', 'openInheritModal(' + r.id + ')');
+          html += OPS.btn('disable', '禁用', '');
+          if (hasRelation) {
+            html += OPS.btn('del', '删除', '', true, { disabled: true, tip: '有继承关系的角色不允许删除' });
+          } else {
+            html += OPS.btn('del', '删除', 'openDeleteRoleModal(' + r.id + ')', true);
+          }
+        }
+        html += OPS.btn('log', '日志', '');
+        html += '</td></tr>';
+      });
+      tbody.innerHTML = html;
+      document.querySelector('.um-count').textContent = '角色数：' + roles.length;
+    }
+
+    function hasInheritanceRelation(roleId) {
+      // Check if this role inherits from others or others inherit from it
+      if (roleInheritance[roleId] && roleInheritance[roleId].length) return true;
+      return Object.keys(roleInheritance).some(function(k) {
+        return roleInheritance[k].indexOf(roleId) !== -1;
+      });
+    }
+
+    // ===== 删除角色（二次确认 + Owner 转移）=====
+    function openDeleteRoleModal(roleId) {
+      var role = roles.find(function(r){ return r.id === roleId; });
+      if (!role) return;
+      delRoleCtx.roleId = roleId;
+      delRoleCtx.mode = 'self';
+      var owned = roleOwnedObjects[roleId] || [];
+      document.getElementById('drTitle').textContent = '删除角色「' + role.name + '」';
+      var simple = document.getElementById('drSimple');
+      var transfer = document.getElementById('drTransfer');
+      var btn = document.getElementById('drConfirmBtn');
+      if (!owned.length) {
+        // 不是任何对象的 Owner —— 纯二次确认
+        simple.style.display = '';
+        transfer.style.display = 'none';
+        simple.innerHTML = '<div class="dr-warn">'
+          + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+          + '<div>确定删除角色 <b>' + role.name + '</b>？<br>删除后该角色的权限分配将被移除，已绑定该角色的用户会失去由它带来的权限。<b>此操作不可恢复。</b></div></div>';
+        btn.textContent = '删 除';
+        btn.className = 'um-btn um-btn-danger';
+        btn.disabled = false;
+      } else {
+        // 是部分对象的 Owner —— 必须先转移所有权
+        simple.style.display = 'none';
+        transfer.style.display = '';
+        document.getElementById('drWarnText').innerHTML = '角色 <b>' + role.name + '</b> 当前是 <b>' + owned.length + '</b> 个对象的 Owner。Owner 拥有对象的最高权限（含再授权），<b>必须先转移这些对象的所有权，才能删除该角色</b>。';
+        document.getElementById('drObjCount').textContent = owned.length;
+        document.getElementById('drObjList').innerHTML = owned.map(function(o){
+          return '<div class="dr-obj"><span class="dr-obj-type">' + o.type + '</span><span class="dr-obj-name">' + o.name + '</span></div>';
+        }).join('');
+        document.getElementById('drOperator').textContent = currentOperatorRoleName;
+        document.getElementById('drTargetRole').innerHTML = roles.filter(function(r){ return r.id !== roleId; }).map(function(r){
+          return '<option value="' + r.id + '">' + r.name + '</option>';
+        }).join('');
+        var selfRadio = document.querySelector('input[name="drMode"][value="self"]');
+        if (selfRadio) selfRadio.checked = true;
+        setDelTransferMode('self');
+      }
+      document.getElementById('deleteRoleModal').classList.add('show');
+    }
+
+    function setDelTransferMode(mode) {
+      delRoleCtx.mode = mode;
+      document.getElementById('drTargetRole').disabled = (mode !== 'role');
+      document.getElementById('drManualHint').style.display = (mode === 'manual') ? '' : 'none';
+      document.querySelectorAll('#drTransfer .dr-opt').forEach(function(el){
+        var input = el.querySelector('input');
+        el.classList.toggle('on', !!(input && input.checked));
+      });
+      var btn = document.getElementById('drConfirmBtn');
+      if (mode === 'manual') {
+        // 分别转移：平台不在此统一转移，引导用户去各对象单独改
+        btn.textContent = '去手动处理';
+        btn.className = 'um-btn um-btn-primary';
+        btn.disabled = false;
+      } else {
+        btn.textContent = '转移并删除';
+        btn.className = 'um-btn um-btn-danger';
+        btn.disabled = false;
+      }
+    }
+
+    function confirmDeleteRole() {
+      var roleId = delRoleCtx.roleId;
+      var role = roles.find(function(r){ return r.id === roleId; });
+      if (!role) { closeDeleteRoleModal(); return; }
+      var owned = roleOwnedObjects[roleId] || [];
+      if (owned.length && delRoleCtx.mode === 'manual') {
+        // 仅关闭，让用户自行前往各对象修改 Owner（对象仍归该角色，未删除）
+        closeDeleteRoleModal();
+        return;
+      }
+      // self / role：先（模拟）转移所有权，再删除角色
+      if (owned.length) { delete roleOwnedObjects[roleId]; }
+      roles = roles.filter(function(r){ return r.id !== roleId; });
+      delete roleInheritance[roleId];
+      Object.keys(roleInheritance).forEach(function(k){
+        roleInheritance[k] = roleInheritance[k].filter(function(id){ return id !== roleId; });
+        if (!roleInheritance[k].length) delete roleInheritance[k];
+      });
+      closeDeleteRoleModal();
+      renderRoleTable();
+    }
+
+    function closeDeleteRoleModal() {
+      document.getElementById('deleteRoleModal').classList.remove('show');
+    }
+
+    // Cycle detection: would adding edge from->to create a cycle?
+    function wouldCreateCycle(fromId, toId) {
+      // fromId wants to inherit toId. Check if toId (transitively) already inherits fromId
+      var visited = {};
+      function dfs(rid) {
+        if (rid === fromId) return true;
+        if (visited[rid]) return false;
+        visited[rid] = true;
+        var parents = roleInheritance[rid] || [];
+        return parents.some(dfs);
+      }
+      return dfs(toId);
+    }
+
+    // Get all roles that inherit from roleId (direct only for 授权)
+    function getGrantedRoles(roleId) {
+      var result = [];
+      Object.keys(roleInheritance).forEach(function(k) {
+        if (roleInheritance[k].indexOf(roleId) !== -1) {
+          result.push(parseInt(k));
+        }
+      });
+      return result;
+    }
+
+    // Inheritance modal
+    var riCurrentRoleId = null;
+    function openInheritModal(roleId) {
+      riCurrentRoleId = roleId;
+      var role = roles.find(function(r){return r.id===roleId;});
+      document.getElementById('riModalTitle').textContent = '角色继承 — ' + (role ? role.name : '');
+      document.getElementById('inheritModal').classList.add('show');
+      // Now that modal is visible, switch to inherit tab
+      var firstTab = document.querySelector('#inheritModal .ri-tab');
+      if (firstTab) switchRiTab(firstTab, 'inherit');
+    }
+    function closeInheritModal() { document.getElementById('inheritModal').classList.remove('show'); }
+
+    function switchRiTab(el, tab) {
+      el.parentNode.querySelectorAll('.ri-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('riInheritPanel').style.display = tab === 'inherit' ? '' : 'none';
+      document.getElementById('riGrantPanel').style.display = tab === 'grant' ? '' : 'none';
+      document.getElementById('riGraphPanel').style.display = tab === 'graph' ? '' : 'none';
+      if (tab === 'inherit') renderRiInheritList();
+      if (tab === 'grant') renderRiGrantList();
+      if (tab === 'graph') renderRiGraph();
+    }
+
+    function renderRiInheritList() {
+      var container = document.getElementById('riInheritPanel');
+      var inherits = roleInheritance[riCurrentRoleId] || [];
+      var html = '';
+      if (!inherits.length) {
+        html = '<div class="ri-empty">暂未继承任何角色</div>';
+      } else {
+        inherits.forEach(function(rid) {
+          var r = roles.find(function(x){return x.id===rid;});
+          if (!r) return;
+          html += '<div class="ri-list-item">';
+          html += '<span class="ri-role-name">' + r.name + ' <span class="ri-role-desc">' + r.remark + '</span></span>';
+          html += '<button class="ri-remove" onclick="removeInherit(' + rid + ')">移除</button>';
+          html += '</div>';
+        });
+      }
+      // Add select
+      html += '<div class="ri-add-row"><select class="ri-add-select" id="riAddInheritSelect"><option value="">选择要继承的角色……</option>';
+      roles.forEach(function(r) {
+        if (r.id === riCurrentRoleId) return;
+        if (inherits.indexOf(r.id) !== -1) return;
+        html += '<option value="' + r.id + '">' + r.name + '</option>';
+      });
+      html += '</select><button class="um-btn um-btn-primary" style="height:32px;font-size:12px;padding:0 14px;flex-shrink:0" onclick="addInherit()">添加</button></div>';
+      container.innerHTML = html;
+    }
+
+    function addInherit() {
+      var sel = document.getElementById('riAddInheritSelect');
+      var targetId = parseInt(sel.value);
+      if (!targetId) return;
+      if (wouldCreateCycle(riCurrentRoleId, targetId)) {
+        alert('添加失败：会形成循环继承关系');
+        return;
+      }
+      if (!roleInheritance[riCurrentRoleId]) roleInheritance[riCurrentRoleId] = [];
+      roleInheritance[riCurrentRoleId].push(targetId);
+      renderRiInheritList();
+      renderRoleTable();
+    }
+
+    function removeInherit(targetId) {
+      if (!roleInheritance[riCurrentRoleId]) return;
+      roleInheritance[riCurrentRoleId] = roleInheritance[riCurrentRoleId].filter(function(id) { return id !== targetId; });
+      if (!roleInheritance[riCurrentRoleId].length) delete roleInheritance[riCurrentRoleId];
+      renderRiInheritList();
+      renderRoleTable();
+    }
+
+    function renderRiGrantList() {
+      var container = document.getElementById('riGrantPanel');
+      var granted = getGrantedRoles(riCurrentRoleId);
+      var html = '';
+      if (!granted.length) {
+        html = '<div class="ri-empty">暂无角色继承此角色</div>';
+      } else {
+        granted.forEach(function(rid) {
+          var r = roles.find(function(x){return x.id===rid;});
+          if (!r) return;
+          html += '<div class="ri-list-item">';
+          html += '<span class="ri-role-name">' + r.name + ' <span class="ri-role-desc">' + r.remark + '</span></span>';
+          html += '<button class="ri-remove" onclick="removeGrant(' + rid + ')">移除</button>';
+          html += '</div>';
+        });
+      }
+      html += '<div class="ri-add-row"><select class="ri-add-select" id="riAddGrantSelect"><option value="">选择要授权的角色……</option>';
+      roles.forEach(function(r) {
+        if (r.id === riCurrentRoleId || r.isSystem) return;
+        if (granted.indexOf(r.id) !== -1) return;
+        html += '<option value="' + r.id + '">' + r.name + '</option>';
+      });
+      html += '</select><button class="um-btn um-btn-primary" style="height:32px;font-size:12px;padding:0 14px;flex-shrink:0" onclick="addGrant()">添加</button></div>';
+      container.innerHTML = html;
+    }
+
+    function addGrant() {
+      var sel = document.getElementById('riAddGrantSelect');
+      var targetId = parseInt(sel.value);
+      if (!targetId) return;
+      if (wouldCreateCycle(targetId, riCurrentRoleId)) {
+        alert('添加失败：会形成循环继承关系');
+        return;
+      }
+      if (!roleInheritance[targetId]) roleInheritance[targetId] = [];
+      roleInheritance[targetId].push(riCurrentRoleId);
+      renderRiGrantList();
+      renderRoleTable();
+    }
+
+    function removeGrant(targetId) {
+      if (!roleInheritance[targetId]) return;
+      roleInheritance[targetId] = roleInheritance[targetId].filter(function(id) { return id !== riCurrentRoleId; });
+      if (!roleInheritance[targetId].length) delete roleInheritance[targetId];
+      renderRiGrantList();
+      renderRoleTable();
+    }
+
+    function renderRiGraph() {
+      var container = document.getElementById('riGraphPanel');
+      var currentRole = roles.find(function(r){return r.id===riCurrentRoleId;});
+      if (!currentRole) return;
+      var directParents = roleInheritance[riCurrentRoleId] || [];
+      var granted = getGrantedRoles(riCurrentRoleId);
+      // Collect indirect parents (depth > 1)
+      var indirectParents = [];
+      function collectIndirect(rid, depth) {
+        var parents = roleInheritance[rid] || [];
+        parents.forEach(function(pid) {
+          if (pid === riCurrentRoleId) return;
+          if (directParents.indexOf(pid) !== -1 && depth === 1) return; // skip direct at depth 1
+          if (!indirectParents.some(function(p){return p.id===pid;})) {
+            indirectParents.push({id:pid, depth:depth});
+            collectIndirect(pid, depth+1);
+          }
+        });
+      }
+      directParents.forEach(function(pid) { collectIndirect(pid, 1); });
+
+      var html = '<div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:16px">箭头表示继承方向：A → B 表示 A 继承 B 的权限</div>';
+
+      var hasAny = directParents.length || granted.length;
+
+      if (!hasAny) {
+        html += '<div style="display:flex;align-items:center;justify-content:center;padding:40px 0">';
+        html += '<span class="ri-graph-node current" style="font-size:14px;padding:8px 20px">' + currentRole.name + '</span>';
+        html += '<span style="margin-left:12px;font-size:12px;color:rgba(0,0,0,0.25)">暂无继承关系</span>';
+        html += '</div>';
+      } else {
+        html += '<div style="display:flex;flex-direction:column;align-items:center;gap:0;padding:8px 0">';
+
+        // Granted children on top (they inherit current, arrow: child → current)
+        if (granted.length) {
+          html += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">';
+          granted.forEach(function(rid) {
+            var r = roles.find(function(x){return x.id===rid;});
+            if (!r) return;
+            html += '<span class="ri-graph-node grant">' + r.name + '</span>';
+          });
+          html += '</div>';
+          html += '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:4px 0">';
+          if (granted.length === 1) {
+            html += '<span style="color:#b7eb8f;font-size:18px;line-height:1">↓</span>';
+          } else {
+            granted.forEach(function(_, i) {
+              if (i === 0) html += '<span style="color:#b7eb8f;font-size:16px;line-height:1">↘</span>';
+              else if (i === granted.length - 1) html += '<span style="color:#b7eb8f;font-size:16px;line-height:1">↙</span>';
+              else html += '<span style="color:#b7eb8f;font-size:16px;line-height:1">↓</span>';
+            });
+          }
+          html += '</div>';
+        }
+
+        // Current role (center)
+        html += '<div style="display:flex;align-items:center;justify-content:center;padding:4px 0">';
+        html += '<span class="ri-graph-node current" style="font-size:14px;padding:8px 20px">' + currentRole.name + '</span>';
+        html += '</div>';
+
+        // Arrow from current down to parents (current inherits parents, arrow: current → parent)
+        if (directParents.length) {
+          html += '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:4px 0">';
+          if (directParents.length === 1) {
+            html += '<span style="color:#91caff;font-size:18px;line-height:1">↓</span>';
+          } else {
+            directParents.forEach(function(_, i) {
+              if (i === 0) html += '<span style="color:#91caff;font-size:16px;line-height:1">↙</span>';
+              else if (i === directParents.length - 1) html += '<span style="color:#91caff;font-size:16px;line-height:1">↘</span>';
+              else html += '<span style="color:#91caff;font-size:16px;line-height:1">↓</span>';
+            });
+          }
+          html += '</div>';
+          // Direct parents row
+          html += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">';
+          directParents.forEach(function(pid) {
+            var r = roles.find(function(x){return x.id===pid;});
+            if (!r) return;
+            html += '<span class="ri-graph-node inherit">' + r.name + '</span>';
+          });
+          html += '</div>';
+        }
+
+        // Indirect parents below
+        if (indirectParents.length) {
+          html += '<div style="color:rgba(0,0,0,0.15);font-size:18px;line-height:1;padding:4px 0">↓</div>';
+          html += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">';
+          indirectParents.forEach(function(p) {
+            var r = roles.find(function(x){return x.id===p.id;});
+            if (!r) return;
+            html += '<span class="ri-graph-node inherit" style="opacity:0.6">' + r.name + ' <span style="font-size:10px">（间接）</span></span>';
+          });
+          html += '</div>';
+        }
+
+        html += '</div>';
+      }
+
+      // Other roles with no relation
+      var relatedIds = [riCurrentRoleId].concat(directParents).concat(indirectParents.map(function(p){return p.id;})).concat(granted);
+      var others = roles.filter(function(r) { return relatedIds.indexOf(r.id) === -1; });
+      if (others.length) {
+        html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #f0f0f0">';
+        html += '<div style="font-size:12px;color:rgba(0,0,0,0.35);margin-bottom:8px">无关联角色</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+        others.forEach(function(r) {
+          html += '<span class="ri-graph-node other">' + r.name + '</span>';
+        });
+        html += '</div></div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    renderRoleTable();
+
+    var selectedPerms = {};
+    var activeCat = null;
+    var totalPerms = 0;
+    Object.keys(permData).forEach(function(k) { totalPerms += permData[k].length; });
+
+    var scopeMap = {};   // scopeMap[cat][item] = { mode:'all'|'some', objs:[...] }
+    var pickerKey = null; // 'cat|item' 当前展开的对象选择器
+
+    function openCreateRoleModal() {
+      document.getElementById('newRoleName').value = '';
+      document.getElementById('newRoleRemark').value = '';
+      document.getElementById('roleNameCount').textContent = '0';
+      document.getElementById('roleRemarkCount').textContent = '0';
+      selectedPerms = {};
+      scopeMap = {};
+      pickerKey = null;
+      setPermSource('scratch');
+      activeCat = permGroups[0].cats[0];
+      openGroup = permGroups[0].name;
+      renderPermCats();
+      renderPermItems();
+      renderPermSelected();
+      document.getElementById('createRoleModal').classList.add('show');
+    }
+
+    function setPermSource(mode) {
+      document.getElementById('psrcScratch').classList.toggle('active', mode === 'scratch');
+      document.getElementById('psrcBase').classList.toggle('active', mode === 'base');
+      var sel = document.getElementById('baseRoleSelect');
+      sel.style.display = mode === 'base' ? 'inline-block' : 'none';
+      document.getElementById('baseRoleHint').style.display = 'none';
+      if (mode === 'scratch') {
+        scopeMap = {}; selectedPerms = {}; pickerKey = null;
+        renderPermCats(); renderPermItems(); renderPermSelected();
+      } else {
+        if (!sel.options.length) {
+          var opts = '<option value="">选择要复制的角色…</option>';
+          roles.forEach(function(r) { if (!r.isSystem) opts += '<option>' + r.name + '</option>'; });
+          sel.innerHTML = opts;
+        }
+      }
+    }
+
+    function applyBaseRole() {
+      var rname = document.getElementById('baseRoleSelect').value;
+      scopeMap = {}; selectedPerms = {}; pickerKey = null;
+      if (rname) {
+        // 演示：把所选角色的「查看 / 查询 / 使用 / 运行」类权限作为起点载入（全部对象）
+        Object.keys(permData).forEach(function(cat) {
+          permData[cat].forEach(function(item) {
+            if (item.indexOf('查看') !== -1 || item.indexOf('查询') !== -1 || item.indexOf('使用') !== -1 || item.indexOf('运行') !== -1) {
+              setScopeSilent(cat, item, 'all');
+            }
+          });
+        });
+        var hint = document.getElementById('baseRoleHint');
+        hint.style.display = '';
+        hint.textContent = '已载入「' + rname + '」的权限作为起点，可在下方继续调整';
+      }
+      renderPermCats(); renderPermItems(); renderPermSelected();
+    }
+    function closeCreateRoleModal() {
+      document.getElementById('createRoleModal').classList.remove('show');
+      _editingRoleId = null;
+      document.querySelector('#createRoleModal .um-modal-header h3').textContent = '新建角色';
+      document.getElementById('createRoleSubmitBtn').textContent = '创 建';
+    }
+
+    function switchPermTab(el, tab) {
+      el.parentNode.querySelectorAll('.perm-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('permGlobalPanel').style.display = tab === 'global' ? '' : 'none';
+      document.getElementById('permObjectPanel').style.display = tab === 'object' ? '' : 'none';
+    }
+
+    var openGroup = null; // track which group is open
+
+    function renderPermCats() {
+      // Auto-open the group containing activeCat
+      if (activeCat && !openGroup) {
+        permGroups.forEach(function(g) { if (g.cats.indexOf(activeCat) !== -1) openGroup = g.name; });
+      }
+      var html = '';
+      permGroups.forEach(function(group) {
+        var isOpen = openGroup === group.name;
+        var groupSelCount = 0, groupTotalCount = 0;
+        group.cats.forEach(function(cat) {
+          if (!permData[cat]) return;
+          groupTotalCount += permData[cat].length;
+          groupSelCount += (selectedPerms[cat] || []).length;
+        });
+        html += '<div class="perm-cat-group">';
+        html += '<div class="perm-cat-group-title' + (isOpen ? ' open' : '') + '" onclick="togglePermGroup(\'' + group.name + '\')">';
+        html += '<span>' + group.name + '</span>';
+        html += '<span class="group-count">' + groupSelCount + '/' + groupTotalCount + '</span>';
+        html += '<span class="group-arrow">›</span>';
+        html += '</div>';
+        html += '<div class="perm-cat-children' + (isOpen ? ' open' : '') + '">';
+        group.cats.forEach(function(cat) {
+          if (!permData[cat]) return;
+          var total = permData[cat].length;
+          var selected = (selectedPerms[cat] || []).length;
+          var isActive = cat === activeCat;
+          html += '<div class="perm-cat-item' + (isActive ? ' active' : '') + '" onclick="event.stopPropagation();activeCat=\'' + cat + '\';renderPermCats();renderPermItems()">';
+          html += '<span>' + cat + '</span>';
+          html += '<span class="perm-cat-count">' + selected + '/' + total + '</span>';
+          html += '</div>';
+        });
+        html += '</div></div>';
+      });
+      document.getElementById('permCatList').innerHTML = html;
+    }
+
+    function togglePermGroup(name) {
+      openGroup = openGroup === name ? null : name;
+      // If opening a group, auto-select its first cat
+      if (openGroup) {
+        var g = permGroups.find(function(gr) { return gr.name === name; });
+        if (g && g.cats.length) {
+          var inGroup = g.cats.indexOf(activeCat) !== -1;
+          if (!inGroup) activeCat = g.cats[0];
+        }
+      }
+      renderPermCats();
+      renderPermItems();
+    }
+
+    // 与创建 / 添加同为二态（无 / 全部）的顶层动作：实际归属为工作区、无可指定的父对象实体（指定 = 全部同义）
+    // 含：发布数据 + 所有「查看 XX 列表」类中上级为工作区的（DB2/DT2/DV2/MD1/OP1 上级为目录 / 库，已移入对应分组、保持三态）
+    var topLevelOnlyItems = [
+      'PS1-发布数据',
+      'DC2-查看目录列表', 'C2-查看连接器列表', 'L2-查看载入任务列表', 'E2-查看导出任务列表',
+      'W3-查看工作流列表', 'WT2-查看工作流模板列表', 'CR2-查看计算资源列表', 'DS2-查看数据看板列表',
+      'AG2-查看智能体列表', 'SK2-查看技能列表', 'TL2-查看工具列表', 'K2-查看知识库列表',
+      'PS2-查看发布列表', 'PS5-查看订阅列表',
+      'A2-查看告警规则列表', 'A6-查看通知对象列表', 'A9-查看告警记录列表',
+      // 用户 / 角色两个功能域全部权限项二态(无/全部)——用户与角色是工作区直属治理对象,不提供「指定」
+      'U1-创建用户', 'U2-查看用户列表', 'U3-修改用户密码', 'U4-修改用户角色', 'U5-修改用户信息',
+      'U6-启用/禁用用户', 'U7-删除用户', 'U8-查看用户日志', 'U9-用户标签管理',
+      'R1-创建角色', 'R2-查看角色列表', 'R3-修改角色', 'R4-删除角色', 'R5-启用/禁用角色',
+      'R6-查看角色日志', 'R7-角色继承'
+    ];
+    function isCreateAction(item) { return item.indexOf('创建') !== -1 || item.indexOf('添加') !== -1 || topLevelOnlyItems.indexOf(item) !== -1; }
+    // 创建子对象的权限归属父对象、且可指定父对象（创建库属目录、创建表/卷/视图/模型/算子属库）
+    var childCreates = {
+      '目录': ['DB1-创建库 / CREATE DATABASE'],
+      '库': ['DT1-创建表 / CREATE TABLE', 'DV1-创建卷', 'DT5-创建视图 / CREATE VIEW', 'MD2-添加自定义模型', 'OP2-创建自定义算子']
+    };
+    function isChildCreate(cat, item) { return !!(childCreates[cat] && childCreates[cat].indexOf(item) !== -1); }
+    function isTopLevelCreate(cat, item) { return isCreateAction(item) && !isChildCreate(cat, item); }
+    function escq(s) { return String(s).replace(/'/g, "\\'"); }
+    function getMode(cat, item) { return (scopeMap[cat] && scopeMap[cat][item]) ? scopeMap[cat][item].mode : 'none'; }
+
+    function setScopeSilent(cat, item, mode) {
+      if (!scopeMap[cat]) scopeMap[cat] = {};
+      if (!selectedPerms[cat]) selectedPerms[cat] = [];
+      if (mode === 'none') {
+        delete scopeMap[cat][item];
+        selectedPerms[cat] = selectedPerms[cat].filter(function(x) { return x !== item; });
+      } else {
+        var prev = scopeMap[cat][item] || { objs: [] };
+        scopeMap[cat][item] = { mode: mode, objs: prev.objs || [] };
+        if (selectedPerms[cat].indexOf(item) === -1) selectedPerms[cat].push(item);
+      }
+    }
+    function setScope(cat, item, mode) {
+      setScopeSilent(cat, item, mode);
+      renderPermCats(); renderPermItems(); renderPermSelected();
+      if (mode === 'some') openObjPicker(cat, item);
+    }
+    function batchCat(mode) {
+      if (!activeCat) return;
+      permData[activeCat].forEach(function(item) { setScopeSilent(activeCat, item, mode); });
+      pickerKey = null;
+      renderPermCats(); renderPermItems(); renderPermSelected();
+    }
+    function togglePicker(cat, item) {
+      var k = cat + '|' + item;
+      pickerKey = (pickerKey === k) ? null : k;
+      renderPermItems();
+    }
+    function toggleObj(cat, item, obj) {
+      var s = scopeMap[cat] && scopeMap[cat][item];
+      if (!s) return;
+      var i = s.objs.indexOf(obj);
+      if (i === -1) s.objs.push(obj); else s.objs.splice(i, 1);
+      renderPermItems(); renderPermSelected();
+    }
+    function filterPicker(inp) {
+      var q = (inp.value || '').toLowerCase();
+      var box = inp.parentNode.parentNode;
+      box.querySelectorAll('.perm-picker-item').forEach(function(el) {
+        el.style.display = el.textContent.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+      });
+    }
+    function scopeSegHtml(cat, item) {
+      var mode = getMode(cat, item);
+      var opts = isTopLevelCreate(cat, item) ? [['none', '无'], ['all', '全部']] : [['none', '无'], ['some', '指定'], ['all', '全部']];
+      var h = '<div class="scope-seg">';
+      opts.forEach(function(o) {
+        h += '<span class="scope-opt' + (mode === o[0] ? ' on on-' + o[0] : '') + '" onclick="setScope(\'' + escq(cat) + '\',\'' + escq(item) + '\',\'' + o[0] + '\')">' + o[1] + '</span>';
+      });
+      return h + '</div>';
+    }
+
+    // 允许转授（WITH GRANT OPTION）：敏感权限默认禁用
+    function isSensitivePerm(item) { return /删除|清除|授权管理|创建角色|创建用户|修改角色|改权限|修改权限/.test(item); }
+    function getGrantable(cat, item) { var s = scopeMap[cat] && scopeMap[cat][item]; return s ? !!s.grantable : false; }
+    function toggleGrantable(cat, item, checked) {
+      var s = scopeMap[cat] && scopeMap[cat][item]; if (!s) return;
+      s.grantable = checked; renderPermItems(); renderPermSelected();
+    }
+    function grantCheckboxHtml(cat, item) {
+      var sens = isSensitivePerm(item), g = getGrantable(cat, item);
+      return '<label class="perm-grant' + (sens ? ' disabled' : '') + '" title="' + (sens ? '该权限默认不可转授，需超管放开' : '勾选后本角色可将此权限授予其他角色') + '">'
+        + '<input type="checkbox"' + (g ? ' checked' : '') + (sens ? ' disabled' : '') + ' onchange="toggleGrantable(\'' + escq(cat) + '\',\'' + escq(item) + '\',this.checked)">允许转授</label>';
+    }
+
+    function renderPermItems() {
+      if (!activeCat) return;
+      var items = permData[activeCat];
+      var hint = getPermScopeHint(activeCat);
+      var html = '<div class="perm-items-head"><span class="perm-items-title">' + activeCat + ' · ' + items.length + ' 项权限</span>'
+        + '<span class="perm-batch">本类批量：<a onclick="batchCat(\'all\')">全部</a> / <a onclick="batchCat(\'none\')">无</a></span></div>';
+      if (hint) html += '<div class="perm-scope-hint">' + hint + '</div>';
+      items.forEach(function(item) {
+        var mode = getMode(activeCat, item);
+        var k = activeCat + '|' + item;
+        var objs = (scopeMap[activeCat] && scopeMap[activeCat][item]) ? scopeMap[activeCat][item].objs : [];
+        html += '<div class="perm-row"><span class="perm-row-name">' + item + '</span><div class="perm-row-right">';
+        if (mode === 'some') {
+          html += '<span class="perm-objchip" onclick="openObjPicker(\'' + escq(activeCat) + '\',\'' + escq(item) + '\')">已选 ' + objs.length + '</span>';
+        }
+        html += scopeSegHtml(activeCat, item);
+        if (mode === 'all') html += grantCheckboxHtml(activeCat, item);
+        html += '</div></div>';
+      });
+      document.getElementById('permItemList').innerHTML = html;
+    }
+
+    function getPermScopeHint(cat) {
+      if (cat === '智能体') return '<b>使用智能体</b>表示可以通过该智能体访问其封装后的技能、工具、知识库；<b>修改智能体</b>包含绑定 / 解绑技能、工具和知识库。';
+      if (cat === '知识库') return '<b>使用知识库</b>不包含绑定到智能体，也不新增源文件下载权限；能否通过对话查询知识库，取决于智能体使用权限。';
+      if (cat === '技能') return '<b>使用技能</b>表示技能可作为智能体封装能力被调用，不等于拥有该技能所依赖工具或知识库的本体权限。';
+      if (cat === '工具') return '<b>使用工具</b>表示工具可被封装能力调用；高风险工具仍需要审批策略、二次确认和审计日志约束。';
+      return '';
+    }
+
+    function togglePerm(item, checked) {
+      if (!selectedPerms[activeCat]) selectedPerms[activeCat] = [];
+      if (checked) {
+        if (selectedPerms[activeCat].indexOf(item) === -1) selectedPerms[activeCat].push(item);
+      } else {
+        selectedPerms[activeCat] = selectedPerms[activeCat].filter(function(x) { return x !== item; });
+      }
+      renderPermCats();
+      renderPermItems();
+      renderPermSelected();
+    }
+
+    function toggleAllPerms(checked) {
+      if (checked) {
+        selectedPerms[activeCat] = permData[activeCat].slice();
+      } else {
+        selectedPerms[activeCat] = [];
+      }
+      renderPermCats();
+      renderPermItems();
+      renderPermSelected();
+    }
+
+    function removePerm(cat, item) {
+      setScopeSilent(cat, item, 'none');
+      if (pickerKey === cat + '|' + item) pickerKey = null;
+      renderPermCats();
+      if (cat === activeCat) renderPermItems();
+      renderPermSelected();
+    }
+
+    function clearAllPerms() {
+      selectedPerms = {};
+      scopeMap = {};
+      pickerKey = null;
+      renderPermCats();
+      renderPermItems();
+      renderPermSelected();
+    }
+
+    function renderPermSelected() {
+      var totalSel = 0;
+      Object.keys(selectedPerms).forEach(function(k) { totalSel += selectedPerms[k].length; });
+      var html = '<div class="perm-sel-header"><span class="perm-sel-title">已授予（' + totalSel + '）</span>';
+      html += '<button class="perm-sel-clear" onclick="clearAllPerms()">清空</button></div>';
+      Object.keys(selectedPerms).forEach(function(cat) {
+        var items = selectedPerms[cat];
+        if (!items || !items.length) return;
+        html += '<div class="perm-sel-group">';
+        html += '<div class="perm-sel-group-title">' + cat + ' ' + items.length + '</div>';
+        html += '<div class="perm-sel-tags">';
+        items.forEach(function(item) {
+          var s = scopeMap[cat] && scopeMap[cat][item];
+          var badge = '';
+          if (s) {
+            if (s.mode === 'all') badge = '<span class="sc-all">全部</span>';
+            else badge = '<span class="sc-some" style="cursor:pointer" title="点击查看 / 调整已选对象" onclick="openObjPicker(\'' + escq(cat) + '\',\'' + escq(item) + '\')">已选 ' + s.objs.length + '</span>';
+          }
+          html += '<span class="perm-sel-tag">' + item + ' ' + badge + ' <span class="tag-x" onclick="removePerm(\'' + escq(cat) + '\',\'' + escq(item) + '\')">&times;</span></span>';
+        });
+        html += '</div></div>';
+      });
+      if (totalSel === 0) {
+        html += '<div style="text-align:center;padding:40px 0;color:rgba(0,0,0,0.15);font-size:12px">暂未授予权限</div>';
+      }
+      document.getElementById('permSelectedList').innerHTML = html;
+    }
+
+    // ===== 权限查看 / 修改角色（复用创建弹窗的权限配置机器）=====
+    var _editingRoleId = null;
+    function _rpNowStr() { var d = new Date(), p = function(n){ return n < 10 ? '0' + n : n; }; return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); }
+    // 演示：按角色定位生成其当前权限集（cat -> items），真实实现来自服务端
+    function rolePermPreset(r) {
+      var out = {};
+      var dataCats = ['目录','库','表','卷','模型','算子','连接器','载入任务','导出任务','工作流','工作流模板','计算资源','数据看板','发布订阅','告警','日志','SQL历史','知识库'];
+      Object.keys(permData).forEach(function(cat) {
+        permData[cat].forEach(function(item) {
+          var keep = false;
+          if (r.name === '超级管理员' || r.name === '工作区管理员') keep = true;
+          else if (r.name === '数据开发者') keep = dataCats.indexOf(cat) !== -1 || /查看|查询|使用/.test(item);
+          else if (r.name === '智能体开发者') keep = ['智能体','技能','工具','知识库'].indexOf(cat) !== -1 || /查看|查询/.test(item);
+          else keep = /查看|查询/.test(item);
+          if (keep) { (out[cat] = out[cat] || []).push(item); }
+        });
+      });
+      return out;
+    }
+
+    function openEditRoleModal(roleId) {
+      var r = roles.find(function(x) { return x.id === roleId; }); if (!r) return;
+      openCreateRoleModal();
+      _editingRoleId = roleId;
+      document.getElementById('newRoleName').value = r.name;
+      document.getElementById('newRoleRemark').value = r.remark || '';
+      document.getElementById('roleNameCount').textContent = String(r.name.length);
+      document.getElementById('roleRemarkCount').textContent = String((r.remark || '').length);
+      var preset = rolePermPreset(r);
+      Object.keys(preset).forEach(function(cat) { preset[cat].forEach(function(item) { setScopeSilent(cat, item, 'all'); }); });
+      renderPermCats(); renderPermItems(); renderPermSelected();
+      document.querySelector('#createRoleModal .um-modal-header h3').textContent = '修改角色 · ' + r.name;
+      document.getElementById('createRoleSubmitBtn').textContent = '保 存';
+    }
+
+    function openViewPermModal(roleId) {
+      var r = roles.find(function(x) { return x.id === roleId; }); if (!r) return;
+      var preset = rolePermPreset(r);
+      var total = 0, h = '';
+      permGroups.forEach(function(g) {
+        var cats = g.cats.filter(function(c) { return preset[c] && preset[c].length; });
+        if (!cats.length) return;
+        h += '<div style="font-size:12px;font-weight:700;color:rgba(0,0,0,0.45);margin:14px 0 8px">' + g.name + '</div>';
+        cats.forEach(function(cat) {
+          var items = preset[cat]; total += items.length;
+          h += '<div style="border:1px solid #f0f0f0;border-radius:8px;padding:10px 14px;margin-bottom:8px">';
+          h += '<div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82);margin-bottom:6px">' + cat + ' <span style="font-weight:400;color:rgba(0,0,0,0.35);font-size:11px">' + items.length + ' 项 · 生效范围 全部</span></div>';
+          h += '<div style="display:flex;flex-wrap:wrap;gap:6px">' + items.map(function(it) {
+            return '<span style="font-size:12px;background:#f5f7fa;border-radius:6px;padding:2px 8px;color:rgba(0,0,0,0.65)">' + it + '</span>';
+          }).join('') + '</div></div>';
+        });
+      });
+      document.getElementById('viewPermTitle').textContent = '权限查看 · ' + r.name + '（' + total + ' 项）';
+      document.getElementById('viewPermBody').innerHTML = h || '<div style="padding:32px;text-align:center;color:rgba(0,0,0,0.35)">该角色暂无权限</div>';
+      var editBtn = document.getElementById('viewPermEditBtn');
+      editBtn.style.display = r.isSystem ? 'none' : '';
+      editBtn.onclick = function() { closeViewPermModal(); openEditRoleModal(roleId); };
+      document.getElementById('viewPermModal').classList.add('show');
+    }
+    function closeViewPermModal() { document.getElementById('viewPermModal').classList.remove('show'); }
+
+    function confirmCreateRole() {
+      var name = document.getElementById('newRoleName').value.trim();
+      if (!name) { alert('请输入角色名'); return; }
+      var totalSel = 0;
+      Object.keys(selectedPerms).forEach(function(k) { totalSel += selectedPerms[k].length; });
+      if (_editingRoleId) {
+        var r = roles.find(function(x) { return x.id === _editingRoleId; });
+        if (r) { r.name = name; r.remark = document.getElementById('newRoleRemark').value.trim(); r.updated = _rpNowStr(); }
+        alert('角色「' + name + '」已保存，当前 ' + totalSel + ' 项权限');
+        closeCreateRoleModal();
+        renderRoleTable();
+        return;
+      }
+      alert('角色「' + name + '」创建成功，已分配 ' + totalSel + ' 项权限');
+      closeCreateRoleModal();
+    }
+
+    // ===== 独立对象选择器（指定对象范围，适配大量对象）=====
+    var objPkCtx = { cat: null, item: null, temp: [], grantTemp: [] };
+    function openObjPicker(cat, item) {
+      objPkCtx.cat = cat; objPkCtx.item = item;
+      var s = scopeMap[cat] && scopeMap[cat][item];
+      var cur = s ? s.objs : [];
+      objPkCtx.temp = cur.slice();
+      objPkCtx.grantTemp = (s && s.grantObjs) ? s.grantObjs.slice() : [];
+      document.getElementById('objPickerTitle').textContent = '选择对象 · ' + cat + ' · ' + item;
+      document.getElementById('objPickerSearch').value = '';
+      treeExpanded = {};
+      renderObjPicker();
+      document.getElementById('objPickerModal').classList.add('show');
+    }
+    function closeObjPicker() { document.getElementById('objPickerModal').classList.remove('show'); rcpClose(); }
+
+    // ===== Catalog 层级树（目录→库→表/卷/模型/算子），对象多时按树选择 =====
+    var catalogTree = [
+      { name:'默认', type:'目录', children:[
+        { name:'产品数据库', type:'库', children:[
+          {name:'用户表',type:'表'},{name:'订单表',type:'表'},{name:'产品表',type:'表'},
+          {name:'产品文档卷',type:'卷'},
+          {name:'MOI-7B-Chat',type:'模型'},{name:'MOI-72B-Pro',type:'模型'},
+          {name:'解析',type:'算子'},{name:'分段',type:'算子'},{name:'嵌入',type:'算子'},{name:'提取',type:'算子'}
+        ]},
+        { name:'分析数据库', type:'库', children:[
+          {name:'日志表',type:'表'},{name:'销售汇总',type:'表'},{name:'客户画像',type:'表'},
+          {name:'图片素材卷',type:'卷'},
+          {name:'MOI-Long-128k',type:'模型'},
+          {name:'增强',type:'算子'},{name:'重排序',type:'算子'}
+        ]}
+      ]},
+      { name:'测试', type:'目录', children:[
+        { name:'测试库', type:'库', children:[
+          {name:'报告卷',type:'卷'},
+          {name:'自定义客服模型',type:'模型'},
+          {name:'分类',type:'算子'},{name:'自定义去敏',type:'算子'}
+        ]}
+      ]}
+    ];
+    var catalogTreeTypes = ['目录','库','表','卷','模型','算子'];
+    var treeExpanded = {};
+    var treeNodeLeaves = {};
+    var rcConfigured = {};   // 已设置行列权限的表：name -> {cols,rules}
+    var rcCurrentTable = null;
+
+    function collectLeaves(n) { if (n.leaf) return [n.name]; var o = []; (n.children || []).forEach(function(c) { o = o.concat(collectLeaves(c)); }); return o; }
+    function pruneTree(nodes, target) {
+      var res = [];
+      nodes.forEach(function(n) {
+        if (n.type === target) { res.push({ name:n.name, type:n.type, leaf:true }); return; }
+        var kids = pruneTree(n.children || [], target);
+        if (kids.length) res.push({ name:n.name, type:n.type, leaf:false, children:kids });
+      });
+      return res;
+    }
+    function renderObjTree(nodes, depth, target) {
+      var html = '';
+      nodes.forEach(function(n) {
+        var key = target + '|' + depth + '|' + n.name;
+        var indent = depth * 18;
+        if (n.leaf) {
+          var ck = objPkCtx.temp.indexOf(n.name) !== -1;
+          html += '<label class="objtree-row objtree-leaf" style="padding-left:' + (indent + 22) + 'px">'
+            + '<input type="checkbox"' + (ck ? ' checked' : '') + ' onchange="objPickerToggle(\'' + escq(n.name) + '\')">'
+            + '<span class="objtree-name">' + n.name + '</span></label>';
+        } else {
+          var leaves = collectLeaves(n);
+          treeNodeLeaves[key] = leaves;
+          var sel = leaves.filter(function(l) { return objPkCtx.temp.indexOf(l) !== -1; }).length;
+          var allSel = sel === leaves.length && leaves.length > 0;
+          var someSel = sel > 0 && sel < leaves.length;
+          var exp = treeExpanded[key] !== false;
+          html += '<div class="objtree-row objtree-parent" style="padding-left:' + indent + 'px">'
+            + '<span class="objtree-caret' + (exp ? ' open' : '') + '" onclick="toggleTree(\'' + escq(key) + '\')">&#9656;</span>'
+            + '<input type="checkbox" data-tree-key="' + key + '"' + (allSel ? ' checked' : '') + (someSel ? ' data-indet="1"' : '') + ' onchange="treeToggleAll(this.getAttribute(\'data-tree-key\'), this.checked)">'
+            + '<span class="objtree-name objtree-pname" onclick="toggleTree(\'' + escq(key) + '\')">' + n.name + '<span class="objtree-type">' + n.type + '</span></span></div>';
+          if (exp) html += renderObjTree(n.children, depth + 1, target);
+        }
+      });
+      return html;
+    }
+    function toggleTree(key) { treeExpanded[key] = !(treeExpanded[key] !== false); renderObjPicker(); }
+    function treeToggleAll(key, checked) {
+      var leaves = treeNodeLeaves[key] || [];
+      leaves.forEach(function(l) {
+        var i = objPkCtx.temp.indexOf(l);
+        if (checked && i === -1) objPkCtx.temp.push(l);
+        if (!checked && i !== -1) objPkCtx.temp.splice(i, 1);
+      });
+      renderObjPicker();
+    }
+    function renderObjPicker() {
+      var cat = objPkCtx.cat;
+      var q = (document.getElementById('objPickerSearch').value || '').toLowerCase();
+      var listEl = document.getElementById('objPickerList');
+      var useTree = catalogTreeTypes.indexOf(cat) !== -1 && !q;
+      if (useTree) {
+        treeNodeLeaves = {};
+        listEl.style.display = 'block';
+        listEl.innerHTML = renderObjTree(pruneTree(catalogTree, cat), 0, cat);
+        listEl.querySelectorAll('input[data-indet="1"]').forEach(function(cb) { cb.indeterminate = true; });
+      } else {
+        listEl.style.display = '';
+        var list = objInstances[cat] || [];
+        var shown = list.filter(function(o) { return o.toLowerCase().indexOf(q) !== -1; });
+        var lh = shown.map(function(o) {
+          var ck = objPkCtx.temp.indexOf(o) !== -1;
+          return '<label class="objpk-item"><input type="checkbox"' + (ck ? ' checked' : '') + ' onchange="objPickerToggle(\'' + escq(o) + '\')"> ' + o + '</label>';
+        }).join('');
+        if (!lh) lh = '<div style="color:rgba(0,0,0,0.3);font-size:12px;grid-column:1/3;padding:8px 0">无匹配对象</div>';
+        listEl.innerHTML = lh;
+      }
+      document.getElementById('objPickerCount').textContent = objPkCtx.temp.length;
+      var allList = (objInstances[cat] || []).filter(function(o) { return o.toLowerCase().indexOf(q) !== -1; });
+      document.getElementById('objPickerAll').checked = allList.length > 0 && allList.every(function(o) { return objPkCtx.temp.indexOf(o) !== -1; });
+      var supportsRC = (objPkCtx.cat === '表' && objPkCtx.item.indexOf('DT8-') === 0);
+      var sens = isSensitivePerm(objPkCtx.item);
+      var ch = objPkCtx.temp.map(function(o) {
+        var done = supportsRC && !!rcConfigured[o];
+        var rc = supportsRC
+          ? '<span class="objpk-rc' + (done ? ' configured' : '') + '" onclick="rcpOpen(\'' + escq(o) + '\')">' + (done ? '行列权限 &#10003;' : '设置行列权限') + '</span>'
+          : '';
+        var gck = objPkCtx.grantTemp.indexOf(o) !== -1;
+        var grant = '<label class="objpk-grant' + (sens ? ' disabled' : '') + '" title="' + (sens ? '该权限默认不可转授，需超管放开' : '允许把该对象的此权限转授其他角色') + '"><input type="checkbox"' + (gck ? ' checked' : '') + (sens ? ' disabled' : '') + ' onchange="objPickerToggleGrant(\'' + escq(o) + '\',this.checked)">允许转授</label>';
+        return '<div class="objpk-chip' + (done ? ' rc-done' : '') + '"><span class="objpk-chip-name">' + o + '</span><span class="objpk-chip-r">' + grant + rc + '<span class="x" onclick="objPickerToggle(\'' + escq(o) + '\')">&times;</span></span></div>';
+      }).join('');
+      if (!ch) ch = '<div style="color:rgba(0,0,0,0.25);font-size:12px;padding:8px 0">未选择对象</div>';
+      else ch = '<div class="objpk-hint">勾选「允许转授」= 可把该对象的此权限转授其他角色' + (supportsRC ? '；每张表还可单独配置行列权限，绿色 &#10003; 表示已配置' : '') + '</div>' + ch;
+      document.getElementById('objPickerChips').innerHTML = ch;
+    }
+    function objPickerToggle(o) {
+      var i = objPkCtx.temp.indexOf(o);
+      if (i === -1) { objPkCtx.temp.push(o); }
+      else { objPkCtx.temp.splice(i, 1); var gi = objPkCtx.grantTemp.indexOf(o); if (gi !== -1) objPkCtx.grantTemp.splice(gi, 1); }
+      renderObjPicker();
+    }
+    function objPickerToggleGrant(o, ck) {
+      var i = objPkCtx.grantTemp.indexOf(o);
+      if (ck && i === -1) objPkCtx.grantTemp.push(o);
+      if (!ck && i !== -1) objPkCtx.grantTemp.splice(i, 1);
+    }
+    function objPickerToggleAll(ck) {
+      var list = objInstances[objPkCtx.cat] || [];
+      var q = (document.getElementById('objPickerSearch').value || '').toLowerCase();
+      list.filter(function(o) { return o.toLowerCase().indexOf(q) !== -1; }).forEach(function(o) {
+        var i = objPkCtx.temp.indexOf(o);
+        if (ck && i === -1) objPkCtx.temp.push(o);
+        if (!ck && i !== -1) objPkCtx.temp.splice(i, 1);
+      });
+      renderObjPicker();
+    }
+    function objPickerClear() { objPkCtx.temp = []; objPkCtx.grantTemp = []; renderObjPicker(); }
+    function confirmObjPicker() {
+      var cat = objPkCtx.cat, item = objPkCtx.item;
+      if (scopeMap[cat] && scopeMap[cat][item]) {
+        scopeMap[cat][item].objs = objPkCtx.temp.slice();
+        scopeMap[cat][item].grantObjs = objPkCtx.grantTemp.filter(function(o) { return objPkCtx.temp.indexOf(o) !== -1; });
+      }
+      closeObjPicker();
+      renderPermCats(); renderPermItems(); renderPermSelected();
+    }
+
+    // Object permission mock data - object instances per category
+    var objInstances = {
+      '目录': ['默认','测试'],
+      '库': ['产品数据库','分析数据库','测试库'],
+      '表': ['用户表','订单表','产品表','日志表','销售汇总','客户画像'],
+      '卷': ['产品文档卷','图片素材卷','报告卷'],
+      '模型': ['MOI-7B-Chat','MOI-72B-Pro','MOI-Long-128k','自定义客服模型'],
+      '算子': ['解析','分段','嵌入','提取','增强','重排序','分类','自定义去敏'],
+      '连接器': ['oss-138','mysql-prod','hdfs-cluster'],
+      '载入任务': ['daily-import-01','weekly-sync'],
+      '导出任务': ['export-to-oss','export-to-milvus'],
+      '工作流': ['文档解析流程','数据清洗流程','嵌入生成流程','【NESR】设备可靠性数据处理','月度泵 KPI 计算','建 Silver 层','建 Gold 层','数据质量校验','RAG 文档准备','信息提取流程','合同要素抽取','发票 OCR 入库','邮件分类归档','客户画像聚合','销售日报生成','图片批量打标','音频转写流程','视频关键帧抽取','知识库增量更新','跨库联邦同步','报表推送流程','异常检测流程','维度表刷新','埋点日志清洗'],
+      '工作流模板': ['文档知识问答模板','信息提取模板','文档摘要模板'],
+      '计算资源': ['gpu-compute-01','cpu-general-01'],
+      '智能体': ['产品问答助手','合同审查助手','数据分析助手'],
+      '技能': ['文档知识问答','信息提取','NL2SQL查询'],
+      '工具': ['解析工具','嵌入工具','Google搜索','飞书消息'],
+      '任务': ['每日报表推送','合同批量提取'],
+      '知识库': ['产品文档知识库','合同信息库','销售数据集'],
+      '发布订阅': ['数据变更通知','报表推送'],
+      '告警': ['CPU告警规则','磁盘告警规则'],
+      '用户': ['lisong','chenwei','wangwu','zhangsan','lisi'],
+      '角色': ['超级管理员','工作区管理员','数据开发者','智能体开发者','部门经理']
+    };
+    var agentCapabilityData = {
+      '产品问答助手': {
+        roles: ['售前团队', '客服运营'],
+        users: 18,
+        skills: ['文档知识问答', '图文混合问答'],
+        tools: [
+          {name:'知识库检索', risk:'low'},
+          {name:'图片 OCR', risk:'low'},
+          {name:'企业微信消息', risk:'high'}
+        ],
+        knowledgeBases: [
+          {name:'产品文档知识库', risk:'low'},
+          {name:'售前 FAQ 知识库', risk:'mid'}
+        ],
+        sensitive: true,
+        highRisk: true
+      },
+      '合同审查助手': {
+        roles: ['法务组'],
+        users: 6,
+        skills: ['合同条款抽取', '风险点摘要'],
+        tools: [
+          {name:'结构化提取', risk:'low'},
+          {name:'文件导出', risk:'mid'}
+        ],
+        knowledgeBases: [
+          {name:'合同信息库', risk:'mid'},
+          {name:'法律条款库', risk:'mid'}
+        ],
+        sensitive: true,
+        highRisk: false
+      },
+      '数据分析助手': {
+        roles: ['数据团队', '经营分析'],
+        users: 12,
+        skills: ['NL2SQL查询', '数据洞察分析'],
+        tools: [
+          {name:'SQL 执行', risk:'mid'},
+          {name:'图表生成', risk:'low'}
+        ],
+        knowledgeBases: [
+          {name:'销售数据集', risk:'mid'},
+          {name:'指标口径库', risk:'low'}
+        ],
+        sensitive: false,
+        highRisk: false
+      }
+    };
+    // Object permissions exclude create-type perms (only instance-level ops)
+    var objPermItems = {};
+    Object.keys(permData).forEach(function(cat) {
+      objPermItems[cat] = permData[cat].filter(function(p) {
+        return p.indexOf('创建') === -1 && p.indexOf('创建') === -1;
+      });
+      if (objPermItems[cat].length === 0) objPermItems[cat] = permData[cat];
+    });
+
+    var objectPerms = []; // {cat, name, perms:[]}
+
+
+    function toggleObjNamePicker() {
+      var cat = document.getElementById('objPermCatSelect').value;
+      if (!cat) return;
+      if (catalogTypes.indexOf(cat) !== -1) {
+        var dd = document.getElementById('objNameCascadeDD');
+        if (dd.classList.contains('show')) { dd.classList.remove('show'); return; }
+        document.getElementById('objNameSimpleDD').classList.remove('show');
+        renderCascadeCol1(cat);
+        dd.classList.add('show');
+      } else {
+        var dd = document.getElementById('objNameSimpleDD');
+        if (dd.classList.contains('show')) { dd.classList.remove('show'); return; }
+        document.getElementById('objNameCascadeDD').classList.remove('show');
+        var instances = objInstances[cat] || [];
+        var html = '';
+        instances.forEach(function(n) {
+          html += '<div class="cascade-item leaf" onclick="selectObjName(\'' + n + '\')">' + n + '</div>';
+        });
+        dd.innerHTML = html;
+        dd.classList.add('show');
+      }
+    }
+
+    function selectObjName(name) {
+      selectedObjName = name;
+      document.getElementById('objPermNameDisplay').textContent = name;
+      document.getElementById('objPermNameDisplay').style.color = 'rgba(0,0,0,0.88)';
+      document.getElementById('objNameSimpleDD').classList.remove('show');
+      document.getElementById('objNameCascadeDD').classList.remove('show');
+      renderAgentObjectContext();
+    }
+
+    function renderCascadeCol1(cat) {
+      var dd = document.getElementById('objNameCascadeDD');
+      var html = '<div class="cascade-col" id="cascadeCol1">';
+      Object.keys(catalogData).forEach(function(dir) {
+        html += '<div class="cascade-item" onclick="cascadeSelectDir(\'' + dir + '\',\'' + cat + '\')">' + dir + ' <span class="cascade-arrow">›</span></div>';
+      });
+      html += '</div>';
+      dd.innerHTML = html;
+    }
+
+    function cascadeSelectDir(dir, cat) {
+      document.querySelectorAll('#cascadeCol1 .cascade-item').forEach(function(el) { el.classList.remove('active'); });
+      event.target.closest('.cascade-item').classList.add('active');
+      // Remove col2 and col3 if exist
+      var old2 = document.getElementById('cascadeCol2'); if (old2) old2.remove();
+      var old3 = document.getElementById('cascadeCol3'); if (old3) old3.remove();
+      var dbs = catalogData[dir];
+      if (!dbs) return;
+      var html = '<div class="cascade-col" id="cascadeCol2">';
+      Object.keys(dbs).forEach(function(db) {
+        if (cat === '库') {
+          html += '<div class="cascade-item leaf" onclick="selectObjName(\'' + dir + '/' + db + '\')">' + db + '</div>';
+        } else {
+          html += '<div class="cascade-item" onclick="cascadeSelectDb(\'' + dir + '\',\'' + db + '\',\'' + cat + '\')">' + db + ' <span class="cascade-arrow">›</span></div>';
+        }
+      });
+      html += '</div>';
+      document.getElementById('objNameCascadeDD').insertAdjacentHTML('beforeend', html);
+    }
+
+    function cascadeSelectDb(dir, db, cat) {
+      document.querySelectorAll('#cascadeCol2 .cascade-item').forEach(function(el) { el.classList.remove('active'); });
+      event.target.closest('.cascade-item').classList.add('active');
+      var old3 = document.getElementById('cascadeCol3'); if (old3) old3.remove();
+      var content = catalogData[dir][db];
+      if (!content) return;
+      var items = cat === '卷' ? (content.volumes || []) : (content.tables || []);
+      var html = '<div class="cascade-col" id="cascadeCol3">';
+      items.forEach(function(item) {
+        html += '<div class="cascade-item leaf" onclick="selectObjName(\'' + dir + '/' + db + '/' + item + '\')">' + item + '</div>';
+      });
+      if (!items.length) html += '<div style="padding:16px;color:rgba(0,0,0,0.25);font-size:12px;text-align:center">无数据</div>';
+      html += '</div>';
+      document.getElementById('objNameCascadeDD').insertAdjacentHTML('beforeend', html);
+    }
+
+    function renderObjPermTable() {
+      var tbody = document.getElementById('objPermBody');
+      if (!objectPerms.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:80px 20px;color:rgba(0,0,0,0.25)"><div style="margin-bottom:8px"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="1.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div style="font-size:13px">暂无数据</div></td></tr>';
+        return;
+      }
+      var q = (document.getElementById('objPermSearch').value || '').toLowerCase();
+      var filtered = q ? objectPerms.filter(function(o) { return o.name.toLowerCase().indexOf(q) !== -1; }) : objectPerms;
+      var html = '';
+      filtered.forEach(function(o, i) {
+        var tags = o.perms.map(function(p) { return '<span class="perm-sel-tag" style="margin:2px">' + p + '</span>'; }).join('');
+        var nameCell = o.name;
+        if (o.cat === '智能体') {
+          var cap = agentCapabilityData[o.name];
+          if (cap) {
+            nameCell += '<div class="agent-table-note"><span class="agent-table-pill">' + cap.skills.length + ' 技能</span><span class="agent-table-pill">' + cap.tools.length + ' 工具</span><span class="agent-table-pill">' + cap.knowledgeBases.length + ' 知识库</span><span>影响 ' + cap.users + ' 用户</span></div>';
+          }
+        }
+        html += '<tr><td>' + o.cat + '</td><td>' + nameCell + '</td><td>' + tags + '</td>';
+        html += '<td><button class="um-action" onclick="editObjPerm(' + i + ')">✏️</button><button class="um-action danger" onclick="deleteObjPerm(' + i + ')">🗑️</button></td></tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    function openAddObjPermModal() {
+      var sel = document.getElementById('objPermCatSelect');
+      sel.innerHTML = '<option value="">请选择对象类别</option>';
+      Object.keys(permData).forEach(function(cat) {
+        sel.innerHTML += '<option value="' + cat + '">' + cat + '</option>';
+      });
+      selectedObjName = '';
+      document.getElementById('objPermNameDisplay').textContent = '请选择对象名称';
+      document.getElementById('objPermNameDisplay').style.color = 'rgba(0,0,0,0.25)';
+      document.getElementById('objNameSimpleDD').classList.remove('show');
+      document.getElementById('objNameCascadeDD').classList.remove('show');
+      document.getElementById('objPermCheckList').innerHTML = '<span style="font-size:13px;color:rgba(0,0,0,0.45)">请选择对象类别</span>';
+      renderAgentObjectContext();
+      document.getElementById('addObjPermModal').classList.add('show');
+    }
+    function closeAddObjPermModal() { document.getElementById('addObjPermModal').classList.remove('show'); }
+
+    var catalogData = {
+      '默认': {
+        '原始数据': { volumes: ['各类型原始文件','各类型原始文件（精简）'], tables: [] },
+        '处理数据': { volumes: ['智能工作流','样例数据'], tables: ['嵌入结果表','提取结果表'] }
+      },
+      '测试': {
+        '测试库': { volumes: ['测试文件卷'], tables: ['test_users','test_orders'] }
+      }
+    };
+    var catalogTypes = ['库','表','卷'];
+    var selectedObjName = '';
+
+    function onObjCatChange() {
+      var cat = document.getElementById('objPermCatSelect').value;
+      var checkList = document.getElementById('objPermCheckList');
+      selectedObjName = '';
+      document.getElementById('objPermNameDisplay').textContent = '请选择对象名称';
+      document.getElementById('objPermNameDisplay').style.color = 'rgba(0,0,0,0.25)';
+      document.getElementById('objNameSimpleDD').classList.remove('show');
+      document.getElementById('objNameCascadeDD').classList.remove('show');
+      renderAgentObjectContext();
+      if (!cat) { checkList.innerHTML = '<span style="font-size:13px;color:rgba(0,0,0,0.45)">请选择对象类别</span>'; return; }
+      // Show permission checkboxes
+      var items = objPermItems[cat] || [];
+      var html = '<label style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:4px"><input type="checkbox" style="accent-color:#1677ff;width:15px;height:15px" onchange="toggleObjPermAll(this.checked)"> 全选 <span id="objPermCount" style="font-weight:400;color:rgba(0,0,0,0.45)">(已选择 0/' + items.length + ')</span></label>';
+      items.forEach(function(p) {
+        var extra = '';
+        if (p.indexOf('DT8-') === 0) {
+          extra = ' <span class="rc-link" onclick="event.preventDefault();event.stopPropagation();var nameEl=document.getElementById(\'objPermNameDisplay\');openRcDrawer(nameEl?nameEl.textContent:\'表\')" style="color:#1677ff;font-size:12px;cursor:pointer;font-weight:500;display:none" id="rcLinkBtn">行列权限</span>';
+        }
+        html += '<label style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px;cursor:pointer"><input type="checkbox" class="obj-perm-cb" value="' + p + '" style="accent-color:#1677ff;width:15px;height:15px" onchange="updateObjPermCount();if(this.value.indexOf(\'DT8-\')===0){var btn=document.getElementById(\'rcLinkBtn\');if(btn)btn.style.display=this.checked?\'inline\':\'none\';}">' + p + extra + '</label>';
+      });
+      checkList.innerHTML = html;
+    }
+
+    function toggleObjPermAll(checked) {
+      document.querySelectorAll('.obj-perm-cb').forEach(function(cb) { cb.checked = checked; });
+      updateObjPermCount();
+    }
+    function updateObjPermCount() {
+      var total = document.querySelectorAll('.obj-perm-cb').length;
+      var checked = document.querySelectorAll('.obj-perm-cb:checked').length;
+      var countEl = document.getElementById('objPermCount');
+      if (countEl) countEl.textContent = '(已选择 ' + checked + '/' + total + ')';
+      var allCb = document.querySelector('#objPermCheckList > label:first-child input');
+      if (allCb) { allCb.checked = checked === total && total > 0; allCb.indeterminate = checked > 0 && checked < total; }
+      renderAgentObjectContext();
+    }
+
+    function renderRiskBadge(level) {
+      var labels = { low: '低风险', mid: '敏感', high: '高风险' };
+      return '<span class="risk-badge ' + level + '">' + (labels[level] || '低风险') + '</span>';
+    }
+
+    function renderAgentObjectContext() {
+      var panel = document.getElementById('agentObjectContext');
+      if (!panel) return;
+      var cat = document.getElementById('objPermCatSelect') ? document.getElementById('objPermCatSelect').value : '';
+      var name = selectedObjName;
+      if (cat !== '智能体' || !name) {
+        panel.classList.remove('show');
+        panel.innerHTML = '';
+        return;
+      }
+      var cap = agentCapabilityData[name] || { roles: [], users: 0, skills: [], tools: [], knowledgeBases: [], sensitive: false, highRisk: false };
+      var checkedPerms = [];
+      document.querySelectorAll('.obj-perm-cb:checked').forEach(function(cb) { checkedPerms.push(cb.value); });
+      var hasModify = checkedPerms.some(function(p) { return p.indexOf('修改智能体') !== -1; });
+      var hasUse = checkedPerms.some(function(p) { return p.indexOf('使用智能体') !== -1; });
+      var toolHtml = cap.tools.map(function(t) { return '<span class="agent-chip">' + t.name + ' ' + renderRiskBadge(t.risk) + '</span>'; }).join('');
+      var kbHtml = cap.knowledgeBases.map(function(k) { return '<span class="agent-chip">' + k.name + ' ' + renderRiskBadge(k.risk) + '</span>'; }).join('');
+      var skillHtml = cap.skills.map(function(s) { return '<span class="agent-chip">' + s + '</span>'; }).join('');
+      var roleText = cap.roles.length ? cap.roles.join('、') : '暂无角色';
+      panel.innerHTML =
+        '<div class="agent-auth-head">'
+          + '<div><div class="agent-auth-title">' + name + ' 的封装能力</div>'
+          + '<div class="agent-auth-sub">授权的是这个智能体组合后的能力边界，不会授予底层技能、工具、知识库的本体权限。</div></div>'
+          + '<span class="agent-auth-status"><span class="pulse"></span>保存后直接生效</span>'
+        + '</div>'
+        + '<div class="agent-cap-stats">'
+          + '<div class="agent-cap-stat"><strong>' + cap.skills.length + '</strong><span>已绑定技能</span></div>'
+          + '<div class="agent-cap-stat"><strong>' + cap.tools.length + '</strong><span>可调用工具</span></div>'
+          + '<div class="agent-cap-stat"><strong>' + cap.knowledgeBases.length + '</strong><span>已绑定知识库</span></div>'
+          + '<div class="agent-cap-stat"><strong>' + cap.users + '</strong><span>当前使用者</span></div>'
+        + '</div>'
+        + '<div class="agent-cap-grid">'
+          + '<div class="agent-cap-section"><h4>技能</h4><div class="agent-chip-list">' + (skillHtml || '<span class="agent-chip">未绑定</span>') + '</div></div>'
+          + '<div class="agent-cap-section"><h4>工具</h4><div class="agent-chip-list">' + (toolHtml || '<span class="agent-chip">未绑定</span>') + '</div></div>'
+          + '<div class="agent-cap-section"><h4>知识库</h4><div class="agent-chip-list">' + (kbHtml || '<span class="agent-chip">未绑定</span>') + '</div></div>'
+        + '</div>'
+        + '<div class="agent-boundary-note">'
+          + '<div><b>使用智能体</b><br>可以通过该智能体间接调用已绑定技能、工具和知识库' + (hasUse ? '，包括对已绑定知识库发起问答。' : '。') + '</div>'
+          + '<div><b>不授予本体权限</b><br>不能直接进入底层知识库详情、修改技能定义、编辑工具配置或删除底层资源。</div>'
+        + '</div>'
+        + '<div class="agent-impact-card' + (hasModify ? ' show' : '') + '">'
+          + '<span class="agent-impact-icon">!</span>'
+          + '<div><b>修改权限会改变封装边界。</b>该智能体已授权给 ' + roleText + '，影响 ' + cap.users + ' 位用户；修改绑定的技能、工具或知识库会立即影响这些使用者。新增高风险工具或敏感知识库时需要二次确认，并写入审计日志。</div>'
+        + '</div>';
+      panel.classList.add('show');
+    }
+
+    function confirmAddObjPerm() {
+      var cat = document.getElementById('objPermCatSelect').value;
+      var name = selectedObjName;
+      if (!cat) { alert('请选择对象类别'); return; }
+      if (!name) { alert('请选择对象名称'); return; }
+      var perms = [];
+      document.querySelectorAll('.obj-perm-cb:checked').forEach(function(cb) { perms.push(cb.value); });
+      if (!perms.length) { alert('请至少选择一项权限'); return; }
+      if (cat === '智能体' && perms.some(function(p) { return p.indexOf('修改智能体') !== -1; })) {
+        var cap = agentCapabilityData[name];
+        if (cap && (cap.highRisk || cap.sensitive)) {
+          var ok = confirm('该智能体包含高风险工具或敏感知识库。授予修改权限后，绑定变更会保存即生效并影响已有使用者，是否继续？');
+          if (!ok) return;
+        }
+      }
+      objectPerms.push({ cat: cat, name: name, perms: perms });
+      closeAddObjPermModal();
+      renderObjPermTable();
+    }
+
+    function deleteObjPerm(idx) {
+      if (!confirm('确定删除此对象权限？')) return;
+      objectPerms.splice(idx, 1);
+      renderObjPermTable();
+    }
+    function editObjPerm(idx) { alert('编辑对象权限（原型暂不支持）'); }
+
+    // Init object perm table (deferred - elements are inside modal)
+    // renderObjPermTable and event listener are set up when modal opens
+
+    document.addEventListener('click', function(e) {
+      var wrap = document.getElementById('objNameWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('objNameSimpleDD').classList.remove('show');
+        document.getElementById('objNameCascadeDD').classList.remove('show');
+      }
+    });
+
+    // Row/Col permission drawer
+    // Mock user tags (shared with user-mgmt.html)
+    var userTags = [
+      {name: 'store_id', desc: '商店ID'},
+      {name: 'department', desc: '部门'},
+      {name: 'region', desc: '区域'},
+      {name: 'org_id', desc: '组织ID'},
+      {name: 'tenant_id', desc: '租户ID'}
+    ];
+
+    var rcColumns = [
+      {name:'Id', type:'VARCHAR(255)', sample:'-'},
+      {name:'ReceveId', type:'VARCHAR(255)', sample:'-'},
+      {name:'Type', type:'VARCHAR(255)', sample:'-'},
+      {name:'CreateId', type:'VARCHAR(255)', sample:'-'},
+      {name:'CreateName', type:'VARCHAR(255)', sample:'-'},
+      {name:'CreateTime', type:'VARCHAR(255)', sample:'-'},
+      {name:'tradeCo18', type:'VARCHAR(255)', sample:'-'},
+      {name:'tradeName', type:'VARCHAR(255)', sample:'-'},
+      {name:'AvailDate', type:'VARCHAR(255)', sample:'-'},
+      {name:'Regulatory', type:'VARCHAR(255)', sample:'-'}
+    ];
+    var rcSelectedCols = [];
+    var rcRowRules = []; // [{colName, colType, logic:'且'|'或', exprs:[{op,val}]}]
+    var rpEditIndex = -1; // -1 = new, >=0 = editing existing
+    var rpOperators = ['=','!=','>','>=','<','<=','in','like','正则','表达式'];
+
+    // ===== 行列权限扩展面板（对象选择器右侧展开，取代 抽屉+弹窗 嵌套）=====
+    var rcpState = { table: null, cols: [], rules: [], tab: 'col', editIdx: null, editRule: null };
+    function rcpOpen(tableName) {
+      var saved = rcConfigured[tableName];
+      rcpState.table = tableName;
+      rcpState.cols = (saved && Array.isArray(saved.cols)) ? saved.cols.slice() : rcColumns.map(function(c) { return c.name; });
+      rcpState.rules = (saved && Array.isArray(saved.rules)) ? JSON.parse(JSON.stringify(saved.rules)) : [];
+      rcpState.tab = 'col'; rcpState.editIdx = null; rcpState.editRule = null;
+      document.getElementById('rcpTitle').textContent = tableName;
+      rcpRender();
+      document.getElementById('objPickerBox').style.width = '1360px';
+      document.getElementById('rcPanel').style.width = '560px';
+    }
+    function rcpClose() {
+      var box = document.getElementById('objPickerBox');
+      if (box) { box.style.width = '780px'; document.getElementById('rcPanel').style.width = '0'; }
+    }
+    function rcpSwitchTab(t) { rcpState.tab = t; rcpState.editIdx = null; rcpState.editRule = null; rcpRender(); }
+    function rcpRender() {
+      document.getElementById('rcpTabCol').classList.toggle('active', rcpState.tab === 'col');
+      document.getElementById('rcpTabRow').classList.toggle('active', rcpState.tab === 'row');
+      var h = '';
+      if (rcpState.tab === 'col') {
+        h += '<label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:10px;cursor:pointer"><input type="checkbox" ' + (rcpState.cols.length === rcColumns.length ? 'checked' : '') + ' onchange="rcpToggleAllCols(this.checked)">全选 <span style="font-weight:400;color:rgba(0,0,0,0.4)">(已选 ' + rcpState.cols.length + '/' + rcColumns.length + ')</span></label>';
+        h += rcColumns.map(function(c) {
+          var on = rcpState.cols.indexOf(c.name) !== -1;
+          return '<label style="display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff"><input type="checkbox" ' + (on ? 'checked' : '') + ' onchange="rcpToggleCol(\'' + escq(c.name) + '\',this.checked)"><span style="font-family:monospace;font-size:12.5px;flex:1">' + c.name + '</span><span style="font-size:11px;color:#1677ff;font-family:monospace">' + c.type + '</span></label>';
+        }).join('');
+      } else if (rcpState.editRule) {
+        var r = rcpState.editRule;
+        h += '<div style="font-size:13px;font-weight:600;margin-bottom:10px">' + (rcpState.editIdx === null ? '添加' : '编辑') + '行权限规则</div>';
+        h += '<div style="margin-bottom:10px"><div style="font-size:11px;color:rgba(0,0,0,0.4);margin-bottom:4px">列</div><select id="rcpRuleCol" style="width:100%;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px;background:#fff">' + rcColumns.map(function(c) { return '<option' + (c.name === r.colName ? ' selected' : '') + '>' + c.name + '</option>'; }).join('') + '</select></div>';
+        h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:11px;color:rgba(0,0,0,0.4)">表达式关系</span><button style="height:24px;padding:0 12px;border:none;border-radius:4px;background:#1677ff;color:#fff;font-size:12px;font-weight:600;cursor:pointer" onclick="rcpToggleLogic()">' + r.logic + '</button><span style="font-size:11px;color:rgba(0,0,0,0.35)">所有表达式全部为「' + r.logic + '」关系</span></div>';
+        r.exprs.forEach(function(e, i) {
+          h += '<div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">'
+            + '<select style="width:96px;height:30px;border:1px solid #d9d9d9;border-radius:6px;background:#fff" onchange="rcpState.editRule.exprs[' + i + '].op=this.value">' + rpOperators.map(function(op) { return '<option' + (op === e.op ? ' selected' : '') + '>' + op + '</option>'; }).join('') + '</select>'
+            + '<input style="flex:1;height:30px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px;font-size:12.5px" value="' + (e.val || '').replace(/"/g, '&quot;') + '" placeholder="值 / 表达式" oninput="rcpState.editRule.exprs[' + i + '].val=this.value">'
+            + (r.exprs.length > 1 ? '<span style="cursor:pointer;color:rgba(0,0,0,0.3)" onclick="rcpState.editRule.exprs.splice(' + i + ',1);rcpRender()">✕</span>' : '')
+            + '</div>';
+        });
+        h += '<a style="font-size:12px;color:#1677ff;cursor:pointer" onclick="rcpState.editRule.exprs.push({op:\'=\',val:\'\'});rcpRender()">+ 添加表达式</a>';
+        h += '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="um-btn um-btn-cancel" onclick="rcpState.editRule=null;rcpState.editIdx=null;rcpRender()">取消</button><button class="um-btn um-btn-primary" onclick="rcpSaveRule()">确 认</button></div>';
+      } else {
+        h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:rgba(0,0,0,0.45)">' + rcpState.rules.length + ' 条规则 · 查询时自动叠加过滤</span><button class="um-btn um-btn-primary" style="height:28px;padding:0 12px;font-size:12px" onclick="rcpEditRule(null)">+ 添加规则</button></div>';
+        if (!rcpState.rules.length) h += '<div style="padding:30px;text-align:center;color:rgba(0,0,0,0.3);font-size:12px">暂无行权限规则，该角色默认可见全部行</div>';
+        rcpState.rules.forEach(function(r, i) {
+          h += '<div style="border:1px solid #f0f0f0;border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#fff">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:monospace;font-size:12.5px;font-weight:600">' + r.colName + '</span>'
+            + '<span><a style="font-size:12px;color:#1677ff;cursor:pointer;margin-right:10px" onclick="rcpEditRule(' + i + ')">编辑</a><a style="font-size:12px;color:#ff4d4f;cursor:pointer" onclick="rcpState.rules.splice(' + i + ',1);rcpRender()">删除</a></span></div>'
+            + '<div style="font-size:12px;color:rgba(0,0,0,0.55);margin-top:4px;font-family:monospace">' + r.exprs.map(function(e) { return r.colName + ' ' + e.op + ' ' + e.val; }).join(' <b style="color:#1677ff">' + r.logic + '</b> ') + '</div>'
+            + '</div>';
+        });
+      }
+      document.getElementById('rcpBody').innerHTML = h;
+    }
+    function rcpToggleAllCols(on) { rcpState.cols = on ? rcColumns.map(function(c) { return c.name; }) : []; rcpRender(); }
+    function rcpToggleCol(name, on) { if (on) { if (rcpState.cols.indexOf(name) === -1) rcpState.cols.push(name); } else rcpState.cols = rcpState.cols.filter(function(c) { return c !== name; }); rcpRender(); }
+    function rcpToggleLogic() { rcpState.editRule.logic = rcpState.editRule.logic === '且' ? '或' : '且'; rcpRender(); }
+    function rcpEditRule(idx) {
+      rcpState.tab = 'row';
+      if (idx === null) { rcpState.editIdx = null; rcpState.editRule = { colName: rcColumns[0].name, logic: '且', exprs: [{ op: '=', val: '' }] }; }
+      else { rcpState.editIdx = idx; rcpState.editRule = JSON.parse(JSON.stringify(rcpState.rules[idx])); }
+      rcpRender();
+    }
+    function rcpSaveRule() {
+      rcpState.editRule.colName = document.getElementById('rcpRuleCol').value;
+      var valid = rcpState.editRule.exprs.filter(function(e) { return (e.val || '').trim() !== ''; });
+      if (!valid.length) { alert('请至少填写一个表达式的值'); return; }
+      rcpState.editRule.exprs = valid;
+      if (rcpState.editIdx === null) rcpState.rules.push(rcpState.editRule);
+      else rcpState.rules[rcpState.editIdx] = rcpState.editRule;
+      rcpState.editRule = null; rcpState.editIdx = null;
+      rcpRender();
+    }
+    function rcpSave() {
+      if (rcpState.table) rcConfigured[rcpState.table] = { cols: rcpState.cols.slice(), rules: JSON.parse(JSON.stringify(rcpState.rules)) };
+      renderObjPicker();
+      rcpClose();
+    }
+
+    function openRcDrawer(tableName) {
+      rcCurrentTable = tableName || null;
+      document.getElementById('rcDrawerTitle').textContent = tableName || '表';
+      rcSelectedCols = rcColumns.map(function(c) { return c.name; });
+      renderRcCols();
+      renderRcRowList();
+      document.getElementById('rcDrawerOverlay').classList.add('show');
+      document.getElementById('rcDrawer').classList.add('open');
+      document.querySelectorAll('.rc-drawer-tab').forEach(function(t,i) { t.classList.toggle('active', i===0); });
+      document.getElementById('rcColPanel').style.display = '';
+      document.getElementById('rcRowPanel').style.display = 'none';
+    }
+    function closeRcDrawer() {
+      document.getElementById('rcDrawerOverlay').classList.remove('show');
+      document.getElementById('rcDrawer').classList.remove('open');
+    }
+    function switchRcTab(el, tab) {
+      el.parentNode.querySelectorAll('.rc-drawer-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('rcColPanel').style.display = tab === 'col' ? '' : 'none';
+      document.getElementById('rcRowPanel').style.display = tab === 'row' ? '' : 'none';
+      if (tab === 'row') renderRcRowList();
+    }
+    function renderRcCols() {
+      var q = (document.getElementById('rcColSearch').value || '').toLowerCase();
+      var filtered = q ? rcColumns.filter(function(c) { return c.name.toLowerCase().indexOf(q) !== -1; }) : rcColumns;
+      var html = '';
+      filtered.forEach(function(c) {
+        var checked = rcSelectedCols.indexOf(c.name) !== -1;
+        var hasRule = rcRowRules.some(function(r) { return r.colName === c.name; });
+        html += '<div class="rc-col-row">';
+        html += '<input type="checkbox"' + (checked ? ' checked' : '') + ' onchange="toggleRcCol(\'' + c.name + '\', this.checked)">';
+        html += '<span class="rc-col-name">' + c.name + ' <span class="rc-col-type">' + c.type + '</span></span>';
+        html += '<span class="rc-col-sample">' + c.sample + '</span>';
+        html += '<button class="rc-col-action' + (hasRule ? '' : '') + '" style="' + (hasRule ? 'border-color:#1677ff;color:#1677ff' : '') + '" onclick="openRowPermModal(\'' + c.name + '\')">+</button>';
+        html += '</div>';
+      });
+      document.getElementById('rcColList').innerHTML = html;
+    }
+    function toggleRcCol(name, checked) {
+      if (checked && rcSelectedCols.indexOf(name) === -1) rcSelectedCols.push(name);
+      if (!checked) rcSelectedCols = rcSelectedCols.filter(function(n) { return n !== name; });
+    }
+    function toggleAllRcCols(checked) {
+      if (checked) rcSelectedCols = rcColumns.map(function(c) { return c.name; });
+      else rcSelectedCols = [];
+      renderRcCols();
+    }
+    function confirmRcPerms() {
+      if (rcCurrentTable) rcConfigured[rcCurrentTable] = { cols: rcSelectedCols.length, rules: rcRowRules.length };
+      closeRcDrawer();
+      if (document.getElementById('objPickerModal').classList.contains('show')) renderObjPicker();
+    }
+
+    // Row permission list in drawer
+    function renderRcRowList() {
+      var container = document.getElementById('rcRowPanel');
+      if (!rcRowRules.length) {
+        container.innerHTML = '<div class="rp-empty">'
+          + '<div style="margin-bottom:8px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="1.2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></div>'
+          + '暂无行权限规则<br>'
+          + '<button class="um-btn um-btn-primary" style="margin-top:12px;height:28px;font-size:12px;padding:0 14px" onclick="openRowPermModal()">+ 添加行过滤条件</button>'
+          + '</div>';
+        return;
+      }
+      var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+        + '<span style="font-size:13px;font-weight:500;color:rgba(0,0,0,0.88)">行过滤规则（' + rcRowRules.length + '）</span>'
+        + '<button class="um-btn um-btn-primary" style="height:28px;font-size:12px;padding:0 14px" onclick="openRowPermModal()">+ 添加行过滤条件</button>'
+        + '</div>';
+      rcRowRules.forEach(function(rule, idx) {
+        html += '<div class="rp-list-item">';
+        html += '<span class="rp-list-col">' + rule.colName + ' <span class="rp-col-type">' + rule.colType + '</span></span>';
+        html += '<div class="rp-list-exprs">';
+        rule.exprs.forEach(function(expr, ei) {
+          if (ei > 0) html += '<span class="rp-list-logic">' + rule.logic + '</span>';
+          html += '<span class="rp-list-expr">' + expr.op + ' ' + (expr.val && expr.val.indexOf('@')===0 ? '<span style="color:#1677ff;font-weight:500">' + expr.val + '</span>' : (expr.val || '&lt;空&gt;')) + '</span>';
+        });
+        html += '</div>';
+        html += '<div class="rp-list-actions">';
+        html += '<button onclick="editRowRule(' + idx + ')" title="编辑">✏</button>';
+        html += '<button class="danger" onclick="deleteRowRule(' + idx + ')" title="删除">🗑</button>';
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+    }
+    function editRowRule(idx) {
+      var rule = rcRowRules[idx];
+      rpEditIndex = idx;
+      openRowPermModalWithData(rule.colName, rule.logic, rule.exprs);
+    }
+    function deleteRowRule(idx) {
+      if (!confirm('确定删除此行权限规则？')) return;
+      rcRowRules.splice(idx, 1);
+      renderRcRowList();
+      renderRcCols();
+    }
+
+    // Row permission modal
+    function openRowPermModal(colName) {
+      rpEditIndex = -1;
+      var existIdx = -1;
+      if (colName) {
+        rcRowRules.forEach(function(r, i) { if (r.colName === colName) existIdx = i; });
+      }
+      if (existIdx >= 0) {
+        rpEditIndex = existIdx;
+        var rule = rcRowRules[existIdx];
+        openRowPermModalWithData(rule.colName, rule.logic, rule.exprs);
+      } else {
+        openRowPermModalWithData(colName || '', '且', [{op:'=',val:''}]);
+      }
+    }
+    function openRowPermModalWithData(colName, logic, exprs) {
+      // Build column select
+      var selHtml = '<option value="">请选择列</option>';
+      rcColumns.forEach(function(c) {
+        selHtml += '<option value="' + c.name + '" data-type="' + c.type + '"' + (c.name === colName ? ' selected' : '') + '>' + c.name + '  ' + c.type + '</option>';
+      });
+      document.getElementById('rpColSelect').innerHTML = selHtml;
+      // Store state
+      window._rpLogic = logic;
+      window._rpExprs = exprs.map(function(e) { return {op:e.op, val:e.val}; });
+      renderRpExprs();
+      document.getElementById('rpModal').classList.add('show');
+    }
+    function closeRowPermModal() {
+      document.getElementById('rpModal').classList.remove('show');
+    }
+    function renderRpExprs() {
+      var exprs = window._rpExprs;
+      var logic = window._rpLogic;
+      var container = document.getElementById('rpExprGroup');
+      var html = '<div class="rp-expr-line"></div>';
+      exprs.forEach(function(expr, i) {
+        html += '<div class="rp-expr-row">';
+        if (i > 0) {
+          html += '<button class="rp-logic-btn" onclick="toggleRpLogic()">' + logic + '</button>';
+        }
+        html += '<select class="rp-op-select" onchange="window._rpExprs[' + i + '].op=this.value">';
+        rpOperators.forEach(function(op) {
+          html += '<option value="' + op + '"' + (expr.op === op ? ' selected' : '') + '>' + op + '</option>';
+        });
+        html += '</select>';
+        var isTag = (expr.val || '').indexOf('@') === 0;
+        html += '<div class="rp-val-wrap">';
+        html += '<input class="rp-val-input' + (isTag ? ' has-tag' : '') + '" id="rpValInput' + i + '" placeholder="请输入值，输入 @ 引用用户标签" value="' + (expr.val || '') + '" oninput="onRpValInput(' + i + ',this)" onfocus="onRpValFocus(' + i + ',this)" autocomplete="off">';
+        html += '<div class="rp-tag-dd" id="rpTagDD' + i + '"></div>';
+        html += '</div>';
+        html += '<button class="rp-del-btn" onclick="removeRpExpr(' + i + ')" title="删除">🗑</button>';
+        html += '</div>';
+      });
+      html += '<button class="rp-add-expr" onclick="addRpExpr()">+ 添加表达式</button>';
+      container.innerHTML = html;
+    }
+
+    // @ tag autocomplete
+    function onRpValInput(idx, el) {
+      window._rpExprs[idx].val = el.value;
+      var isTag = el.value.indexOf('@') === 0;
+      el.classList.toggle('has-tag', isTag);
+      showTagDropdown(idx, el);
+    }
+    function onRpValFocus(idx, el) {
+      showTagDropdown(idx, el);
+    }
+    function showTagDropdown(idx, el) {
+      var dd = document.getElementById('rpTagDD' + idx);
+      var val = el.value;
+      // Show dropdown when value starts with @ or is empty and user just typed @
+      if (val.indexOf('@') !== 0) { dd.classList.remove('show'); return; }
+      var query = val.substring(1).toLowerCase();
+      var filtered = userTags.filter(function(t) {
+        return !query || t.name.toLowerCase().indexOf(query) !== -1 || t.desc.toLowerCase().indexOf(query) !== -1;
+      });
+      if (!filtered.length) { dd.classList.remove('show'); return; }
+      var html = '<div class="rp-tag-dd-hint">选择用户标签（运行时替换为用户的标签值）</div>';
+      filtered.forEach(function(t) {
+        html += '<div class="rp-tag-dd-item" onmousedown="selectRpTag(' + idx + ',\'' + t.name + '\')">';
+        html += '<span class="tag-name">@' + t.name + '</span>';
+        html += '<span class="tag-desc">' + t.desc + '</span>';
+        html += '</div>';
+      });
+      dd.innerHTML = html;
+      dd.classList.add('show');
+    }
+    function selectRpTag(idx, tagName) {
+      window._rpExprs[idx].val = '@' + tagName;
+      var el = document.getElementById('rpValInput' + idx);
+      if (el) { el.value = '@' + tagName; el.classList.add('has-tag'); }
+      var dd = document.getElementById('rpTagDD' + idx);
+      if (dd) dd.classList.remove('show');
+    }
+
+    // Close tag dropdowns on outside click
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.rp-val-wrap')) {
+        document.querySelectorAll('.rp-tag-dd.show').forEach(function(dd) { dd.classList.remove('show'); });
+      }
+    });
+    function toggleRpLogic() {
+      window._rpLogic = window._rpLogic === '且' ? '或' : '且';
+      renderRpExprs();
+    }
+    function addRpExpr() {
+      window._rpExprs.push({op:'=',val:''});
+      renderRpExprs();
+    }
+    function removeRpExpr(idx) {
+      if (window._rpExprs.length <= 1) return;
+      window._rpExprs.splice(idx, 1);
+      renderRpExprs();
+    }
+    function confirmRowPerm() {
+      var sel = document.getElementById('rpColSelect');
+      var colName = sel.value;
+      if (!colName) { alert('请选择列'); return; }
+      var colType = sel.options[sel.selectedIndex].getAttribute('data-type') || '';
+      var exprs = window._rpExprs.filter(function(e) { return e.op; });
+      if (!exprs.length) { alert('请至少添加一条表达式'); return; }
+      var rule = { colName: colName, colType: colType, logic: window._rpLogic, exprs: exprs };
+      if (rpEditIndex >= 0) {
+        rcRowRules[rpEditIndex] = rule;
+      } else {
+        // Check if column already has a rule
+        var existIdx = -1;
+        rcRowRules.forEach(function(r, i) { if (r.colName === colName) existIdx = i; });
+        if (existIdx >= 0) {
+          rcRowRules[existIdx] = rule;
+        } else {
+          rcRowRules.push(rule);
+        }
+      }
+      closeRowPermModal();
+      renderRcRowList();
+      renderRcCols();
+    }
+
+    // ===== DAG View =====
+    var dagNodes = [];
+    var dagScale = 1;
+    var dagOffX = 0, dagOffY = 0;
+    var dagDrag = null;
+    var dagLinkDrag = null;
+    var dagHoverEdge = null;
+    var dagSelectedNode = null;
+    var dagCtx = null;
+    var dagW = 0, dagH = 0;
+    var NODE_W = 120, NODE_H = 44, NODE_R = 22;
+    var dagMouseDownPos = null;
+
+    function openDagView() {
+      document.getElementById('dagOverlay').classList.add('show');
+      if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r) {
+          if (typeof r === 'number') r = [r]; var tl = r[0]||0;
+          this.moveTo(x+tl,y); this.arcTo(x+w,y,x+w,y+h,tl); this.arcTo(x+w,y+h,x,y+h,tl);
+          this.arcTo(x,y+h,x,y,tl); this.arcTo(x,y,x+w,y,tl); this.closePath();
+        };
+      }
+      dagSelectedNode = null; hideDagPermPanel(); initDag();
+    }
+    function closeDagView() {
+      document.getElementById('dagOverlay').classList.remove('show');
+      dagSelectedNode = null; hideDagPermPanel(); renderRoleTable();
+    }
+    function initDag() {
+      var wrap = document.getElementById('dagCanvasWrap');
+      var canvas = document.getElementById('dagCanvas');
+      dagW = wrap.clientWidth; dagH = wrap.clientHeight;
+      canvas.width = dagW*2; canvas.height = dagH*2;
+      canvas.style.width = dagW+'px'; canvas.style.height = dagH+'px';
+      dagCtx = canvas.getContext('2d'); dagCtx.scale(2,2);
+      dagScale = 1; dagOffX = 0; dagOffY = 0;
+      if (!dagNodes.length || dagNodes.length !== roles.length) dagAutoLayout(); else drawDag();
+      canvas.onmousedown = dagMouseDown; canvas.onmousemove = dagMouseMove;
+      canvas.onmouseup = dagMouseUp; canvas.onwheel = dagWheel;
+    }
+    function dagAutoLayout() {
+      var depths = {};
+      function getDepth(rid, vis) { if(depths[rid]!==undefined)return depths[rid]; if(!vis)vis={}; if(vis[rid])return 0; vis[rid]=true;
+        var p=roleInheritance[rid]||[]; if(!p.length){depths[rid]=0;return 0;} var m=0; p.forEach(function(pid){m=Math.max(m,getDepth(pid,vis));}); depths[rid]=m+1; return depths[rid]; }
+      roles.forEach(function(r){getDepth(r.id,{});});
+      var layers={}; roles.forEach(function(r){var d=depths[r.id]||0;if(!layers[d])layers[d]=[];layers[d].push(r);});
+      var lk=Object.keys(layers).sort(function(a,b){return b-a;}); dagNodes=[];
+      lk.forEach(function(d,li){var row=layers[d];var tw=row.length*160-40;var sx=Math.max(40,(dagW-tw)/2);
+        row.forEach(function(r,ri){dagNodes.push({id:r.id,x:sx+ri*160,y:80+li*140,w:NODE_W,h:NODE_H,name:r.name,isSystem:r.isSystem});});
+      }); drawDag();
+    }
+    function drawDag() {
+      if(!dagCtx)return; var ctx=dagCtx; ctx.save(); ctx.clearRect(0,0,dagW,dagH);
+      ctx.translate(dagOffX,dagOffY); ctx.scale(dagScale,dagScale);
+      ctx.strokeStyle='#f0f0f0';ctx.lineWidth=0.5;
+      for(var gx=-2000;gx<4000;gx+=40){ctx.beginPath();ctx.moveTo(gx,-2000);ctx.lineTo(gx,4000);ctx.stroke();}
+      for(var gy=-2000;gy<4000;gy+=40){ctx.beginPath();ctx.moveTo(-2000,gy);ctx.lineTo(4000,gy);ctx.stroke();}
+      Object.keys(roleInheritance).forEach(function(cid){(roleInheritance[cid]||[]).forEach(function(pid){
+        var cn=dagNodes.find(function(n){return n.id===parseInt(cid);}),pn=dagNodes.find(function(n){return n.id===pid;});
+        if(!cn||!pn)return; var isH=dagHoverEdge&&dagHoverEdge.from===parseInt(cid)&&dagHoverEdge.to===pid;
+        dagDrawEdge(ctx,cn,pn,isH);});});
+      if(dagLinkDrag){var fn=dagNodes.find(function(n){return n.id===dagLinkDrag.fromId;});
+        if(fn){ctx.strokeStyle='#1677ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();
+        ctx.moveTo(fn.x+fn.w/2,fn.y+fn.h/2);ctx.lineTo(dagLinkDrag.mx,dagLinkDrag.my);ctx.stroke();ctx.setLineDash([]);}}
+      dagNodes.forEach(function(n){dagDrawNode(ctx,n,dagSelectedNode&&n.id===dagSelectedNode.id);}); ctx.restore();
+    }
+    function dagDrawNode(ctx,n,sel) {
+      var cx=n.x+n.w/2,cy=n.y+n.h/2;
+      ctx.shadowColor=sel?'rgba(22,119,255,0.3)':'rgba(0,0,0,0.08)'; ctx.shadowBlur=sel?12:8; ctx.shadowOffsetY=2;
+      ctx.beginPath();ctx.roundRect(n.x,n.y,n.w,n.h,NODE_R); ctx.fillStyle=n.isSystem?'#1677ff':'#fff'; ctx.fill();
+      ctx.shadowColor='transparent'; ctx.strokeStyle=sel?'#1677ff':(n.isSystem?'#1677ff':'#d9d9d9'); ctx.lineWidth=sel?2.5:1.5; ctx.stroke();
+      ctx.fillStyle=n.isSystem?'#fff':'rgba(0,0,0,0.88)';
+      ctx.font='600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(n.name,cx,cy);
+    }
+    function dagEdgePoint(node,tx,ty) {
+      var cx=node.x+node.w/2,cy=node.y+node.h/2,dx=tx-cx,dy=ty-cy;
+      if(!dx&&!dy)return{x:cx,y:node.y,nx:0,ny:-1}; var hw=node.w/2,hh=node.h/2;
+      if(Math.abs(dx)/hw>Math.abs(dy)/hh){var s=dx>0?1:-1;return{x:cx+s*hw,y:cy+dy*(hw/Math.abs(dx)),nx:s,ny:0};}
+      else{var s=dy>0?1:-1;return{x:cx+dx*(hh/Math.abs(dy)),y:cy+s*hh,nx:0,ny:s};}
+    }
+    function dagDrawEdge(ctx,from,to,isH) {
+      var fc={x:from.x+from.w/2,y:from.y+from.h/2},tc={x:to.x+to.w/2,y:to.y+to.h/2};
+      var fp=dagEdgePoint(from,tc.x,tc.y),tp=dagEdgePoint(to,fc.x,fc.y);
+      var d=Math.sqrt((tp.x-fp.x)*(tp.x-fp.x)+(tp.y-fp.y)*(tp.y-fp.y)),co=Math.max(40,d*0.4);
+      var c1x=fp.x+(fp.nx||0)*co,c1y=fp.y+(fp.ny||0)*co,c2x=tp.x+(tp.nx||0)*co,c2y=tp.y+(tp.ny||0)*co;
+      ctx.beginPath();ctx.moveTo(fp.x,fp.y);ctx.bezierCurveTo(c1x,c1y,c2x,c2y,tp.x,tp.y);
+      ctx.strokeStyle=isH?'#ff4d4f':'#91caff';ctx.lineWidth=isH?3:2;ctx.stroke();
+      var at=0.95,it=1-at;var ax=it*it*it*fp.x+3*it*it*at*c1x+3*it*at*at*c2x+at*at*at*tp.x;
+      var ay=it*it*it*fp.y+3*it*it*at*c1y+3*it*at*at*c2y+at*at*at*tp.y;
+      var ang=Math.atan2(tp.y-ay,tp.x-ax),al=10;
+      ctx.beginPath();ctx.moveTo(tp.x,tp.y);ctx.lineTo(tp.x-al*Math.cos(ang-0.35),tp.y-al*Math.sin(ang-0.35));
+      ctx.moveTo(tp.x,tp.y);ctx.lineTo(tp.x-al*Math.cos(ang+0.35),tp.y-al*Math.sin(ang+0.35));
+      ctx.strokeStyle=isH?'#ff4d4f':'#91caff';ctx.lineWidth=isH?3:2;ctx.stroke();
+      var mx=(fp.x+tp.x)/2,my=(fp.y+tp.y)/2; ctx.fillStyle=isH?'#ff4d4f':'rgba(0,0,0,0.25)';
+      ctx.font='11px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(isH?'点击删除':'继承',mx+14,my);
+    }
+    function screenToDag(ex,ey){var r=document.getElementById('dagCanvas').getBoundingClientRect();return{x:(ex-r.left-dagOffX)/dagScale,y:(ey-r.top-dagOffY)/dagScale};}
+    function nodeAt(mx,my){for(var i=dagNodes.length-1;i>=0;i--){var n=dagNodes[i];if(mx>=n.x&&mx<=n.x+n.w&&my>=n.y&&my<=n.y+n.h)return n;}return null;}
+    function edgeAt(mx,my) {
+      var best=null,bd=14; Object.keys(roleInheritance).forEach(function(cid){(roleInheritance[cid]||[]).forEach(function(pid){
+        var cn=dagNodes.find(function(n){return n.id===parseInt(cid);}),pn=dagNodes.find(function(n){return n.id===pid;});if(!cn||!pn)return;
+        var fc={x:cn.x+cn.w/2,y:cn.y+cn.h/2},tc={x:pn.x+pn.w/2,y:pn.y+pn.h/2};
+        var fp=dagEdgePoint(cn,tc.x,tc.y),tp=dagEdgePoint(pn,fc.x,fc.y);
+        var d=Math.sqrt((tp.x-fp.x)*(tp.x-fp.x)+(tp.y-fp.y)*(tp.y-fp.y)),co=Math.max(40,d*0.4);
+        var c1x=fp.x+(fp.nx||0)*co,c1y=fp.y+(fp.ny||0)*co,c2x=tp.x+(tp.nx||0)*co,c2y=tp.y+(tp.ny||0)*co;
+        for(var t=0;t<=1;t+=0.04){var it=1-t;var bx=it*it*it*fp.x+3*it*it*t*c1x+3*it*t*t*c2x+t*t*t*tp.x;
+          var by=it*it*it*fp.y+3*it*it*t*c1y+3*it*t*t*c2y+t*t*t*tp.y;
+          var dd=Math.sqrt((mx-bx)*(mx-bx)+(my-by)*(my-by));if(dd<bd){bd=dd;best={from:parseInt(cid),to:pid};}}});});return best;
+    }
+    function isOnNodeBorder(n,mx,my){var dx=Math.abs(mx-(n.x+n.w/2)),dy=Math.abs(my-(n.y+n.h/2));return dx<=n.w/2&&dy<=n.h/2&&(dx>n.w/2-10||dy>n.h/2-10);}
+    function dagMouseDown(e){var p=screenToDag(e.clientX,e.clientY);dagMouseDownPos={x:e.clientX,y:e.clientY};var n=nodeAt(p.x,p.y);
+      if(n){if(isOnNodeBorder(n,p.x,p.y))dagLinkDrag={fromId:n.id,mx:p.x,my:p.y};
+        else dagDrag={type:'node',id:n.id,startX:e.clientX,startY:e.clientY,origX:n.x,origY:n.y};}
+      else dagDrag={type:'pan',startX:e.clientX,startY:e.clientY,origX:dagOffX,origY:dagOffY};}
+    function dagMouseMove(e){var p=screenToDag(e.clientX,e.clientY);
+      if(dagLinkDrag){dagLinkDrag.mx=p.x;dagLinkDrag.my=p.y;drawDag();return;}
+      if(dagDrag){var dx=e.clientX-dagDrag.startX,dy=e.clientY-dagDrag.startY;
+        if(dagDrag.type==='node'){var n=dagNodes.find(function(nd){return nd.id===dagDrag.id;});if(n){n.x=dagDrag.origX+dx/dagScale;n.y=dagDrag.origY+dy/dagScale;}}
+        else{dagOffX=dagDrag.origX+dx;dagOffY=dagDrag.origY+dy;}drawDag();return;}
+      dagHoverEdge=edgeAt(p.x,p.y);var nn=nodeAt(p.x,p.y);
+      document.getElementById('dagCanvas').style.cursor=dagHoverEdge?'pointer':(nn?(isOnNodeBorder(nn,p.x,p.y)?'crosshair':'pointer'):'default');drawDag();}
+    function dagMouseUp(e){
+      var wasDrag=dagMouseDownPos&&(Math.abs(e.clientX-dagMouseDownPos.x)>4||Math.abs(e.clientY-dagMouseDownPos.y)>4);
+      if(dagLinkDrag){if(wasDrag){var p=screenToDag(e.clientX,e.clientY);var tgt=nodeAt(p.x,p.y);
+        if(tgt&&tgt.id!==dagLinkDrag.fromId){if(wouldCreateCycle(dagLinkDrag.fromId,tgt.id))alert('添加失败：会形成循环继承关系');
+          else{if(!roleInheritance[dagLinkDrag.fromId])roleInheritance[dagLinkDrag.fromId]=[];
+            if(roleInheritance[dagLinkDrag.fromId].indexOf(tgt.id)===-1)roleInheritance[dagLinkDrag.fromId].push(tgt.id);}}}
+        dagLinkDrag=null;drawDag();}
+      else if(!wasDrag){var p=screenToDag(e.clientX,e.clientY);var edge=edgeAt(p.x,p.y);
+        if(edge){if(confirm('删除继承关系：'+getRoleName(edge.from)+' 继承 '+getRoleName(edge.to)+'？')){
+          if(roleInheritance[edge.from]){roleInheritance[edge.from]=roleInheritance[edge.from].filter(function(id){return id!==edge.to;});
+            if(!roleInheritance[edge.from].length)delete roleInheritance[edge.from];}drawDag();}}
+        else{var n=nodeAt(p.x,p.y);if(n){dagSelectedNode=(dagSelectedNode&&dagSelectedNode.id===n.id)?null:n;
+          if(dagSelectedNode)showDagPermPanel(n.id);else hideDagPermPanel();drawDag();}
+          else{dagSelectedNode=null;hideDagPermPanel();drawDag();}}}
+      dagDrag=null;dagMouseDownPos=null;}
+    function dagWheel(e){e.preventDefault();var d=e.deltaY>0?0.9:1.1;var ns=Math.max(0.3,Math.min(3,dagScale*d));
+      var r=document.getElementById('dagCanvas').getBoundingClientRect();var mx=e.clientX-r.left,my=e.clientY-r.top;
+      dagOffX=mx-(mx-dagOffX)*(ns/dagScale);dagOffY=my-(my-dagOffY)*(ns/dagScale);dagScale=ns;drawDag();}
+    function getRoleName(id){var r=roles.find(function(x){return x.id===id;});return r?r.name:'';}
+
+    // Permission panel for selected node
+    function getMockPermsForRole(role){
+      if(role.isSystem){var a={};Object.keys(permData).forEach(function(k){a[k]=permData[k].slice();});return a;}
+      if(role.name==='工作区管理员')return{'用户':permData['用户'].slice(),'角色':permData['角色'].slice(),'目录':permData['目录'].slice(),'库':permData['库'].slice()};
+      if(role.name==='数据开发者')return{'连接器':permData['连接器'].slice(),'载入任务':permData['载入任务'].slice(),'导出任务':permData['导出任务'].slice(),'工作流':permData['工作流'].slice(),'表':permData['表'].slice()};
+      if(role.name==='智能体开发者')return{'知识库':permData['知识库'].slice()};return{};}
+    function showDagPermPanel(roleId){
+      var panel=document.getElementById('dagPermPanel');var role=roles.find(function(r){return r.id===roleId;});
+      if(!role){hideDagPermPanel();return;}
+      var own=getMockPermsForRole(role),inh={},pnames=[];
+      function coll(rid,vis){if(!vis)vis={};if(vis[rid])return;vis[rid]=true;(roleInheritance[rid]||[]).forEach(function(pid){
+        var pr=roles.find(function(r){return r.id===pid;});if(pr&&pnames.indexOf(pr.name)===-1)pnames.push(pr.name);coll(pid,vis);
+        if(!pr)return;var pp=getMockPermsForRole(pr);Object.keys(pp).forEach(function(cat){if(!inh[cat])inh[cat]=[];
+          pp[cat].forEach(function(p){if(inh[cat].indexOf(p)===-1&&!(own[cat]&&own[cat].indexOf(p)!==-1))inh[cat].push(p);});});});}
+      coll(roleId);
+      var h='<div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:12px">'+role.name+'</div>';
+      var oc=0;Object.keys(own).forEach(function(k){oc+=own[k].length;});
+      h+='<div style="font-size:12px;font-weight:500;color:rgba(0,0,0,0.55);margin-bottom:6px">自身权限（'+oc+'）</div>';
+      if(oc){Object.keys(own).forEach(function(cat){if(!own[cat].length)return;
+        h+='<div style="font-size:11px;color:rgba(0,0,0,0.35);margin:6px 0 3px">'+cat+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+        own[cat].forEach(function(p){h+='<span style="padding:2px 8px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;font-size:11px;color:rgba(0,0,0,0.65)">'+p+'</span>';});h+='</div>';});}
+      else h+='<div style="font-size:12px;color:rgba(0,0,0,0.25);padding:4px 0">无</div>';
+      var ic=0;Object.keys(inh).forEach(function(k){ic+=inh[k].length;});
+      if(ic||pnames.length){h+='<div style="font-size:12px;font-weight:500;color:#1677ff;margin:12px 0 6px">继承权限（'+ic+'）<span style="font-weight:400;color:rgba(0,0,0,0.35)"> 来自 '+pnames.join('、')+'</span></div>';
+        Object.keys(inh).forEach(function(cat){if(!inh[cat].length)return;
+          h+='<div style="font-size:11px;color:rgba(0,0,0,0.35);margin:6px 0 3px">'+cat+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+          inh[cat].forEach(function(p){h+='<span style="padding:2px 8px;background:#e6f4ff;border:1px solid #91caff;border-radius:3px;font-size:11px;color:#1677ff">'+p+'</span>';});h+='</div>';});
+        if(!ic)h+='<div style="font-size:12px;color:rgba(0,0,0,0.25);padding:4px 0">无</div>';}
+      panel.innerHTML=h;panel.style.display='block';}
+    function hideDagPermPanel(){var p=document.getElementById('dagPermPanel');if(p)p.style.display='none';}
+
+  </script>
+
+  <!-- Create Role Modal -->
+  <div class="um-modal-overlay" id="createRoleModal" onclick="if(event.target===this)closeCreateRoleModal()">
+    <div class="um-modal">
+      <div class="um-modal-header"><h3>新建角色</h3><button class="um-modal-close" onclick="closeCreateRoleModal()">✕</button></div>
+      <div class="um-modal-body">
+        <div class="um-form-row" style="margin-bottom:12px">
+          <div style="flex:1;display:flex;align-items:flex-start">
+            <div class="um-form-label"><span class="req">*</span> 角色名：</div>
+            <div style="flex:1"><div style="position:relative"><input class="um-form-input" id="newRoleName" placeholder="请输入角色名" maxlength="63" oninput="document.getElementById('roleNameCount').textContent=this.value.length"><span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(0,0,0,0.25)"><span id="roleNameCount">0</span> / 63</span></div></div>
+          </div>
+          <div style="flex:1;display:flex;align-items:flex-start;margin-left:24px">
+            <div class="um-form-label">备注：</div>
+            <div style="flex:1"><div style="position:relative"><input class="um-form-input" id="newRoleRemark" placeholder="请输入备注信息" maxlength="255" oninput="document.getElementById('roleRemarkCount').textContent=this.value.length"><span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(0,0,0,0.25)"><span id="roleRemarkCount">0</span> / 255</span></div></div>
+          </div>
+        </div>
+        <!-- 权限来源：从零 / 基于现有角色 -->
+        <div class="um-form-row">
+          <div class="um-form-label">权限来源：</div>
+          <div style="flex:1">
+            <div class="psrc-seg">
+              <span class="psrc-opt active" id="psrcScratch" onclick="setPermSource('scratch')">从零创建</span>
+              <span class="psrc-opt" id="psrcBase" onclick="setPermSource('base')">基于现有角色</span>
+            </div>
+            <select class="um-form-input" id="baseRoleSelect" style="height:32px;width:200px;margin-left:8px;display:none;vertical-align:middle;cursor:pointer" onchange="applyBaseRole()"></select>
+            <div id="baseRoleHint" style="display:none;margin-top:6px;font-size:12px;color:rgba(0,0,0,0.4)"></div>
+          </div>
+        </div>
+        <!-- 统一权限配置：取消全局/对象双 tab，每个动作行内设生效范围 -->
+        <div id="permGlobalPanel">
+          <div class="perm-layout">
+            <div class="perm-cats" id="permCatList"></div>
+            <div class="perm-items" id="permItemList"></div>
+            <div class="perm-selected" id="permSelectedList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="um-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeCreateRoleModal()">取 消</button>
+        <button class="um-btn um-btn-primary" id="createRoleSubmitBtn" onclick="confirmCreateRole()">创 建</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 权限查看弹窗 -->
+  <div class="um-modal-overlay" id="viewPermModal" onclick="if(event.target===this)closeViewPermModal()">
+    <div class="um-modal" style="width:820px;max-width:92vw">
+      <div class="um-modal-header"><h3 id="viewPermTitle">权限查看</h3><button class="um-modal-close" onclick="closeViewPermModal()">✕</button></div>
+      <div class="um-modal-body" id="viewPermBody" style="max-height:62vh;overflow:auto"></div>
+      <div class="um-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeViewPermModal()">关 闭</button>
+        <button class="um-btn um-btn-primary" id="viewPermEditBtn">去修改</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 对象选择器（指定对象范围，容纳大量对象） -->
+  <div class="um-modal-overlay" id="objPickerModal" style="z-index:1100" onclick="if(event.target===this)closeObjPicker()">
+    <div class="um-modal" id="objPickerBox" style="width:780px;flex-direction:row;overflow:hidden;transition:width .25s cubic-bezier(.16,1,.3,1)">
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;max-height:90vh">
+      <div class="um-modal-header"><h3 id="objPickerTitle">选择对象</h3><button class="um-modal-close" onclick="closeObjPicker()">✕</button></div>
+      <div class="um-modal-body" style="padding:0">
+        <div class="objpk-wrap">
+          <div class="objpk-left">
+            <div class="objpk-toolbar">
+              <input id="objPickerSearch" placeholder="搜索对象名称…" oninput="renderObjPicker()">
+              <label class="objpk-selall"><input type="checkbox" id="objPickerAll" onchange="objPickerToggleAll(this.checked)"> 全选当前结果</label>
+            </div>
+            <div class="objpk-list" id="objPickerList"></div>
+          </div>
+          <div class="objpk-right">
+            <div class="objpk-right-head"><span>已选 <span id="objPickerCount">0</span> 个</span><a onclick="objPickerClear()">清空</a></div>
+            <div class="objpk-chips" id="objPickerChips"></div>
+          </div>
+        </div>
+      </div>
+      <div class="um-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeObjPicker()">取 消</button>
+        <button class="um-btn um-btn-primary" onclick="confirmObjPicker()">确 定</button>
+      </div>
+    </div>
+    <!-- 行列权限扩展区（选中表对象后在同一弹窗右侧展开，替代抽屉 + 弹窗嵌套） -->
+    <div id="rcPanel" style="width:0;flex-shrink:0;border-left:1px solid #f0f0f0;background:#fafbfc;overflow:hidden;display:flex;flex-direction:column;transition:width .25s cubic-bezier(.16,1,.3,1)">
+      <div style="width:560px;flex-shrink:0;display:flex;flex-direction:column;max-height:90vh;min-height:0">
+        <div style="padding:16px 20px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="min-width:0;flex:1">
+            <div style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:600">行列权限</div>
+            <div id="rcpTitle" style="display:inline-block;margin-top:5px;max-width:100%;font-size:13.5px;font-weight:600;font-family:monospace;color:#004af0;background:#eef4ff;border:1px solid #d6e4ff;border-radius:8px;padding:4px 10px;word-break:break-all;line-height:1.5"></div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.4);margin-top:5px">仅作用于该表的「表查询」权限，查询时自动叠加</div>
+          </div>
+          <button class="um-modal-close" onclick="rcpClose()">✕</button>
+        </div>
+        <div style="display:flex;padding:0 20px;border-bottom:1px solid #eee">
+          <div class="rcp-tab active" id="rcpTabCol" onclick="rcpSwitchTab('col')">列权限</div>
+          <div class="rcp-tab" id="rcpTabRow" onclick="rcpSwitchTab('row')">行权限</div>
+        </div>
+        <div id="rcpBody" style="flex:1;min-height:0;overflow:auto;padding:14px 20px"></div>
+        <div style="padding:12px 20px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:8px">
+          <button class="um-btn um-btn-cancel" onclick="rcpClose()">收 起</button>
+          <button class="um-btn um-btn-primary" onclick="rcpSave()">保 存</button>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- Add Object Permission Modal -->
+  <div class="um-modal-overlay" id="addObjPermModal" onclick="if(event.target===this)closeAddObjPermModal()">
+    <div class="um-modal" style="width:720px">
+      <div class="um-modal-header"><h3>添加对象权限</h3><button class="um-modal-close" onclick="closeAddObjPermModal()">✕</button></div>
+      <div class="um-modal-body" style="padding:24px 28px">
+        <div class="um-form-row">
+          <div class="um-form-label"><span class="req">*</span> 对象类别</div>
+          <div style="flex:1"><select class="um-form-input" id="objPermCatSelect" style="height:40px;cursor:pointer" onchange="onObjCatChange()"><option value="">请选择对象类别</option></select></div>
+        </div>
+        <div class="um-form-row">
+          <div class="um-form-label"><span class="req">*</span> 对象名称</div>
+          <div style="flex:1;position:relative" id="objNameWrap">
+            <div class="um-form-input" id="objPermNameTrigger" onclick="toggleObjNamePicker()" style="height:40px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+              <span id="objPermNameDisplay" style="color:rgba(0,0,0,0.25)">请选择对象名称</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <!-- Simple dropdown for non-catalog types -->
+            <div class="cascade-picker" id="objNameSimpleDD" style="flex-direction:column;padding:4px 0"></div>
+            <!-- Cascade picker for catalog types (库/表/卷) -->
+            <div class="cascade-picker" id="objNameCascadeDD"></div>
+          </div>
+        </div>
+        <div class="agent-auth-card" id="agentObjectContext"></div>
+        <div class="um-form-row">
+          <div class="um-form-label"><span class="req">*</span> 对象权限</div>
+          <div style="flex:1" id="objPermCheckList"><span style="font-size:13px;color:rgba(0,0,0,0.45)">请选择对象类别</span></div>
+        </div>
+      </div>
+      <div class="um-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeAddObjPermModal()">取 消</button>
+        <button class="um-btn um-btn-primary" onclick="confirmAddObjPerm()">确 认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row/Col Permission Drawer -->
+  <div class="rc-drawer-overlay" id="rcDrawerOverlay" onclick="closeRcDrawer()"></div>
+  <div class="rc-drawer" id="rcDrawer">
+    <div class="rc-drawer-header">
+      <button class="rc-close" onclick="closeRcDrawer()">✕</button>
+      <span class="rc-title" id="rcDrawerTitle">企业信息</span>
+    </div>
+    <div class="rc-drawer-tabs">
+      <div class="rc-drawer-tab active" onclick="switchRcTab(this,'col')">列权限</div>
+      <div class="rc-drawer-tab" onclick="switchRcTab(this,'row')">行权限</div>
+    </div>
+    <div class="rc-drawer-body">
+      <!-- Col permission panel -->
+      <div id="rcColPanel">
+        <div style="margin-bottom:12px"><input class="um-form-input" style="height:32px;width:200px" placeholder="搜索列名" id="rcColSearch" oninput="renderRcCols()"></div>
+        <div class="rc-col-header">
+          <input type="checkbox" checked onchange="toggleAllRcCols(this.checked)">
+          <span style="min-width:100px">列名</span>
+          <span style="flex:1;text-align:center">样例数据</span>
+          <span style="width:28px;text-align:center">设置行权限</span>
+        </div>
+        <div id="rcColList"></div>
+      </div>
+      <!-- Row permission panel -->
+      <div id="rcRowPanel" style="display:none"></div>
+    </div>
+    <div class="rc-drawer-footer">
+      <button class="um-btn um-btn-cancel" onclick="closeRcDrawer()">取消</button>
+      <button class="um-btn um-btn-primary" onclick="confirmRcPerms()">确认</button>
+    </div>
+  </div>
+
+  <!-- Role Inheritance Modal -->
+  <div class="um-modal-overlay" id="inheritModal" onclick="if(event.target===this)closeInheritModal()">
+    <div class="um-modal" style="width:640px">
+      <div class="um-modal-header"><h3 id="riModalTitle">角色继承</h3><button class="um-modal-close" onclick="closeInheritModal()">✕</button></div>
+      <div class="um-modal-body" style="padding:0 28px 16px">
+        <div class="ri-tabs">
+          <div class="ri-tab active" onclick="switchRiTab(this,'inherit')">继承角色</div>
+          <div class="ri-tab" onclick="switchRiTab(this,'grant')">授权角色</div>
+          <div class="ri-tab" onclick="switchRiTab(this,'graph')">查看</div>
+        </div>
+        <div id="riInheritPanel"></div>
+        <div id="riGrantPanel" style="display:none"></div>
+        <div id="riGraphPanel" style="display:none"></div>
+      </div>
+      <div class="um-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeInheritModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Role Modal -->
+  <div class="um-modal-overlay" id="deleteRoleModal" onclick="if(event.target===this)closeDeleteRoleModal()">
+    <div class="um-modal" style="width:560px">
+      <div class="um-modal-header"><h3 id="drTitle">删除角色</h3><button class="um-modal-close" onclick="closeDeleteRoleModal()">✕</button></div>
+      <div class="um-modal-body" style="padding:20px 28px 8px">
+        <div id="drSimple"></div>
+        <div id="drTransfer" style="display:none">
+          <div class="dr-warn dr-warn-block">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div id="drWarnText"></div>
+          </div>
+          <div class="dr-objs-head">该角色拥有的对象（<span id="drObjCount">0</span>）</div>
+          <div class="dr-objs" id="drObjList"></div>
+          <div class="dr-opts">
+            <label class="dr-opt on"><input type="radio" name="drMode" value="self" checked onchange="setDelTransferMode('self')"><div><div class="dr-opt-t">全部转移给我</div><div class="dr-opt-d">当前操作者所属角色：<b id="drOperator">超级管理员</b>，由其一并接手以上全部对象的 Owner</div></div></label>
+            <label class="dr-opt"><input type="radio" name="drMode" value="role" onchange="setDelTransferMode('role')"><div style="flex:1"><div class="dr-opt-t">全部转移给指定角色</div><div class="dr-opt-d">把以上对象的 Owner 统一改为某个角色</div><select id="drTargetRole" class="dr-select" disabled></select></div></label>
+            <label class="dr-opt"><input type="radio" name="drMode" value="manual" onchange="setDelTransferMode('manual')"><div><div class="dr-opt-t">逐个手动转移</div><div class="dr-opt-d">不在此处统一转移，前往各对象页面分别将 Owner 改给不同角色</div></div></label>
+          </div>
+          <div class="dr-manual-hint" id="drManualHint" style="display:none">请前往上方各对象所在的功能页面，分别将其 Owner 改给目标角色。全部转移完成后，该角色将不再拥有对象，即可回到此处直接删除。</div>
+        </div>
+      </div>
+      <div class="um-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeDeleteRoleModal()">取 消</button>
+        <button class="um-btn um-btn-danger" id="drConfirmBtn" onclick="confirmDeleteRole()">删 除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row Permission Modal -->
+  <div class="rp-modal-overlay" id="rpModal" onclick="if(event.target===this)closeRowPermModal()">
+    <div class="rp-modal">
+      <div class="rp-modal-header"><h3>添加行权限</h3><button class="rp-modal-close" onclick="closeRowPermModal()">✕</button></div>
+      <div class="rp-modal-body">
+        <div style="margin-bottom:16px">
+          <div style="font-size:13px;color:rgba(0,0,0,0.88);font-weight:500;margin-bottom:8px"><span style="color:#ff4d4f">*</span> 列</div>
+          <select class="um-form-input" id="rpColSelect" style="height:40px;cursor:pointer;background:#fafafa"></select>
+        </div>
+        <div class="rp-expr-group" id="rpExprGroup"></div>
+      </div>
+      <div class="rp-modal-footer">
+        <button class="um-btn um-btn-cancel" onclick="closeRowPermModal()">取 消</button>
+        <button class="um-btn um-btn-primary" onclick="confirmRowPerm()">确 认</button>
+      </div>
+    </div>
+  </div>
+  <!-- DAG View -->
+  <div class="dag-overlay" id="dagOverlay">
+    <div class="dag-container">
+      <div class="dag-header">
+        <h3>角色继承关系图</h3>
+        <div class="dag-header-actions">
+          <span class="dag-hint">拖拽节点移动 · 从节点边缘拖出连线创建继承（A→B 表示 A 继承 B） · 点击连线删除 · 滚轮缩放</span>
+          <button class="um-btn um-btn-primary" style="height:32px;font-size:12px;padding:0 14px" onclick="dagAutoLayout()">自动布局</button>
+          <button class="um-modal-close" onclick="closeDagView()" style="font-size:20px">✕</button>
+        </div>
+      </div>
+      <div class="dag-canvas-wrap" id="dagCanvasWrap">
+        <canvas id="dagCanvas"></canvas>
+        <div id="dagPermPanel" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);padding:16px;z-index:10;border:1px solid #f0f0f0"></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

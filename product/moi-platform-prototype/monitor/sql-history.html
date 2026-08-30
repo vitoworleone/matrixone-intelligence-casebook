@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - SQL 历史</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .main { padding: 0 !important; overflow: auto; }
+    .sqlh-page { padding: 20px 24px 40px; min-width: 960px; }
+
+    /* Toolbar */
+    .sqlh-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .sqlh-tb-label { font-size: 13px; color: rgba(0,0,0,0.55); white-space: nowrap; }
+    .sqlh-input, .sqlh-select { height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; font-size: 13px; padding: 0 10px; outline: none; background: #fff; color: rgba(0,0,0,0.85); }
+    .sqlh-input:focus, .sqlh-select:focus { border-color: #1677ff; }
+    .sqlh-select { cursor: pointer; min-width: 150px; }
+    .sqlh-time { display: inline-flex; align-items: center; gap: 8px; height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; padding: 0 10px; background: #fff; font-size: 13px; color: rgba(0,0,0,0.85); min-width: 340px; }
+    .sqlh-time .clk { width: 14px; height: 14px; opacity: 0.5; }
+    .sqlh-time .arrow { color: rgba(0,0,0,0.3); }
+    .sqlh-time .end { color: rgba(0,0,0,0.3); }
+    .sqlh-time .clr { margin-left: auto; cursor: pointer; color: rgba(0,0,0,0.25); font-size: 14px; }
+    .sqlh-time .clr:hover { color: #ff4d4f; }
+    .sqlh-btn { height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,0.7); display: inline-flex; align-items: center; gap: 6px; }
+    .sqlh-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .sqlh-btn svg { width: 14px; height: 14px; }
+    .sqlh-btn .badge { background: #1677ff; color: #fff; border-radius: 9px; font-size: 11px; padding: 0 6px; line-height: 16px; min-width: 16px; text-align: center; }
+    .sqlh-btn.primary { background: #1677ff; border-color: #1677ff; color: #fff; font-weight: 500; }
+    .sqlh-btn.primary:hover { background: #4096ff; color: #fff; }
+    .sqlh-btn.text { border: none; background: transparent; color: rgba(0,0,0,0.55); }
+    .sqlh-btn.text:hover { color: #1677ff; }
+    .sqlh-autorefresh { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid #e5e6eb; border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.45); background: #fafafa; }
+
+    /* Filter popover */
+    .sqlh-filterwrap { position: relative; }
+    .sqlh-filter-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 60; width: 300px; max-height: 70vh; overflow-y: auto; background: #fff; border: 1px solid #e5e6eb; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 14px 16px; }
+    .sqlh-filter-panel.show { display: block; }
+    .sqlh-frow { margin-bottom: 14px; }
+    .sqlh-frow-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+    .sqlh-frow-head span { font-size: 13px; color: rgba(0,0,0,0.78); }
+    .sqlh-ffield { width: 100%; height: 32px; border: 1px solid #e5e6eb; border-radius: 6px; font-size: 12px; padding: 0 8px; outline: none; }
+    .sqlh-ffield:focus { border-color: #1677ff; }
+    .sqlh-ffield.dim { background: #f7f8fa; color: rgba(0,0,0,0.3); }
+    .sqlh-frow.off .sqlh-ffield, .sqlh-frow.off .sqlh-fgt { opacity: 0.5; pointer-events: none; }
+    .sqlh-fgt { display: flex; align-items: center; gap: 8px; }
+    .sqlh-fgt .lbl { font-size: 12px; color: rgba(0,0,0,0.4); }
+    .sqlh-filter-foot { border-top: 1px solid #f0f0f0; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    /* toggle switch */
+    .sw { position: relative; display: inline-block; width: 34px; height: 18px; flex-shrink: 0; }
+    .sw input { display: none; }
+    .sw .sl { position: absolute; inset: 0; background: #d9d9d9; border-radius: 18px; cursor: pointer; transition: .2s; }
+    .sw .sl::before { content: ''; position: absolute; width: 14px; height: 14px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .2s; }
+    .sw input:checked + .sl { background: #1677ff; }
+    .sw input:checked + .sl::before { transform: translateX(16px); }
+
+    /* List head */
+    .sqlh-listhead { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 12px; }
+    .sqlh-count { font-size: 18px; font-weight: 700; color: rgba(0,0,0,0.88); }
+    .sqlh-listhead-r { display: flex; align-items: center; gap: 8px; position: relative; }
+    .sqlh-icon-btn { width: 34px; height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.55); }
+    .sqlh-icon-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .sqlh-icon-btn.tab-on { background: #eef0f3; }
+    .sqlh-icon-btn svg { width: 16px; height: 16px; }
+    /* Columns dropdown */
+    .sqlh-cols-dd { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 60; width: 200px; max-height: 420px; overflow-y: auto; background: #fff; border: 1px solid #e5e6eb; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 4px; }
+    .sqlh-cols-dd.show { display: block; }
+    .sqlh-col-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; font-size: 13px; border-radius: 6px; cursor: pointer; color: rgba(0,0,0,0.8); }
+    .sqlh-col-item:hover { background: #f5f7fb; }
+    .sqlh-col-item.on { color: #1677ff; font-weight: 500; background: #f0f6ff; }
+    .sqlh-col-item .ck { color: #1677ff; }
+    .sqlh-col-item.disabled { color: rgba(0,0,0,0.25); cursor: not-allowed; }
+
+    /* Table */
+    .sqlh-table-wrap { border: 1px solid #f0f0f0; border-radius: 10px; overflow-x: auto; background: #fff; }
+    table.sqlh-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+    .sqlh-table thead th { background: #fafbfc; color: rgba(0,0,0,0.5); font-weight: 500; text-align: left; padding: 11px 14px; white-space: nowrap; border-bottom: 1px solid #f0f0f0; }
+    .sqlh-table th.sortable { cursor: pointer; user-select: none; }
+    .sqlh-table th .sort-ic { margin-left: 5px; opacity: 0.4; font-size: 10px; }
+    .sqlh-table th.sorted .sort-ic { opacity: 1; color: #1677ff; }
+    .sqlh-table tbody td { padding: 12px 14px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.82); white-space: nowrap; }
+    .sqlh-table tbody tr:last-child td { border-bottom: none; }
+    .sqlh-table tbody tr { cursor: pointer; transition: background 0.12s; }
+    .sqlh-table tbody tr:hover { background: #f7faff; }
+    .sqlh-table td.col-sql { max-width: 360px; }
+    .sqlh-sqltext { color: #1677ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; display: block; }
+    .sqlh-mono { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; color: rgba(0,0,0,0.6); }
+    .st-badge { display: inline-flex; align-items: center; gap: 5px; }
+    .st-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .st-success { color: #52c41a; } .st-success .st-dot { background: #52c41a; }
+    .st-running { color: #1677ff; } .st-running .st-dot { background: #1677ff; }
+    .st-failed { color: #ff4d4f; } .st-failed .st-dot { background: #ff4d4f; }
+    .st-killed { color: #faad14; } .st-killed .st-dot { background: #faad14; }
+    .type-tag { font-size: 12px; color: rgba(0,0,0,0.6); }
+
+    /* Pagination */
+    .sqlh-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 16px; font-size: 13px; color: rgba(0,0,0,0.6); }
+    .sqlh-pg-btn { min-width: 30px; height: 30px; padding: 0 6px; border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .sqlh-pg-btn:hover:not(:disabled) { border-color: #1677ff; color: #1677ff; }
+    .sqlh-pg-btn.active { background: #1677ff; border-color: #1677ff; color: #fff; }
+    .sqlh-pg-btn:disabled { color: rgba(0,0,0,0.2); cursor: not-allowed; }
+    .sqlh-pg-jump { width: 50px; height: 30px; border: 1px solid #e5e6eb; border-radius: 6px; text-align: center; outline: none; font-size: 13px; }
+
+    /* Tooltip */
+    .sqlh-tip { position: fixed; z-index: 999; max-width: 460px; background: rgba(0,0,0,0.86); color: #fff; font-size: 12px; line-height: 1.6; padding: 8px 11px; border-radius: 8px; font-family: 'SF Mono', Monaco, monospace; white-space: pre-wrap; word-break: break-all; display: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+
+    /* ===== Detail view ===== */
+    .sqlh-detail-head { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; background: #fff; position: sticky; top: 0; z-index: 5; }
+    .sqlh-back { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e5e6eb; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.6); }
+    .sqlh-back:hover { border-color: #1677ff; color: #1677ff; }
+    .sqlh-detail-title { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sqlh-tabs { display: flex; gap: 24px; padding: 0 24px; border-bottom: 1px solid #f0f0f0; background: #fff; }
+    .sqlh-tab { padding: 13px 2px; font-size: 14px; color: rgba(0,0,0,0.55); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .sqlh-tab.active { color: #1677ff; font-weight: 600; border-bottom-color: #1677ff; }
+    .sqlh-detail-body { padding: 22px 24px 50px; }
+    .sqlh-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 22px 24px; margin-bottom: 20px; }
+    .sqlh-card-title { font-size: 16px; font-weight: 700; color: rgba(0,0,0,0.85); margin: 0 0 18px; display: flex; align-items: center; justify-content: space-between; }
+    .sqlh-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 32px; }
+    .sqlh-info-item .k { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 4px; }
+    .sqlh-info-item .v { font-size: 14px; color: rgba(0,0,0,0.85); word-break: break-all; }
+    .sqlh-info-item .v.mono { font-family: 'SF Mono', Monaco, monospace; font-size: 13px; }
+    .sqlh-detail-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .sqlh-sql-pre { margin: 0; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12.5px; line-height: 1.7; color: rgba(0,0,0,0.82); white-space: pre; overflow: auto; max-height: 360px; background: #fafbfc; border-radius: 8px; padding: 14px 16px; }
+    .sqlh-sql-pre .kw { color: #ad3da4; font-weight: 600; }
+    .sqlh-card-tool { display: flex; gap: 8px; }
+    .sqlh-card-tool button { width: 28px; height: 28px; border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; cursor: pointer; color: rgba(0,0,0,0.45); display: inline-flex; align-items: center; justify-content: center; }
+    .sqlh-card-tool button:hover { border-color: #1677ff; color: #1677ff; }
+    .sqlh-card-tool button svg { width: 15px; height: 15px; }
+    .sqlh-res-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .sqlh-res-table th { background: #fafbfc; color: rgba(0,0,0,0.5); font-weight: 500; text-align: left; padding: 9px 12px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+    .sqlh-res-table td { padding: 9px 12px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.8); white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+    .sqlh-res-wrap { overflow-x: auto; border: 1px solid #f0f0f0; border-radius: 8px; }
+    .sqlh-noresult { padding: 40px; text-align: center; color: rgba(0,0,0,0.3); font-size: 13px; }
+
+    /* Freeze first column */
+    .sqlh-table td.col-sql, .sqlh-table th:first-child { position: sticky; left: 0; z-index: 2; min-width: 240px; }
+    .sqlh-table thead th:first-child { background: #fafbfc; z-index: 3; box-shadow: 7px 0 8px -7px rgba(0,0,0,0.12); }
+    .sqlh-table tbody td:first-child { background: #fff; box-shadow: 7px 0 8px -7px rgba(0,0,0,0.10); }
+    .sqlh-table tbody tr:hover td:first-child { background: #f7faff; }
+
+    /* Time range picker */
+    .sqlh-time { cursor: pointer; }
+    .sqlh-timewrap { position: relative; }
+    .sqlh-time-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 60; background: #fff; border: 1px solid #e5e6eb; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.14); padding: 14px; }
+    .sqlh-time-panel.show { display: flex; gap: 16px; }
+    .sqlh-time-presets { display: flex; flex-direction: column; gap: 3px; border-right: 1px solid #f0f0f0; padding-right: 14px; }
+    .tp-preset { padding: 7px 14px; border-radius: 6px; font-size: 13px; color: rgba(0,0,0,0.7); cursor: pointer; white-space: nowrap; }
+    .tp-preset:hover, .tp-preset.active { background: #f0f6ff; color: #1677ff; }
+    .sqlh-time-fields { display: flex; flex-direction: column; gap: 10px; min-width: 220px; }
+    .sqlh-time-fields label { font-size: 12px; color: rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 4px; }
+    .sqlh-time-fields input { height: 32px; border: 1px solid #e5e6eb; border-radius: 6px; padding: 0 8px; font-size: 12px; outline: none; }
+
+    /* ===== Plan graph (top-down tree) ===== */
+    .pg-scroll { overflow-x: auto; padding: 18px 0 10px; }
+    .pg-tree { display: inline-block; min-width: 100%; }
+    .pg-tree ul { position: relative; padding: 24px 0 0; margin: 0; display: flex; justify-content: center; list-style: none; }
+    .pg-tree > ul { padding-top: 0; }
+    .pg-tree li { list-style: none; position: relative; padding: 22px 7px 0; display: flex; flex-direction: column; align-items: center; }
+    .pg-tree li::before, .pg-tree li::after { content: ''; position: absolute; top: 0; right: 50%; width: 50%; height: 24px; border-top: 1px solid #cdd6e2; }
+    .pg-tree li::after { right: auto; left: 50%; border-left: 1px solid #cdd6e2; }
+    .pg-tree li:first-child::before, .pg-tree li:last-child::after { border: 0 none; }
+    .pg-tree li:last-child::before { border-right: 1px solid #cdd6e2; }
+    .pg-tree li:only-child::after { display: none; }
+    .pg-tree li:only-child::before { display: block; right: auto; left: 50%; width: 0; border-top: 0; border-left: 1px solid #cdd6e2; }
+    .pg-tree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; width: 0; height: 24px; border-left: 1px solid #cdd6e2; }
+    .pg-tree > ul > li { padding-top: 0; }
+    .pg-tree > ul > li::before, .pg-tree > ul > li::after { display: none; }
+    .pg-edge-num { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 5px; font-size: 11px; color: rgba(0,0,0,0.42); z-index: 1; white-space: nowrap; }
+    .pg-box { width: 168px; background: #fff; border: 1px solid #e6e9ef; border-left: 3px solid #1677ff; border-radius: 8px; padding: 8px 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.06); text-align: left; }
+    .pg-box.pg-scan { border-left-color: #13c2c2; } .pg-box.pg-join { border-left-color: #2f54eb; }
+    .pg-box.pg-agg { border-left-color: #722ed1; } .pg-box.pg-sort { border-left-color: #1677ff; }
+    .pg-box.pg-filter { border-left-color: #333; } .pg-box.pg-project { border-left-color: #fa8c16; }
+    .pg-box-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .pg-title { font-size: 12.5px; font-weight: 700; color: rgba(0,0,0,0.85); }
+    .pg-metrics { font-size: 9.5px; color: rgba(0,0,0,0.42); text-align: right; line-height: 1.55; white-space: nowrap; }
+    .pg-detail { font-size: 10.5px; color: rgba(0,0,0,0.5); margin-top: 5px; font-family: 'SF Mono', Monaco, monospace; word-break: break-all; line-height: 1.45; }
+    /* interactive canvas */
+    .pg-viewport { position: relative; height: 620px; overflow: hidden; cursor: grab; background: #fafbfc; background-image: radial-gradient(circle, #e2e6ee 1px, transparent 1px); background-size: 18px 18px; }
+    .pg-viewport.dragging { cursor: grabbing; }
+    .pg-canvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; padding: 24px; }
+    .pg-controls { position: absolute; left: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 5; }
+    .pg-controls button { width: 34px; height: 34px; border: 1px solid #e5e6eb; background: #fff; border-radius: 8px; cursor: pointer; font-size: 16px; color: rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: inline-flex; align-items: center; justify-content: center; }
+    .pg-controls button:hover { border-color: #1677ff; color: #1677ff; }
+    .pg-box { cursor: pointer; transition: box-shadow .15s, border-color .15s; }
+    .pg-box:hover { border-color: #1677ff; box-shadow: 0 3px 14px rgba(22,119,255,0.22); }
+    .pg-box.sel { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.3); }
+    .pg-nodepanel { position: absolute; top: 0; right: 0; bottom: 0; width: 330px; background: #fff; border-left: 1px solid #eef0f3; box-shadow: -8px 0 24px rgba(0,0,0,0.08); transform: translateX(100%); transition: transform .25s cubic-bezier(.16,1,.3,1); z-index: 6; overflow-y: auto; }
+    .pg-nodepanel.show { transform: translateX(0); }
+    .pg-np-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid #f0f0f0; }
+    .pg-np-badge { font-size: 12px; font-weight: 700; color: #fff; background: #1677ff; border-radius: 6px; padding: 4px 10px; }
+    .pg-np-badge.scan{background:#13c2c2}.pg-np-badge.join{background:#2f54eb}.pg-np-badge.agg{background:#722ed1}.pg-np-badge.sort{background:#1677ff}.pg-np-badge.filter{background:#333}.pg-np-badge.project{background:#fa8c16}
+    .pg-np-close { cursor: pointer; color: rgba(0,0,0,0.3); font-size: 18px; line-height: 1; }
+    .pg-np-close:hover { color: #ff4d4f; }
+    .pg-np-row { padding: 0 18px; margin: 14px 0; }
+    .pg-np-row .k { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 4px; }
+    .pg-np-row .v { font-size: 13.5px; color: rgba(0,0,0,0.85); font-family: 'SF Mono', Monaco, monospace; word-break: break-all; line-height: 1.55; }
+    /* SVG edge layer (arrows + variable thickness) — CSS connectors hidden */
+    .pg-tree { position: relative; }
+    .pg-edges { position: absolute; top: 0; left: 0; z-index: 0; pointer-events: none; overflow: visible; }
+    .pg-box { position: relative; z-index: 1; }
+    .pg-edge-num { z-index: 2; }
+    .pg-tree li::before, .pg-tree li::after, .pg-tree ul ul::before, .pg-tree li:only-child::before { border-color: transparent !important; }
+    .plan-empty { padding: 50px; text-align: center; color: rgba(0,0,0,0.3); font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span></a>
+      <div class="menu-item" onclick="toggleSubMenu('dataConn', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span></div>
+      <div class="sub-menu" id="dataConn">
+        <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/></svg></span>连接器</a>
+        <a class="sub-item" href="../data-connection/data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="../data-connection/data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('dataProc', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span></div>
+      <div class="sub-menu" id="dataProc">
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('resCenter', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow">›</span></div>
+      <div class="sub-menu" id="resCenter">
+        <a class="sub-item" href="../resource-center/catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="../resource-center/compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/></svg></span>计算资源</a>
+        <a class="sub-item" href="../resource-center/data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="../resource-center/knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item active" onclick="toggleSubMenu('monitor', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow open">›</span></div>
+      <div class="sub-menu open" id="monitor">
+        <a class="sub-item active" href="sql-history.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span></div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span></div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- ===== LIST VIEW ===== -->
+    <div id="listView" class="sqlh-page">
+      <div class="sqlh-toolbar">
+        <span class="sqlh-tb-label">SQL 类型</span>
+        <select class="sqlh-select" id="typeFilter" onchange="applySearch()">
+          <option value="">全部</option>
+          <option>DQL</option><option>DDL</option><option>DML</option><option>DCL</option><option>TCL</option><option>Other</option>
+        </select>
+        <span class="sqlh-tb-label">时间</span>
+        <div class="sqlh-timewrap">
+          <div class="sqlh-time" onclick="toggleTimePanel(event)">
+            <svg class="clk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span id="timeStart"></span><span class="arrow">→</span><span class="end" id="timeEnd">结束时间</span>
+            <span class="clr" title="时间范围默认最近 2 小时" onclick="event.stopPropagation()">×</span>
+          </div>
+          <div class="sqlh-time-panel" id="timePanel" onclick="event.stopPropagation()">
+            <div class="sqlh-time-presets">
+              <div class="tp-preset active" onclick="setTimePreset(2,this)">最近 2 小时</div>
+              <div class="tp-preset" onclick="setTimePreset(6,this)">最近 6 小时</div>
+              <div class="tp-preset" onclick="setTimePreset(24,this)">最近 1 天</div>
+              <div class="tp-preset" onclick="setTimePreset(72,this)">最近 3 天</div>
+            </div>
+            <div class="sqlh-time-fields">
+              <label>开始时间<input type="datetime-local" id="tpStart" step="1"></label>
+              <label>结束时间<input type="datetime-local" id="tpEnd" step="1"></label>
+              <button class="sqlh-btn primary" style="justify-content:center" onclick="applyTimeRange()">确 定</button>
+            </div>
+          </div>
+        </div>
+        <div class="sqlh-filterwrap">
+          <button class="sqlh-btn" onclick="toggleFilterPanel(event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>
+            筛选项 <span class="badge" id="filterCount" style="display:none">0</span>
+          </button>
+          <div class="sqlh-filter-panel" id="filterPanel" onclick="event.stopPropagation()"></div>
+        </div>
+        <span style="margin-left:auto"></span>
+        <button class="sqlh-btn primary" onclick="applySearch()">搜 索</button>
+        <button class="sqlh-btn" onclick="clearAll()">清 除</button>
+      </div>
+
+      <div class="sqlh-listhead">
+        <div class="sqlh-count"><span id="totalCount">0</span> 条查询</div>
+        <div class="sqlh-listhead-r">
+          <button class="sqlh-icon-btn" onclick="toggleColsDD(event)" title="列设置" style="width:auto;padding:0 10px;gap:5px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg> 列
+          </button>
+          <button class="sqlh-icon-btn" onclick="exportCSV()" title="导出 CSV">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <div class="sqlh-cols-dd" id="colsDD" onclick="event.stopPropagation()"></div>
+        </div>
+      </div>
+
+      <div class="sqlh-table-wrap">
+        <table class="sqlh-table">
+          <thead><tr id="tableHead"></tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="sqlh-pagination" id="pagination"></div>
+    </div>
+
+    <!-- ===== DETAIL VIEW ===== -->
+    <div id="detailView" style="display:none">
+      <div class="sqlh-detail-head">
+        <button class="sqlh-back" onclick="backToList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="sqlh-detail-title" id="detailTitle">Query</div>
+      </div>
+      <div class="sqlh-tabs">
+        <div class="sqlh-tab active" data-tab="detail" onclick="switchDetailTab('detail',this)">查询详情</div>
+        <div class="sqlh-tab" data-tab="plan" onclick="switchDetailTab('plan',this)">查询分析</div>
+      </div>
+      <div class="sqlh-detail-body">
+        <div id="tabDetail"></div>
+        <div id="tabPlan" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sqlh-tip" id="sqlhTip"></div>
+
+  <script src="../scripts/common.js"></script>
+  <script>
+    // ===== Columns =====
+    var COLS = [
+      { key:'sql',    name:'SQL 文本',   def:true,  fixed:true },
+      { key:'qid',    name:'查询 ID',    def:true },
+      { key:'dur',    name:'时长',       def:true,  sortable:true },
+      { key:'status', name:'状态',       def:true },
+      { key:'type',   name:'SQL 类型',   def:true },
+      { key:'start',  name:'开始时间',   def:true,  sortable:true },
+      { key:'end',    name:'结束时间',   def:false },
+      { key:'user',   name:'用户',       def:true },
+      { key:'db',     name:'数据库',     def:false },
+      { key:'txn',    name:'事务 ID',    def:false },
+      { key:'sess',   name:'会话 ID',    def:false },
+      { key:'rows',   name:'读行数',     def:false },
+      { key:'bytes',  name:'扫描数据量', def:false },
+      { key:'result', name:'结果行数',   def:false },
+      { key:'cu',     name:'CU',         def:true }
+    ];
+    var visibleCols = {};
+    COLS.forEach(function(c){ visibleCols[c.key] = c.def; });
+
+    var sortCol = 'start', sortDir = 'desc'; // default Start Time desc
+    var pageSize = 20, curPage = 1;
+
+    // ===== Mock execution plan (TPCH select) =====
+    function pn(name, mem, cpu, detail, rows, children){ return { name:name, mem:mem, cpu:cpu, detail:detail, rows:rows, children:children||[] }; }
+    var TPCH_PLAN =
+      pn('Project','34.4KiB','1 vCPU·us','supplier.s_acctbal, supplier.s_name, nation.n_name, part.p_partkey, …', null, [
+        pn('Sort','34.4KiB','185 vCPU·us','supplier.s_acctbal DESC, nation.n_name ASC, supplier.s_name ASC', '100', [
+          pn('Filter','96.0KiB','210 vCPU·us','partsupp.ps_supplycost = min(partsupp.ps_supplycost)', '631', [
+            pn('Join','191.1KiB','73.6 vCPU·ms','partsupp.ps_partkey = part.p_partkey  (INNER)', '608', [
+              pn('Aggregate','0B','84.0 vCPU·ms','min(partsupp.ps_supplycost) · group by ps_partkey', '238,082', [
+                pn('Join','326.0KiB','39.1 vCPU·ms','partsupp.ps_suppkey = supplier.s_suppkey  (INNER)', '567,820', [
+                  pn('Table Scan','1.0MiB','3.3 vCPU·s','mo_sample_data_tpch_sf1.partsupp', '800,000', []),
+                  pn('Join','96.0KiB','105 vCPU·us','supplier.s_nationkey = nation.n_nationkey  (INNER)', '2,278', [
+                    pn('Table Scan','120.0KiB','33.0 vCPU·us','mo_sample_data_tpch_sf1.supplier', '10,000', []),
+                    pn('Join','96.0KiB','44.1 vCPU·us','nation.n_regionkey = region.r_regionkey  (INNER)', '5', [
+                      pn('Table Scan','40.0B','4.4 vCPU·us','mo_sample_data_tpch_sf1.nation', '25', []),
+                      pn('Table Scan','1.4KiB','1.4 vCPU·us','mo_sample_data_tpch_sf1.region', '1', [])
+                    ])
+                  ])
+                ])
+              ]),
+              pn('Join','736.8KiB','3.1 vCPU·ms','partsupp.ps_suppkey = supplier.s_suppkey  (INNER)', '608', [
+                pn('Join','180.8KiB','3.3 vCPU·ms','partsupp.ps_partkey = part.p_partkey  (INNER)', '2,006', [
+                  pn('Table Scan','32.1KiB','1.7 vCPU·ms','mo_sample_data_tpch_sf1.partsupp', '2,006', []),
+                  pn('Table Scan','1.1MiB','359.6 vCPU·us','mo_sample_data_tpch_sf1.part', '762', [])
+                ]),
+                pn('Join','32.2KiB','155 vCPU·us','supplier.s_nationkey = nation.n_nationkey  (INNER)', '2,278', [
+                  pn('Table Scan','120.0KiB','44.1 vCPU·us','mo_sample_data_tpch_sf1.supplier', '10,000', []),
+                  pn('Join','48.0KiB','60.0 vCPU·us','nation.n_regionkey = region.r_regionkey  (INNER)', '5', [
+                    pn('Table Scan','4.0B','4.4 vCPU·us','mo_sample_data_tpch_sf1.nation', '25', []),
+                    pn('Table Scan','1.4KiB','1.4 vCPU·us','mo_sample_data_tpch_sf1.region', '1', [])
+                  ])
+                ])
+              ])
+            ])
+          ])
+        ])
+      ]);
+    var SAMPLE_RESULT = {
+      cols:['s_acctbal','s_name','n_name','p_partkey','p_mfgr','s_address','s_phone','s_comment'],
+      rows:[
+        ['9973.93','Supplier#000007441','JORDAN','14193','Manufacturer#2','A8AoX9AK...','23-944-413-5462','t fluffily...'],
+        ['9956.34','Supplier#000003063','IRAN','140079','Manufacturer#3','d3PLCdpY...','20-842-882-9536','ronic ac...'],
+        ['9836.93','Supplier#000004511','JORDAN','94510','Manufacturer#4','jUEYQ7Y...','23-655-156-6041','y final...'],
+        ['9826.40','Supplier#000009186','FRANCE','99185','Manufacturer#1','3qjC6Wm...','16-668-570-1402','express...'],
+        ['9806.46','Supplier#000003769','JORDAN','73768','Manufacturer#5','rsimdSrK...','23-994-345-8910','silent...']
+      ], total: 100
+    };
+
+    // ===== Mock data generation =====
+    var QUERIES = [];
+    (function buildMock(){
+      var base = Date.now();
+      var templates = [
+        { sql:"select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment\nfrom part, supplier, partsupp, nation, region\nwhere p_partkey = ps_partkey\n  and s_suppkey = ps_suppkey\n  and p_size = 15\n  and p_type like '%BRASS'\n  and s_nationkey = n_nationkey\n  and n_regionkey = r_regionkey\n  and r_name = 'EUROPE'\norder by s_acctbal desc, n_name, s_name, p_partkey\nlimit 100;", db:'mo_sample_data_tpch_sf1', us:3800000, rows:1820060, bytes:58300000, result:100, cu:263, plan:TPCH_PLAN, result_data:SAMPLE_RESULT },
+        { sql:"/* 2 queries */ execute __mo_stmt_id_3 // SELECT * FROM `system`.`statement_info`", db:'system', us:82200, rows:42, bytes:18400, result:42, cu:6, plan:TPCH_PLAN },
+        { sql:"deallocate prepare __mo_stmt_id_4", db:'system', us:884, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"prepare __mo_stmt_id_4 from SELECT * FROM `system`.`statement_info` WHERE account = ? ORDER BY request_at DESC", db:'system', us:822, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"deallocate prepare __mo_stmt_id_3", db:'system', us:653, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"prepare __mo_stmt_id_3 from SELECT * FROM `system`.`statement_info`", db:'system', us:725, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"use `mo_sample_data_tpch_sf1`", db:'', us:232200, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"CREATE DATABASE mo_sample_data_tpch_sf1 FROM sys PUBLICATION mo_sample_pub", db:'', us:133500, rows:0, bytes:0, result:0, cu:6, type:'DDL' },
+        { sql:"use `lisong_tpch_sf1`", db:'', us:63100, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"INSERT INTO orders SELECT * FROM staging_orders WHERE o_orderdate >= '2026-01-01'", db:'lisong_tpch_sf1', us:1240000, rows:150000, bytes:42000000, result:0, cu:42, type:'DML' },
+        { sql:"SELECT l_returnflag, l_linestatus, sum(l_quantity) AS sum_qty, avg(l_discount)\nFROM lineitem\nWHERE l_shipdate <= date '1998-12-01'\nGROUP BY l_returnflag, l_linestatus\nORDER BY l_returnflag, l_linestatus", db:'tpch_sf10', us:8420000, rows:59986052, bytes:1610000000, result:4, cu:512, plan:TPCH_PLAN, result_data:SAMPLE_RESULT }
+      ];
+      function statusFor(i){ if (i===3) return 'failed'; if (i===17) return 'running'; return 'success'; }
+      for (var i = 0; i < 43; i++) {
+        var t = templates[i % templates.length];
+        var ts = base - i * 17000 - (i%5)*3000; // descending start times
+        var us = t.us;
+        var endTs = ts + Math.round(us/1000);
+        QUERIES.push({
+          qid: '019e8d33-' + hex4(i*131+0xc) + '-' + hex4(i*977+5) + '-' + hex4(i*53+0xa) + '-' + hex12(i),
+          sql: t.sql,
+          type: t.type || detectType(t.sql),
+          us: us,
+          status: statusFor(i),
+          start: ts, end: endTs,
+          user: 'admin',
+          instance: 'Instance_1',
+          db: t.db,
+          txn: '292a943189' + hex12(i*7),
+          sess: '019e8d32-' + hex4(i*7+1) + '-' + hex4(i*3+9) + '-b172-' + hex12(i*11),
+          driver: 'Go-MySQL-Driver 1.7',
+          rows: t.rows, bytes: t.bytes, result: t.result, cu: t.cu,
+          plan: t.plan || null, result_data: t.result_data || null
+        });
+      }
+    })();
+    function hex4(n){ var s = (Math.abs(n)%65536).toString(16); while(s.length<4) s='0'+s; return s; }
+    function hex12(n){ var s = (Math.abs(n)*2654435761 % 0xffffffffff).toString(16); while(s.length<12) s=(s.length%2?'a':'0')+s; return s.slice(0,12); }
+    function detectType(sql){
+      var s = sql.trim().toLowerCase();
+      if (/^select|^with/.test(s)) return 'DQL';
+      if (/^(create|drop|alter|truncate)/.test(s)) return 'DDL';
+      if (/^(insert|update|delete|replace|load)/.test(s)) return 'DML';
+      if (/^(grant|revoke)/.test(s)) return 'DCL';
+      if (/^(begin|commit|rollback|start transaction)/.test(s)) return 'TCL';
+      return 'Other';
+    }
+
+    // ===== Formatters =====
+    function fmtDur(us){
+      if (us < 1000) return Math.round(us) + ' us';
+      if (us < 1e6) return (us/1000).toFixed(1) + ' ms';
+      if (us < 6e7) return (us/1e6).toFixed(1) + ' s';
+      var sec = Math.round(us/1e6);
+      if (us < 36e8) return Math.floor(sec/60) + 'm ' + (sec%60) + 's';
+      return Math.floor(sec/3600) + 'h ' + Math.floor((sec%3600)/60) + 'm ' + (sec%60) + 's';
+    }
+    function fmtBytes(b){
+      if (!b) return '-';
+      if (b < 1024) return b + ' Bytes';
+      if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+      if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+      return (b/1073741824).toFixed(1) + ' GB';
+    }
+    function fmtNum(n){ if (n==null) return '-'; return n.toLocaleString('en-US'); }
+    function fmtTime(ts){
+      var d = new Date(ts);
+      function p(n){ return (n<10?'0':'')+n; }
+      var h = d.getHours(), ap = h >= 12 ? 'PM' : 'AM'; var h12 = h % 12; if (h12===0) h12=12;
+      return p(d.getMonth()+1)+'/'+p(d.getDate())+'/'+d.getFullYear()+' '+h12+':'+p(d.getMinutes())+':'+p(d.getSeconds())+' '+ap;
+    }
+    function statusLabel(s){ return {success:'成功',running:'运行中',failed:'失败',killed:'已终止'}[s] || s; }
+    function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ===== Filtering / sorting =====
+    function getFiltered(){
+      var typeF = document.getElementById('typeFilter').value;
+      var sqlF = (filterState.sql.on && filterState.sql.val || '').toLowerCase();
+      var userF = (filterState.user.on && filterState.user.val || '').toLowerCase();
+      var qidF = (filterState.qid.on && filterState.qid.val || '').toLowerCase();
+      var list = QUERIES.filter(function(q){
+        if (q.start < timeRange.startMs) return false;
+        if (timeRange.endMs && q.start > timeRange.endMs) return false;
+        if (typeF && q.type !== typeF) return false;
+        if (sqlF && q.sql.toLowerCase().indexOf(sqlF) === -1) return false;
+        if (userF && q.user.toLowerCase().indexOf(userF) === -1) return false;
+        if (qidF && q.qid.toLowerCase().indexOf(qidF) === -1) return false;
+        return true;
+      });
+      list.sort(function(a,b){
+        var va, vb;
+        if (sortCol === 'dur') { va=a.us; vb=b.us; }
+        else { va=a.start; vb=b.start; }
+        return sortDir === 'asc' ? va-vb : vb-va;
+      });
+      return list;
+    }
+
+    // ===== Render table =====
+    function renderTable(){
+      var list = getFiltered();
+      document.getElementById('totalCount').textContent = list.length;
+      // head
+      var head = '';
+      COLS.forEach(function(c){
+        if (!visibleCols[c.key]) return;
+        var sorted = (c.sortable && sortCol===c.key);
+        var ic = c.sortable ? '<span class="sort-ic">' + (sorted ? (sortDir==='asc'?'▲':'▼') : '⇅') + '</span>' : '';
+        head += '<th class="' + (c.sortable?'sortable':'') + (sorted?' sorted':'') + '"' + (c.sortable?' onclick="toggleSort(\''+c.key+'\')"':'') + '>' + c.name + ic + '</th>';
+      });
+      document.getElementById('tableHead').innerHTML = head;
+      // body
+      var startIdx = (curPage-1)*pageSize;
+      var pageRows = list.slice(startIdx, startIdx+pageSize);
+      var body = '';
+      pageRows.forEach(function(q){
+        body += '<tr onclick="openDetail(\'' + q.qid + '\')">';
+        COLS.forEach(function(c){
+          if (!visibleCols[c.key]) return;
+          body += '<td' + (c.key==='sql'?' class="col-sql"':'') + '>' + cellHtml(q, c.key) + '</td>';
+        });
+        body += '</tr>';
+      });
+      document.getElementById('tableBody').innerHTML = body || '<tr><td colspan="20" style="text-align:center;padding:40px;color:rgba(0,0,0,0.3)">无匹配查询</td></tr>';
+      renderPagination(list.length);
+    }
+    function cellHtml(q, key){
+      switch(key){
+        case 'sql': return '<span class="sqlh-sqltext" onmouseenter="showTip(event,\''+ encodeURIComponent(q.sql) +'\')" onmouseleave="hideTip()">' + esc(q.sql.replace(/\n/g,' ')) + '</span>';
+        case 'qid': return '<span class="sqlh-mono">' + esc(q.qid) + '</span>';
+        case 'dur': return fmtDur(q.us);
+        case 'status': return '<span class="st-badge st-'+q.status+'"><span class="st-dot"></span>'+statusLabel(q.status)+'</span>';
+        case 'type': return '<span class="type-tag">'+q.type+'</span>';
+        case 'start': return fmtTime(q.start);
+        case 'end': return fmtTime(q.end);
+        case 'user': return esc(q.user);
+        case 'db': return q.db ? esc(q.db) : '-';
+        case 'txn': return '<span class="sqlh-mono">'+esc(q.txn)+'</span>';
+        case 'sess': return '<span class="sqlh-mono">'+esc(q.sess)+'</span>';
+        case 'rows': return fmtNum(q.rows);
+        case 'bytes': return fmtBytes(q.bytes);
+        case 'result': return fmtNum(q.result);
+        case 'cu': return q.cu;
+      }
+      return '';
+    }
+    function toggleSort(key){
+      if (sortCol !== key) { sortCol = key; sortDir = 'desc'; }
+      else if (sortDir === 'desc') { sortDir = 'asc'; }
+      else { sortCol = 'start'; sortDir = 'desc'; } // back to default
+      curPage = 1; renderTable();
+    }
+
+    function renderPagination(total){
+      var pages = Math.max(1, Math.ceil(total/pageSize));
+      if (curPage > pages) curPage = pages;
+      var h = '<button class="sqlh-pg-btn" onclick="gotoPage('+(curPage-1)+')"' + (curPage<=1?' disabled':'') + '>‹</button>';
+      var maxBtns = 3;
+      for (var p=1; p<=pages && p<=maxBtns; p++) {
+        h += '<button class="sqlh-pg-btn'+(p===curPage?' active':'')+'" onclick="gotoPage('+p+')">'+p+'</button>';
+      }
+      if (pages > maxBtns) h += '<span style="padding:0 4px">…</span>';
+      h += '<button class="sqlh-pg-btn" onclick="gotoPage('+(curPage+1)+')"' + (curPage>=pages?' disabled':'') + '>›</button>';
+      h += '<select class="sqlh-pg-jump" style="width:auto;margin-left:8px" onchange="pageSize=parseInt(this.value);curPage=1;renderTable()">';
+      [10,20,30,50].forEach(function(s){ h += '<option'+(s===pageSize?' selected':'')+'>'+s+'</option>'; });
+      h += '</select><span style="margin-left:2px">条/页</span>';
+      h += '<span style="margin-left:10px">跳至</span><input class="sqlh-pg-jump" type="number" min="1" max="'+pages+'" onkeydown="if(event.key===\'Enter\'){gotoPage(parseInt(this.value)||1)}"><span>页</span>';
+      document.getElementById('pagination').innerHTML = h;
+    }
+    function gotoPage(p){ var total=getFiltered().length; var pages=Math.max(1,Math.ceil(total/pageSize)); curPage=Math.min(Math.max(1,p),pages); renderTable(); }
+
+    function applySearch(){ curPage = 1; renderTable(); closeFilterPanel(); }
+    function clearAll(){
+      document.getElementById('typeFilter').value = '';
+      Object.keys(filterState).forEach(function(k){ filterState[k].on = (k==='time'); filterState[k].val=''; });
+      buildFilterPanel(); updateFilterCount(); curPage=1; renderTable();
+    }
+
+    // ===== Filter panel =====
+    var filterState = {
+      sql:{on:false,val:''}, dur:{on:false,val:''}, db:{on:false,val:''}, user:{on:false,val:''},
+      qid:{on:false,val:''}, sess:{on:false,val:''}, txn:{on:false,val:''}, nonuser:{on:false,val:''}, cu:{on:false,val:'1'}
+    };
+    var FILTER_DEFS = [
+      { key:'sql',  label:'SQL 文本',  type:'text',   ph:'输入 SQL 语句' },
+      { key:'dur',  label:'时长',      type:'gt-unit' },
+      { key:'db',   label:'数据库',    type:'select', ph:'选择数据库' },
+      { key:'user', label:'用户',      type:'text',   ph:'输入用户名' },
+      { key:'qid',  label:'查询 ID',   type:'text',   ph:'输入查询 ID' },
+      { key:'sess', label:'会话 ID',   type:'text',   ph:'输入连接 ID' },
+      { key:'txn',  label:'事务 ID',   type:'text',   ph:'输入事务 ID' },
+      { key:'nonuser', label:'非用户执行', type:'none' },
+      { key:'cu',   label:'CU',        type:'gt-num' }
+    ];
+    function buildFilterPanel(){
+      var h = '';
+      FILTER_DEFS.forEach(function(f){
+        var st = filterState[f.key];
+        h += '<div class="sqlh-frow" data-fk="'+f.key+'">';
+        h += '<div class="sqlh-frow-head"><span>'+f.label+'</span><label class="sw"><input type="checkbox" '+(st.on?'checked':'')+' onchange="toggleFilterRow(\''+f.key+'\',this.checked)"><span class="sl"></span></label></div>';
+        if (st.on) {
+          if (f.type==='text') h += '<input class="sqlh-ffield" placeholder="'+f.ph+'" value="'+esc(st.val)+'" oninput="filterState.'+f.key+'.val=this.value">';
+          else if (f.type==='select') h += '<select class="sqlh-ffield" onchange="filterState.'+f.key+'.val=this.value"><option value="">'+f.ph+'</option><option>mo_sample_data_tpch_sf1</option><option>tpch_sf10</option><option>system</option></select>';
+          else if (f.type==='gt-unit') h += '<div class="sqlh-fgt"><span class="lbl">大于</span><input class="sqlh-ffield" style="flex:1" type="number" value="'+esc(st.val)+'" oninput="filterState.dur.val=this.value"><select class="sqlh-ffield" style="width:64px"><option>秒</option><option>分</option><option>时</option></select></div>';
+          else if (f.type==='gt-num') h += '<div class="sqlh-fgt"><span class="lbl">大于</span><input class="sqlh-ffield" style="flex:1" type="number" value="'+esc(st.val)+'" oninput="filterState.cu.val=this.value"></div>';
+        }
+        h += '</div>';
+      });
+      h += '<div class="sqlh-filter-foot"><span class="sqlh-btn text" style="padding:0" onclick="resetFilters()">重置</span><button class="sqlh-btn primary" onclick="applySearch()">搜 索</button></div>';
+      document.getElementById('filterPanel').innerHTML = h;
+    }
+    function toggleFilterRow(key, on){ filterState[key].on = on; buildFilterPanel(); updateFilterCount(); }
+    function resetFilters(){ Object.keys(filterState).forEach(function(k){ filterState[k].on=false; filterState[k].val = (k==='cu'?'1':''); }); buildFilterPanel(); updateFilterCount(); }
+    function updateFilterCount(){
+      var n = Object.keys(filterState).filter(function(k){ return filterState[k].on; }).length;
+      var el = document.getElementById('filterCount'); el.textContent = n; el.style.display = n?'inline-block':'none';
+    }
+    function toggleFilterPanel(e){ if(e)e.stopPropagation(); var p=document.getElementById('filterPanel'); p.classList.toggle('show'); document.getElementById('colsDD').classList.remove('show'); }
+    function closeFilterPanel(){ document.getElementById('filterPanel').classList.remove('show'); }
+
+    // ===== Columns dropdown =====
+    function buildColsDD(){
+      var h = '<div class="sqlh-col-item" onclick="toggleAllCols()" style="border-bottom:1px solid #f0f0f0"><span>所有</span></div>';
+      COLS.forEach(function(c){
+        var on = visibleCols[c.key];
+        h += '<div class="sqlh-col-item'+(on?' on':'')+(c.fixed?' disabled':'')+'" onclick="'+(c.fixed?'':'toggleCol(\''+c.key+'\')')+'"><span>'+c.name+'</span>'+(on?'<span class="ck">✓</span>':'')+'</div>';
+      });
+      document.getElementById('colsDD').innerHTML = h;
+    }
+    function toggleCol(key){ visibleCols[key] = !visibleCols[key]; buildColsDD(); renderTable(); }
+    function toggleAllCols(){ var allOn = COLS.every(function(c){return visibleCols[c.key];}); COLS.forEach(function(c){ if(!c.fixed) visibleCols[c.key]=!allOn; }); buildColsDD(); renderTable(); }
+    function toggleColsDD(e){ if(e)e.stopPropagation(); var dd=document.getElementById('colsDD'); dd.classList.toggle('show'); closeFilterPanel(); }
+
+    // ===== Tooltip =====
+    function showTip(e, encSql){ var t=document.getElementById('sqlhTip'); t.textContent=decodeURIComponent(encSql); t.style.display='block'; var r=e.target.getBoundingClientRect(); t.style.left=Math.min(r.left, window.innerWidth-480)+'px'; t.style.top=(r.bottom+6)+'px'; }
+    function hideTip(){ document.getElementById('sqlhTip').style.display='none'; }
+
+    // ===== Detail =====
+    function openDetail(qid){
+      var q = QUERIES.find(function(x){return x.qid===qid;});
+      if (!q) return;
+      document.getElementById('detailTitle').textContent = "Query - '" + q.sql.replace(/\n/g,' ').slice(0,60) + (q.sql.length>60?'…':'') + "'";
+      renderDetailTab(q);
+      renderPlanTab(q);
+      switchDetailTab('detail');
+      document.getElementById('listView').style.display='none';
+      document.getElementById('detailView').style.display='';
+      document.querySelector('.main').scrollTop = 0;
+    }
+    function backToList(){ document.getElementById('detailView').style.display='none'; document.getElementById('listView').style.display=''; }
+    function switchDetailTab(tab, el){
+      document.querySelectorAll('.sqlh-tab').forEach(function(t){ t.classList.toggle('active', t.getAttribute('data-tab')===tab); });
+      document.getElementById('tabDetail').style.display = tab==='detail'?'':'none';
+      document.getElementById('tabPlan').style.display = tab==='plan'?'':'none';
+      if (tab==='plan') setTimeout(function(){ pgScale=1; pgX=0; pgY=0; pgApply(); drawPlanEdges(); pgFit(); }, 40);
+    }
+    function infoItem(k,v,mono){ return '<div class="sqlh-info-item"><div class="k">'+k+'</div><div class="v'+(mono?' mono':'')+'">'+v+'</div></div>'; }
+    function renderDetailTab(q){
+      var info = '<div class="sqlh-info-grid">'
+        + infoItem('查询 ID', esc(q.qid), true)
+        + infoItem('时长', fmtDur(q.us))
+        + infoItem('状态', '<span class="st-badge st-'+q.status+'"><span class="st-dot"></span>'+statusLabel(q.status)+'</span>')
+        + infoItem('数据库', q.db?esc(q.db):'-')
+        + infoItem('用户', esc(q.user))
+        + infoItem('开始时间', fmtTime(q.start))
+        + infoItem('结束时间', fmtTime(q.end))
+        + infoItem('事务 ID', esc(q.txn), true)
+        + infoItem('会话 ID', esc(q.sess), true)
+        + infoItem('读行数', fmtNum(q.rows))
+        + infoItem('扫描数据量', fmtBytes(q.bytes))
+        + infoItem('结果行数', fmtNum(q.result))
+        + infoItem('CU', q.cu)
+        + infoItem('客户端驱动', esc(q.driver))
+        + infoItem('实例', esc(q.instance))
+        + '</div>';
+      var sqlCard = '<div class="sqlh-card"><div class="sqlh-card-title">SQL 文本<div class="sqlh-card-tool">'
+        + '<button title="复制" onclick="copyText(decodeURIComponent(\''+encodeURIComponent(q.sql)+'\'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>'
+        + '<button title="在 SQL 编辑器打开" onclick="location.href=\'../data-processing/sql-editor.html\'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg></button>'
+        + '</div></div><pre class="sqlh-sql-pre">'+highlightSql(q.sql)+'</pre></div>';
+      // results
+      var resCard;
+      var recent = (Date.now() - q.start) < 24*3600*1000;
+      if (q.result_data && q.status==='success' && recent) {
+        var rd = q.result_data;
+        var label = rd.total <= 1000 ? (rd.total + ' Rows') : ('1000 of ' + rd.total.toLocaleString('en-US') + ' Rows');
+        var th = rd.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
+        var tr = rd.rows.map(function(r){ return '<tr>'+r.map(function(c){return '<td title="'+esc(c)+'">'+esc(c)+'</td>';}).join('')+'</tr>'; }).join('');
+        resCard = '<div class="sqlh-card"><div class="sqlh-card-title">'+label+'<div class="sqlh-card-tool"><button title="下载 CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div></div>'
+          + '<div class="sqlh-res-wrap"><table class="sqlh-res-table"><thead><tr>'+th+'</tr></thead><tbody>'+tr+'</tbody></table></div></div>';
+      } else {
+        resCard = '<div class="sqlh-card"><div class="sqlh-card-title">查询结果</div><div class="sqlh-noresult">No Results（仅最近一天的查询保留结果）</div></div>';
+      }
+      document.getElementById('tabDetail').innerHTML =
+        '<div class="sqlh-card"><div class="sqlh-card-title">查询信息</div>'+info+'</div>'
+        + '<div class="sqlh-detail-2col">'+sqlCard+resCard+'</div>';
+    }
+    function highlightSql(sql){
+      var kws = ['select','from','where','and','or','order by','group by','limit','insert','into','values','update','set','delete','create','database','use','as','sum','avg','count','max','min','like','desc','asc','join','on','prepare','execute','deallocate'];
+      var out = esc(sql);
+      kws.forEach(function(k){ out = out.replace(new RegExp('\\b('+k.replace(' ','\\s')+')\\b','gi'), '<span class="kw">$1</span>'); });
+      return out;
+    }
+    var planNodes = [], planEdges = [], pgSelId = null;
+    function renderPlanTab(q){
+      var el = document.getElementById('tabPlan');
+      if (!q.plan) { el.innerHTML = '<div class="sqlh-card"><div class="plan-empty">该 SQL 没有执行计划（非查询类语句）</div></div>'; return; }
+      planNodes = []; planEdges = []; pgSelId = null;
+      var tree = '<div class="pg-tree"><svg class="pg-edges"></svg><ul>'+planLi(q.plan, null)+'</ul></div>';
+      el.innerHTML = '<div class="sqlh-card" style="padding:0;overflow:hidden">'
+        + '<div class="pg-viewport" id="pgViewport"><div class="pg-canvas" id="pgCanvas">'+tree+'</div>'
+        + '<div class="pg-controls"><button onclick="pgZoom(1.2)" title="放大">+</button><button onclick="pgZoom(0.83)" title="缩小">−</button>'
+        + '<button onclick="pgFit()" title="适应窗口"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button></div>'
+        + '<div class="pg-nodepanel" id="pgNodePanel"></div></div></div>';
+      pgScale = 1; pgX = 0; pgY = 0; pgBindViewport();
+    }
+    function planTypeCls(name){
+      var n = name.toLowerCase();
+      if (n.indexOf('scan')>-1) return 'scan';
+      if (n.indexOf('join')>-1) return 'join';
+      if (n.indexOf('aggregate')>-1) return 'agg';
+      if (n.indexOf('sort')>-1) return 'sort';
+      if (n.indexOf('filter')>-1) return 'filter';
+      if (n.indexOf('project')>-1) return 'project';
+      return '';
+    }
+    function planLi(n, parentId){
+      var id = planNodes.length; planNodes.push(n);
+      if (parentId != null) planEdges.push({ child:id, parent:parentId });
+      var box = '<div class="pg-box pg-'+planTypeCls(n.name)+'" data-pid="'+id+'" onclick="onPlanNodeClick(event,'+id+')">'
+        + '<div class="pg-box-top"><span class="pg-title">'+esc(n.name)+'</span>'
+        + '<span class="pg-metrics">内存 '+esc(n.mem)+'<br>CPU '+esc(n.cpu)+'</span></div>'
+        + '<div class="pg-detail">'+esc(n.detail)+'</div></div>';
+      var lbl = (n.rows!=null) ? '<span class="pg-edge-num">'+esc(n.rows)+'</span>' : '';
+      var kids = (n.children && n.children.length) ? '<ul>'+n.children.map(function(c){ return planLi(c, id); }).join('')+'</ul>' : '';
+      return '<li>'+lbl+box+kids+'</li>';
+    }
+    function rowsNum(n){ if(!n||n.rows==null) return 0; return parseInt(String(n.rows).replace(/,/g,''),10)||0; }
+    // 用 SVG 画边：箭头朝上（数据自下而上流动 = 执行顺序），线宽按行数（数据量）
+    function drawPlanEdges(){
+      var tree = document.querySelector('#pgCanvas .pg-tree'); if(!tree) return;
+      var svg = tree.querySelector('svg.pg-edges'); if(!svg) return;
+      var tr = tree.getBoundingClientRect();
+      var maxR = 1; planEdges.forEach(function(e){ var r=rowsNum(planNodes[e.child]); if(r>maxR) maxR=r; });
+      var paths = '';
+      planEdges.forEach(function(e){
+        var cb = tree.querySelector('.pg-box[data-pid="'+e.child+'"]');
+        var pb = tree.querySelector('.pg-box[data-pid="'+e.parent+'"]');
+        if(!cb||!pb) return;
+        var cr=cb.getBoundingClientRect(), pr=pb.getBoundingClientRect();
+        var cx=cr.left+cr.width/2-tr.left, cyTop=cr.top-tr.top;
+        var px=pr.left+pr.width/2-tr.left, pyBot=pr.bottom-tr.top;
+        var midY=(cyTop+pyBot)/2;
+        var r = rowsNum(planNodes[e.child]);
+        var w = 1.3 + 5.4 * (Math.log(r+1)/Math.log(maxR+1));
+        var d = 'M'+cx+' '+cyTop+' L'+cx+' '+midY.toFixed(1)+' L'+px+' '+midY.toFixed(1)+' L'+px+' '+pyBot.toFixed(1);
+        paths += '<path d="'+d+'" stroke="#9bb0cc" stroke-width="'+w.toFixed(1)+'" fill="none" marker-end="url(#pgArrow)" stroke-linejoin="round"/>';
+      });
+      var W = tree.scrollWidth, H = tree.scrollHeight;
+      svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 '+W+' '+H);
+      svg.innerHTML = '<defs><marker id="pgArrow" markerWidth="10" markerHeight="10" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L7 3.5 L0 7 z" fill="#6b80a0"/></marker></defs>' + paths;
+    }
+
+    // ===== Plan canvas: pan / zoom / node detail =====
+    var pgScale=1, pgX=0, pgY=0, pgMoved=false, pgDragging=false, pgSX=0, pgSY=0, pgOX=0, pgOY=0, pgDocBound=false;
+    function pgApply(){ var c=document.getElementById('pgCanvas'); if(c) c.style.transform='translate('+pgX+'px,'+pgY+'px) scale('+pgScale+')'; }
+    function pgZoom(factor, cx, cy){
+      var vp=document.getElementById('pgViewport'); if(!vp) return; var r=vp.getBoundingClientRect();
+      if(cx==null) cx=r.width/2; if(cy==null) cy=r.height/2;
+      var ns=Math.min(2.5, Math.max(0.2, pgScale*factor));
+      pgX = cx-(cx-pgX)*(ns/pgScale); pgY = cy-(cy-pgY)*(ns/pgScale); pgScale=ns; pgApply();
+    }
+    function pgFit(){
+      var vp=document.getElementById('pgViewport'), tree=document.querySelector('#pgCanvas .pg-tree'); if(!vp||!tree) return;
+      pgScale=1; pgX=0; pgY=0; pgApply();
+      var cw=tree.scrollWidth+48, ch=tree.scrollHeight+48, vw=vp.clientWidth, vh=vp.clientHeight;
+      var s=Math.min(vw/cw, vh/ch, 1.3); pgScale=s;
+      pgX=(vw-cw*s)/2; pgY=Math.max(8,(vh-ch*s)/2); pgApply();
+    }
+    function pgBindViewport(){
+      var vp=document.getElementById('pgViewport'); if(!vp) return;
+      vp.addEventListener('mousedown', function(e){ pgDragging=true; pgMoved=false; pgSX=e.clientX; pgSY=e.clientY; pgOX=pgX; pgOY=pgY; vp.classList.add('dragging'); });
+      vp.addEventListener('wheel', function(e){ e.preventDefault(); var r=vp.getBoundingClientRect(); pgZoom(e.deltaY<0?1.12:0.89, e.clientX-r.left, e.clientY-r.top); }, {passive:false});
+      if(!pgDocBound){ pgDocBound=true;
+        document.addEventListener('mousemove', function(e){ if(!pgDragging) return; var dx=e.clientX-pgSX, dy=e.clientY-pgSY; if(Math.abs(dx)+Math.abs(dy)>4) pgMoved=true; pgX=pgOX+dx; pgY=pgOY+dy; pgApply(); });
+        document.addEventListener('mouseup', function(){ if(pgDragging){ pgDragging=false; var v=document.getElementById('pgViewport'); if(v) v.classList.remove('dragging'); } });
+      }
+    }
+    function onPlanNodeClick(e, id){ if(pgMoved) return; e.stopPropagation(); if(pgSelId===id){ closePlanPanel(); } else { openPlanNodeDetail(id); } }
+    function openPlanNodeDetail(id){
+      var n = planNodes[id]; if(!n) return;
+      pgSelId = id;
+      document.querySelectorAll('#pgCanvas .pg-box').forEach(function(b){ b.classList.toggle('sel', b.getAttribute('data-pid')===String(id)); });
+      var cls = planTypeCls(n.name);
+      var topo = (n.children && n.children.length) ? (n.children.length+' 个子输入') : '叶子节点（数据源）';
+      var h = '<div class="pg-np-head"><span class="pg-np-badge '+cls+'">'+esc(n.name)+'</span><span class="pg-np-close" onclick="closePlanPanel()">✕</span></div>'
+        + '<div class="pg-np-row"><div class="k">输出行数</div><div class="v">'+(n.rows!=null?esc(n.rows):'—')+' rows</div></div>'
+        + '<div class="pg-np-row"><div class="k">内存峰值</div><div class="v">'+esc(n.mem)+'</div></div>'
+        + '<div class="pg-np-row"><div class="k">CPU 耗时</div><div class="v">'+esc(n.cpu)+'</div></div>'
+        + '<div class="pg-np-row"><div class="k">节点详情</div><div class="v">'+esc(n.detail)+'</div></div>'
+        + '<div class="pg-np-row"><div class="k">拓扑</div><div class="v" style="font-family:inherit">'+topo+'</div></div>';
+      var p = document.getElementById('pgNodePanel'); p.innerHTML = h; p.classList.add('show');
+    }
+    function closePlanPanel(){ pgSelId = null; var p=document.getElementById('pgNodePanel'); if(p) p.classList.remove('show'); document.querySelectorAll('#pgCanvas .pg-box.sel').forEach(function(b){ b.classList.remove('sel'); }); }
+
+    function copyText(t){ if(navigator.clipboard) navigator.clipboard.writeText(t); }
+    function exportCSV(){ alert('已导出筛选后的查询列表为 CSV：moquerysearchlist_'+fmtTime(Date.now()).replace(/[^0-9]/g,'')+'.csv（原型为演示）'); }
+
+    // ===== Time range picker =====
+    var timeRange = { startMs: Date.now() - 2*3600*1000, endMs: null };
+    function fmtLocal(ms){ var d=new Date(ms); function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+    function fmtDisp(ms){ if(ms==null) return ''; var d=new Date(ms); function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+    function renderTimeDisplay(){
+      document.getElementById('timeStart').textContent = fmtDisp(timeRange.startMs);
+      var endEl = document.getElementById('timeEnd');
+      endEl.textContent = timeRange.endMs ? fmtDisp(timeRange.endMs) : '结束时间';
+      endEl.style.color = timeRange.endMs ? 'rgba(0,0,0,0.85)' : '';
+    }
+    function toggleTimePanel(e){ if(e)e.stopPropagation(); var p=document.getElementById('timePanel'); var show=!p.classList.contains('show'); p.classList.toggle('show',show); if(show){ document.getElementById('tpStart').value=fmtLocal(timeRange.startMs); document.getElementById('tpEnd').value=timeRange.endMs?fmtLocal(timeRange.endMs):''; } closeFilterPanel(); document.getElementById('colsDD').classList.remove('show'); }
+    function setTimePreset(hours, el){
+      timeRange.startMs = Date.now() - hours*3600*1000; timeRange.endMs = null;
+      document.querySelectorAll('.tp-preset').forEach(function(x){x.classList.remove('active');}); if(el) el.classList.add('active');
+      document.getElementById('tpStart').value = fmtLocal(timeRange.startMs); document.getElementById('tpEnd').value = '';
+    }
+    function applyTimeRange(){
+      var s=document.getElementById('tpStart').value, en=document.getElementById('tpEnd').value;
+      if(s) timeRange.startMs = new Date(s).getTime();
+      timeRange.endMs = en ? new Date(en).getTime() : null;
+      renderTimeDisplay(); document.getElementById('timePanel').classList.remove('show'); applySearch();
+    }
+
+    // ===== Init =====
+    document.addEventListener('click', function(){ closeFilterPanel(); document.getElementById('colsDD').classList.remove('show'); var tp=document.getElementById('timePanel'); if(tp) tp.classList.remove('show'); });
+    (function(){
+      renderTimeDisplay();
+      buildFilterPanel(); updateFilterCount(); buildColsDD(); renderTable();
+    })();
+  </script>
+</body>
+</html>

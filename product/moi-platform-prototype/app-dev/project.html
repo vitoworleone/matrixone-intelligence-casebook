@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 应用预览</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --surface:#f3f6fb;
+      --ink:#151922;
+      --ink-secondary:#626b7a;
+      --ink-tertiary:#98a1af;
+      --line:rgba(20,33,64,.09);
+      --panel:rgba(255,255,255,.82);
+      --accent:#004af0;
+      --accent-soft:rgba(0,74,240,.08);
+      --green:#10b981;
+      --shadow:0 18px 50px rgba(20,33,64,.08);
+      --font-sans:Inter,'Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+      --transition:220ms cubic-bezier(.16,1,.3,1);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:var(--font-sans);
+      background:var(--surface);
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+    }
+    .grid-bg,.sidebar{display:none!important}
+    .project-shell{
+      min-height:100vh;
+      padding:28px;
+      display:grid;
+      gap:22px;
+    }
+    .project-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+    .back-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      height:36px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.7);
+      color:var(--ink-secondary);
+      padding:0 12px;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:800;
+      transition:background var(--transition),color var(--transition),transform var(--transition);
+    }
+    .back-link:hover{
+      background:#fff;
+      color:var(--ink);
+      transform:translateY(-1px);
+    }
+    .project-heading{
+      display:grid;
+      gap:10px;
+      min-width:0;
+    }
+    .project-title-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .project-icon{
+      width:44px;
+      height:44px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+      box-shadow:0 10px 24px rgba(20,33,64,.06);
+      font-size:22px;
+      flex-shrink:0;
+    }
+    .project-title{
+      margin:0;
+      font-size:34px;
+      line-height:1.05;
+      font-weight:850;
+      letter-spacing:-.05em;
+    }
+    .project-desc{
+      margin:0;
+      max-width:760px;
+      color:var(--ink-secondary);
+      font-size:14px;
+      line-height:1.75;
+      font-weight:600;
+    }
+    .project-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .project-status{
+      height:36px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:999px;
+      background:rgba(16,185,129,.1);
+      color:var(--green);
+      padding:0 13px;
+      font-size:12px;
+      font-weight:850;
+    }
+    .project-status::before{
+      content:'';
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      background:currentColor;
+    }
+    .project-status.draft{
+      color:#7b8494;
+      background:rgba(20,33,64,.06);
+    }
+    .project-status.stopped{
+      color:#f43f5e;
+      background:rgba(244,63,94,.08);
+    }
+    .action-btn{
+      height:36px;
+      border:none;
+      border-radius:12px;
+      background:var(--accent);
+      color:#fff;
+      padding:0 14px;
+      font:800 13px/1 var(--font-sans);
+      box-shadow:0 10px 22px rgba(0,74,240,.2);
+    }
+    .project-workspace{
+      display:grid;
+      grid-template-columns:250px minmax(0,1fr);
+      gap:18px;
+      align-items:start;
+    }
+    .project-nav,
+    .preview-card,
+    .side-panel{
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:24px;
+      background:var(--panel);
+      box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.92);
+      -webkit-backdrop-filter:blur(18px) saturate(180%);
+      backdrop-filter:blur(18px) saturate(180%);
+    }
+    .project-nav{
+      padding:14px;
+      display:grid;
+      gap:8px;
+      position:sticky;
+      top:84px;
+    }
+    .nav-row{
+      min-height:42px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0 12px;
+      color:var(--ink-secondary);
+      font-size:13px;
+      font-weight:800;
+    }
+    .nav-row.active{
+      background:#fff;
+      color:var(--accent);
+      box-shadow:0 10px 22px rgba(20,33,64,.06);
+    }
+    .project-main{
+      display:grid;
+      gap:18px;
+      min-width:0;
+    }
+    .preview-card{
+      overflow:hidden;
+    }
+    .preview-head{
+      min-height:58px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:0 20px;
+    }
+    .preview-name{
+      font-size:15px;
+      font-weight:850;
+    }
+    .preview-time{
+      color:var(--ink-tertiary);
+      font-size:12px;
+      font-weight:800;
+    }
+    .preview-body{
+      padding:22px;
+      display:grid;
+      gap:18px;
+      background:linear-gradient(180deg,#fff 0%,#f9fbff 100%);
+    }
+    .metric-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+    .metric-card{
+      min-height:110px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      display:grid;
+      align-content:space-between;
+    }
+    .metric-label{
+      color:var(--ink-secondary);
+      font-size:12px;
+      font-weight:800;
+    }
+    .metric-value{
+      color:var(--ink);
+      font-size:26px;
+      line-height:1;
+      font-weight:850;
+      letter-spacing:-.04em;
+    }
+    .workflow-panel{
+      min-height:330px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      padding:18px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 300px;
+      gap:18px;
+    }
+    .stage-list{
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+    .stage-item{
+      border:1px solid rgba(20,33,64,.07);
+      border-radius:16px;
+      background:#f9fbff;
+      padding:14px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .stage-title{
+      color:var(--ink);
+      font-size:14px;
+      line-height:1.4;
+      font-weight:850;
+    }
+    .stage-desc{
+      margin-top:5px;
+      color:var(--ink-secondary);
+      font-size:12px;
+      line-height:1.55;
+      font-weight:600;
+    }
+    .stage-pill{
+      flex-shrink:0;
+      border-radius:999px;
+      background:var(--accent-soft);
+      color:var(--accent);
+      padding:5px 9px;
+      font-size:11px;
+      font-weight:850;
+    }
+    .assistant-panel{
+      border-radius:18px;
+      background:#eef3ff;
+      padding:16px;
+      display:grid;
+      align-content:start;
+      gap:12px;
+    }
+    .assistant-title{
+      color:var(--accent);
+      font-size:13px;
+      font-weight:850;
+    }
+    .assistant-msg{
+      border-radius:14px;
+      background:#fff;
+      min-height:44px;
+      padding:12px;
+      color:var(--ink-secondary);
+      font-size:12px;
+      line-height:1.55;
+      font-weight:650;
+    }
+    .side-panel{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+    .panel-title{
+      margin:0;
+      color:var(--ink);
+      font-size:16px;
+      line-height:1.3;
+      font-weight:850;
+    }
+    .quick-list{
+      display:grid;
+      gap:10px;
+    }
+    .quick-item{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      padding:12px;
+      color:var(--ink-secondary);
+      font-size:12px;
+      line-height:1.55;
+      font-weight:700;
+    }
+    @media (max-width: 980px){
+      .project-shell{padding:18px}
+      .project-workspace{grid-template-columns:1fr}
+      .project-nav{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}
+      .workflow-panel{grid-template-columns:1fr}
+    }
+    @media (max-width: 640px){
+      .project-title{font-size:28px}
+      .metric-grid{grid-template-columns:1fr}
+      .project-nav{grid-template-columns:1fr}
+      .project-top{display:grid}
+    }
+  </style>
+</head>
+<body>
+  <main class="project-shell" id="projectShell"></main>
+
+  <script>
+    var projects = {
+      app1:{
+        id:'app1',
+        name:'客户管理系统',
+        icon:'👥',
+        status:'running',
+        statusLabel:'运行中',
+        desc:'集成客户信息管理、跟进记录和 AI 智能分析，自动生成客户画像和商机预测，帮助销售团队提升转化率。',
+        owner:'销售增长组',
+        lastEdit:'2026-04-18',
+        nav:['客户画像','跟进记录','商机预测'],
+        metrics:[['客户数','2,418'],['本周跟进','186'],['预测商机','42']],
+        stages:[
+          ['客户数据同步','汇总 CRM、表单和历史沟通记录。','已完成'],
+          ['画像生成','按行业、规模、意向和风险自动聚类。','运行中'],
+          ['销售建议','生成下一步触达建议和优先级。','待确认']
+        ],
+        assistant:'已识别 12 个高意向客户，建议优先跟进「制造业数字化」标签客户。',
+        quick:['查看高价值客户清单','生成本周跟进摘要','同步销售任务到工作台']
+      },
+      app2:{
+        id:'app2',
+        name:'合同审批助手',
+        icon:'✅',
+        status:'running',
+        statusLabel:'运行中',
+        desc:'AI 自动审核合同条款，识别风险点和异常条款，支持多级审批流程和电子签章。',
+        owner:'法务与采购',
+        lastEdit:'2026-04-15',
+        nav:['合同审核','风险条款','审批流'],
+        metrics:[['待审合同','18'],['风险条款','7'],['平均耗时','2.4h']],
+        stages:[
+          ['上传合同','自动识别合同类型、金额和签署主体。','已完成'],
+          ['条款审核','比对法务规则库，标记异常条款。','运行中'],
+          ['发起审批','按金额和部门自动匹配审批链路。','待确认']
+        ],
+        assistant:'发现 3 份合同存在付款周期异常，建议法务优先复核。',
+        quick:['查看风险条款','生成审批意见','导出合同审核报告']
+      },
+      app3:{
+        id:'app3',
+        name:'运营数据看板',
+        icon:'📊',
+        status:'running',
+        statusLabel:'运行中',
+        desc:'实时展示核心运营指标，支持自然语言查询数据，AI 自动发现数据异常并推送告警。',
+        owner:'经营分析组',
+        lastEdit:'2026-04-20',
+        nav:['指标总览','异常检测','自然语言查询'],
+        metrics:[['GMV','¥8.26M'],['转化率','12.8%'],['异常指标','5']],
+        stages:[
+          ['指标接入','连接订单、用户和渠道数据。','已完成'],
+          ['异常检测','监控环比波动和阈值告警。','运行中'],
+          ['洞察生成','将异常转化为可执行分析结论。','待确认']
+        ],
+        assistant:'渠道 B 的转化率低于 7 日均值 18%，建议检查投放人群变化。',
+        quick:['查看异常指标','询问本周增长原因','生成经营周报']
+      },
+      app4:{
+        id:'app4',
+        name:'NESR 设备监控',
+        icon:'🔧',
+        status:'draft',
+        statusLabel:'草稿',
+        desc:'油田泵设备实时监控看板，集成传感器数据分析 Agent 和维修工单 Agent，预测设备故障。',
+        owner:'现场运维组',
+        lastEdit:'2026-04-19',
+        nav:['设备总览','故障预测','维修工单'],
+        metrics:[['在线设备','342'],['预警设备','11'],['待派工单','6']],
+        stages:[
+          ['设备接入','采集泵压、温度、转速和振动数据。','已完成'],
+          ['故障预测','根据历史故障模式判断异常趋势。','草稿中'],
+          ['工单派发','将风险设备同步给现场维护人员。','待配置']
+        ],
+        assistant:'3 台设备振动趋势异常，建议补充最近一次保养记录后重新评估。',
+        quick:['查看风险设备','生成巡检计划','配置工单规则']
+      },
+      app5:{
+        id:'app5',
+        name:'智能客服（测试）',
+        icon:'💬',
+        status:'stopped',
+        statusLabel:'已停止',
+        desc:'基于产品知识库的智能客服系统，支持多轮对话和人工转接。已停止运行。',
+        owner:'客户成功组',
+        lastEdit:'2026-03-28',
+        nav:['会话测试','知识命中','人工转接'],
+        metrics:[['测试会话','96'],['命中率','82%'],['未解决','14']],
+        stages:[
+          ['用户提问','识别问题意图和产品模块。','已完成'],
+          ['知识检索','在产品知识库中召回答案片段。','已停止'],
+          ['回答生成','生成可引用来源的客服回复。','待恢复']
+        ],
+        assistant:'当前应用已停止运行，恢复后可继续测试知识库问答效果。',
+        quick:['恢复测试应用','查看未解决问题','更新产品知识库']
+      }
+    };
+
+    function escapeHTML(str){
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getProject(){
+      var id = new URLSearchParams(window.location.search).get('id') || 'app1';
+      return projects[id] || projects.app1;
+    }
+
+    function renderMetric(item){
+      return ''
+        + '<div class="metric-card">'
+        +   '<div class="metric-label">' + escapeHTML(item[0]) + '</div>'
+        +   '<div class="metric-value">' + escapeHTML(item[1]) + '</div>'
+        + '</div>';
+    }
+
+    function renderStage(item){
+      return ''
+        + '<div class="stage-item">'
+        +   '<div><div class="stage-title">' + escapeHTML(item[0]) + '</div><div class="stage-desc">' + escapeHTML(item[1]) + '</div></div>'
+        +   '<span class="stage-pill">' + escapeHTML(item[2]) + '</span>'
+        + '</div>';
+    }
+
+    function renderQuick(item){
+      return '<div class="quick-item">' + escapeHTML(item) + '</div>';
+    }
+
+    function renderProject(){
+      var project = getProject();
+      document.title = 'MOI - ' + project.name;
+      document.getElementById('projectShell').innerHTML = ''
+        + '<div class="project-top">'
+        +   '<div class="project-heading">'
+        +     '<a class="back-link" href="apps.html">← 返回应用</a>'
+        +     '<div class="project-title-row"><div class="project-icon">' + project.icon + '</div><h1 class="project-title">' + escapeHTML(project.name) + '</h1></div>'
+        +     '<p class="project-desc">' + escapeHTML(project.desc) + '</p>'
+        +   '</div>'
+        +   '<div class="project-actions"><span class="project-status ' + escapeHTML(project.status) + '">' + escapeHTML(project.statusLabel) + '</span><button class="action-btn">模拟运行</button></div>'
+        + '</div>'
+        + '<div class="project-workspace">'
+        +   '<aside class="project-nav">'
+        +     project.nav.map(function(item, index){return '<div class="nav-row ' + (index === 0 ? 'active' : '') + '">' + escapeHTML(item) + '</div>';}).join('')
+        +   '</aside>'
+        +   '<section class="project-main">'
+        +     '<div class="preview-card">'
+        +       '<div class="preview-head"><div class="preview-name">' + escapeHTML(project.name) + ' · 应用页面</div><div class="preview-time">最近编辑 ' + escapeHTML(project.lastEdit) + '</div></div>'
+        +       '<div class="preview-body">'
+        +         '<div class="metric-grid">' + project.metrics.map(renderMetric).join('') + '</div>'
+        +         '<div class="workflow-panel">'
+        +           '<div class="stage-list">' + project.stages.map(renderStage).join('') + '</div>'
+        +           '<div class="assistant-panel"><div class="assistant-title">智能体提示</div><div class="assistant-msg">' + escapeHTML(project.assistant) + '</div></div>'
+        +         '</div>'
+        +       '</div>'
+        +     '</div>'
+        +     '<div class="side-panel"><h2 class="panel-title">常用操作</h2><div class="quick-list">' + project.quick.map(renderQuick).join('') + '</div></div>'
+        +   '</section>'
+        + '</div>';
+    }
+
+    document.addEventListener('DOMContentLoaded', renderProject);
+  </script>
+</body>
+</html>

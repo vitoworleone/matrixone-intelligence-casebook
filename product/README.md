@@ -1,11 +1,14 @@
-# Product Implementation
+# Product
 
-This folder is reserved for the product once there is a real implementation to publish.
+This folder holds the public product artifacts that accompany the casebook.
 
-Add only the directories that are needed at that time:
+## Included
 
-- `prototype/` for interactive prototypes or design exports;
-- `app/` for runnable product code;
-- `docs/` for engineering architecture, API, deployment, and implementation decisions.
+- [MOI Platform Prototype](moi-platform-prototype/) — a static, interactive prototype covering the data platform, workflow, knowledge, Agent, governance, and application surfaces.
 
-Do not add a top-level shared package, test, evaluation, or data directory unless the implementation actually requires it.
+## Conventions
+
+- Keep each product artifact in its own named directory.
+- Place interactive prototypes or design exports directly in that directory, with an `index.html` entry point when applicable.
+- Add `app/` or `docs/` inside a product directory only when that artifact needs runnable code or implementation documentation.
+- Do not add a repository-wide shared package, test, evaluation, or data directory unless an implementation genuinely requires it.

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 作业</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .main { padding: 0 !important; overflow: auto; }
+    .job-page { padding: 20px 24px 40px; min-width: 1080px; }
+    .job-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+    .job-title { font-size: 20px; font-weight: 700; color: rgba(0,0,0,0.88); }
+    .job-sub { font-size: 12.5px; color: rgba(0,0,0,0.45); }
+
+    /* 列头筛选（与计费中心用量明细一致：漏斗图标 + 多选气泡） */
+    .th-filter-btn {
+      display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+      border-radius: 6px; background: #f5f5f5; cursor: pointer; vertical-align: middle; margin-left: 3px;
+    }
+    .th-filter-btn svg { width: 11px; height: 11px; stroke: rgba(0,0,0,0.35); }
+    .th-filter-btn.active { background: #e6f4ff; }
+    .th-filter-btn.active svg { stroke: #1677ff; }
+
+    /* Toolbar */
+    .job-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 14px 0 14px; }
+    .job-search { position: relative; }
+    .job-search input {
+      width: 236px; height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; font-size: 13px;
+      padding: 0 30px 0 11px; outline: none; background: #fff; transition: border-color 0.2s;
+    }
+    .job-search input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.08); }
+    .job-search .s-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; color: rgba(0,0,0,0.3); pointer-events: none; }
+    .job-select { height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; font-size: 13px; padding: 0 8px; outline: none; background: #fff; cursor: pointer; color: rgba(0,0,0,0.78); }
+    .job-select:focus { border-color: #1677ff; }
+    .job-toolbar .spacer { flex: 1; }
+    .job-icon-btn { width: 34px; height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.55); }
+    .job-icon-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .job-icon-btn svg { width: 15px; height: 15px; }
+
+    /* Table */
+    .job-table-wrap { border: 1px solid #f0f0f0; border-radius: 10px; overflow-x: auto; background: #fff; }
+    table.job-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; table-layout: fixed; }
+    .job-table td, .job-table th { overflow: hidden; text-overflow: ellipsis; }
+    .job-table thead th { background: #fafbfc; color: rgba(0,0,0,0.5); font-weight: 500; text-align: left; padding: 11px 8px; white-space: nowrap; border-bottom: 1px solid #f0f0f0; }
+    .job-table th.sortable { cursor: pointer; user-select: none; }
+    .job-table th .sort-ic { margin-left: 4px; opacity: 0.4; font-size: 10px; }
+    .job-table th.sorted .sort-ic { opacity: 1; color: #1677ff; }
+    .job-table tbody td { padding: 11px 8px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.82); white-space: nowrap; vertical-align: middle; }
+    .time-cell .t-dur { font-size: 12px; color: rgba(0,0,0,0.42); margin-top: 2px; }
+    .job-table tbody tr:last-child td { border-bottom: none; }
+    .job-table tbody tr { transition: background 0.12s; }
+    .job-table tbody tr:hover { background: #f7faff; }
+    /* 操作列右侧吸附：横向滚动时操作始终可见 */
+    .job-table th:last-child, .job-table td:last-child {
+      position: sticky; right: 0; background: #fff;
+      box-shadow: -6px 0 8px -6px rgba(20,33,64,0.10);
+    }
+    .job-table thead th:last-child { background: #fafbfc; }
+    .job-table tbody tr:hover td:last-child { background: #f7faff; }
+
+    .type-badge { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .type-badge svg { width: 12px; height: 12px; }
+    .type-badge.wf   { color: #0958d9; background: rgba(22,119,255,0.08); }
+    .type-badge.load { color: #389e0d; background: rgba(82,196,26,0.10); }
+    .type-badge.exp  { color: #531dab; background: rgba(114,46,209,0.08); }
+
+    .task-name { color: #1677ff; cursor: pointer; }
+    .task-name:hover { text-decoration: underline; }
+    .branch-tag { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; height: 18px; padding: 0 6px; border-radius: 5px; background: rgba(0,0,0,0.045); color: rgba(0,0,0,0.5); font-size: 11px; }
+    .branch-tag svg { width: 10px; height: 10px; }
+
+    .flow-cell { display: flex; flex-direction: column; gap: 3px; }
+    .path-cell { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; }
+    .path-cell .p-ic { display: flex; align-items: center; color: rgba(0,0,0,0.4); flex-shrink: 0; }
+    .path-cell .p-ic svg { width: 13px; height: 13px; }
+    .path-cell .p-ic img { width: 14px; height: 14px; }
+    .path-cell .p-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgba(0,0,0,0.65); font-size: 12.5px; }
+    .path-cell .p-arrow { color: rgba(0,0,0,0.28); flex-shrink: 0; font-size: 11px; width: 13px; text-align: center; }
+
+    .st-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; cursor: default; }
+    .st-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .st-queued  { color: rgba(0,0,0,0.45); } .st-queued .st-dot { background: #bfbfbf; }
+    .st-running { color: #1677ff; } .st-running .st-dot { background: #1677ff; animation: pulse 1.2s ease-in-out infinite; }
+    .st-success { color: #389e0d; } .st-success .st-dot { background: #52c41a; }
+    .st-partial { color: #d48806; } .st-partial .st-dot { background: #faad14; }
+    .st-failed  { color: #cf1322; } .st-failed .st-dot { background: #ff4d4f; }
+    .st-paused  { color: #d46b08; } .st-paused .st-dot { background: #fa8c16; }
+    .st-canceled{ color: rgba(0,0,0,0.35); } .st-canceled .st-dot { background: #d9d9d9; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @media (prefers-reduced-motion: reduce) { .st-running .st-dot { animation: none; } }
+    .st-err-ic { display: inline-flex; color: #ff4d4f; cursor: help; }
+    .st-err-ic svg { width: 13px; height: 13px; }
+
+    .vol-cell { font-variant-numeric: tabular-nums; }
+    .vol-prog { width: 72px; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.06); margin-top: 5px; overflow: hidden; }
+    .vol-prog i { display: block; height: 100%; border-radius: 2px; background: #1677ff; transition: width 0.4s; }
+
+    .op-btn { border: none; background: none; cursor: pointer; color: rgba(0,0,0,0.45); width: 26px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
+    .op-btn:hover { background: rgba(22,119,255,0.08); color: #1677ff; }
+    .op-btn.danger:hover { background: #fff1f0; color: #ff4d4f; }
+    .op-btn svg { width: 14px; height: 14px; }
+
+    .job-empty { text-align: center; padding: 60px 0; color: rgba(0,0,0,0.3); font-size: 13px; }
+
+    /* Footer */
+    .job-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 12.5px; color: rgba(0,0,0,0.45); }
+    .job-pg { display: flex; align-items: center; gap: 6px; }
+    .job-pg-btn { min-width: 28px; height: 28px; padding: 0 6px; border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; color: rgba(0,0,0,0.6); }
+    .job-pg-btn.active { background: #1677ff; border-color: #1677ff; color: #fff; }
+    .job-pg-btn:disabled { color: rgba(0,0,0,0.2); cursor: not-allowed; }
+
+    /* ===== 作业详情 ===== */
+    .jd-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .jd-back { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e5e6eb; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.6); flex-shrink: 0; }
+    .jd-back:hover { border-color: #1677ff; color: #1677ff; }
+    .jd-title { font-size: 17px; font-weight: 700; color: rgba(0,0,0,0.88); }
+    .jd-head .spacer { flex: 1; }
+    .jd-op-btn { height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,0.7); display: inline-flex; align-items: center; gap: 6px; }
+    .jd-op-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .jd-op-btn svg { width: 13px; height: 13px; }
+    .jd-op-btn.primary { background: #1677ff; border-color: #1677ff; color: #fff; }
+    .jd-op-btn.primary:hover { background: #4096ff; color: #fff; }
+    .jd-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 18px 22px; margin-bottom: 16px; }
+    .jd-card-title { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.85); margin-bottom: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .jd-card-title .spacer { flex: 1; }
+    .jd-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 28px; }
+    .jd-info-item .k { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 3px; }
+    .jd-info-item .v { font-size: 13px; color: rgba(0,0,0,0.85); word-break: break-all; }
+    .jd-info-item .v a { color: #1677ff; text-decoration: none; }
+    .jd-info-item .v a:hover { text-decoration: underline; }
+    .jd-conn { display: inline-flex; align-items: center; gap: 6px; }
+    .jd-conn img { width: 15px; height: 15px; flex-shrink: 0; }
+    .jd-conn svg { width: 14px; height: 14px; flex-shrink: 0; color: rgba(0,0,0,0.4); }
+    .jd-conn .ct { font-weight: 600; color: rgba(0,0,0,0.85); }
+    .jd-conn .sep { color: rgba(0,0,0,0.25); }
+    .jd-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: rgba(0,0,0,0.55); background: #f5f7fa; border-radius: 6px; padding: 3px 10px; font-weight: 400; }
+    .jd-chip b { color: rgba(0,0,0,0.85); font-weight: 650; }
+    .jd-chip.ok b { color: #389e0d; }
+    .jd-chip.bad b { color: #cf1322; }
+    /* 工作流只读画布（与工作流编辑器同款视觉，运行态染色） */
+    .jd-canvas-wrap {
+      position: relative; height: 320px; border-radius: 12px; overflow: hidden; border: 1px solid #eef0f4;
+      background-color: #f7f9fd;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .jd-canvas { position: absolute; inset: 0; overflow: auto; }
+    .jd-canvas-inner { position: relative; height: 100%; }
+    .jd-conns { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; }
+    .jd-conn { fill: none; stroke: rgba(0,74,240,0.5); stroke-width: 1.8; }
+    .jd-conn-arrow { fill: #96b3ea; }
+    .jd-dagnode {
+      position: absolute; width: 172px; padding: 12px 14px; cursor: pointer; z-index: 2;
+      background: rgba(255,255,255,0.72);
+      -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.7); border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(20,33,64,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+      transition: all 0.25s cubic-bezier(.16,1,.3,1);
+    }
+    .jd-dagnode:hover { transform: translateY(-2px); border-color: rgba(0,74,240,0.3); box-shadow: 0 8px 32px rgba(20,33,64,0.10); }
+    .jd-dagnode.active { border-color: rgba(0,74,240,0.5); box-shadow: 0 0 0 3px rgba(0,74,240,0.12), 0 8px 32px rgba(20,33,64,0.10); }
+    .jd-dagnode.ok { border-color: rgba(82,196,26,0.5); }
+    .jd-dagnode.run { border-color: rgba(22,119,255,0.6); box-shadow: 0 0 0 3px rgba(22,119,255,0.10); }
+    .jd-dagnode.err { border-color: rgba(255,77,79,0.6); }
+    .jd-dagnode.wait { opacity: 0.72; border-style: dashed; border-color: rgba(0,0,0,0.15); }
+    .jd-dagnode .jd-node-name { font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.85); display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .jd-dagnode .jd-node-name .st-dot { width: 7px; height: 7px; flex-shrink: 0; }
+    .jd-dagnode .jd-node-meta { margin-top: 4px; font-size: 11px; color: rgba(0,0,0,0.42); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .jd-port { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #fff; border: 2px solid rgba(0,0,0,0.15); top: 50%; margin-top: -4px; z-index: 3; }
+    .jd-port.in { left: -4px; } .jd-port.out { right: -4px; }
+    .jd-ro-tag { position: absolute; top: 10px; right: 12px; z-index: 5; font-size: 11px; color: rgba(0,0,0,0.45); background: rgba(255,255,255,0.85); border: 1px solid #eef0f4; border-radius: 6px; padding: 2px 8px; }
+    /* 节点详情面板（画布内右侧浮层） */
+    .jd-node-panel {
+      position: absolute; top: 12px; right: 12px; bottom: 12px; width: 268px; z-index: 6; display: none;
+      background: rgba(255,255,255,0.92); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid #eef0f4; border-radius: 12px; box-shadow: 0 10px 30px rgba(20,33,64,0.14);
+      padding: 14px 16px; overflow-y: auto;
+    }
+    .jd-node-panel.open { display: block; }
+    .jd-np-close { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: none; background: none; cursor: pointer; color: rgba(0,0,0,0.35); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .jd-np-close:hover { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.7); }
+    .jd-np-title { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.88); display: flex; align-items: center; gap: 7px; padding-right: 22px; }
+    .jd-np-row { margin-top: 11px; }
+    .jd-np-row .k { font-size: 11.5px; color: rgba(0,0,0,0.4); margin-bottom: 2px; }
+    .jd-np-row .v { font-size: 12.5px; color: rgba(0,0,0,0.82); line-height: 1.5; word-break: break-all; }
+    .jd-np-row .v.err { color: #cf1322; }
+    .jd-np-hint { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eef0f4; font-size: 11px; color: rgba(0,0,0,0.35); line-height: 1.6; }
+    /* 详情表格 */
+    .jd-table-wrap { border: 1px solid #f0f0f0; border-radius: 10px; overflow-x: auto; }
+    .jd-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+    .jd-table thead th { background: #fafbfc; color: rgba(0,0,0,0.5); font-weight: 500; text-align: left; padding: 10px 12px; white-space: nowrap; border-bottom: 1px solid #f0f0f0; }
+    .jd-table tbody td { padding: 10px 12px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.8); white-space: nowrap; }
+    .jd-table tbody tr:last-child td { border-bottom: none; }
+    .jd-table td.num { font-variant-numeric: tabular-nums; }
+    .jd-err-text { color: #cf1322; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
+    .jd-pair { display: inline-flex; align-items: center; gap: 6px; }
+
+    /* Toast */
+    .job-toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 999; background: rgba(0,0,0,0.78); color: #fff; font-size: 12.5px; padding: 7px 14px; border-radius: 8px; display: none; }
+
+    /* Tooltip */
+    .job-tip { position: fixed; z-index: 999; max-width: 420px; background: rgba(0,0,0,0.86); color: #fff; font-size: 12px; line-height: 1.6; padding: 8px 11px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; display: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <div class="layout">
+    <div class="sidebar"><div class="menu-section"></div></div>
+
+    <div class="main">
+      <div class="job-page">
+        <div id="jobListView">
+        <div class="job-head">
+          <span class="job-title">作业</span>
+          <span class="job-sub">工作流 / 数据载入 / 数据导出等后台任务的统一运行视图</span>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="job-toolbar">
+          <div class="job-search">
+            <input type="text" id="jobSearch" placeholder="搜索任务名称 / 目标位置……" oninput="renderJobs()">
+            <span class="s-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          </div>
+          <select class="job-select" id="jobTimeFilter" onchange="renderJobs()">
+            <option value="">时间：全部</option>
+            <option value="1">今天</option>
+            <option value="7">近 7 天</option>
+            <option value="30">近 30 天</option>
+          </select>
+          <div class="spacer"></div>
+          <button class="job-icon-btn" title="刷新" onclick="refreshTick(true)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8v5h5M21 16v-5h-5"/><path d="M4.6 13a8 8 0 0 0 13.6 3.6L21 14M19.4 11A8 8 0 0 0 5.8 7.4L3 10"/></svg>
+          </button>
+        </div>
+
+        <!-- Table -->
+        <div class="job-table-wrap">
+          <table class="job-table">
+            <thead>
+              <tr>
+                <th style="width:16%">任务名称</th>
+                <th style="width:9%">类型<span class="th-filter-btn" id="typeFilterBtn" onclick="event.stopPropagation();toggleColFilter('type')"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th>
+                <th style="width:26%">数据流向（源 → 目标）</th>
+                <th style="width:10%">状态<span class="th-filter-btn" id="statusFilterBtn" onclick="event.stopPropagation();toggleColFilter('status')"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th>
+                <th style="width:9%">数据量</th>
+                <th style="width:10%">触发方式<span class="th-filter-btn" id="triggerFilterBtn" onclick="event.stopPropagation();toggleColFilter('trigger')"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th>
+                <th class="sortable" data-sort="start" onclick="toggleSort('start')" style="width:12%">开始 / 时长<span class="sort-ic">▼</span></th>
+                <th style="width:64px">操作</th>
+              </tr>
+            </thead>
+            <tbody id="jobTbody"></tbody>
+          </table>
+          <div class="job-empty" id="jobEmpty" style="display:none">没有符合条件的作业</div>
+        </div>
+
+        <div class="job-foot">
+          <span id="jobCount"></span>
+          <div class="job-pg">
+            <button class="job-pg-btn" disabled>‹</button>
+            <button class="job-pg-btn active">1</button>
+            <button class="job-pg-btn" disabled>›</button>
+          </div>
+        </div>
+        </div><!-- end jobListView -->
+        <div id="jobDetailView" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-toast" id="jobToast"></div>
+  <div class="job-tip" id="jobTip"></div>
+
+  <script src="../scripts/common.js"></script>
+  <script>
+    // ===== 状态 / 类型字典 =====
+    var ST = {
+      queued:   { label: '等待中',   cls: 'st-queued' },
+      running:  { label: '运行中',   cls: 'st-running' },
+      success:  { label: '已完成',   cls: 'st-success' },
+      partial:  { label: '部分成功', cls: 'st-partial' },
+      failed:   { label: '失败',     cls: 'st-failed' },
+      paused:   { label: '已暂停',   cls: 'st-paused' },
+      canceled: { label: '已取消',   cls: 'st-canceled' }
+    };
+    var TYPE = {
+      wf:   { label: '工作流',   cls: 'wf',   detail: '../data-processing/workflow-edit.html',
+              icon: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="4" rx="1"/><rect x="10" y="2" width="5" height="4" rx="1"/><rect x="10" y="9" width="5" height="4" rx="1"/><path d="M6 6h4M6 6V5h4M6 6v5h4"/></svg>' },
+      load: { label: '数据载入', cls: 'load', detail: '../data-connection/data-import.html',
+              icon: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9M5 8l3 3 3-3"/><path d="M2 13h12"/></svg>' },
+      exp:  { label: '数据导出', cls: 'exp',  detail: '../data-connection/data-export.html',
+              icon: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M5 5l3-3 3 3"/><path d="M2 13h12"/></svg>' }
+    };
+    // 源/目标位置图标：Catalog 路径用平台线条图标，外部端点用产品 logo（simpleicons）
+    var LOC_ICON = {
+      catalog: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4" rx="6" ry="2.5"/><path d="M2 4v4c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V4"/><path d="M2 8v4c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V8"/></svg>',
+      volume:  '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h4l1.5 2H14v8H2z"/></svg>',
+      upload:  '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V3M5 6l3-3 3 3"/><path d="M2 13h12"/></svg>'
+    };
+    function locIcon(loc) {
+      if (loc.brand) return '<img src="https://cdn.simpleicons.org/' + loc.brand + '" alt="">';
+      return LOC_ICON[loc.kind] || LOC_ICON.catalog;
+    }
+    // 连接器类型标签（数据库连接器按产品名；本地上传无连接器）
+    var SRC_CONN_TYPE = { mysql: 'MySQL', postgresql: 'PostgreSQL', mongodb: 'MongoDB', oracle: 'Oracle', mariadb: 'MariaDB', sqlserver: 'SQL Server', clickhouse: 'ClickHouse', apachedoris: 'Apache Doris', apachehive: 'Apache Hive', amazons3: 'Amazon S3', alibabacloud: '阿里云 OSS', minio: 'MinIO', apachehadoop: 'HDFS' };
+    function srcConnLabel(loc) { return loc.brand ? (SRC_CONN_TYPE[loc.brand] || loc.brand) : ''; }
+
+    // ===== Mock 数据（脱敏、类型混合）=====
+    var now = new Date('2026-07-13T15:20:00');
+    var JOBS = [
+      { id: '0199a3f2-8c11', type: 'wf',   name: '文档解析入库', branch: '主要',
+        src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_chunks' },
+        status: 'running', done: 3, total: 8, unit: '文件', trigger: '手动', start: '2026-07-13 15:02:44', durSec: null },
+      { id: '0199a3e1-55b0', type: 'load', name: '订单库增量载入', branch: null,
+        src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' },
+        status: 'running', done: 46000, total: 89000, unit: '行', trigger: '增量同步', start: '2026-07-13 15:00:12', durSec: null },
+      { id: '0199a3d8-1f92', type: 'wf',   name: '合同信息提取', branch: '表格增强',
+        src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' },
+        status: 'queued', done: 0, total: 12, unit: '文件', trigger: '数据卷触发', start: '2026-07-13 14:58:30', durSec: null },
+      { id: '0199a2c4-7ae3', type: 'load', name: '用户中心全量载入', branch: null,
+        src: { brand: 'postgresql', text: 'user_center（5 张表）' }, dst: { kind: 'catalog', text: '默认目录/原始数据库' },
+        status: 'success', done: 5, total: 5, unit: '表', trigger: '手动', start: '2026-07-13 11:40:08', durSec: 312 },
+      { id: '0199a2b0-90dd', type: 'exp',  name: '销售日汇总导出', branch: null,
+        src: { kind: 'catalog', text: 'NESR-湖仓项目/Gold/销售日汇总' }, dst: { brand: 'amazons3', text: 's3://bi-report/sales/daily/' },
+        status: 'success', done: 1, total: 1, unit: '表', trigger: '定时', start: '2026-07-13 06:00:00', durSec: 95 },
+      { id: '0199a1f6-3c07', type: 'wf',   name: '产品手册知识加工', branch: '主要',
+        src: { kind: 'volume', text: '默认目录/原始数据库/产品手册卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/manual_chunks' },
+        status: 'partial', done: 9, total: 11, unit: '文件', trigger: '定时', start: '2026-07-13 03:00:05', durSec: 1265,
+        err: '2 个文件处理失败：\nscan_034.pdf — OCR 置信度过低\nlegacy_v2.doc — 不支持的旧版格式' },
+      { id: '0199a1d2-b481', type: 'load', name: '本地文件上传载入', branch: null,
+        src: { kind: 'upload', text: '本地上传（3 个文件）' }, dst: { kind: 'volume', text: '默认目录/原始数据库/图纸卷' },
+        status: 'failed', done: 0, total: 3, unit: '文件', trigger: '手动', start: '2026-07-12 18:22:41', durSec: 6,
+        err: '源文件格式不支持：.dwg（当前支持 pdf / word / ppt / 图片 / 音视频等）' },
+      { id: '0199a1a8-e2c5', type: 'wf',   name: '文档解析入库', branch: '公式增强',
+        src: { kind: 'volume', text: '默认目录/原始数据库/工艺文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/spec_chunks' },
+        status: 'paused', done: 4, total: 10, unit: '文件', trigger: '手动', start: '2026-07-12 16:05:10', durSec: null },
+      { id: '01999fe4-6d19', type: 'exp',  name: '处理结果导出 Doris', branch: null,
+        src: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' }, dst: { brand: 'apachedoris', text: 'doris.report.contract_summary' },
+        status: 'failed', done: 0, total: 1, unit: '表', trigger: '手动', start: '2026-07-12 11:31:26', durSec: 30,
+        err: '目标连接超时：doris-fe:9030 连接失败，请检查连接器配置与网络连通性' },
+      { id: '01999f80-42aa', type: 'wf',   name: '简历信息提取', branch: '主要',
+        src: { kind: 'volume', text: '默认目录/原始数据库/简历卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/resume_fields' },
+        status: 'success', done: 6, total: 6, unit: '文件', trigger: '数据卷触发', start: '2026-07-11 14:40:13', durSec: 126 },
+      { id: '01999e12-09f4', type: 'load', name: '订单库增量载入', branch: null,
+        src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' },
+        status: 'success', done: 152000, total: 152000, unit: '行', trigger: '增量同步', start: '2026-07-12 15:00:09', durSec: 210 },
+      { id: '01999cf0-77b2', type: 'exp',  name: '客户标签导出 OSS', branch: null,
+        src: { kind: 'catalog', text: 'NESR-湖仓项目/Gold/客户标签' }, dst: { brand: 'alibabacloud', text: 'oss://crm-sync/tags/' },
+        status: 'success', done: 1, total: 1, unit: '表', trigger: '定时', start: '2026-07-10 06:00:00', durSec: 88 },
+      { id: '01999cd8-31e6', type: 'wf',   name: '合同信息提取', branch: '主要',
+        src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' },
+        status: 'success', done: 12, total: 12, unit: '文件', trigger: '手动', start: '2026-07-08 14:48:13', durSec: 428 },
+      { id: '01999b02-c4d8', type: 'load', name: '设备台账载入', branch: null,
+        src: { brand: 'mongodb', text: 'asset_db.devices' }, dst: { kind: 'catalog', text: 'NESR-湖仓项目/Bronze/devices' },
+        status: 'canceled', done: 0, total: 1, unit: '表', trigger: '手动', start: '2026-07-08 10:15:00', durSec: 12 }
+    ];
+
+    var sortKey = 'start', sortAsc = false;
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // ===== 列头筛选（与计费中心用量明细一致：多选气泡，空数组 = 不过滤）=====
+    var colFilters = { type: [], status: [], trigger: [] };
+    var COL_FILTER_DEFS = {
+      type:    { btnId: 'typeFilterBtn',    width: 160, options: [ { val: 'wf', label: '工作流' }, { val: 'load', label: '数据载入' }, { val: 'exp', label: '数据导出' } ] },
+      status:  { btnId: 'statusFilterBtn',  width: 160, options: [ { val: 'queued', label: '等待中' }, { val: 'running', label: '运行中' }, { val: 'success', label: '已完成' }, { val: 'partial', label: '部分成功' }, { val: 'failed', label: '失败' }, { val: 'paused', label: '已暂停' }, { val: 'canceled', label: '已取消' } ] },
+      trigger: { btnId: 'triggerFilterBtn', width: 160, options: [ { val: '手动', label: '手动' }, { val: '定时', label: '定时' }, { val: '数据卷触发', label: '数据卷触发' }, { val: '增量同步', label: '增量同步' } ] }
+    };
+    function toggleColFilter(key) {
+      var existing = document.getElementById('colFilterDrop');
+      var wasFor = existing && existing.getAttribute('data-for');
+      document.querySelectorAll('#colFilterDrop').forEach(function(d) { d.remove(); });
+      if (wasFor === key) return;
+      var def = COL_FILTER_DEFS[key];
+      var anchor = document.getElementById(def.btnId);
+      var rect = anchor.getBoundingClientRect();
+      var top = rect.bottom + 4;
+      var drop = document.createElement('div');
+      drop.id = 'colFilterDrop';
+      drop.setAttribute('data-for', key);
+      drop.style.cssText = 'position:fixed;top:' + top + 'px;left:' + Math.min(rect.left, window.innerWidth - def.width - 12) + 'px;width:' + def.width + 'px;max-height:' + Math.min(360, window.innerHeight - top - 12) + 'px;background:#fff;border:1px solid #e5e6eb;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.12);z-index:9999;display:flex;flex-direction:column;overflow:hidden';
+      drop.onclick = function(e) { e.stopPropagation(); };
+      var html = '<div style="flex:1 1 auto;overflow-y:auto;padding:8px 4px">';
+      def.options.forEach(function(o) {
+        var checked = colFilters[key].length === 0 || colFilters[key].indexOf(o.val) !== -1;
+        html += '<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:13px;color:rgba(0,0,0,0.88);cursor:pointer;border-radius:4px" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'none\'"><input type="checkbox" value="' + esc(o.val) + '"' + (checked ? ' checked' : '') + ' style="accent-color:#1677ff;width:15px;height:15px;cursor:pointer">' + esc(o.label) + '</label>';
+      });
+      html += '</div>';
+      html += '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid #f0f0f0;background:#fafbfc">'
+        + '<span style="font-size:12px;color:rgba(0,0,0,0.55);cursor:pointer" onclick="resetColFilter(\'' + key + '\')">重置</span>'
+        + '<button style="padding:4px 16px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;background:#1677ff;color:#fff;border:none" onclick="applyColFilter(\'' + key + '\')">确定</button>'
+        + '</div>';
+      drop.innerHTML = html;
+      document.body.appendChild(drop);
+      setTimeout(function() {
+        document.addEventListener('click', function handler(e) {
+          if (!drop.contains(e.target)) { drop.remove(); document.removeEventListener('click', handler); }
+        });
+      }, 0);
+    }
+    function applyColFilter(key) {
+      var checks = document.querySelectorAll('#colFilterDrop input[type="checkbox"]');
+      var selected = [];
+      checks.forEach(function(c) { if (c.checked) selected.push(c.value); });
+      colFilters[key] = selected.length === COL_FILTER_DEFS[key].options.length ? [] : selected;
+      var drop = document.getElementById('colFilterDrop');
+      if (drop) drop.remove();
+      updateFilterBtns();
+      renderJobs();
+    }
+    function resetColFilter(key) {
+      colFilters[key] = [];
+      document.querySelectorAll('#colFilterDrop input[type="checkbox"]').forEach(function(c) { c.checked = true; });
+    }
+    function updateFilterBtns() {
+      Object.keys(COL_FILTER_DEFS).forEach(function(key) {
+        var btn = document.getElementById(COL_FILTER_DEFS[key].btnId);
+        if (btn) btn.classList.toggle('active', colFilters[key].length > 0);
+      });
+    }
+
+    // ===== 排序 =====
+    function toggleSort(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = false; }
+      renderJobs();
+    }
+
+    function fmtDur(sec) {
+      if (sec == null) return '—';
+      if (sec < 60) return sec + 's';
+      var m = Math.floor(sec / 60), s = sec % 60;
+      if (m < 60) return m + 'm ' + s + 's';
+      return Math.floor(m / 60) + 'h ' + (m % 60) + 'm';
+    }
+    function fmtVol(j) {
+      function n(x) { return x >= 10000 ? (x / 10000).toFixed(1).replace(/\.0$/, '') + '万' : x; }
+      return n(j.done) + '/' + n(j.total) + ' ' + j.unit;
+    }
+
+    // ===== 行内操作（按状态显隐）=====
+    var OP_ICONS = {
+      pause:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg>',
+      resume: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>',
+      retry:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8v5h5"/><path d="M4.6 13a8 8 0 1 0 1.7-6.6L3 9"/></svg>'
+    };
+    function opsFor(j, idx) {
+      var h = '';
+      if (j.status === 'running') h += '<button class="op-btn" title="暂停" onclick="jobPause(' + idx + ')">' + OP_ICONS.pause + '</button>';
+      if (j.status === 'paused')  h += '<button class="op-btn" title="继续" onclick="jobResume(' + idx + ')">' + OP_ICONS.resume + '</button>';
+      if (j.status === 'failed' || j.status === 'partial') h += '<button class="op-btn" title="失败重试" onclick="jobRetry(' + idx + ')">' + OP_ICONS.retry + '</button>';
+      return h || '<span style="color:rgba(0,0,0,0.2)">—</span>';
+    }
+
+    // ===== 渲染 =====
+    function renderJobs() {
+      var q = (document.getElementById('jobSearch').value || '').trim().toLowerCase();
+      var days = document.getElementById('jobTimeFilter').value;
+
+      var list = JOBS.map(function(j, i) { j._idx = i; return j; }).filter(function(j) {
+        if (colFilters.type.length && colFilters.type.indexOf(j.type) === -1) return false;
+        if (colFilters.status.length && colFilters.status.indexOf(j.status) === -1) return false;
+        if (colFilters.trigger.length && colFilters.trigger.indexOf(j.trigger) === -1) return false;
+        if (days) {
+          var d = (now - new Date(j.start.replace(' ', 'T'))) / 86400000;
+          if (d > parseInt(days)) return false;
+        }
+        if (q) {
+          var hay = (j.name + ' ' + j.dst.text + ' ' + j.src.text).toLowerCase();
+          if (hay.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+
+      list.sort(function(a, b) {
+        var va, vb;
+        if (sortKey === 'dur') { va = a.durSec == null ? -1 : a.durSec; vb = b.durSec == null ? -1 : b.durSec; }
+        else { va = a.start; vb = b.start; }
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+      document.querySelectorAll('.job-table th.sortable').forEach(function(th) {
+        var on = th.getAttribute('data-sort') === sortKey;
+        th.classList.toggle('sorted', on);
+        th.querySelector('.sort-ic').textContent = on ? (sortAsc ? '▲' : '▼') : '▼';
+      });
+
+      var html = list.map(function(j) {
+        var t = TYPE[j.type], s = ST[j.status];
+        var row = '<tr>';
+        row += '<td><div><span class="task-name" title="查看作业详情" onclick="openDetail(' + j._idx + ')">' + esc(j.name) + '</span></div>';
+        if (j.branch) row += '<div style="margin-top:3px"><span class="branch-tag" style="margin-left:0" title="工作流分支"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="8" r="2"/><path d="M4 6v4M6 4h2a2 2 0 0 1 2 2v0"/></svg>' + esc(j.branch) + '</span></div>';
+        row += '</td>';
+        row += '<td><span class="type-badge ' + t.cls + '">' + t.icon + t.label + '</span></td>';
+        row += '<td><div class="flow-cell">'
+             + '<span class="path-cell" title="源：' + esc(j.src.text) + '"><span class="p-ic">' + locIcon(j.src) + '</span><span class="p-txt">' + esc(j.src.text) + '</span></span>'
+             + '<span class="path-cell" title="目标：' + esc(j.dst.text) + '"><span class="p-arrow">→</span><span class="p-ic">' + locIcon(j.dst) + '</span><span class="p-txt">' + esc(j.dst.text) + '</span></span>'
+             + '</div></td>';
+        row += '<td><span class="st-badge ' + s.cls + '"' + (j.err ? ' onmouseenter="showTip(event,this)" onmouseleave="hideTip()" data-err="' + esc(j.err) + '"' : '') + '>'
+             + '<span class="st-dot"></span>' + s.label
+             + (j.err ? '<span class="st-err-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 15.5h.01"/></svg></span>' : '')
+             + '</span></td>';
+        row += '<td class="vol-cell">' + fmtVol(j)
+             + (j.status === 'running' ? '<div class="vol-prog"><i style="width:' + Math.round(j.done / j.total * 100) + '%"></i></div>' : '')
+             + '</td>';
+        row += '<td>' + esc(j.trigger) + '</td>';
+        row += '<td class="time-cell" title="开始：' + esc(j.start) + '"><div>' + esc(j.start.slice(5, 16)) + '</div><div class="t-dur">' + fmtDur(j.durSec) + '</div></td>';
+        row += '<td>' + opsFor(j, j._idx) + '</td>';
+        row += '</tr>';
+        return row;
+      }).join('');
+
+      document.getElementById('jobTbody').innerHTML = html;
+      document.getElementById('jobEmpty').style.display = list.length ? 'none' : '';
+      document.getElementById('jobCount').textContent = '共 ' + list.length + ' 条作业记录';
+    }
+
+    // ===== 作业详情（页内视图：基本信息 + 类型定制区）=====
+    // 类型定制 mock：工作流=节点画布+执行明细；结构化载入/导出=表映射+行数；非结构化载入/导出=文件明细
+    var DETAILS = {
+      '0199a3f2-8c11': { nodes: [
+          { name: '文档解析', st: 'ok', meta: '8/8 · 26s', ntype: '系统算子 · 文档解析', res: '默认任务资源', out: '解析产物 8 篇（正文 / 表格 / 图片）' },
+          { name: '版面分段', st: 'ok', meta: '8/8 · 12s', ntype: '系统算子 · 分段', res: '默认任务资源', out: '分段 214 段' },
+          { name: '文本嵌入', st: 'run', meta: '3/8 · 运行中', ntype: '系统算子 · 文本嵌入', res: '默认任务资源（模型调用走 Genesis）', out: '已生成向量 82 条' },
+          { name: '写入 Catalog', st: 'wait', meta: '等待上游', ntype: '写入节点', res: '默认查询资源', out: '目标：默认目录/处理数据库/contract_chunks' }
+        ], files: [
+          { name: '合同扫描件_001.pdf', ftype: 'pdf', status: 'success', start: '15:02:51', end: '15:04:10', note: '' },
+          { name: '合同扫描件_002.pdf', ftype: 'pdf', status: 'success', start: '15:02:51', end: '15:05:02', note: '' },
+          { name: '框架协议_2026.docx', ftype: 'docx', status: 'success', start: '15:02:51', end: '15:05:44', note: '' },
+          { name: '合同扫描件_003.pdf', ftype: 'pdf', status: 'running', start: '15:05:50', end: '', note: '' },
+          { name: '补充协议_A.pdf', ftype: 'pdf', status: 'running', start: '15:06:02', end: '', note: '' },
+          { name: '合同扫描件_004.pdf', ftype: 'pdf', status: 'waiting', start: '', end: '', note: '' },
+          { name: '合同扫描件_005.pdf', ftype: 'pdf', status: 'waiting', start: '', end: '', note: '' },
+          { name: '保密协议_模板.docx', ftype: 'docx', status: 'waiting', start: '', end: '', note: '' }
+        ] },
+      '0199a1f6-3c07': { nodes: [
+          { name: '文档解析', st: 'ok', meta: '11/11 · 3m 12s', ntype: '系统算子 · 文档解析', res: '默认任务资源', out: '解析产物 11 篇' },
+          { name: '版面分段', st: 'ok', meta: '11/11 · 1m 05s', ntype: '系统算子 · 分段', res: '默认任务资源', out: '分段 386 段' },
+          { name: 'OCR 增强', st: 'err', meta: '9/11 · 2 个失败', ntype: '系统算子 · OCR', res: '默认任务资源', out: 'OCR 修正 9 篇', err: '2 个文件失败：scan_034.pdf（OCR 置信度过低 0.41 < 0.60）、legacy_v2.doc（不支持的旧版格式）' },
+          { name: '文本嵌入', st: 'ok', meta: '9/9 · 4m 40s', ntype: '系统算子 · 文本嵌入', res: '默认任务资源（模型调用走 Genesis）', out: '向量 342 条' },
+          { name: '写入 Catalog', st: 'ok', meta: '9/9 · 18s', ntype: '写入节点', res: '默认查询资源', out: '目标：默认目录/处理数据库/manual_chunks' }
+        ], files: [
+          { name: '产品手册_v3.pdf', ftype: 'pdf', status: 'success', start: '03:00:12', end: '03:08:44', note: '' },
+          { name: '快速上手指南.pdf', ftype: 'pdf', status: 'success', start: '03:00:12', end: '03:06:21', note: '' },
+          { name: 'scan_034.pdf', ftype: 'pdf', status: 'failed', start: '03:00:12', end: '03:04:02', note: 'OCR 置信度过低（0.41 < 0.60），建议提高扫描分辨率后重试' },
+          { name: 'legacy_v2.doc', ftype: 'doc', status: 'failed', start: '03:00:12', end: '03:00:15', note: '不支持的旧版 .doc 格式，请转换为 .docx' },
+          { name: 'API参考.md', ftype: 'md', status: 'success', start: '03:00:12', end: '03:02:10', note: '' },
+          { name: '部署手册.pdf', ftype: 'pdf', status: 'success', start: '03:04:10', end: '03:11:31', note: '' },
+          { name: '运维FAQ.docx', ftype: 'docx', status: 'success', start: '03:04:10', end: '03:09:02', note: '' },
+          { name: '版本说明_2026H1.pdf', ftype: 'pdf', status: 'success', start: '03:08:50', end: '03:14:12', note: '' },
+          { name: '安全白皮书.pdf', ftype: 'pdf', status: 'success', start: '03:09:10', end: '03:16:40', note: '' },
+          { name: '性能调优指南.pdf', ftype: 'pdf', status: 'success', start: '03:11:40', end: '03:19:05', note: '' },
+          { name: '术语表.md', ftype: 'md', status: 'success', start: '03:14:20', end: '03:15:02', note: '' }
+        ] },
+      '0199a3e1-55b0': { mode: '增量同步 · 水位线 updated_at > 2026-07-12 15:00:09', conflict: '主键冲突：跳过', tables: [
+          { src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' }, status: 'running', read: 46000, written: 45800, skipped: 200, dur: null }
+        ] },
+      '0199a2c4-7ae3': { mode: '全量载入', conflict: '主键冲突：覆盖', tables: [
+          { src: { brand: 'postgresql', text: 'user_center.users' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/users' }, status: 'success', read: 125600, written: 125600, skipped: 0, dur: 96 },
+          { src: { brand: 'postgresql', text: 'user_center.user_profiles' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/user_profiles' }, status: 'success', read: 125600, written: 125600, skipped: 0, dur: 88 },
+          { src: { brand: 'postgresql', text: 'user_center.login_logs' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/login_logs' }, status: 'success', read: 4820000, written: 4820000, skipped: 0, dur: 105 },
+          { src: { brand: 'postgresql', text: 'user_center.roles' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/roles' }, status: 'success', read: 24, written: 24, skipped: 0, dur: 3 },
+          { src: { brand: 'postgresql', text: 'user_center.user_roles' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/user_roles' }, status: 'success', read: 138000, written: 138000, skipped: 0, dur: 20 }
+        ] },
+      '01999e12-09f4': { mode: '增量同步 · 水位线 updated_at > 2026-07-11 15:00:11', conflict: '主键冲突：跳过', tables: [
+          { src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' }, status: 'success', read: 152000, written: 151400, skipped: 600, dur: 210 }
+        ] },
+      '0199a1d2-b481': { files: [
+          { name: '装配图_主体.dwg', ftype: 'dwg', status: 'failed', start: '18:22:42', end: '18:22:44', note: '源文件格式不支持：.dwg（当前支持 pdf / word / ppt / 图片 / 音视频等）' },
+          { name: '装配图_侧视.dwg', ftype: 'dwg', status: 'failed', start: '18:22:42', end: '18:22:45', note: '源文件格式不支持：.dwg' },
+          { name: '装配图_爆炸.dwg', ftype: 'dwg', status: 'failed', start: '18:22:42', end: '18:22:46', note: '源文件格式不支持：.dwg' }
+        ] },
+      '0199a2b0-90dd': { files: [
+          { name: 'sales_daily_20260713.parquet', ftype: 'parquet', status: 'success', start: '06:00:04', end: '06:01:35', note: 's3://bi-report/sales/daily/dt=2026-07-13/' }
+        ] },
+      '01999fe4-6d19': { tables: [
+          { src: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' }, dst: { brand: 'apachedoris', text: 'doris.report.contract_summary' }, status: 'failed', read: 0, written: 0, skipped: 0, dur: 30, note: '目标连接超时：doris-fe:9030 连接失败，请检查连接器配置与网络连通性' }
+        ] },
+      '01999cf0-77b2': { files: [
+          { name: 'customer_tags_20260710.csv', ftype: 'csv', status: 'success', start: '06:00:03', end: '06:01:28', note: 'oss://crm-sync/tags/dt=2026-07-10/' }
+        ] }
+    };
+
+    // 无定制明细的作业：按数据量生成占位明细
+    function genDetail(j) {
+      if (j.unit === '表') {
+        var rows = [];
+        for (var i = 0; i < j.total; i++) rows.push({ src: j.src, dst: j.dst, status: i < j.done ? 'success' : (j.status === 'canceled' ? 'canceled' : 'waiting'), read: 0, written: 0, skipped: 0, dur: null });
+        return { mode: j.trigger === '增量同步' ? '增量同步' : '全量载入', conflict: '主键冲突：跳过', tables: rows };
+      }
+      var files = [];
+      for (var k = 0; k < j.total; k++) {
+        var st = k < j.done ? 'success' : (j.status === 'running' ? (k < j.done + 2 ? 'running' : 'waiting') : j.status === 'paused' ? 'paused' : 'waiting');
+        files.push({ name: '文件_' + (k + 1) + '.pdf', ftype: 'pdf', status: st, start: '', end: '', note: '' });
+      }
+      if (j.type === 'wf') {
+        var nst = j.status === 'success' ? 'ok' : j.status === 'queued' ? 'wait' : j.status === 'paused' ? 'wait' : 'run';
+        return { nodes: [
+          { name: '文档解析', st: j.status === 'queued' ? 'wait' : 'ok', meta: j.done + '/' + j.total, ntype: '系统算子 · 文档解析', res: '默认任务资源' },
+          { name: '版面分段', st: nst === 'ok' ? 'ok' : nst, meta: '', ntype: '系统算子 · 分段', res: '默认任务资源' },
+          { name: '文本嵌入', st: nst === 'ok' ? 'ok' : 'wait', meta: '', ntype: '系统算子 · 文本嵌入', res: '默认任务资源（模型调用走 Genesis）' },
+          { name: '写入 Catalog', st: nst === 'ok' ? 'ok' : 'wait', meta: '', ntype: '写入节点', res: '默认查询资源' }
+        ], files: files };
+      }
+      return { files: files };
+    }
+
+    var FILE_ST = {
+      success: { label: '完成', cls: 'st-success' }, failed: { label: '失败', cls: 'st-failed' },
+      running: { label: '处理中', cls: 'st-running' }, waiting: { label: '等待中', cls: 'st-queued' },
+      paused: { label: '已暂停', cls: 'st-paused' }, canceled: { label: '已取消', cls: 'st-canceled' }
+    };
+    function fileStBadge(s) {
+      var m = FILE_ST[s] || FILE_ST.waiting;
+      return '<span class="st-badge ' + m.cls + '"><span class="st-dot"></span>' + m.label + '</span>';
+    }
+    function fmtNum(x) { return x >= 10000 ? (x / 10000).toFixed(1).replace(/\.0$/, '') + '万' : String(x); }
+    function fmtEnd(j) {
+      if (j.durSec == null) return '—';
+      var d = new Date(j.start.replace(' ', 'T')); d.setSeconds(d.getSeconds() + j.durSec);
+      function p(n) { return n < 10 ? '0' + n : n; }
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+
+    function openDetail(idx) {
+      var j = JOBS[idx], t = TYPE[j.type], s = ST[j.status];
+      var det = DETAILS[j.id] || genDetail(j);
+      var h = '';
+
+      // 头部：返回 + 名称 + 徽标 + 操作
+      h += '<div class="jd-head">';
+      h += '<button class="jd-back" onclick="closeDetail()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>';
+      h += '<span class="jd-title">' + esc(j.name) + '</span>';
+      h += '<span class="type-badge ' + t.cls + '">' + t.icon + t.label + '</span>';
+      if (j.branch) h += '<span class="branch-tag" title="工作流分支"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="8" r="2"/><path d="M4 6v4M6 4h2a2 2 0 0 1 2 2v0"/></svg>' + esc(j.branch) + '</span>';
+      h += '<span class="st-badge ' + s.cls + '"><span class="st-dot"></span>' + s.label + '</span>';
+      h += '<div class="spacer"></div>';
+      if (j.status === 'running') h += '<button class="jd-op-btn" onclick="jobPause(' + idx + ');openDetail(' + idx + ')">' + OP_ICONS.pause + ' 暂停</button>';
+      if (j.status === 'paused') h += '<button class="jd-op-btn primary" onclick="jobResume(' + idx + ');openDetail(' + idx + ')">' + OP_ICONS.resume + ' 继续</button>';
+      if (j.status === 'failed' || j.status === 'partial') h += '<button class="jd-op-btn primary" onclick="jobRetry(' + idx + ');openDetail(' + idx + ')">' + OP_ICONS.retry + ' 失败重试</button>';
+      var openLabel = j.type === 'wf' ? '打开工作流' : (j.type === 'load' ? '查看载入任务' : '查看导出任务');
+      h += '<a class="jd-op-btn" href="' + t.detail + '" style="text-decoration:none">' + openLabel + ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>';
+      h += '</div>';
+
+      // 基本信息（按类型微调字段）
+      var items = [
+        ['作业 ID', '<span style="font-family:SF Mono,Monaco,monospace;font-size:12px">' + esc(j.id) + '-77e3-b21a</span>'],
+        ['状态', ST[j.status].label], ['触发方式', esc(j.trigger)], ['数据量', fmtVol(j)],
+        ['开始时间', esc(j.start)], ['结束时间', fmtEnd(j)], ['处理时长', fmtDur(j.durSec)]
+      ];
+      if (j.type === 'wf') {
+        items.splice(1, 0, ['所属工作流', '<a href="' + t.detail + '">' + esc(j.name) + '</a>' + (j.branch ? '（分支：' + esc(j.branch) + '）' : '')]);
+        items.push(['计算资源', '节点级配置（见处理流程）']);
+      } else if (j.type === 'load') {
+        var lct = srcConnLabel(j.src);
+        var lsrc = '<span class="jd-conn">' + locIcon(j.src) + (lct ? '<span class="ct">' + esc(lct) + '</span><span class="sep">·</span>' : '') + '<span>' + esc(j.src.text) + '</span></span>';
+        items.splice(1, 0, ['载入任务', '<a href="' + t.detail + '">' + esc(j.name) + '</a>'], ['数据源', lsrc], ['目标位置', esc(j.dst.text)]);
+        if (det.mode) items.push(['载入模式', esc(det.mode)]);
+        items.push(['计算资源', j.unit === '表' ? '默认任务资源 + 默认查询资源' : '默认任务资源']);
+      } else {
+        items.splice(1, 0, ['导出任务', '<a href="' + t.detail + '">' + esc(j.name) + '</a>'], ['源数据', esc(j.src.text)], ['目标位置', esc(j.dst.text)]);
+        items.push(['计算资源', j.unit === '表' ? '默认任务资源 + 默认查询资源' : '默认任务资源']);
+      }
+      h += '<div class="jd-card"><div class="jd-card-title">基本信息</div><div class="jd-info-grid">'
+         + items.map(function(it) { return '<div class="jd-info-item"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + '</div></div>'; }).join('')
+         + '</div></div>';
+
+      // 类型定制区
+      if (j.type === 'wf') h += renderWfDetail(j, det);
+      else if (det.tables) h += renderTableDetail(j, det);
+      else h += renderFileDetail(j, det);
+
+      document.getElementById('jobDetailView').innerHTML = h;
+      document.getElementById('jobListView').style.display = 'none';
+      document.getElementById('jobDetailView').style.display = '';
+      window.scrollTo(0, 0);
+    }
+    function closeDetail() {
+      document.getElementById('jobDetailView').style.display = 'none';
+      document.getElementById('jobListView').style.display = '';
+      renderJobs();
+    }
+
+    // 工作流：只读运行画布（与工作流编辑器同款视觉）+ 执行明细
+    var NODE_ST = { ok: { label: '已完成', dot: 'st-success' }, run: { label: '运行中', dot: 'st-running' }, err: { label: '有失败', dot: 'st-failed' }, wait: { label: '待执行', dot: 'st-queued' } };
+    function renderWfDetail(j, det) {
+      var nodes = det.nodes || [];
+      window._jdNodes = nodes;
+      var GAP = 216, X0 = 36, NODE_W = 172, CY = 160, NODE_TOP = 129;
+      var innerW = X0 + nodes.length * GAP + 20;
+
+      var h = '<div class="jd-card"><div class="jd-card-title">处理流程<span style="font-weight:400;font-size:12px;color:rgba(0,0,0,0.4)">点击节点查看运行详情</span></div>';
+      h += '<div class="jd-canvas-wrap"><div class="jd-canvas" onclick="jdCloseNode()"><div class="jd-canvas-inner" style="width:' + innerW + 'px">';
+      // 连线（贝塞尔 + 箭头）
+      h += '<svg class="jd-conns" width="' + innerW + '" height="320">';
+      nodes.forEach(function(n, i) {
+        if (i === nodes.length - 1) return;
+        var sx = X0 + i * GAP + NODE_W, tx = X0 + (i + 1) * GAP;
+        h += '<path class="jd-conn" d="M ' + sx + ' ' + CY + ' C ' + (sx + 46) + ' ' + CY + ' ' + (tx - 46) + ' ' + CY + ' ' + (tx - 2) + ' ' + CY + '"/>';
+        h += '<path class="jd-conn-arrow" d="M ' + (tx - 8) + ' ' + (CY - 4.5) + ' L ' + (tx - 1) + ' ' + CY + ' L ' + (tx - 8) + ' ' + (CY + 4.5) + ' Z"/>';
+      });
+      h += '</svg>';
+      // 节点卡
+      nodes.forEach(function(n, i) {
+        var st = NODE_ST[n.st] || NODE_ST.wait;
+        h += '<div class="jd-dagnode ' + n.st + '" id="jdNode_' + i + '" style="left:' + (X0 + i * GAP) + 'px;top:' + NODE_TOP + 'px" onclick="event.stopPropagation();jdShowNode(' + i + ')">';
+        if (i > 0) h += '<span class="jd-port in"></span>';
+        if (i < nodes.length - 1) h += '<span class="jd-port out"></span>';
+        h += '<div class="jd-node-name"><span class="st-badge ' + st.dot + '"><span class="st-dot"></span></span>' + esc(n.name) + '</div>';
+        if (n.meta) h += '<div class="jd-node-meta">' + esc(n.meta) + '</div>';
+        h += '</div>';
+      });
+      h += '</div></div>';
+      h += '<span class="jd-ro-tag">只读 · 运行快照</span>';
+      h += '<div class="jd-node-panel" id="jdNodePanel" onclick="event.stopPropagation()"></div>';
+      h += '</div></div>';
+      var files = det.files || [];
+      var ok = files.filter(function(f) { return f.status === 'success'; }).length;
+      var bad = files.filter(function(f) { return f.status === 'failed'; }).length;
+      var stop = files.filter(function(f) { return f.status === 'paused' || f.status === 'canceled'; }).length;
+      h += '<div class="jd-card"><div class="jd-card-title">执行明细'
+         + '<span class="jd-chip ok" title="处理成功的文件数">处理成功 <b>' + ok + '/' + files.length + '</b></span>'
+         + '<span class="jd-chip bad" title="处理失败的文件数">处理失败 <b>' + bad + '/' + files.length + '</b></span>'
+         + '<span class="jd-chip" title="因暂停 / 取消而停止的文件数">停止执行 <b>' + stop + '/' + files.length + '</b></span>'
+         + '</div>' + fileTable(files, false) + '</div>';
+      return h;
+    }
+
+    // 节点详情面板（画布内右侧浮层）
+    function jdShowNode(i) {
+      var n = (window._jdNodes || [])[i];
+      if (!n) return;
+      document.querySelectorAll('.jd-dagnode').forEach(function(el, k) { el.classList.toggle('active', k === i); });
+      var st = NODE_ST[n.st] || NODE_ST.wait;
+      var h = '<button class="jd-np-close" onclick="jdCloseNode()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>';
+      h += '<div class="jd-np-title"><span class="st-badge ' + st.dot + '"><span class="st-dot"></span></span>' + esc(n.name) + '</div>';
+      h += '<div class="jd-np-row"><div class="k">节点状态</div><div class="v">' + st.label + '</div></div>';
+      if (n.ntype) h += '<div class="jd-np-row"><div class="k">节点类型</div><div class="v">' + esc(n.ntype) + '</div></div>';
+      if (n.meta) h += '<div class="jd-np-row"><div class="k">处理进度 / 耗时</div><div class="v">' + esc(n.meta) + '</div></div>';
+      if (n.res) h += '<div class="jd-np-row"><div class="k">计算资源</div><div class="v">' + esc(n.res) + '</div></div>';
+      if (n.out) h += '<div class="jd-np-row"><div class="k">输出</div><div class="v">' + esc(n.out) + '</div></div>';
+      if (n.err) h += '<div class="jd-np-row"><div class="k">错误信息</div><div class="v err">' + esc(n.err) + '</div></div>';
+      h += '<div class="jd-np-hint">运行快照为只读视图；节点的完整配置请在工作流编辑器中查看。</div>';
+      var panel = document.getElementById('jdNodePanel');
+      panel.innerHTML = h;
+      panel.classList.add('open');
+    }
+    function jdCloseNode() {
+      var panel = document.getElementById('jdNodePanel');
+      if (panel) panel.classList.remove('open');
+      document.querySelectorAll('.jd-dagnode.active').forEach(function(el) { el.classList.remove('active'); });
+    }
+
+    // 结构化载入 / 导出：表映射与行数
+    function renderTableDetail(j, det) {
+      var read = 0, written = 0, skipped = 0;
+      det.tables.forEach(function(r) { read += r.read; written += r.written; skipped += r.skipped; });
+      var verb = j.type === 'exp' ? '导出' : '载入';
+      var h = '<div class="jd-card"><div class="jd-card-title">表映射与行数'
+        + '<span class="jd-chip">读取 <b>' + fmtNum(read) + '</b> 行</span>'
+        + '<span class="jd-chip ok">写入 <b>' + fmtNum(written) + '</b> 行</span>'
+        + '<span class="jd-chip">跳过 / 冲突 <b>' + fmtNum(skipped) + '</b> 行</span>'
+        + (det.conflict ? '<span class="jd-chip">' + esc(det.conflict) + '</span>' : '')
+        + '</div>';
+      h += '<div class="jd-table-wrap"><table class="jd-table"><thead><tr>'
+         + '<th>源表</th><th></th><th>目标表</th><th style="width:96px">状态</th><th style="width:110px">读取行数</th><th style="width:110px">写入行数</th><th style="width:100px">跳过 / 冲突</th><th style="width:80px">耗时</th><th>详情</th>'
+         + '</tr></thead><tbody>';
+      det.tables.forEach(function(r) {
+        h += '<tr>';
+        h += '<td><span class="jd-pair"><span class="p-ic">' + locIcon(r.src) + '</span>' + esc(r.src.text) + '</span></td>';
+        h += '<td style="color:rgba(0,0,0,0.3)">→</td>';
+        h += '<td><span class="jd-pair"><span class="p-ic">' + locIcon(r.dst) + '</span>' + esc(r.dst.text) + '</span></td>';
+        h += '<td>' + fileStBadge(r.status) + '</td>';
+        h += '<td class="num">' + fmtNum(r.read) + '</td><td class="num">' + fmtNum(r.written) + '</td><td class="num">' + fmtNum(r.skipped) + '</td>';
+        h += '<td>' + fmtDur(r.dur) + '</td>';
+        h += '<td>' + (r.note ? '<span class="jd-err-text" title="' + esc(r.note) + '">' + esc(r.note) + '</span>' : '<span style="color:rgba(0,0,0,0.25)">—</span>') + '</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table></div></div>';
+      return h;
+    }
+
+    // 非结构化载入 / 文件导出：文件明细
+    function renderFileDetail(j, det) {
+      var files = det.files || [];
+      var ok = files.filter(function(f) { return f.status === 'success'; }).length;
+      var bad = files.filter(function(f) { return f.status === 'failed'; }).length;
+      var verb = j.type === 'exp' ? '导出' : '载入';
+      var h = '<div class="jd-card"><div class="jd-card-title">文件明细'
+        + '<span class="jd-chip ok" title="' + verb + '成功的文件数">' + verb + '成功 <b>' + ok + '/' + files.length + '</b></span>'
+        + '<span class="jd-chip bad" title="' + verb + '失败的文件数">' + verb + '失败 <b>' + bad + '/' + files.length + '</b></span>'
+        + '</div>' + fileTable(files, j.type === 'exp') + '</div>';
+      return h;
+    }
+
+    function fileTable(files, isExport) {
+      var h = '<div class="jd-table-wrap"><table class="jd-table"><thead><tr>'
+        + '<th>文件名</th><th style="width:100px">状态</th><th style="width:90px">文件类型</th>'
+        + '<th style="width:100px">开始时间</th><th style="width:100px">结束时间</th>'
+        + '<th>' + (isExport ? '导出路径' : '详情') + '</th>'
+        + '</tr></thead><tbody>';
+      files.forEach(function(f) {
+        h += '<tr><td>' + esc(f.name) + '</td><td>' + fileStBadge(f.status) + '</td><td>' + esc(f.ftype) + '</td>'
+           + '<td>' + (f.start || '—') + '</td><td>' + (f.end || '—') + '</td>';
+        if (f.status === 'failed' && f.note) h += '<td><span class="jd-err-text" title="' + esc(f.note) + '">' + esc(f.note) + '</span></td>';
+        else h += '<td>' + (f.note ? esc(f.note) : '<span style="color:rgba(0,0,0,0.25)">—</span>') + '</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table></div>';
+      return h;
+    }
+
+    // ===== 行内操作 =====
+    function jobPause(i)  { JOBS[i].status = 'paused'; renderJobs(); toast('作业已暂停'); }
+    function jobResume(i) { JOBS[i].status = 'running'; renderJobs(); toast('作业已恢复'); }
+    function jobRetry(i)  {
+      var j = JOBS[i];
+      j.status = 'running'; j.err = null; j.durSec = null;
+      if (j.done >= j.total) j.done = 0;
+      renderJobs(); toast('已发起重试，仅重跑失败部分');
+    }
+
+    // ===== 刷新（手动，运行中作业推进进度）=====
+    function refreshTick(manual) {
+      JOBS.forEach(function(j) {
+        if (j.status === 'running') {
+          var step = Math.max(1, Math.round(j.total * 0.18));
+          j.done = Math.min(j.total, j.done + step);
+          if (j.done >= j.total) { j.status = 'success'; j.durSec = Math.round(60 + Math.random() * 300); }
+        } else if (j.status === 'queued' && Math.random() > 0.5) {
+          j.status = 'running';
+        }
+      });
+      renderJobs();
+      if (manual) toast('已刷新');
+    }
+
+    // ===== Toast / Tooltip =====
+    var toastTimer = null;
+    function toast(msg) {
+      var el = document.getElementById('jobToast');
+      el.textContent = msg; el.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { el.style.display = 'none'; }, 1800);
+    }
+    function showTip(e, el) {
+      var tip = document.getElementById('jobTip');
+      tip.textContent = el.getAttribute('data-err');
+      tip.style.display = 'block';
+      var r = el.getBoundingClientRect();
+      tip.style.left = Math.min(r.left, window.innerWidth - 440) + 'px';
+      tip.style.top = (r.bottom + 8) + 'px';
+    }
+    function hideTip() { document.getElementById('jobTip').style.display = 'none'; }
+
+    // ===== Init =====
+    // 从来源页（数据载入 / 数据导出 / 工作流）跳转带入：q=任务名 预填搜索框，type=作业类型 预选类型筛选
+    (function initFromQuery(){
+      var p = new URLSearchParams(location.search);
+      var q = p.get('q'), ty = p.get('type');
+      if (q) document.getElementById('jobSearch').value = q;
+      if (ty && ['wf', 'load', 'exp'].indexOf(ty) !== -1) {
+        colFilters.type = [ty];
+        var tb = document.getElementById('typeFilterBtn');
+        if (tb) tb.classList.add('active');
+      }
+    })();
+    renderJobs();
+  </script>
+</body>
+</html>

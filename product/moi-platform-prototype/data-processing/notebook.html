@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - Notebook</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .btn-primary {
+      background: #1677ff; color: #fff; border: none; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 400;
+      display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #4096ff; }
+
+    /* Template cards */
+    .tpl-section { margin-bottom: 24px; }
+    .tpl-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .tpl-section-title { font-size: 14px; font-weight: 500; color: rgba(0,0,0,0.88); }
+    .tpl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .nb-tpl-card {
+      background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; padding: 16px;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .nb-tpl-card:hover { border-color: #1677ff; box-shadow: 0 2px 8px rgba(22,119,255,0.08); }
+    .nb-tpl-icon {
+      width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px; font-size: 18px;
+    }
+    .nb-tpl-name { font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 4px; }
+    .nb-tpl-desc { font-size: 12px; color: rgba(0,0,0,0.45); line-height: 1.5; }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; }
+    .data-table th {
+      text-align: left; padding: 12px 16px; font-size: 14px; color: rgba(0,0,0,0.88);
+      font-weight: 600; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+    }
+    .data-table td { padding: 12px 16px; font-size: 14px; color: rgba(0,0,0,0.88); border-bottom: 1px solid #f0f0f0; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #fafafa; }
+
+    .lang-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .lang-tag.python { background: #fff7e6; color: #d48806; }
+    .lang-tag.sql { background: #e6f4ff; color: #1677ff; }
+    .lang-tag.mixed { background: #f9f0ff; color: #722ed1; }
+
+    .action-btns { display: flex; gap: 8px; }
+    .action-btn-sm {
+      padding: 0 7px; height: 24px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,0.88); transition: all 0.2s;
+      display: inline-flex; align-items: center;
+    }
+    .action-btn-sm:hover { border-color: #1677ff; color: #1677ff; }
+    .action-btn-sm.danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+
+    .form-input {
+      padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; transition: all 0.2s;
+    }
+    .form-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .form-input::placeholder { color: rgba(0,0,0,0.25); }
+
+    .empty-state { text-align: center; padding: 80px 0; color: rgba(0,0,0,0.25); }
+    .empty-state p { font-size: 14px; margin-bottom: 16px; }
+
+    /* Operator badge in table */
+    .op-list { display: flex; flex-wrap: wrap; gap: 4px; max-width: 180px; overflow: hidden; position: relative; }
+    .op-badge {
+      display: inline-flex; align-items: center; padding: 1px 6px; height: 20px;
+      border-radius: 3px; font-size: 11px; white-space: nowrap; cursor: default;
+    }
+    .op-badge.system { background: #e6f4ff; color: #1677ff; }
+    .op-badge.custom { background: #f9f0ff; color: #722ed1; }
+    .op-more {
+      display: inline-flex; align-items: center; padding: 1px 6px; height: 20px;
+      border-radius: 3px; font-size: 11px; background: #f5f5f5; color: rgba(0,0,0,0.45);
+      cursor: pointer; white-space: nowrap;
+    }
+    .op-cell { position: relative; }
+    .op-tooltip {
+      display: none; position: absolute; left: 0; top: 100%; margin-top: 4px;
+      background: #fff; border: 1px solid #e5e6eb; border-radius: 8px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08); padding: 8px 10px; z-index: 100;
+      min-width: 160px; max-width: 280px;
+    }
+    .op-tooltip.show { display: block; }
+    .op-tooltip-title { font-size: 11px; color: rgba(0,0,0,0.35); margin-bottom: 6px; font-weight: 500; }
+    .op-tooltip-group { margin-bottom: 6px; }
+    .op-tooltip-label { font-size: 10px; color: rgba(0,0,0,0.25); margin-bottom: 3px; }
+    .op-tooltip .op-badge { margin: 0 4px 4px 0; }
+    .op-empty { font-size: 12px; color: rgba(0,0,0,0.25); }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataConn">
+        <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="../data-connection/data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="../data-connection/data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item active" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="dataProc">
+        <a class="sub-item" href="workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item active" href="notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item" href="sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="resCenter">
+        <a class="sub-item" href="../resource-center/catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="../resource-center/compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item" href="../resource-center/data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="../resource-center/knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="../monitor/sql-history.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="page-content">
+
+      <!-- Template Section -->
+      <div class="tpl-section">
+        <div class="tpl-section-header">
+          <div class="tpl-section-title">从模板开始</div>
+        </div>
+        <div class="tpl-grid">
+          <div class="nb-tpl-card" onclick="createFromTemplate('workflow-tutorial')">
+            <div class="nb-tpl-icon" style="background:#e6f4ff;color:#1677ff">📘</div>
+            <div class="nb-tpl-name">工作流算子使用教程</div>
+            <div class="nb-tpl-desc">学习如何在代码中调用 MOI 内置算子（解析、分段、清洗、嵌入等），快速上手数据处理</div>
+          </div>
+          <div class="nb-tpl-card" onclick="createFromTemplate('data-exploration')">
+            <div class="nb-tpl-icon" style="background:#f6ffed;color:#52c41a">📊</div>
+            <div class="nb-tpl-name">数据探索与分析</div>
+            <div class="nb-tpl-desc">连接 Catalog 数据源，进行交互式数据探索、统计分析和可视化</div>
+          </div>
+          <div class="nb-tpl-card" onclick="createFromTemplate('custom-operator')">
+            <div class="nb-tpl-icon" style="background:#f9f0ff;color:#722ed1">🧩</div>
+            <div class="nb-tpl-name">自定义算子开发</div>
+            <div class="nb-tpl-desc">编写自定义数据处理函数，测试通过后发布为自定义算子，供工作流引用</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="position:relative;width:280px">
+            <input class="form-input" type="text" placeholder="搜索 Notebook" id="searchInput" oninput="filterTable()" style="padding-right:32px;flex:none;width:100%">
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:rgba(0,0,0,0.45)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          </div>
+          <select class="form-input" id="langFilter" onchange="filterTable()" style="width:120px;cursor:pointer">
+            <option value="">全部语言</option>
+            <option value="python">Python</option>
+            <option value="sql">SQL</option>
+            <option value="mixed">混合</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="refresh-btn" onclick="refreshData(this)" title="刷新">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M2.5 22v-6h6"/><path d="M2.5 11.5a10 10 0 0 1 17.3-5.7L21.5 8"/><path d="M21.5 12.5a10 10 0 0 1-17.3 5.7L2.5 16"/></svg>
+          </button>
+          <button class="btn-primary" onclick="createNotebook()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            新建 Notebook
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <table class="data-table" id="nbTable">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>语言</th>
+            <th>算子引用</th>
+            <th>描述</th>
+            <th>更新时间</th>
+            <th>创建者</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/op-icons.js"></script>
+  <script>
+    // Use shared notebook data from common.js
+    var notebooks = MOI_NOTEBOOKS.slice();
+
+    function renderTable(data) {
+      var tbody = document.getElementById('tableBody');
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>暂无 Notebook</p></div></td></tr>';
+        return;
+      }
+      var html = '';
+      data.forEach(function(nb) {
+        html += '<tr>'
+          + '<td><a href="#" style="color:#1677ff;text-decoration:none" onclick="openNotebook(\'' + nb.id + '\');return false">' + nb.name + '</a></td>'
+          + '<td><span class="lang-tag ' + nb.lang + '">' + nb.langName + '</span></td>'
+          + '<td class="op-cell">' + renderOperators(nb) + '</td>'
+          + '<td style="color:rgba(0,0,0,0.65);font-size:13px">' + nb.desc + '</td>'
+          + '<td style="color:rgba(0,0,0,0.65)">' + nb.updated + '</td>'
+          + '<td style="color:rgba(0,0,0,0.65)">' + nb.author + '</td>'
+          + '<td><div class="action-btns">'
+            + '<button class="action-btn-sm danger" onclick="deleteNotebook(\'' + nb.id + '\')">删除</button>'
+          + '</div></td></tr>';
+      });
+      tbody.innerHTML = html;
+      if (window.OPS) OPS.iconify(tbody);
+    }
+
+    function renderOperators(nb) {
+      var ops = nb.operators || [];
+      if (!ops.length) return '<span class="op-empty">—</span>';
+      var MAX_SHOW = 3;
+      var html = '<div class="op-list">';
+      var shown = ops.slice(0, MAX_SHOW);
+      shown.forEach(function(op) {
+        html += '<span class="op-badge ' + op.type + '" title="' + (op.type === 'system' ? '系统算子' : '自定义算子') + '">' + op.name + '</span>';
+      });
+      if (ops.length > MAX_SHOW) {
+        html += '<span class="op-more" onclick="event.stopPropagation();toggleOpTooltip(this)" onmouseenter="showOpTooltip(this)" onmouseleave="hideOpTooltipDelay(this)">+' + (ops.length - MAX_SHOW) + '</span>';
+      }
+      html += '</div>';
+      // Full tooltip
+      var sysOps = ops.filter(function(o) { return o.type === 'system'; });
+      var cusOps = ops.filter(function(o) { return o.type === 'custom'; });
+      html += '<div class="op-tooltip" onmouseenter="keepOpTooltip(this)" onmouseleave="hideOpTooltip(this)">';
+      html += '<div class="op-tooltip-title">算子引用 (' + ops.length + ')</div>';
+      if (sysOps.length) {
+        html += '<div class="op-tooltip-group"><div class="op-tooltip-label">系统算子</div><div style="display:flex;flex-wrap:wrap">';
+        sysOps.forEach(function(op) { html += '<span class="op-badge system">' + op.name + '</span>'; });
+        html += '</div></div>';
+      }
+      if (cusOps.length) {
+        html += '<div class="op-tooltip-group"><div class="op-tooltip-label">自定义算子</div><div style="display:flex;flex-wrap:wrap">';
+        cusOps.forEach(function(op) { html += '<span class="op-badge custom">' + op.name + '</span>'; });
+        html += '</div></div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    var _opTooltipTimer = null;
+    function showOpTooltip(el) {
+      if (_opTooltipTimer) { clearTimeout(_opTooltipTimer); _opTooltipTimer = null; }
+      var tip = el.closest('.op-cell').querySelector('.op-tooltip');
+      if (tip) tip.classList.add('show');
+    }
+    function hideOpTooltipDelay(el) {
+      _opTooltipTimer = setTimeout(function() {
+        var tip = el.closest('.op-cell').querySelector('.op-tooltip');
+        if (tip) tip.classList.remove('show');
+      }, 200);
+    }
+    function keepOpTooltip(el) {
+      if (_opTooltipTimer) { clearTimeout(_opTooltipTimer); _opTooltipTimer = null; }
+    }
+    function hideOpTooltip(el) {
+      el.classList.remove('show');
+    }
+    function toggleOpTooltip(el) {
+      var tip = el.closest('.op-cell').querySelector('.op-tooltip');
+      if (tip) tip.classList.toggle('show');
+    }
+
+    function filterTable() {
+      var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      var lang = document.getElementById('langFilter').value;
+      var filtered = notebooks.filter(function(nb) {
+        var matchName = !keyword || nb.name.toLowerCase().indexOf(keyword) !== -1;
+        var matchLang = !lang || nb.lang === lang;
+        return matchName && matchLang;
+      });
+      renderTable(filtered);
+    }
+
+    function createNotebook() { location.href = 'notebook-edit.html'; }
+    function createFromTemplate(tpl) { location.href = 'notebook-edit.html?tpl=' + tpl; }
+    function openNotebook(id) { location.href = 'notebook-edit.html?id=' + id; }
+    function deleteNotebook(id) {
+      if (!confirm('确定删除该 Notebook？')) return;
+      notebooks = notebooks.filter(function(n) { return n.id !== id; });
+      filterTable();
+    }
+
+    renderTable(notebooks);
+  </script>
+  </div>
+</body>
+</html>

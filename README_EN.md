@@ -30,4 +30,4 @@ Problem framing · PoC scope · Acceptance criteria · Risks · Rollout planning
 
 ## Further reading
 
-[Research](docs/research/) · [Product](product/) · [Evidence matrix](docs/prd/casebook/jd-evidence-matrix.md) · [Publication policy](DISCLAIMER.md)
+[Research](docs/research/) · [Platform PRDs](docs/prd/moi-platform/) · [PoC playbook](docs/poc/moi-solution-playbook/) · [Product prototype](product/moi-platform-prototype/) · [Evidence matrix](docs/prd/casebook/jd-evidence-matrix.md) · [Publication policy](DISCLAIMER.md)

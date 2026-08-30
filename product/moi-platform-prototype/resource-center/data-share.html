@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 数据分享</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .share-page { padding: 24px; }
+    /* Tabs */
+    .share-tabs { display: flex; gap: 0; border-bottom: 1px solid #f0f0f0; margin-bottom: 20px; }
+    .share-tab {
+      padding: 8px 20px; font-size: 14px; color: rgba(0,0,0,0.55); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.15s; user-select: none;
+    }
+    .share-tab:hover { color: rgba(0,0,0,0.88); }
+    .share-tab.active { color: #1677ff; border-bottom-color: #1677ff; font-weight: 500; }
+    /* Toolbar */
+    .share-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .share-toolbar .search-wrap { position: relative; width: 280px; }
+    .share-toolbar .search-wrap input {
+      width: 100%; height: 32px; padding: 4px 32px 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 13px; outline: none; transition: all 0.2s;
+    }
+    .share-toolbar .search-wrap input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .share-toolbar .search-wrap input::placeholder { color: rgba(0,0,0,0.25); }
+    .share-toolbar .search-wrap .search-icon {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      color: rgba(0,0,0,0.35); pointer-events: none;
+    }
+    .share-toolbar .spacer { flex: 1; }
+    .btn-primary {
+      padding: 4px 16px; height: 32px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      background: #1677ff; color: #fff; border: none; font-weight: 500; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { background: #4096ff; }
+    /* Table */
+    .share-table-wrap { background: #fff; border-radius: 8px; border: 1px solid #f0f0f0; overflow: hidden; }
+    .share-table { width: 100%; border-collapse: collapse; }
+    .share-table th {
+      text-align: left; padding: 12px 16px; font-size: 13px; color: rgba(0,0,0,0.65);
+      font-weight: 500; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+    }
+    .share-table td {
+      padding: 14px 16px; font-size: 13px; color: rgba(0,0,0,0.88); border-bottom: 1px solid #f0f0f0;
+    }
+    .share-table tr:last-child td { border-bottom: none; }
+    .share-table tr:hover td { background: #fafafa; }
+    .tbl-act-link {
+      color: #1677ff; cursor: pointer; font-size: 13px; background: none; border: none;
+      padding: 0; transition: color 0.2s; margin-right: 12px;
+    }
+    .tbl-act-link:hover { color: #4096ff; }
+    .tbl-act-link.danger { color: #ff4d4f; }
+    .tbl-act-link.danger:hover { color: #cf1322; }
+    .share-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 80px 0; color: rgba(0,0,0,0.25); gap: 12px;
+    }
+    .share-empty svg { width: 64px; height: 64px; color: rgba(0,0,0,0.08); }
+    /* Object path tag */
+    .obj-path {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 12px;
+      padding: 2px 8px; border-radius: 4px; background: #f5f5f5; color: rgba(0,0,0,0.65);
+    }
+    .obj-path .obj-icon { display: inline-flex; align-items: center; }
+    .obj-path .obj-icon svg { width: 14px; height: 14px; }
+    /* Permission badge */
+    .perm-badge {
+      display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 3px;
+      background: #e6f4ff; color: #1677ff;
+    }
+    /* Subscribe status */
+    .sub-status { font-size: 12px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+    .sub-status.pending { background: #fff7e6; color: #fa8c16; }
+    .sub-status.subscribed { background: #f6ffed; color: #52c41a; }
+    .sub-status.unsubscribed { background: #f5f5f5; color: rgba(0,0,0,0.45); }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45); z-index: 400; align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 8px; padding: 0;
+      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08); max-height: 90vh; display: flex; flex-direction: column;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px; border-bottom: 1px solid #f0f0f0;
+    }
+    .modal-header h3 { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0; }
+    .modal-close {
+      width: 32px; height: 32px; border: none; background: none; cursor: pointer;
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      color: rgba(0,0,0,0.45); font-size: 18px; transition: all 0.15s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.88); }
+    .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .modal-footer .btn {
+      padding: 4px 20px; height: 36px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      display: inline-flex; align-items: center; transition: all 0.2s;
+    }
+    .modal-footer .btn-cancel { background: #fff; border: 1px solid #d9d9d9; color: rgba(0,0,0,0.88); }
+    .modal-footer .btn-cancel:hover { border-color: #1677ff; color: #1677ff; }
+    .modal-footer .btn-ok { background: #1677ff; border: none; color: #fff; font-weight: 500; }
+    .modal-footer .btn-ok:hover { background: #4096ff; }
+    /* Form */
+    .form-group { margin-bottom: 20px; }
+    .form-label-row { display: flex; align-items: flex-start; gap: 0; }
+    .form-label-text {
+      width: 80px; flex-shrink: 0; font-size: 13px; color: rgba(0,0,0,0.88);
+      padding-top: 6px; text-align: right; padding-right: 12px;
+    }
+    .form-label-text .req { color: #ff4d4f; }
+    .form-field { flex: 1; }
+    .form-input {
+      width: 100%; height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 14px; outline: none; transition: all 0.2s;
+    }
+    .form-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .form-input::placeholder { color: rgba(0,0,0,0.25); }
+    .form-textarea {
+      width: 100%; min-height: 72px; padding: 6px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 14px; outline: none; resize: vertical; transition: all 0.2s;
+      font-family: inherit;
+    }
+    .form-textarea:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .form-textarea::placeholder { color: rgba(0,0,0,0.25); }
+    .char-count { text-align: right; font-size: 12px; color: rgba(0,0,0,0.35); margin-top: 2px; }
+
+    /* ===== Catalog Tree in Modal ===== */
+    .catalog-tree-box {
+      border: 1px solid #d9d9d9; border-radius: 6px; max-height: 240px; overflow-y: auto;
+      padding: 8px 4px; background: #fff;
+    }
+    .catalog-tree-box::-webkit-scrollbar { width: 4px; }
+    .catalog-tree-box::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    .ct-node { display: flex; align-items: center; padding: 4px 8px; cursor: pointer; border-radius: 4px; gap: 4px; user-select: none; }
+    .ct-node:hover { background: rgba(0,0,0,0.03); }
+    .ct-toggle { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.35); flex-shrink: 0; font-size: 10px; transition: transform 0.15s; }
+    .ct-toggle.open { transform: rotate(90deg); }
+    .ct-toggle.empty { visibility: hidden; }
+    .ct-check {
+      width: 16px; height: 16px; border: 1px solid #d9d9d9; border-radius: 3px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: all 0.15s; cursor: pointer;
+    }
+    .ct-check.checked { background: #1677ff; border-color: #1677ff; }
+    .ct-check.checked::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 700; }
+    .ct-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .ct-icon svg { width: 14px; height: 14px; }
+    .ct-icon.catalog { color: #1677ff; }
+    .ct-icon.db { color: #52c41a; }
+    .ct-icon.volume { color: #fa8c16; }
+    .ct-icon.table { color: #722ed1; }
+    .ct-name { font-size: 13px; color: rgba(0,0,0,0.88); margin-left: 4px; }
+    .ct-children { padding-left: 20px; }
+
+    /* ===== Target workspace selector ===== */
+    .ws-target-select {
+      width: 100%; height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 14px; outline: none; background: #fff; cursor: pointer;
+    }
+    .ws-target-select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .ws-id-row { display: flex; gap: 8px; margin-top: 8px; }
+    .ws-id-row input { flex: 1; }
+    .ws-id-row .btn-add {
+      padding: 4px 16px; height: 32px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      background: #1677ff; color: #fff; border: none; font-weight: 500; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .ws-id-row .btn-add:hover { background: #4096ff; }
+    .ws-target-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .ws-target-tag {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+      background: #e6f4ff; border: 1px solid #91caff; border-radius: 4px; font-size: 12px; color: #1677ff;
+    }
+    .ws-target-tag .tag-close {
+      cursor: pointer; font-size: 14px; color: rgba(0,0,0,0.35); margin-left: 2px;
+      line-height: 1;
+    }
+    .ws-target-tag .tag-close:hover { color: #ff4d4f; }
+    /* Permission checkbox */
+    .perm-check-row { display: flex; align-items: center; gap: 8px; }
+    .perm-check-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #1677ff; }
+    .perm-check-row label { font-size: 14px; color: rgba(0,0,0,0.88); cursor: pointer; }
+
+    /* ===== Subscribe modal - location tree ===== */
+    .loc-tree-box {
+      border: 1px solid #d9d9d9; border-radius: 6px; max-height: 200px; overflow-y: auto;
+      padding: 8px 4px; background: #fff;
+    }
+    .loc-tree-box::-webkit-scrollbar { width: 4px; }
+    .loc-tree-box::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    .lt-node { display: flex; align-items: center; padding: 4px 8px; cursor: pointer; border-radius: 4px; gap: 4px; user-select: none; }
+    .lt-node:hover { background: rgba(0,0,0,0.03); }
+    .lt-node.selected { background: #e6f4ff; }
+    .lt-node .lt-radio {
+      width: 14px; height: 14px; border: 1px solid #d9d9d9; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+    }
+    .lt-node.selected .lt-radio { border-color: #1677ff; }
+    .lt-node.selected .lt-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #1677ff; }
+
+    /* Info hint */
+    .form-hint { font-size: 12px; color: rgba(0,0,0,0.45); margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataConn">
+        <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="../data-connection/data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="../data-connection/data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataProc">
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item active" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="resCenter">
+        <a class="sub-item" href="catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item active" href="data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="share-page">
+      <!-- Tabs -->
+      <div class="share-tabs">
+        <div class="share-tab active" data-tab="publish" onclick="switchTab('publish')">发布</div>
+        <div class="share-tab" data-tab="subscribe" onclick="switchTab('subscribe')">订阅</div>
+      </div>
+
+      <!-- Publish Tab -->
+      <div id="publishPanel">
+        <div class="share-toolbar">
+          <div class="search-wrap">
+            <input type="text" id="pubSearch" placeholder="搜索发布名/发布对象/发布目标" oninput="renderPublishList()">
+            <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn-primary" onclick="openPublishModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加发布
+          </button>
+        </div>
+        <div class="share-table-wrap">
+          <table class="share-table">
+            <thead><tr>
+              <th>发布名</th><th>发布对象</th><th>发布目标</th><th>创建时间</th><th>更新时间</th><th>发布权限</th><th>操作</th>
+            </tr></thead>
+            <tbody id="pubTableBody"></tbody>
+          </table>
+          <div class="share-empty" id="pubEmpty" style="display:none">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M16 20h32v28H16z" rx="3"/><path d="M24 20v-6h16v6"/><path d="M32 32v8M28 36h8"/></svg>
+            <span>暂无发布数据</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscribe Tab -->
+      <div id="subscribePanel" style="display:none">
+        <div class="share-toolbar">
+          <div class="search-wrap">
+            <input type="text" id="subSearch" placeholder="搜索发布名/来源工作区" oninput="renderSubscribeList()">
+            <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          </div>
+          <div class="spacer"></div>
+        </div>
+        <div class="share-table-wrap">
+          <table class="share-table">
+            <thead><tr>
+              <th>发布名</th><th>发布对象</th><th>来源工作区</th><th>发布人</th><th>发布时间</th><th>订阅状态</th><th>订阅位置</th><th>操作</th>
+            </tr></thead>
+            <tbody id="subTableBody"></tbody>
+          </table>
+          <div class="share-empty" id="subEmpty" style="display:none">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M16 20h32v28H16z" rx="3"/><path d="M24 20v-6h16v6"/><path d="M32 32v8M28 36h8"/></svg>
+            <span>暂无可订阅的数据</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Publish Modal -->
+  <div class="modal-overlay" id="publishModal" onclick="if(event.target===this)closePublishModal()">
+    <div class="modal" style="width:640px">
+      <div class="modal-header"><h3 id="pubModalTitle">添加发布</h3><button class="modal-close" onclick="closePublishModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text"><span class="req">*</span> 发布名：</div>
+            <div class="form-field">
+              <input class="form-input" id="pubName" placeholder="请输入发布名称" maxlength="64" oninput="updatePubCharCount()">
+              <div class="char-count"><span id="pubCharCount">0</span> / 64</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text"><span class="req">*</span> 发布对象：</div>
+            <div class="form-field">
+              <div class="catalog-tree-box" id="pubCatalogTree"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text"><span class="req">*</span> 发布目标：</div>
+            <div class="form-field">
+              <select class="ws-target-select" id="pubWsSelect" onchange="addWsTarget()">
+                <option value="">请选择工作区</option>
+              </select>
+              <div class="ws-id-row">
+                <input class="form-input" id="pubWsIdInput" placeholder="或输入工作区 ID，如：019ada7f-4dc1-7488-a59d-5b8b0f34">
+                <button class="btn-add" onclick="searchAndAddWsById()">添加</button>
+              </div>
+              <div class="ws-target-tags" id="pubWsTargets"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text">发布权限：</div>
+            <div class="form-field">
+              <div class="perm-check-row">
+                <input type="checkbox" id="pubPermRead" checked disabled>
+                <label for="pubPermRead">只读</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text">备注：</div>
+            <div class="form-field">
+              <textarea class="form-textarea" id="pubRemark" placeholder="请输入备注信息"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closePublishModal()">取 消</button>
+        <button class="btn btn-ok" onclick="confirmPublish()">确 认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscribe Modal -->
+  <div class="modal-overlay" id="subscribeModal" onclick="if(event.target===this)closeSubscribeModal()">
+    <div class="modal" style="width:560px">
+      <div class="modal-header"><h3>订阅数据</h3><button class="modal-close" onclick="closeSubscribeModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text">发布名：</div>
+            <div class="form-field"><div id="subInfoName" style="padding-top:6px;font-size:13px;color:rgba(0,0,0,0.88)"></div></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text">发布对象：</div>
+            <div class="form-field"><div id="subInfoObj" style="padding-top:4px"></div></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text"><span class="req">*</span> 对象名称：</div>
+            <div class="form-field">
+              <input class="form-input" id="subObjName" placeholder="为订阅对象起一个名称">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label-row">
+            <div class="form-label-text"><span class="req">*</span> 订阅位置：</div>
+            <div class="form-field">
+              <div class="loc-tree-box" id="subLocTree"></div>
+              <div class="form-hint" id="subLocHint"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closeSubscribeModal()">取 消</button>
+        <button class="btn btn-ok" onclick="confirmSubscribe()">确 认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal" onclick="if(event.target===this)closeConfirmModal()">
+    <div class="modal" style="width:420px">
+      <div class="modal-header"><h3 id="confirmTitle">确认操作</h3><button class="modal-close" onclick="closeConfirmModal()">✕</button></div>
+      <div class="modal-body"><div id="confirmContent" style="font-size:14px;color:rgba(0,0,0,0.65);line-height:1.6"></div></div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closeConfirmModal()">取消</button>
+        <button class="btn btn-ok" id="confirmOkBtn" onclick="execConfirm()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/obj-perm.js"></script>
+  <script>
+
+// ===== Type Icons =====
+var TYPE_ICONS = {
+  catalog: '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 5h4M5 7h4M5 9h2"/></svg>',
+  db: '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg>',
+  volume: '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h4l1.5 2H12v7H2z"/></svg>',
+  table: '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5.5h10M2 8.5h10M5.5 5.5v7M8.5 5.5v7"/></svg>'
+};
+
+// ===== Load Catalog Data (from catalog page localStorage) =====
+function loadCatalogData() {
+  var raw = localStorage.getItem('moi_catalog_data');
+  if (raw) { try { return JSON.parse(raw); } catch(e) {} }
+  // Fallback minimal data
+  return [
+    { id:1, name:'默认目录', type:'catalog', children:[
+      { id:2, name:'原始数据库', type:'db', children:[
+        { id:5, name:'样例卷', type:'volume', children:[] },
+        { id:15, name:'客户卷', type:'volume', children:[] },
+        { id:16, name:'产品信息表', type:'table', children:[] }
+      ]},
+      { id:3, name:'处理数据库', type:'db', children:[
+        { id:6, name:'解析结果', type:'volume', children:[] },
+        { id:7, name:'用户行为表', type:'table', children:[] },
+        { id:13, name:'文档分段结果表', type:'table', children:[] },
+        { id:18, name:'订单汇总表', type:'table', children:[] }
+      ]}
+    ]},
+    { id:10, name:'开发目录', type:'catalog', children:[
+      { id:11, name:'测试数据库', type:'db', children:[
+        { id:14, name:'测试卷', type:'volume', children:[] }
+      ]}
+    ]}
+  ];
+}
+
+// Filter catalog tree: only show data objects (catalog, db, volume, table), no model/operator
+function filterDataNodes(nodes) {
+  var result = [];
+  (nodes || []).forEach(function(n) {
+    if (n.type === 'model' || n.type === 'operator') return;
+    var copy = { id: n.id, name: n.name, type: n.type };
+    if (n.children && n.children.length) {
+      copy.children = filterDataNodes(n.children);
+    } else {
+      copy.children = [];
+    }
+    // Only include containers that have data children, or leaf data nodes
+    if (n.type === 'catalog' || n.type === 'db') {
+      if (copy.children.length > 0) result.push(copy);
+    } else {
+      result.push(copy);
+    }
+  });
+  return result;
+}
+
+// ===== Default Share Data =====
+var SHARE_KEY = 'moi_data_shares';
+function getDefaultShares() {
+  return {
+    publishes: [
+      {
+        id: 'pub1', name: 'xunyuan', objId: 5, objName: '样例卷', objType: 'volume',
+        objPath: '默认 / 原始数据库 / 样例卷',
+        targets: ['数据分析项目', 'IBS'],
+        permission: '只读', remark: '即尽文档比对、IBS',
+        createdAt: '2025-12-16 17:12', updatedAt: '2025-12-19 20:42', createdBy: '张三'
+      },
+      {
+        id: 'pub2', name: '产品数据共享', objId: 16, objName: '产品信息表', objType: 'table',
+        objPath: '默认 / 原始数据库 / 产品信息表',
+        targets: ['0818 演示'],
+        permission: '只读', remark: '产品基础数据共享给演示工作区',
+        createdAt: '2026-01-10 09:30', updatedAt: '2026-01-10 09:30', createdBy: '李四'
+      },
+      {
+        id: 'pub3', name: '处理结果分享', objId: 3, objName: '处理数据库', objType: 'db',
+        objPath: '默认 / 处理数据库',
+        targets: ['测试工作区'],
+        permission: '只读', remark: '',
+        createdAt: '2026-02-20 14:00', updatedAt: '2026-03-01 10:15', createdBy: '张三'
+      }
+    ],
+    subscriptions: [
+      {
+        id: 'sub1', pubName: '外部客户数据', objName: '客户画像表', objType: 'table',
+        objPath: '客户画像表',
+        sourceWs: '测试工作区', publisher: '陈 jeff', publishedAt: '2025-11-20 10:00',
+        status: 'subscribed', subName: '外部客户画像', subLocation: '默认 / 原始数据库'
+      },
+      {
+        id: 'sub2', pubName: '模型训练数据集', objName: '训练卷', objType: 'volume',
+        objPath: '训练卷',
+        sourceWs: 'Project test1', publisher: '许 跃蓬', publishedAt: '2026-01-05 16:30',
+        status: 'unsubscribed', subName: '', subLocation: ''
+      },
+      {
+        id: 'sub3', pubName: '行业知识库', objName: '行业文档目录', objType: 'catalog',
+        objPath: '行业文档目录',
+        sourceWs: 'MOI 2602 的工作区', publisher: 'MOI 2602', publishedAt: '2026-03-01 09:00',
+        status: 'unsubscribed', subName: '', subLocation: ''
+      }
+    ]
+  };
+}
+
+function loadShares() {
+  var raw = localStorage.getItem(SHARE_KEY);
+  if (!raw) {
+    var d = getDefaultShares();
+    localStorage.setItem(SHARE_KEY, JSON.stringify(d));
+    return d;
+  }
+  return JSON.parse(raw);
+}
+function saveShares(data) { localStorage.setItem(SHARE_KEY, JSON.stringify(data)); }
+
+var shares = loadShares();
+var currentTab = 'publish';
+var selectedPubObj = null; // { id, name, type, path }
+var pubWsTargetList = []; // array of workspace names
+var confirmAction = null;
+var editingPubId = null;
+var subscribingItem = null;
+var subSelectedLoc = null; // { id, name, path }
+
+// ===== Tab Switch =====
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.share-tab').forEach(function(t) {
+    t.classList.toggle('active', t.getAttribute('data-tab') === tab);
+  });
+  document.getElementById('publishPanel').style.display = tab === 'publish' ? '' : 'none';
+  document.getElementById('subscribePanel').style.display = tab === 'subscribe' ? '' : 'none';
+}
+
+// ===== Render Publish List =====
+function renderPublishList() {
+  var keyword = document.getElementById('pubSearch').value.trim().toLowerCase();
+  var list = shares.publishes.filter(function(p) {
+    if (!keyword) return true;
+    return p.name.toLowerCase().indexOf(keyword) !== -1
+      || p.objPath.toLowerCase().indexOf(keyword) !== -1
+      || p.targets.join(',').toLowerCase().indexOf(keyword) !== -1;
+  });
+  var tbody = document.getElementById('pubTableBody');
+  var empty = document.getElementById('pubEmpty');
+  if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+  var html = '';
+  list.forEach(function(p) {
+    var iconHtml = TYPE_ICONS[p.objType] || '';
+    html += '<tr>'
+      + '<td>' + p.name + '</td>'
+      + '<td><span class="obj-path"><span class="obj-icon ' + p.objType + '">' + iconHtml + '</span> ' + p.objPath + '</span></td>'
+      + '<td>' + p.targets.join('、') + '</td>'
+      + '<td>' + p.createdAt + '</td>'
+      + '<td>' + p.updatedAt + '</td>'
+      + '<td><span class="perm-badge">' + p.permission + '</span></td>'
+      + '<td>'
+      + '<button class="tbl-act-link" style="font-size:12px" onclick="ObjPerm.open(\'发布\', \'' + p.name + '\')">权限</button>'
+      + '<button class="tbl-act-link" onclick="editPublish(\'' + p.id + '\')">✏️</button>'
+      + '<button class="tbl-act-link danger" onclick="deletePublish(\'' + p.id + '\')">🗑️</button>'
+      + '</td></tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+// ===== Render Subscribe List =====
+function renderSubscribeList() {
+  var keyword = document.getElementById('subSearch').value.trim().toLowerCase();
+  var list = shares.subscriptions.filter(function(s) {
+    if (!keyword) return true;
+    return s.pubName.toLowerCase().indexOf(keyword) !== -1
+      || s.sourceWs.toLowerCase().indexOf(keyword) !== -1;
+  });
+  var tbody = document.getElementById('subTableBody');
+  var empty = document.getElementById('subEmpty');
+  if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+  var html = '';
+  list.forEach(function(s) {
+    var iconHtml = TYPE_ICONS[s.objType] || '';
+    var statusCls = s.status === 'subscribed' ? 'subscribed' : 'unsubscribed';
+    var statusLabel = s.status === 'subscribed' ? '已订阅' : '未订阅';
+    html += '<tr>'
+      + '<td>' + s.pubName + '</td>'
+      + '<td><span class="obj-path"><span class="obj-icon ' + s.objType + '">' + iconHtml + '</span> ' + s.objPath + '</span></td>'
+      + '<td>' + s.sourceWs + '</td>'
+      + '<td>' + s.publisher + '</td>'
+      + '<td>' + s.publishedAt + '</td>'
+      + '<td><span class="sub-status ' + statusCls + '">' + statusLabel + '</span></td>'
+      + '<td>' + (s.status === 'subscribed' ? s.subLocation + ' / ' + s.subName : '-') + '</td>'
+      + '<td>';
+    if (s.status === 'subscribed') {
+      html += '<button class="tbl-act-link danger" onclick="unsubscribeItem(\'' + s.id + '\')">取消订阅</button>';
+    } else {
+      html += '<button class="tbl-act-link" onclick="openSubscribeModal(\'' + s.id + '\')">订阅</button>';
+    }
+    html += '</td></tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+// ===== Catalog Tree for Publish Modal =====
+var treeExpandState = {};
+
+function renderCatalogTree() {
+  var data = filterDataNodes(loadCatalogData());
+  var html = buildTreeHtml(data, '');
+  document.getElementById('pubCatalogTree').innerHTML = html;
+}
+
+function buildTreeHtml(nodes, parentPath) {
+  var html = '';
+  nodes.forEach(function(n) {
+    var hasChildren = n.children && n.children.length > 0;
+    var path = parentPath ? parentPath + ' / ' + n.name : n.name;
+    var isExpanded = treeExpandState[n.id];
+    var isChecked = selectedPubObj && selectedPubObj.id === n.id;
+    var toggleCls = hasChildren ? (isExpanded ? 'ct-toggle open' : 'ct-toggle') : 'ct-toggle empty';
+
+    html += '<div class="ct-node" data-id="' + n.id + '">'
+      + '<span class="' + toggleCls + '" onclick="event.stopPropagation();toggleTreeNode(' + n.id + ')">›</span>'
+      + '<span class="ct-check' + (isChecked ? ' checked' : '') + '" onclick="event.stopPropagation();selectPubObj(' + n.id + ',\'' + esc(n.name) + '\',\'' + n.type + '\',\'' + esc(path) + '\')"></span>'
+      + '<span class="ct-icon ' + n.type + '">' + (TYPE_ICONS[n.type] || '') + '</span>'
+      + '<span class="ct-name">' + n.name + '</span>'
+      + '</div>';
+
+    if (hasChildren) {
+      html += '<div class="ct-children" style="display:' + (isExpanded ? 'block' : 'none') + '">'
+        + buildTreeHtml(n.children, path) + '</div>';
+    }
+  });
+  return html;
+}
+
+function esc(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function toggleTreeNode(id) {
+  treeExpandState[id] = !treeExpandState[id];
+  renderCatalogTree();
+}
+
+function selectPubObj(id, name, type, path) {
+  if (selectedPubObj && selectedPubObj.id === id) {
+    selectedPubObj = null;
+  } else {
+    selectedPubObj = { id: id, name: name, type: type, path: path };
+  }
+  renderCatalogTree();
+}
+
+// ===== Workspace Target Selection =====
+function populateWsSelect() {
+  var sel = document.getElementById('pubWsSelect');
+  var list = getWorkspaces();
+  var curId = getCurrentWsId();
+  sel.innerHTML = '<option value="">请选择工作区</option>';
+  list.forEach(function(w) {
+    if (w.id === curId) return; // exclude current workspace
+    sel.innerHTML += '<option value="' + w.name + '">' + w.name + (w.owner !== 'me' ? ' (' + (w.ownerName || '') + ')' : '') + '</option>';
+  });
+}
+
+function addWsTarget() {
+  var sel = document.getElementById('pubWsSelect');
+  var val = sel.value;
+  if (!val) return;
+  if (pubWsTargetList.indexOf(val) === -1) pubWsTargetList.push(val);
+  sel.value = '';
+  renderWsTargets();
+}
+
+function searchAndAddWsById() {
+  var input = document.getElementById('pubWsIdInput');
+  var val = input.value.trim();
+  if (!val) { input.focus(); return; }
+  // Simulate search: generate a fake workspace name from the ID
+  var fakeName = '外部工作区_' + val.substring(0, 8);
+  if (pubWsTargetList.indexOf(fakeName) === -1) pubWsTargetList.push(fakeName);
+  input.value = '';
+  renderWsTargets();
+}
+
+function removeWsTarget(name) {
+  pubWsTargetList = pubWsTargetList.filter(function(n) { return n !== name; });
+  renderWsTargets();
+}
+
+function renderWsTargets() {
+  var html = '';
+  pubWsTargetList.forEach(function(name) {
+    html += '<span class="ws-target-tag">' + name + '<span class="tag-close" onclick="removeWsTarget(\'' + esc(name) + '\')">✕</span></span>';
+  });
+  document.getElementById('pubWsTargets').innerHTML = html;
+}
+
+// ===== Publish Modal =====
+function openPublishModal() {
+  editingPubId = null;
+  document.getElementById('pubModalTitle').textContent = '添加发布';
+  document.getElementById('pubName').value = '';
+  document.getElementById('pubRemark').value = '';
+  updatePubCharCount();
+  selectedPubObj = null;
+  pubWsTargetList = [];
+  treeExpandState = {};
+  // Auto-expand first level
+  var data = filterDataNodes(loadCatalogData());
+  data.forEach(function(n) { treeExpandState[n.id] = true; });
+  renderCatalogTree();
+  populateWsSelect();
+  renderWsTargets();
+  document.getElementById('publishModal').classList.add('show');
+  setTimeout(function() { document.getElementById('pubName').focus(); }, 100);
+}
+
+function closePublishModal() { document.getElementById('publishModal').classList.remove('show'); }
+
+function updatePubCharCount() {
+  document.getElementById('pubCharCount').textContent = document.getElementById('pubName').value.length;
+}
+
+function confirmPublish() {
+  var name = document.getElementById('pubName').value.trim();
+  if (!name) { document.getElementById('pubName').focus(); return; }
+  if (!selectedPubObj) { alert('请选择发布对象'); return; }
+  if (!pubWsTargetList.length) { alert('请选择发布目标工作区'); return; }
+
+  var now = new Date();
+  var ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0')
+    + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  var raw = localStorage.getItem('moi_user');
+  var creator = '用户';
+  if (raw) { try { creator = JSON.parse(raw).name || '用户'; } catch(e) {} }
+
+  if (editingPubId) {
+    var p = shares.publishes.find(function(x) { return x.id === editingPubId; });
+    if (p) {
+      p.name = name;
+      p.objId = selectedPubObj.id;
+      p.objName = selectedPubObj.name;
+      p.objType = selectedPubObj.type;
+      p.objPath = selectedPubObj.path;
+      p.targets = pubWsTargetList.slice();
+      p.remark = document.getElementById('pubRemark').value.trim();
+      p.updatedAt = ts;
+    }
+  } else {
+    shares.publishes.push({
+      id: 'pub' + Date.now(),
+      name: name,
+      objId: selectedPubObj.id,
+      objName: selectedPubObj.name,
+      objType: selectedPubObj.type,
+      objPath: selectedPubObj.path,
+      targets: pubWsTargetList.slice(),
+      permission: '只读',
+      remark: document.getElementById('pubRemark').value.trim(),
+      createdAt: ts, updatedAt: ts, createdBy: creator
+    });
+  }
+  saveShares(shares);
+  closePublishModal();
+  renderPublishList();
+}
+
+function editPublish(id) {
+  var p = shares.publishes.find(function(x) { return x.id === id; });
+  if (!p) return;
+  editingPubId = id;
+  document.getElementById('pubModalTitle').textContent = '编辑发布';
+  document.getElementById('pubName').value = p.name;
+  document.getElementById('pubRemark').value = p.remark || '';
+  updatePubCharCount();
+  selectedPubObj = { id: p.objId, name: p.objName, type: p.objType, path: p.objPath };
+  pubWsTargetList = p.targets.slice();
+  treeExpandState = {};
+  var data = filterDataNodes(loadCatalogData());
+  data.forEach(function(n) { treeExpandState[n.id] = true; });
+  renderCatalogTree();
+  populateWsSelect();
+  renderWsTargets();
+  document.getElementById('publishModal').classList.add('show');
+}
+
+function deletePublish(id) {
+  confirmAction = function() {
+    shares.publishes = shares.publishes.filter(function(x) { return x.id !== id; });
+    saveShares(shares);
+    renderPublishList();
+    closeConfirmModal();
+  };
+  document.getElementById('confirmTitle').textContent = '删除发布';
+  document.getElementById('confirmContent').innerHTML = '确定删除该发布？删除后目标工作区将无法再访问此数据。';
+  document.getElementById('confirmOkBtn').style.background = '#ff4d4f';
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+// ===== Subscribe Modal =====
+// Determine valid parent type for subscription location based on published object type
+// catalog → workspace root (select nothing, subscribe as top-level catalog)
+// db → catalog
+// volume/table → db
+function getSubLocParentType(objType) {
+  if (objType === 'catalog') return 'root';
+  if (objType === 'db') return 'catalog';
+  return 'db'; // volume or table
+}
+
+function openSubscribeModal(id) {
+  var s = shares.subscriptions.find(function(x) { return x.id === id; });
+  if (!s) return;
+  subscribingItem = s;
+  subSelectedLoc = null;
+  document.getElementById('subInfoName').textContent = s.pubName;
+  var iconHtml = TYPE_ICONS[s.objType] || '';
+  document.getElementById('subInfoObj').innerHTML = '<span class="obj-path"><span class="obj-icon ' + s.objType + '">' + iconHtml + '</span> ' + s.objPath + '</span>';
+  document.getElementById('subObjName').value = s.objName;
+
+  var parentType = getSubLocParentType(s.objType);
+  var hintMap = { root: '该对象为目录级别，将订阅到工作区根级别', catalog: '请选择一个目录作为订阅位置', db: '请选择一个库作为订阅位置' };
+  document.getElementById('subLocHint').textContent = hintMap[parentType] || '';
+
+  renderSubLocTree(parentType);
+  document.getElementById('subscribeModal').classList.add('show');
+}
+
+function renderSubLocTree(parentType) {
+  var data = filterDataNodes(loadCatalogData());
+  var html = '';
+  if (parentType === 'root') {
+    html = '<div style="padding:12px;color:rgba(0,0,0,0.45);font-size:13px;text-align:center">目录级别对象将直接订阅到工作区根级别</div>';
+    subSelectedLoc = { id: 0, name: '工作区根级别', path: '' };
+  } else {
+    html = buildLocTreeHtml(data, '', parentType);
+  }
+  document.getElementById('subLocTree').innerHTML = html;
+}
+
+function buildLocTreeHtml(nodes, parentPath, targetType) {
+  var html = '';
+  nodes.forEach(function(n) {
+    var path = parentPath ? parentPath + ' / ' + n.name : n.name;
+    var isTarget = n.type === targetType;
+    var hasChildren = n.children && n.children.length > 0;
+    var isExpanded = true; // always expand for location tree
+    var isSelected = subSelectedLoc && subSelectedLoc.id === n.id;
+
+    if (isTarget) {
+      html += '<div class="lt-node' + (isSelected ? ' selected' : '') + '" onclick="selectSubLoc(' + n.id + ',\'' + esc(n.name) + '\',\'' + esc(path) + '\')">'
+        + '<span class="lt-radio"></span>'
+        + '<span class="ct-icon ' + n.type + '">' + (TYPE_ICONS[n.type] || '') + '</span>'
+        + '<span class="ct-name">' + n.name + '</span>'
+        + '</div>';
+    } else if (hasChildren) {
+      // Show container but not selectable
+      html += '<div class="ct-node" style="opacity:0.6;cursor:default">'
+        + '<span class="ct-toggle open">›</span>'
+        + '<span class="ct-icon ' + n.type + '">' + (TYPE_ICONS[n.type] || '') + '</span>'
+        + '<span class="ct-name">' + n.name + '</span>'
+        + '</div>';
+      html += '<div class="ct-children">' + buildLocTreeHtml(n.children, path, targetType) + '</div>';
+    }
+  });
+  return html;
+}
+
+function selectSubLoc(id, name, path) {
+  subSelectedLoc = { id: id, name: name, path: path };
+  var parentType = getSubLocParentType(subscribingItem.objType);
+  renderSubLocTree(parentType);
+}
+
+function closeSubscribeModal() { document.getElementById('subscribeModal').classList.remove('show'); subscribingItem = null; }
+
+function confirmSubscribe() {
+  if (!subscribingItem) return;
+  var objName = document.getElementById('subObjName').value.trim();
+  if (!objName) { document.getElementById('subObjName').focus(); return; }
+  var parentType = getSubLocParentType(subscribingItem.objType);
+  if (parentType !== 'root' && !subSelectedLoc) { alert('请选择订阅位置'); return; }
+
+  subscribingItem.status = 'subscribed';
+  subscribingItem.subName = objName;
+  subscribingItem.subLocation = subSelectedLoc ? subSelectedLoc.path || subSelectedLoc.name : '';
+  saveShares(shares);
+  closeSubscribeModal();
+  renderSubscribeList();
+}
+
+function unsubscribeItem(id) {
+  confirmAction = function() {
+    var s = shares.subscriptions.find(function(x) { return x.id === id; });
+    if (s) { s.status = 'unsubscribed'; s.subName = ''; s.subLocation = ''; }
+    saveShares(shares);
+    renderSubscribeList();
+    closeConfirmModal();
+  };
+  document.getElementById('confirmTitle').textContent = '取消订阅';
+  document.getElementById('confirmContent').innerHTML = '确定取消订阅？取消后将无法在本工作区访问该数据。';
+  document.getElementById('confirmOkBtn').style.background = '#ff4d4f';
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+// ===== Confirm Modal =====
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('show');
+  document.getElementById('confirmOkBtn').style.background = '';
+  confirmAction = null;
+}
+function execConfirm() { if (confirmAction) confirmAction(); }
+
+// ===== Init =====
+renderPublishList();
+renderSubscribeList();
+
+  </script>
+</body>
+</html>

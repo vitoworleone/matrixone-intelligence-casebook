@@ -32,10 +32,10 @@ Agent 架构 · 工具契约 · 状态与记忆 · 失败恢复 · 评测方案
 
 ```text
 docs/       research、prd 与 poc 三类产品文档
-product/    未来的原型、可运行产品代码和工程文档
+product/    可交互原型、可运行产品代码和工程文档
 assets/     公开可用的架构图、工作流图与研究配图
 ```
 
 ## 延伸阅读
 
-[产品调研](docs/research/) · [产品实现](product/) · [能力证据矩阵](docs/prd/casebook/jd-evidence-matrix.md) · [公开边界](DISCLAIMER.md)
+[产品调研](docs/research/) · [平台 PRD](docs/prd/moi-platform/) · [POC 方案集](docs/poc/moi-solution-playbook/) · [产品原型](product/moi-platform-prototype/) · [能力证据矩阵](docs/prd/casebook/jd-evidence-matrix.md) · [公开边界](DISCLAIMER.md)

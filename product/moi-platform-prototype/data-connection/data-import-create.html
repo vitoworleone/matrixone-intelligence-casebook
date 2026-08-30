@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 数据载入</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    /* Back header */
+    .page-back { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .page-back a {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 600;
+      color: rgba(0,0,0,0.88); text-decoration: none; transition: color 0.2s;
+    }
+    .page-back a:hover { color: #1677ff; }
+    .page-back svg { flex-shrink: 0; }
+
+    /* Type cards */
+    .type-cards { display: flex; gap: 16px; margin-bottom: 28px; }
+    .type-card {
+      flex: 1; display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px;
+      border: 2px solid #f0f0f0; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s; background: #fff;
+    }
+    .type-card:hover { border-color: #91caff; }
+    .type-card.active { border-color: #1677ff; background: #e6f4ff; }
+    .type-card-icon {
+      width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .type-card.active .type-card-icon { background: rgba(22,119,255,0.1); }
+    .type-card-info { flex: 1; }
+    .type-card-title { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 4px; }
+    .type-card-desc { font-size: 13px; color: rgba(0,0,0,0.45); line-height: 1.5; }
+
+    /* Form */
+    .create-form { max-width: 680px; padding-bottom: 80px; }
+    .form-group { margin-bottom: 24px; display: flex; align-items: flex-start; gap: 12px; }
+    .form-label {
+      display: flex; align-items: center; gap: 2px;
+      font-size: 14px; color: rgba(0,0,0,0.88); font-weight: 400;
+      width: 110px; flex-shrink: 0; text-align: right; justify-content: flex-end;
+      padding-top: 5px; line-height: 22px; white-space: nowrap;
+    }
+    .form-label .required { color: #ff4d4f; margin-right: 2px; }
+    .form-label .help-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25);
+      font-size: 10px; color: rgba(0,0,0,0.35); cursor: help; margin-left: 4px; flex-shrink: 0;
+    }
+    .form-input {
+      flex: 1; padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; transition: all 0.2s;
+    }
+    .form-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .form-input::placeholder { color: rgba(0,0,0,0.25); }
+    .form-select {
+      flex: 1; padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+    }
+    .form-select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+
+    /* Inline tabs (连接器载入 / 本地上传) */
+    .inline-tabs { display: inline-flex; gap: 0; }
+    .inline-tab {
+      padding: 4px 16px; font-size: 14px; color: rgba(0,0,0,0.65); cursor: pointer;
+      border: 1px solid #d9d9d9; background: #fff; transition: all 0.2s;
+    }
+    .inline-tab:first-child { border-radius: 6px 0 0 6px; }
+    .inline-tab:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+    .inline-tab:hover { color: #1677ff; }
+    .inline-tab.active { color: #1677ff; background: #e6f4ff; border-color: #1677ff; }
+    .inline-tab.active + .inline-tab { border-left-color: #1677ff; }
+
+    /* Radio & checkbox */
+    .radio-group { display: flex; gap: 20px; padding-top: 5px; }
+    .radio-group label, .checkbox-group label {
+      display: flex; align-items: center; gap: 6px; font-size: 14px;
+      color: rgba(0,0,0,0.88); cursor: pointer;
+    }
+    .radio-group input[type="radio"], .checkbox-group input[type="checkbox"] {
+      accent-color: #1677ff; cursor: pointer;
+    }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 5px; }
+    .checkbox-tag {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px;
+      border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px;
+      color: rgba(0,0,0,0.88); cursor: pointer; background: #fff; transition: all 0.2s;
+    }
+    .checkbox-tag.active { border-color: #1677ff; background: #e6f4ff; color: #1677ff; }
+    .checkbox-tag .tag-close {
+      font-size: 11px; color: rgba(0,0,0,0.35); cursor: pointer; margin-left: 2px;
+    }
+
+    /* Duplicate file handling checkboxes */
+    .check-inline { display: flex; align-items: center; gap: 16px; padding-top: 5px; }
+    .check-inline label {
+      display: flex; align-items: center; gap: 6px; font-size: 14px;
+      color: rgba(0,0,0,0.88); cursor: pointer;
+    }
+    .check-inline input[type="checkbox"] { accent-color: #1677ff; cursor: pointer; }
+
+    /* Bottom bar */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 200px; right: 0; height: 56px;
+      background: #fff; border-top: 1px solid #f0f0f0; display: flex;
+      align-items: center; justify-content: flex-end; padding: 0 24px; gap: 16px;
+      z-index: 100;
+    }
+    .bottom-bar .file-count { font-size: 14px; color: rgba(0,0,0,0.45); }
+    .btn-primary {
+      background: #1677ff; color: #fff; border: none; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 400;
+      display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #4096ff; }
+
+    /* Catalog modal */
+    .catalog-modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center;
+    }
+    .catalog-modal-overlay.open { display: flex; }
+    .catalog-modal {
+      background: #fff; border-radius: 8px; width: 720px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.12); display: flex; flex-direction: column;
+    }
+    .catalog-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px;
+    }
+    .catalog-modal-header h3 { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0; }
+    .catalog-modal-close {
+      width: 28px; height: 28px; border: none; background: none; font-size: 20px;
+      color: rgba(0,0,0,0.45); cursor: pointer; border-radius: 4px; display: flex;
+      align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .catalog-modal-close:hover { color: rgba(0,0,0,0.88); }
+    .catalog-modal-body {
+      display: flex; border: 1px solid #e5e7eb; border-radius: 6px;
+      margin: 0 24px; min-height: 280px;
+    }
+    .catalog-col {
+      flex: 1; display: flex; flex-direction: column; min-width: 0;
+      border-right: 1px solid #e5e7eb;
+    }
+    .catalog-col:last-child { border-right: none; }
+    .catalog-col-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.88);
+      border-bottom: 1px solid #e5e7eb; flex-shrink: 0; background: #fff;
+    }
+    .catalog-col-list {
+      flex: 1; overflow-y: auto; padding: 4px 0;
+    }
+    .catalog-col-list .cat-item {
+      padding: 9px 14px; font-size: 14px; color: rgba(0,0,0,0.88); cursor: pointer;
+      transition: background 0.15s; display: flex; align-items: center; gap: 8px;
+    }
+    .catalog-col-list .cat-item:hover { background: #f5f5f5; }
+    .catalog-col-list .cat-item.active { background: #e6f4ff; }
+    .catalog-col-list .cat-item .cat-icon {
+      width: 16px; height: 16px; flex-shrink: 0; display: inline-flex;
+      align-items: center; justify-content: center;
+    }
+    .catalog-col-list .cat-item .cat-icon svg { width: 16px; height: 16px; }
+    .catalog-col-list .cat-item .cat-arrow {
+      font-size: 13px; color: rgba(0,0,0,0.3); margin-left: auto; flex-shrink: 0;
+    }
+    .catalog-col-list .cat-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; gap: 8px; color: rgba(0,0,0,0.25); font-size: 13px;
+    }
+    .catalog-col-list .cat-empty svg { opacity: 0.3; }
+    .catalog-modal-footer {
+      padding: 16px 24px 20px; display: flex; justify-content: flex-end; gap: 12px;
+    }
+    .catalog-modal-footer .btn-cancel {
+      padding: 5px 20px; height: 34px; border: 1px solid #d9d9d9; border-radius: 6px;
+      background: #fff; font-size: 14px; color: rgba(0,0,0,0.65); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .catalog-modal-footer .btn-cancel:hover { border-color: #1677ff; color: #1677ff; }
+    .catalog-modal-footer .btn-confirm {
+      padding: 5px 20px; height: 34px; border: 1px solid #d9d9d9; border-radius: 6px;
+      background: #fff; font-size: 14px; color: rgba(0,0,0,0.45); cursor: not-allowed;
+      transition: all 0.2s;
+    }
+    .catalog-modal-footer .btn-confirm.active {
+      background: #1677ff; color: #fff; border-color: #1677ff; cursor: pointer;
+    }
+    .catalog-modal-footer .btn-confirm.active:hover { background: #4096ff; }
+
+    /* Catalog trigger input */
+    .catalog-trigger {
+      display: flex; align-items: center; gap: 8px; padding: 4px 11px; height: 32px;
+      border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; color: rgba(0,0,0,0.88);
+      background: #fff; cursor: pointer; transition: all 0.2s; max-width: 400px;
+    }
+    .catalog-trigger:hover { border-color: #1677ff; }
+    .catalog-trigger .trigger-placeholder { color: rgba(0,0,0,0.25); }
+    .catalog-trigger .trigger-value { color: rgba(0,0,0,0.88); }
+
+
+    /* Form card */
+    .form-card {
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      padding: 20px 24px;
+      background: #fff;
+      margin-bottom: 24px;
+    }
+    .form-card > .form-group:last-child { margin-bottom: 0; }
+    .form-card-row {
+      display: flex;
+      gap: 32px;
+    }
+    .form-card-col {
+      flex: 1;
+      min-width: 0;
+    }
+    .form-card-col + .form-card-col {
+      border-left: 1px solid #f0f0f0;
+      padding-left: 32px;
+    }
+    .form-card-col-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0,0,0,0.88);
+      margin-bottom: 16px;
+    }
+
+    /* Upload area */
+    .upload-area {
+      flex: 1; border: 2px dashed #d9d9d9; border-radius: 8px; padding: 24px;
+      text-align: center; color: rgba(0,0,0,0.45); cursor: pointer; transition: border-color 0.2s;
+    }
+    .upload-area:hover { border-color: #1677ff; }
+
+    /* Toggle switch */
+    .toggle-switch {
+      position: relative; display: inline-block; width: 36px; height: 20px;
+    }
+
+    /* Edit mode disabled field */
+    .edit-disabled {
+      pointer-events: none; opacity: 0.65; cursor: not-allowed;
+    }
+
+    /* Column schema table */
+    .col-schema-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+    .col-schema-table th {
+      text-align: left; padding: 8px 10px; font-weight: 600; font-size: 13px;
+      color: rgba(0,0,0,0.65); border-bottom: 1px solid #f0f0f0; white-space: nowrap;
+    }
+    .col-schema-table td {
+      padding: 10px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top;
+    }
+    .col-schema-table tr:last-child td { border-bottom: none; }
+    .col-schema-table .col-check { width: 32px; text-align: center; }
+    .col-schema-table .col-idx { width: 24px; color: rgba(0,0,0,0.45); font-size: 13px; }
+    .col-schema-table .col-name-input {
+      width: 120px; padding: 3px 8px; height: 28px; border: 1px solid #d9d9d9;
+      border-radius: 4px; font-size: 13px; color: rgba(0,0,0,0.88); outline: none;
+    }
+    .col-schema-table .col-name-input:focus { border-color: #1677ff; }
+    .col-schema-table .col-type-select {
+      padding: 3px 6px; height: 28px; border: 1px solid #d9d9d9; border-radius: 4px;
+      font-size: 13px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+    }
+    .col-schema-table .col-type-select:focus { border-color: #1677ff; }
+    .col-schema-table .col-len-input {
+      width: 52px; padding: 3px 6px; height: 28px; border: 1px solid #d9d9d9;
+      border-radius: 4px; font-size: 13px; color: rgba(0,0,0,0.88); outline: none; text-align: center;
+    }
+    .col-schema-table .col-len-input:focus { border-color: #1677ff; }
+    .col-schema-table .col-pk { width: 36px; text-align: center; }
+    .col-schema-table .col-desc-input {
+      width: 100%; padding: 3px 8px; height: 28px; border: 1px solid #d9d9d9;
+      border-radius: 4px; font-size: 13px; color: rgba(0,0,0,0.88); outline: none;
+    }
+    .col-schema-table .col-desc-input::placeholder,
+    .col-schema-table .col-name-input::placeholder,
+    .col-schema-table .col-default-input::placeholder { color: rgba(0,0,0,0.25); }
+    .col-schema-table .col-desc-input:focus,
+    .col-schema-table .col-default-input:focus { border-color: #1677ff; }
+    .col-schema-table .col-default-input {
+      width: 100%; padding: 3px 8px; height: 28px; border: 1px solid #d9d9d9;
+      border-radius: 4px; font-size: 13px; color: rgba(0,0,0,0.88); outline: none;
+    }
+    .col-schema-table .col-preview { color: rgba(0,0,0,0.45); font-size: 12px; line-height: 1.6; max-width: 260px; word-break: break-all; }
+    .col-type-group { display: flex; align-items: center; gap: 4px; }
+    .schema-row-name { display: flex; align-items: center; gap: 8px; }
+
+    /* Column mapping layout */
+    .col-mapping-row { display: flex; gap: 32px; }
+    .col-mapping-side { flex: 1; min-width: 0; }
+    .col-mapping-side + .col-mapping-side { border-left: 1px solid #f0f0f0; padding-left: 32px; }
+    .col-mapping-title { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 12px; }
+    .mapping-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .mapping-table th {
+      text-align: left; padding: 8px 10px; font-weight: 600; font-size: 13px;
+      color: rgba(0,0,0,0.65); border-bottom: 1px solid #e5e7eb; white-space: nowrap;
+    }
+    .mapping-table td {
+      padding: 9px 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px;
+      color: rgba(0,0,0,0.88); vertical-align: middle;
+    }
+    .mapping-table tr:last-child td { border-bottom: none; }
+    .mapping-table .col-type-cell { color: rgba(0,0,0,0.45); }
+    .mapping-table .col-desc-cell { color: rgba(0,0,0,0.45); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tgt-col-select {
+      width: 100%; padding: 3px 8px; height: 28px; border: 1px solid #d9d9d9; border-radius: 4px;
+      font-size: 13px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+    }
+    .tgt-col-select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .tgt-pk-badge {
+      display: inline-block; padding: 0 6px; border-radius: 3px; font-size: 11px;
+      background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; margin-left: 4px;
+    }
+    .new-table-header { display: flex; gap: 24px; margin-bottom: 0; max-width: 600px; }
+    .new-table-header .nth-field { flex: 1; min-width: 0; }
+    .new-table-header .nth-field label {
+      display: block; font-size: 14px; color: rgba(0,0,0,0.88); margin-bottom: 6px; font-weight: 400;
+    }
+    .new-table-header .nth-field label .required { color: #ff4d4f; margin-right: 2px; }
+    .new-table-header .nth-field input {
+      width: 100%; padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; box-sizing: border-box;
+    }
+    .new-table-header .nth-field input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .new-table-header .nth-field input::placeholder { color: rgba(0,0,0,0.25); }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.25); border-radius: 20px; transition: 0.3s;
+    }
+    .toggle-slider:before {
+      content: ""; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px;
+      background: #fff; border-radius: 50%; transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #1677ff; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+    /* Hive partition field multi-select */
+    .hive-field-trigger {
+      display: flex; align-items: center; gap: 6px; padding: 4px 11px; height: 32px;
+      border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; color: rgba(0,0,0,0.88);
+      background: #fff; cursor: pointer; transition: all 0.2s; min-width: 200px;
+    }
+    .hive-field-trigger:hover { border-color: #1677ff; }
+    .hive-field-placeholder { color: rgba(0,0,0,0.25); flex: 1; }
+    .hive-field-tags { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; overflow: hidden; }
+    .hive-field-tag {
+      display: inline-flex; align-items: center; gap: 2px; padding: 0 6px; height: 22px;
+      background: #f5f5f5; border-radius: 4px; font-size: 12px; color: rgba(0,0,0,0.88);
+      white-space: nowrap;
+    }
+    .hive-field-tag .tag-x {
+      cursor: pointer; color: rgba(0,0,0,0.35); font-size: 11px; margin-left: 2px;
+    }
+    .hive-field-tag .tag-x:hover { color: rgba(0,0,0,0.88); }
+    .hive-field-dropdown {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; min-width: 200px;
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 10; padding: 4px 0;
+    }
+    .hive-field-dropdown.open { display: block; }
+    .hive-field-option {
+      display: flex; align-items: center; gap: 8px; padding: 7px 12px; font-size: 14px;
+      color: rgba(0,0,0,0.88); cursor: pointer; transition: background 0.15s;
+    }
+    .hive-field-option:hover { background: #f5f5f5; }
+    .hive-field-option input[type="checkbox"] { accent-color: #1677ff; cursor: pointer; }
+
+    /* CSV config button */
+    .csv-config-btn {
+      display: inline-flex; align-items: center; gap: 5px; padding: 0 12px; height: 28px;
+      border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: rgba(0,0,0,0.65);
+      background: #fff; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .csv-config-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .csv-config-btn.configured { border-color: #1677ff; color: #1677ff; background: #e6f4ff; }
+
+    /* CSV config modal */
+    .csv-modal { background: #fff; border-radius: 8px; width: 600px; box-shadow: 0 6px 30px rgba(0,0,0,0.12); }
+    .csv-modal-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px;
+    }
+    .csv-modal-header h3 { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0; }
+    .csv-modal-body { padding: 0 24px 20px; }
+    .csv-fields { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px; }
+    .csv-field { display: flex; flex-direction: column; gap: 6px; }
+    .csv-field-label { font-size: 14px; color: rgba(0,0,0,0.88); }
+    .csv-field select {
+      padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+      min-width: 180px;
+    }
+    .csv-field select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .csv-toggle-field {
+      display: flex; flex-direction: column; gap: 6px; padding-top: 0;
+    }
+    .csv-preview {
+      background: #fafafa; border-radius: 8px; padding: 24px 28px; position: relative;
+    }
+    .csv-preview-header {
+      display: inline-flex; align-items: center; padding: 6px 16px;
+      border: 1.5px solid #d9d9d9; border-radius: 6px; font-size: 15px; font-weight: 500;
+      color: rgba(0,0,0,0.88); background: #fff; font-family: 'SF Mono', 'Menlo', monospace;
+    }
+    .csv-preview-header-label {
+      position: absolute; right: 28px; top: 24px; font-size: 13px; color: rgba(0,0,0,0.35);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .csv-preview-header-label::before {
+      content: ''; display: inline-block; width: 40px; height: 1px; background: rgba(0,0,0,0.15);
+    }
+    .csv-preview-data {
+      margin-top: 24px; font-size: 15px; font-family: 'SF Mono', 'Menlo', monospace;
+      color: rgba(0,0,0,0.88); display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+      line-height: 1;
+    }
+    .csv-preview-data .sep {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 24px; padding: 0 3px;
+      border: 1.5px solid rgba(0,0,0,0.2); border-radius: 4px; background: #fff;
+      color: rgba(0,0,0,0.88); font-weight: 500; margin: 0 2px;
+    }
+    .csv-preview-data .delim {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 24px; padding: 0 3px;
+      border: 1.5px solid rgba(0,0,0,0.2); border-radius: 4px; background: #fff;
+      color: rgba(0,0,0,0.88); font-weight: 500;
+    }
+    .csv-preview-data .esc {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 24px; padding: 0 3px;
+      border: 1.5px solid rgba(0,0,0,0.2); border-radius: 4px; background: #fff;
+      color: rgba(0,0,0,0.88); font-weight: 500;
+    }
+    .csv-preview-data .val { color: rgba(0,0,0,0.65); margin: 0 2px; }
+    .csv-preview-labels {
+      margin-top: 4px; display: flex; font-size: 12px; color: rgba(0,0,0,0.35);
+      position: relative; height: 48px;
+    }
+    .csv-label-item {
+      display: flex; flex-direction: column; align-items: center; position: absolute;
+    }
+    .csv-label-item .csv-label-line {
+      width: 1px; height: 16px; background: rgba(0,0,0,0.15);
+    }
+    .csv-label-item .csv-label-bracket {
+      font-size: 11px; color: rgba(0,0,0,0.35); white-space: nowrap;
+    }
+
+    /* Multi-sheet target items */
+    .sheet-target-item {
+      padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .sheet-target-item:last-child { border-bottom: none; }
+    .sheet-target-name {
+      font-size: 13px; font-weight: 600; color: #1677ff; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sheet-target-name svg { flex-shrink: 0; }
+    .sheet-target-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sheet-target-row .radio-group { padding-top: 0; gap: 12px; }
+    .sheet-target-row .radio-group label { font-size: 13px; }
+    .sheet-target-trigger {
+      display: flex; align-items: center; gap: 6px; padding: 3px 10px; height: 28px;
+      border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: rgba(0,0,0,0.88);
+      background: #fff; cursor: pointer; transition: all 0.2s; flex: 1; min-width: 0;
+    }
+    .sheet-target-trigger:hover { border-color: #1677ff; }
+    .sheet-target-trigger .trigger-placeholder { color: rgba(0,0,0,0.25); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sheet-target-trigger .trigger-value { color: rgba(0,0,0,0.88); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Sheet tabs for table definition */
+    .sheet-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0; }
+    .sheet-tab {
+      padding: 8px 16px; font-size: 13px; color: rgba(0,0,0,0.65); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap;
+    }
+    .sheet-tab:hover { color: #1677ff; }
+    .sheet-tab.active { color: #1677ff; border-bottom-color: #1677ff; font-weight: 600; }
+
+    /* Unstructured compact form */
+    .us-form-card {
+      border: 1px solid #f0f0f0; border-radius: 8px; padding: 20px 24px; background: #fff;
+      margin-bottom: 24px;
+    }
+    .us-row { display: flex; gap: 24px; margin-bottom: 16px; align-items: flex-start; }
+    .us-row:last-child { margin-bottom: 0; }
+    .us-field { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .us-field-label {
+      font-size: 14px; color: rgba(0,0,0,0.88); white-space: nowrap; flex-shrink: 0;
+    }
+    .us-field-label .required { color: #ff4d4f; margin-right: 2px; }
+    .us-field-label .help-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25);
+      font-size: 10px; color: rgba(0,0,0,0.35); cursor: help; margin-left: 4px;
+      position: relative;
+    }
+    .us-field-label .help-icon[data-tip]:hover::after {
+      content: attr(data-tip); position: absolute; left: -8px; top: calc(100% + 6px);
+      background: rgba(0,0,0,0.75); color: #fff;
+      font-size: 12px; line-height: 1.6; padding: 8px 12px; border-radius: 6px;
+      white-space: normal; width: 280px; z-index: 100; pointer-events: none;
+      font-weight: 400; text-align: left;
+    }
+    .us-field-label .help-icon[data-tip]:hover::before {
+      content: ""; position: absolute; left: 50%; top: calc(100% + 2px);
+      transform: translateX(-50%); border: 4px solid transparent;
+      border-bottom-color: rgba(0,0,0,0.75); z-index: 100; pointer-events: none;
+    }
+    .us-sep { width: 1px; background: #f0f0f0; align-self: stretch; min-height: 32px; flex-shrink: 0; }
+    .us-range-section { margin-top: 4px; }
+
+    /* Unstructured catalog modal — volume variant */
+    .vol-icon { color: #722ed1; }
+
+    /* File browser modal */
+    .file-browser-list { max-height: 320px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
+
+    /* Unstructured file browser table */
+    #usFileTableBody tr:hover { background: #f5f5f5 !important; }
+    #usFileTableBody tr[style*="background:#e6f4ff"]:hover { background: #d6e8fc !important; }
+    .file-browser-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 14px; font-size: 14px;
+      color: rgba(0,0,0,0.88); cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f5f5f5;
+    }
+    .file-browser-item:last-child { border-bottom: none; }
+    .file-browser-item:hover { background: #f5f5f5; }
+    .file-browser-item.active { background: #e6f4ff; }
+    .file-browser-item.disabled { color: rgba(0,0,0,0.25); cursor: not-allowed; }
+    .file-browser-item .file-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .file-browser-item .file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-browser-item .file-size { font-size: 12px; color: rgba(0,0,0,0.45); flex-shrink: 0; }
+    .file-browser-item .file-ext { font-size: 11px; color: rgba(0,0,0,0.35); padding: 1px 6px; background: #f5f5f5; border-radius: 3px; flex-shrink: 0; }
+
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <div class="sidebar">
+    <div class="menu-section"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="page-content">
+      <!-- Back header -->
+      <div class="page-back">
+        <a href="data-import.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          数据载入
+        </a>
+      </div>
+
+      <!-- Type cards -->
+      <div class="type-cards">
+        <div class="type-card active" id="cardUnstructured" onclick="selectDataType('unstructured')">
+          <div class="type-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          </div>
+          <div class="type-card-info">
+            <div class="type-card-title">非结构化数据</div>
+            <div class="type-card-desc">支持多种文件类型混合上传，如文档、图片、音频、视频等</div>
+          </div>
+        </div>
+        <div class="type-card" id="cardStructured" onclick="selectDataType('structured')">
+          <div class="type-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+          </div>
+          <div class="type-card-info">
+            <div class="type-card-title">结构化数据</div>
+            <div class="type-card-desc">支持结构化文件批量上传，包括 csv、xlsx、xls，并将结构化数据导入表中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unstructured Form -->
+      <div id="formUnstructured">
+        <div class="us-form-card">
+          <div style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:16px">载入策略</div>
+          <!-- Row 1: 载入方式 + 连接器 + 载入位置 -->
+          <div class="us-row" style="gap:16px">
+            <div class="us-field" style="flex:1;min-width:0">
+              <span class="us-field-label">载入方式：</span>
+              <div class="inline-tabs">
+                <div class="inline-tab active" onclick="selectSourceTab(this,'connector')">连接器载入</div>
+                <div class="inline-tab" onclick="selectSourceTab(this,'local')">本地上传</div>
+                <div class="inline-tab" onclick="selectSourceTab(this,'web')">网页采集</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0" id="usConnCatalogGroup">
+              <div class="us-field" id="usConnectorField">
+                <span class="us-field-label"><span class="required">*</span> 连接器：</span>
+                <select class="form-select" id="usConnectorSelect" style="width:240px" onchange="onUsConnectorChange()">
+                  <option value="">请选择连接器</option>
+                  <optgroup label="对象存储">
+                    <option value="aliyun-oss"  data-kind="object">营销素材库 · 阿里云 OSS</option>
+                    <option value="s3"          data-kind="object">NESR 备份桶 · AWS S3</option>
+                    <option value="tencent-cos" data-kind="object">视频内容库 · 腾讯云 COS</option>
+                    <option value="huawei-obs"  data-kind="object">政企归档 · 华为云 OBS</option>
+                  </optgroup>
+                  <optgroup label="分布式文件系统">
+                    <option value="hdfs"        data-kind="dfs">集团数据湖 · HDFS</option>
+                  </optgroup>
+                  <optgroup label="文件协议">
+                    <option value="ftp"         data-kind="file">NESR 现场文件服务器 · FTP</option>
+                    <option value="sftp"        data-kind="file">客户合同同步 · SFTP</option>
+                    <option value="sharepoint"  data-kind="file">有临医药 · SharePoint 站点</option>
+                    <option value="smb-nas"     data-kind="file">集团 NAS · SMB 共享</option>
+                  </optgroup>
+                  <optgroup label="邮件">
+                    <option value="gmail-mail" data-kind="mail">客户服务 Gmail 收件箱</option>
+                    <option value="outlook-mail" data-kind="mail">法务 Outlook 收件箱</option>
+                    <option value="wecom-mail" data-kind="mail">企业微信项目邮箱</option>
+                    <option value="qq-mail" data-kind="mail">运营 QQ 邮箱</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="us-field" id="usCatalogField">
+                <span class="us-field-label"><span class="required">*</span> 载入位置<span class="help-icon" data-tip="「卷」是存放非结构化数据的单位，请选择或创建一个「卷」用于存储载入的原始数据。您可以在 Catalog 功能中查看该卷及其中的数据。">?</span>：</span>
+                <div class="catalog-trigger" id="usCatalogTrigger" onclick="openUsCatalogModal()" style="min-width:240px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
+                  <span class="trigger-placeholder" id="usCatalogTriggerText">请选择卷（Volume）</span>
+                </div>
+              </div>
+            </div>
+            <!-- Web mode: 载入目标 (shown when web tab active) -->
+            <div style="display:none;flex:1;min-width:0" id="usWebCatalogGroup">
+              <div class="us-field">
+                <span class="us-field-label"><span class="required">*</span> 载入目标<span class="help-icon" data-tip="选择 Catalog 中的卷用于存储采集的数据。">?</span>：</span>
+                <div class="catalog-trigger" onclick="openUsCatalogModal()" style="width:260px;box-sizing:border-box">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="1.8" style="flex-shrink:0"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
+                  <span id="usWebCatalogText" style="color:rgba(0,0,0,0.25);font-size:13px">请选择卷（Volume）</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Local upload area (hidden by default) -->
+          <div id="usLocalUploadRow" class="us-row" style="display:none">
+            <div class="upload-area" id="uploadArea" style="flex:1">
+              📁 点击或拖拽文件到此处上传<br><span style="font-size:12px;color:rgba(0,0,0,0.25)">支持 PDF、Word、TXT、图片等，最大 200MB</span>
+            </div>
+          </div>
+
+          <!-- Row 3: 载入模式 + 解压策略 -->
+          <div class="us-row" style="gap:16px">
+            <div class="us-field" style="flex:1;min-width:0">
+              <span class="us-field-label">载入模式<span class="help-icon" data-tip="一次性载入适合仅需导入一次的场景；周期性载入适合定期更新数据的需求，并可设置具体周期（如每小时或每日）。">?</span>：</span>
+              <div class="radio-group" style="padding-top:0">
+                <label><input type="radio" name="loadMode" value="once" checked onchange="onLoadModeChange()"> 一次载入</label>
+                <label><input type="radio" name="loadMode" value="periodic" onchange="onLoadModeChange()"> 周期载入</label>
+              </div>
+              <div id="periodicOptions" style="display:none;margin-top:6px;display:none">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <select class="form-select" id="periodicInterval" style="width:120px;height:30px;font-size:12px" onchange="onPeriodicIntervalChange()">
+                    <option value="1m">1分钟</option>
+                    <option value="5m">5分钟</option>
+                    <option value="10m">10分钟</option>
+                    <option value="30m">30分钟</option>
+                    <option value="1h" selected>1小时</option>
+                    <option value="2h">2小时</option>
+                    <option value="4h">4小时</option>
+                    <option value="6h">6小时</option>
+                    <option value="12h">12小时</option>
+                    <option value="1d">1天</option>
+                    <option value="7d">7天</option>
+                  </select>
+                  <select class="form-select" id="periodicTime" style="width:150px;height:30px;font-size:12px;display:none">
+                    <option>00:00 UTC+8</option><option>01:00 UTC+8</option><option>02:00 UTC+8</option><option>03:00 UTC+8</option>
+                    <option>04:00 UTC+8</option><option>05:00 UTC+8</option><option>06:00 UTC+8</option><option>07:00 UTC+8</option>
+                    <option>08:00 UTC+8</option><option>09:00 UTC+8</option><option>10:00 UTC+8</option><option>11:00 UTC+8</option>
+                    <option>12:00 UTC+8</option><option>13:00 UTC+8</option><option>14:00 UTC+8</option><option>15:00 UTC+8</option>
+                    <option>16:00 UTC+8</option><option>17:00 UTC+8</option><option>18:00 UTC+8</option><option>19:00 UTC+8</option>
+                    <option>20:00 UTC+8</option><option>21:00 UTC+8</option><option>22:00 UTC+8</option><option>23:00 UTC+8</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="us-field" style="flex:1;min-width:0" id="usUnzipField">
+              <span class="us-field-label">解压策略<span class="help-icon" data-tip="设置压缩文件的解压方式。保持结构将维护原有文件夹层级；扁平化结构将所有文件放在同一级目录。">?</span>：</span>
+              <div class="radio-group" style="padding-top:0">
+                <label><input type="radio" name="unzip" value="ignore" checked> 忽略目录结构</label>
+                <label><input type="radio" name="unzip" value="keep"> 保持原始目录</label>
+              </div>
+            </div>
+            <!-- Web mode: 增量策略 -->
+            <div class="us-field" style="flex:1;min-width:0;display:none" id="usWebIncrField">
+              <span class="us-field-label"><span class="required">*</span> 更新方式：</span>
+              <select class="form-select" style="width:260px;box-sizing:border-box">
+                <option>增量更新（跳过已采集的 URL 和相同文件）</option>
+                <option>全量覆盖（每次重新采集）</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 3.5: 运行配置（通用计算资源） -->
+          <div class="us-row">
+            <div class="us-field" style="flex-wrap:wrap">
+              <span class="us-field-label">通用计算资源<span class="help-icon" data-tip="非结构化载入只做落卷、解压、去重、采集等非 SQL 处理，挂通用计算资源。默认走平台默认通用资源（0→n 弹性伸缩、闲时自动缩容到 0、有任务时快速拉起）；也可指定一个专属通用资源以获得独占算力。">?</span>：</span>
+              <select class="form-select" id="usComputeResource" style="width:280px;flex:none;height:30px;font-size:13px">
+                <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+                <option value="cr-cpu-01">cpu-通用-01（CPU 通用型 · 1~4 节点）</option>
+                <option value="cr-etl">etl-专属（CPU 内存型 · 2~8 节点 · 常驻）</option>
+                <option value="cr-gpu-01">gpu-推理-01（GPU 推理型 · 1~2 节点）</option>
+                <option value="cr-gpu-02">gpu-训练-01（GPU 训练型 · 1~4 卡）</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 4: 重复文件处理 -->
+          <div class="us-row" id="usDupRow">
+            <div class="us-field">
+              <span class="us-field-label">重复文件处理<span class="help-icon" data-tip="为避免重复导入相同文件，提供根据文件名和文件内容（MD5）的文件去重功能。">?</span>：</span>
+              <span style="font-size:13px;color:rgba(0,0,0,0.45)">判断规则</span>
+              <label style="display:flex;align-items:center;gap:4px;font-size:14px;color:rgba(0,0,0,0.88);cursor:pointer"><input type="checkbox" checked style="accent-color:#1677ff;cursor:pointer"> 文件名相同</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:14px;color:rgba(0,0,0,0.88);cursor:pointer"><input type="checkbox" checked style="accent-color:#1677ff;cursor:pointer"> MD5</label>
+              <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-left:24px">处理方式</span>
+              <label style="display:flex;align-items:center;gap:4px;font-size:14px;color:rgba(0,0,0,0.88);cursor:pointer"><input type="radio" name="dupHandle" value="skip" checked style="accent-color:#1677ff;cursor:pointer"> 跳过</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:14px;color:rgba(0,0,0,0.88);cursor:pointer"><input type="radio" name="dupHandle" value="overwrite" style="accent-color:#1677ff;cursor:pointer"> 覆盖</label>
+            </div>
+          </div>
+
+          <!-- Row 5: 载入范围 -->
+          <div class="us-row" style="margin-bottom:0" id="usRangeRow">
+            <div style="flex:1">
+              <div id="usFileRangeControls" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <span class="us-field-label">载入范围<span class="help-icon" data-tip="本地文件载入范围由文件类型与路径正则表达式共同限定，二者为「且」关系。">?</span>：</span>
+                <span style="font-size:13px;color:rgba(0,0,0,0.45)">文件类型</span>
+                <div class="checkbox-group" id="fileTypeTags"></div>
+                <select class="form-select" id="addFileType" onchange="addFileTypeTag()" style="width:90px;flex:none;height:28px;font-size:13px">
+                  <option value="">+ 更多</option>
+                  <option value="PPT">PPT</option>
+                  <option value="XLS">XLS</option>
+                  <option value="HTML">HTML</option>
+                  <option value="XML">XML</option>
+                  <option value="JSON">JSON</option>
+                  <option value="CSV">CSV</option>
+                  <option value="图片">图片</option>
+                  <option value="音频">音频</option>
+                  <option value="视频">视频</option>
+                </select>
+                <div style="margin-left:24px;display:flex;align-items:center;gap:8px">
+                  <span class="us-field-label" style="font-size:13px;color:rgba(0,0,0,0.45);white-space:nowrap">路径正则<span class="help-icon" data-tip="使用正则表达式匹配文件路径，只处理匹配的文件。">?</span></span>
+                  <input class="form-input" type="text" placeholder="如 *.pdf$ 匹配所有PDF文件" style="max-width:280px;flex:1">
+                </div>
+              </div>
+              <div id="usMailRangeControls" style="display:none;align-items:center;gap:8px;flex-wrap:wrap">
+                <span class="us-field-label">载入范围<span class="help-icon" data-tip="按邮件接收时间限定本次载入范围，连接器只负责授权，具体范围在载入任务中设置。">?</span>：</span>
+                <span style="font-size:13px;color:rgba(0,0,0,0.45)">邮件时间</span>
+                <select class="form-select" id="usMailTimeRange" onchange="onUsMailRangeChange()" style="width:150px;flex:none;height:30px;font-size:13px">
+                  <option value="7d">最近 7 天</option>
+                  <option value="30d" selected>最近 1 个月</option>
+                  <option value="90d">最近 3 个月</option>
+                  <option value="180d">最近 6 个月</option>
+                  <option value="all">全部邮件</option>
+                  <option value="custom">自定义时间</option>
+                </select>
+                <div id="usMailCustomRange" style="display:none;align-items:center;gap:6px">
+                  <input class="form-input" type="date" id="usMailStartDate" value="2026-04-25" style="width:140px;flex:none;height:30px;font-size:13px">
+                  <span style="font-size:13px;color:rgba(0,0,0,0.35)">至</span>
+                  <input class="form-input" type="date" id="usMailEndDate" value="2026-05-25" style="width:140px;flex:none;height:30px;font-size:13px">
+                </div>
+                <span style="font-size:12px;color:rgba(0,0,0,0.35)">周期载入时从该时间窗口开始，后续按新邮件增量读取</span>
+              </div>
+            </div>
+          </div>
+        </div><!-- /.us-form-card -->
+
+        <!-- File Browser Card (connector mode only, shown after strategy filled) -->
+        <div id="usFileBrowserCard" class="us-form-card" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <span id="usFileBrowserTitle" style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88)">文件选择</span>
+              <span id="usFileSelectedCount" style="font-size:13px;color:rgba(0,0,0,0.45);margin-left:12px"></span>
+            </div>
+          </div>
+          <!-- Breadcrumb -->
+          <div id="usFileBreadcrumb" style="display:flex;align-items:center;gap:4px;margin-bottom:10px;font-size:13px;color:rgba(0,0,0,0.45)"></div>
+          <!-- File table -->
+          <div style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead>
+                <tr style="background:#fafafa">
+                  <th style="width:36px;padding:9px 10px;text-align:center;border-bottom:1px solid #e5e7eb">
+                    <input type="checkbox" id="usFileSelectAll" onchange="usToggleSelectAll(this.checked)" style="accent-color:#1677ff;cursor:pointer">
+                  </th>
+                  <th id="usFileNameHeader" style="padding:9px 10px;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);border-bottom:1px solid #e5e7eb">文件名</th>
+                  <th id="usFileMetaHeader" style="width:120px;padding:9px 10px;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);border-bottom:1px solid #e5e7eb">文件大小</th>
+                  <th id="usFileTypeHeader" style="width:140px;padding:9px 10px;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);border-bottom:1px solid #e5e7eb">文件类型</th>
+                </tr>
+              </thead>
+              <tbody id="usFileTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Web Import Panel (unstructured, web mode) -->
+        <div id="usWebImportPanel" style="display:none">
+        <div class="us-form-card" style="padding:20px 24px;display:none" id="webConfigCard">
+          <div style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:16px">网页采集配置</div>
+
+          <!-- Step 1: URL input -->
+          <div style="margin-bottom:14px">
+            <span class="us-field-label" style="display:block;margin-bottom:4px"><span class="required">*</span> 网页地址：</span>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="webUrl" placeholder="输入网页 URL，如 https://www.szse.cn/disclosure/listed/notice/index.html" style="flex:1">
+              <button class="btn-primary" onclick="loadWebPreview()" style="white-space:nowrap">加载页面</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <span style="font-size:11px;color:rgba(0,0,0,0.35)">快捷模板：</span>
+              <span onclick="applyWebTemplate('szse')" style="font-size:11px;color:#1677ff;cursor:pointer" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration=''">深交所公告</span>
+              <span onclick="applyWebTemplate('sse')" style="font-size:11px;color:#1677ff;cursor:pointer" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration=''">上交所公告</span>
+              <span onclick="applyWebTemplate('cninfo')" style="font-size:11px;color:#1677ff;cursor:pointer" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration=''">巨潮资讯</span>
+            </div>
+          </div>
+
+          <!-- Step 2: Page preview + region selection -->
+          <div id="webPreviewArea" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:13px;font-weight:500;color:rgba(0,0,0,0.65)">页面预览（静态快照）</span>
+              <div style="display:flex;gap:6px;align-items:center">
+                <span style="font-size:11px;color:rgba(0,0,0,0.35)">缩放</span>
+                <select id="webPreviewZoom" onchange="onWebZoomChange()" style="padding:2px 6px;height:26px;border:1px solid #d9d9d9;border-radius:4px;font-size:11px;color:rgba(0,0,0,0.65);background:#fff;cursor:pointer">
+                  <option value="0.5">50%</option>
+                  <option value="0.75" selected>75%</option>
+                  <option value="1">100%</option>
+                </select>
+                <div style="width:1px;height:16px;background:#e5e7eb"></div>
+                <button id="webSelectBtn" onclick="toggleWebSelectMode()" style="padding:4px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;background:#fff;color:rgba(0,0,0,0.65);cursor:pointer;display:flex;align-items:center;gap:4px">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/></svg>选择区域
+                </button>
+                <button onclick="clearWebRegions()" style="padding:4px 12px;border:1px dashed #d9d9d9;border-radius:6px;font-size:12px;background:#fff;color:rgba(0,0,0,0.45);cursor:pointer">清除</button>
+                <button onclick="loadWebPreview()" style="padding:4px 8px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;background:#fff;color:rgba(0,0,0,0.45);cursor:pointer;display:flex;align-items:center" title="刷新">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                </button>
+              </div>
+            </div>
+            <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;background:#fafafa">
+              <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fff;border-bottom:1px solid #f0f0f0">
+                <div style="display:flex;gap:4px">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#ff5f57"></span>
+                  <span style="width:8px;height:8px;border-radius:50%;background:#febc2e"></span>
+                  <span style="width:8px;height:8px;border-radius:50%;background:#28c840"></span>
+                </div>
+                <div id="webPreviewUrl" style="flex:1;height:24px;padding:0 8px;border:1px solid #e5e7eb;border-radius:12px;font-size:11px;color:rgba(0,0,0,0.45);background:#f5f5f5;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div>
+              </div>
+              <div id="webPreviewBody" style="height:600px;overflow:auto;position:relative;background:#fff">
+                <iframe id="webPreviewFrame" style="width:133.33%;height:133.33%;border:none;transform:scale(0.75);transform-origin:0 0" sandbox="allow-same-origin"></iframe>
+              </div>
+            </div>
+            <div id="webPreviewHint" style="display:none;text-align:center;padding:6px;font-size:11px;color:#1677ff;background:#f0f7ff;border-radius:0 0 8px 8px">点击页面元素选择采集区域，蓝色高亮表示已选中</div>
+
+            <!-- Selected regions -->
+            <div id="webRegionsPanel" style="margin-top:10px">
+              <div style="font-size:11px;color:rgba(0,0,0,0.25);padding:4px 0">加载页面后，点击"选择区域"在预览中标记要采集的区域</div>
+            </div>
+
+            <!-- Rule preview -->
+            <div id="webRulePreview" style="display:none;margin-top:12px;padding:14px 16px;background:#f0f7ff;border:1px solid #d6e4ff;border-radius:8px">
+              <div style="font-size:12px;font-weight:600;color:#1677ff;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                采集规则预览
+              </div>
+              <div id="webRuleSteps" style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.8"></div>
+            </div>
+          </div>
+
+          <!-- Step 3: Collection rules -->
+          <div style="margin-top:16px;border-top:1px solid #f5f5f5;padding-top:14px">
+            <div class="us-row" style="gap:16px">
+              <div class="us-field" style="flex:1;min-width:0">
+                <span class="us-field-label">采集深度：</span>
+                <select class="form-select" id="webDepth" style="width:180px">
+                  <option value="0">仅当前页（深度 0）</option>
+                  <option value="1" selected>当前页 + 子页（深度 1）</option>
+                  <option value="2">递归 2 层</option>
+                  <option value="3">递归 3 层</option>
+                </select>
+              </div>
+              <div class="us-field" style="flex:1;min-width:0">
+                <span class="us-field-label">自动翻页：</span>
+                <select class="form-select" id="webAutoPager" style="width:180px" onchange="onWebAutoPagerChange()">
+                  <option value="on" selected>开启（自动翻到最后一页）</option>
+                  <option value="max">开启（限制最大页数）</option>
+                  <option value="off">关闭（仅采集当前页）</option>
+                </select>
+              </div>
+              <div class="us-field" style="flex:1;min-width:0;display:none" id="webMaxPagesField">
+                <span class="us-field-label">最大页数：</span>
+                <input class="form-input" id="webMaxPages" type="number" value="50" min="1" max="9999" style="width:100px">
+              </div>
+            </div>
+            <div class="us-row" style="gap:16px;margin-top:10px">
+              <div class="us-field" style="flex:1;min-width:0">
+                <span class="us-field-label">采集内容：</span>
+                <select class="form-select" id="webCollectType" style="width:180px" onchange="onWebCollectTypeChange()">
+                  <option value="all">全部采集（页面 + 文件）</option>
+                  <option value="page">仅采集页面</option>
+                  <option value="file">仅采集文件</option>
+                </select>
+              </div>
+              <div class="us-field" style="flex:1;min-width:0" id="webFileTypeField">
+                <span class="us-field-label">文件类型：</span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
+                  <label style="display:flex;align-items:center;gap:3px;font-size:12px;cursor:pointer"><input type="checkbox" checked style="accent-color:#1677ff">PDF</label>
+                  <label style="display:flex;align-items:center;gap:3px;font-size:12px;cursor:pointer"><input type="checkbox" checked style="accent-color:#1677ff">Word</label>
+                  <label style="display:flex;align-items:center;gap:3px;font-size:12px;cursor:pointer"><input type="checkbox" style="accent-color:#1677ff">Excel</label>
+                  <label style="display:flex;align-items:center;gap:3px;font-size:12px;cursor:pointer"><input type="checkbox" style="accent-color:#1677ff">图片</label>
+                </div>
+              </div>
+            </div>
+            <div class="us-row" style="gap:16px;margin-top:10px">
+              <div class="us-field" style="flex:1;min-width:0">
+                <span class="us-field-label">请求间隔<span class="help-icon" data-tip="每次请求之间的等待时间，避免对目标网站造成过大压力。建议设置 1-3 秒。">?</span>：</span>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input class="form-input" id="webReqInterval" type="number" value="2" min="0" max="60" style="width:80px">
+                  <span style="font-size:13px;color:rgba(0,0,0,0.45)">秒</span>
+                </div>
+              </div>
+              <div class="us-field" style="flex:1;min-width:0">
+                <span class="us-field-label">并发数<span class="help-icon" data-tip="同时发起的请求数量。并发越高采集越快，但可能触发目标网站的反爬机制。">?</span>：</span>
+                <select class="form-select" id="webConcurrency" style="width:100px">
+                  <option value="1" selected>1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div><!-- /#formUnstructured -->
+
+      <!-- Structured Form -->
+      <div id="formStructured" style="display:none">
+        <div class="form-card">
+          <div class="form-card-row">
+            <!-- 数据源 (left column) -->
+            <div class="form-card-col">
+              <div class="form-card-col-title">数据源</div>
+              <div class="inline-tabs" style="margin-bottom:12px">
+                <div class="inline-tab active" onclick="selectStructuredSourceTab(this,'stConn')">连接器载入</div>
+                <div class="inline-tab" onclick="selectStructuredSourceTab(this,'stLocal')">本地上传</div>
+              </div>
+              <!-- Connector source -->
+              <div id="stConn">
+                <div class="form-group" style="margin-bottom:12px">
+                  <label class="form-label" style="width:auto"><span class="required">*</span> 连接器：</label>
+                  <select class="form-select" id="stConnectorSelect" onchange="onStructuredConnectorChange()" style="flex:1">
+                    <option value="">请选择连接器</option>
+                    <optgroup label="数据库">
+                      <option value="mongodb"    data-type="db">Intelie 传感器数据 (MongoDB)</option>
+                      <option value="hive"       data-type="db">NESR 数据仓库 Hive</option>
+                      <option value="matrixone"  data-type="db">MatrixOne 生产集群</option>
+                      <option value="mysql"      data-type="db">用户中心 · MySQL</option>
+                      <option value="postgresql" data-type="db">财务报表库 · PostgreSQL</option>
+                      <option value="sqlserver"  data-type="db">汉得 Topcast · SQL Server</option>
+                      <option value="oracle"     data-type="db">武汉新芯 · Oracle ERP DB</option>
+                      <option value="clickhouse" data-type="db">芯联汉得 · ClickHouse 行情库</option>
+                      <option value="doris"      data-type="db">业务实时分析 · Apache Doris</option>
+                    </optgroup>
+                    <optgroup label="邮件">
+                      <option value="gmail"           data-type="mail">客户服务 Gmail 收件箱</option>
+                      <option value="outlook"         data-type="mail">法务 Outlook 收件箱</option>
+                      <option value="ms365-graph"     data-type="mail">全员 Microsoft 365 邮箱</option>
+                      <option value="wecom-mail"      data-type="mail">企业微信项目邮箱</option>
+                      <option value="qq-mail"         data-type="mail">运营 QQ 邮箱</option>
+                      <option value="imap-smtp"       data-type="mail">内部 IMAP 邮箱</option>
+                      <option value="custom-mail-api" data-type="mail">自有邮件 API</option>
+                    </optgroup>
+                    <optgroup label="API">
+                      <option value="rest-api" data-type="api">Fiix CMMS 维修系统 (REST API)</option>
+                      <option value="graphql"  data-type="api">电商订单 · GraphQL</option>
+                    </optgroup>
+                    <optgroup label="消息队列">
+                      <option value="kafka"    data-type="mq">CDG GPS 流 · Kafka</option>
+                      <option value="mqtt"     data-type="mq">IoT 设备遥测 · MQTT</option>
+                      <option value="rabbitmq" data-type="mq">通知服务 · RabbitMQ</option>
+                    </optgroup>
+                    <optgroup label="企业应用">
+                      <option value="sap-s4hana" data-type="app">武汉新芯 · SAP S/4HANA</option>
+                      <option value="oracle-erp" data-type="app">Oracle ERP Cloud · 集团</option>
+                      <option value="yonyou-u8"  data-type="app">芯导科技 · 用友 U8</option>
+                      <option value="kingdee-k3" data-type="app">集团 · 金蝶 K/3 Cloud</option>
+                      <option value="salesforce" data-type="app">销售 · Salesforce</option>
+                    </optgroup>
+                    <optgroup label="协作平台">
+                      <option value="feishu"    data-type="collab">团队飞书</option>
+                      <option value="dingtalk"  data-type="collab">集团钉钉</option>
+                      <option value="wecom-api" data-type="collab">企业微信项目通知 API</option>
+                      <option value="slack"     data-type="collab">海外团队 · Slack</option>
+                      <option value="github"    data-type="collab">matrixflow · GitHub</option>
+                      <option value="yuque"     data-type="collab">内部 · 语雀知识库</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <!-- File connector: file browser -->
+                <div id="stConnFile">
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="width:auto"><span class="required">*</span> 选择文件：</label>
+                    <div style="flex:1">
+                      <div class="catalog-trigger" id="fileBrowserTrigger" onclick="openFileBrowser()" style="max-width:none">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
+                        <span class="trigger-placeholder" id="fileBrowserText">请选择文件（支持 csv、xls、xlsx）</span>
+                      </div>
+                      <!-- Excel sheet selection (shown after selecting xlsx/xls) -->
+                      <div id="excelSheetSection" style="display:none;margin-top:10px">
+                        <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:6px">检测到 Excel 工作表，请选择要导入的 Sheet：</div>
+                        <div id="excelSheetList" class="checkbox-group"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- DB connector: show database & table selection -->
+                <div id="stConnDb" style="display:none">
+                  <div class="form-group" style="margin-bottom:12px">
+                    <label class="form-label" style="width:auto"><span class="required">*</span> 数据库：</label>
+                    <select class="form-select" id="stDbNameSelect" onchange="onStDbNameChange()" style="flex:1">
+                      <option value="">请选择数据库</option>
+                    </select>
+                  </div>
+                  <div id="stDbTableSection" style="display:none">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label class="form-label" style="width:auto" id="stDbTableLabel"><span class="required">*</span> 选择表：</label>
+                      <select class="form-select" id="stDbTableSelect" onchange="onStDbTableChange()" style="flex:1">
+                        <option value="">请选择表</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <!-- API connector: show endpoint config -->
+                <div id="stConnApi" style="display:none">
+                  <div class="form-group" style="margin-bottom:12px">
+                    <label class="form-label" id="stApiEndpointLabel" style="width:auto"><span class="required">*</span> Endpoint：</label>
+                    <div style="flex:1;display:flex;align-items:center;gap:8px">
+                      <select class="form-select" id="stApiMethod" style="width:80px;flex:none">
+                        <option>GET</option><option>POST</option>
+                      </select>
+                      <input class="form-input" id="stApiEndpoint" placeholder="/work_orders" style="flex:1">
+                      <button type="button" style="padding:5px 14px;border:1px solid #722ed1;border-radius:6px;background:#fff;color:#722ed1;font-size:13px;cursor:pointer;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.background='#f9f0ff'" onmouseout="this.style.background='#fff'" onclick="onApiEndpointChange()">采样</button>
+                    </div>
+                  </div>
+                  <div id="stApiPreview" style="display:none;margin-top:8px">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px">检测到 <span id="stApiFieldCount">0</span> 个字段（即目标表列名）：</div>
+                    <div id="stApiFields" style="display:flex;flex-wrap:wrap;gap:4px;font-size:12px"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Local upload source -->
+              <div id="stLocal" style="display:none">
+                <div class="upload-area" id="stLocalUploadArea">
+                  📁 点击或拖拽文件到此处上传<br><span style="font-size:12px;color:rgba(0,0,0,0.25)">支持 CSV、Excel（xlsx、xls），最大 200MB</span>
+                </div>
+                <div id="stLocalFileInfo" style="display:none;margin-top:10px">
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                    <span id="stLocalFileName" style="font-size:13px;color:rgba(0,0,0,0.88);flex:1"></span>
+                    <span style="font-size:12px;color:rgba(0,0,0,0.45)" id="stLocalFileSize"></span>
+                    <span style="cursor:pointer;color:rgba(0,0,0,0.35);font-size:14px" onclick="clearLocalFile()" title="移除">✕</span>
+                  </div>
+                </div>
+                <!-- Excel sheet selection for local upload -->
+                <div id="localExcelSheetSection" style="display:none;margin-top:10px">
+                  <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:6px">检测到 Excel 工作表，请选择要导入的 Sheet：</div>
+                  <div id="localExcelSheetList" class="checkbox-group"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 载入目标 (right column) -->
+            <div class="form-card-col">
+              <div class="form-card-col-title">载入目标</div>
+              <!-- Single target (CSV or single sheet) -->
+              <div id="singleTargetSection">
+                <div class="radio-group" style="margin-bottom:12px">
+                  <label><input type="radio" name="targetMode" value="existing" checked onchange="onTargetModeChange()"> 选择已有表</label>
+                  <label><input type="radio" name="targetMode" value="new" onchange="onTargetModeChange()"> 选择新建表</label>
+                </div>
+                <div class="catalog-trigger" id="catalogTrigger" onclick="openCatalogModal()">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M2 3h10v8H2z"/><path d="M2 3l2-2h4l2 2"/></svg>
+                  <span class="trigger-placeholder" id="catalogTriggerText">请选择载入目标</span>
+                </div>
+              </div>
+              <!-- Multi-sheet targets (Excel with multiple sheets selected) -->
+              <div id="multiSheetTargetSection" style="display:none">
+                <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:10px">为每个 Sheet 选择载入目标</div>
+                <div id="multiSheetTargetList"></div>
+              </div>
+              <!-- 初次载入规则 (本地上传单文件 CSV / 单 Sheet Excel → 已有表) -->
+              <div id="stLocalInitRule" style="display:none;margin-top:16px">
+                <div style="font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:8px">初次载入规则</div>
+                <div class="radio-group">
+                  <label><input type="radio" name="stLocalInitLoadRule" value="append" checked> 在已有数据后追加</label>
+                  <label><input type="radio" name="stLocalInitLoadRule" value="truncate"> 清空已有数据后追加</label>
+                </div>
+              </div>
+              <!-- 载入模式 (only for DB connector) -->
+              <div id="stDbLoadMode" style="display:none;margin-top:16px">
+                <div style="display:flex;gap:80px">
+                  <div>
+                    <div style="font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:8px">载入模式</div>
+                    <div class="radio-group">
+                      <label><input type="radio" name="stLoadMode" value="once" checked onchange="onStLoadModeChange()"> 一次载入</label>
+                      <label><input type="radio" name="stLoadMode" value="periodic" onchange="onStLoadModeChange()"> 周期载入</label>
+                      <label><input type="radio" name="stLoadMode" value="realtime" onchange="onStLoadModeChange()"> 实时更新</label>
+                    </div>
+                    <div id="stPeriodicOptions" style="display:none;margin-top:8px">
+                      <select class="form-input" id="stPeriodicInterval" style="width:160px;height:32px;font-size:13px">
+                        <option value="minute">每分钟</option>
+                        <option value="hourly">每小时</option>
+                        <option value="daily" selected>每天</option>
+                        <option value="weekly">每周</option>
+                        <option value="monthly">每月</option>
+                        <option value="cron">自定义 Cron</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="stInitLoadRuleDiv">
+                    <div style="font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:8px">初次载入规则</div>
+                    <div class="radio-group">
+                      <label><input type="radio" name="stInitLoadRule" value="append" checked> 在已有数据后追加</label>
+                      <label><input type="radio" name="stInitLoadRule" value="truncate"> 清空已有数据后追加</label>
+                    </div>
+                  </div>
+                </div>
+                <!-- 同步策略配置 (周期载入/实时更新时显示) -->
+                <div id="stIncrementalConfig" style="display:none;margin-top:16px;padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:8px">
+                  <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    同步策略
+                  </div>
+                  <div style="margin-bottom:12px;display:flex;gap:18px;align-items:center">
+                    <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="stSyncStrategy" value="incremental" checked onchange="onStSyncStrategyChange()"> 增量同步 <span style="color:rgba(0,0,0,0.35);font-size:11px" title="按水位线字段拉取新增/变更数据，MERGE 去重，适合变化型业务表（如工单、资产、读数）">?</span></label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="stSyncStrategy" value="full" onchange="onStSyncStrategyChange()"> 全量覆盖 <span style="color:rgba(0,0,0,0.35);font-size:11px" title="每次 TRUNCATE + INSERT 重新拉全表，适合行数小（&lt; 1万）的字典/枚举表（如优先级、状态、维修类型等）">?</span></label>
+                  </div>
+                  <div id="stIncrementalFields" style="display:flex;gap:24px;flex-wrap:wrap">
+                    <div style="min-width:200px">
+                      <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px">增量字段 <span style="color:rgba(0,0,0,0.25);font-size:11px" title="用于判断哪些数据是新增或变更的，通常选择时间戳字段。系统自动维护水位线，每次只拉取大于上次水位线的数据。">?</span></div>
+                      <select class="form-input" id="stIncrField" style="width:200px;height:32px;font-size:13px">
+                        <option value="">请选择增量字段</option>
+                      </select>
+                    </div>
+                    <div style="min-width:160px">
+                      <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px">回溯窗口 <span style="color:rgba(0,0,0,0.25);font-size:11px" title="每次拉取时额外回溯一段时间，防止因延迟到达的数据而遗漏。重叠的数据会按目标表主键自动去重（MERGE）。">?</span></div>
+                      <select class="form-input" id="stLookbackWindow" style="width:160px;height:32px;font-size:13px">
+                        <option value="0">无回溯</option>
+                        <option value="10m">10 分钟</option>
+                        <option value="30m">30 分钟</option>
+                        <option value="1h" selected>1 小时</option>
+                        <option value="3h">3 小时</option>
+                        <option value="6h">6 小时</option>
+                        <option value="12h">12 小时</option>
+                        <option value="1d">1 天</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="stFullRefreshHint" style="display:none;font-size:12px;color:rgba(0,0,0,0.45);line-height:1.7">
+                    每次执行将先 <code style="background:#fff;padding:1px 4px;border-radius:3px">TRUNCATE</code> 目标表再 <code style="background:#fff;padding:1px 4px;border-radius:3px">INSERT</code> 全部源数据。
+                    <br>无需配置增量字段与回溯窗口；不支持回填功能。
+                  </div>
+                </div>
+                <!-- 数据回填 -->
+                <div style="margin-top:16px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="font-size:14px;color:rgba(0,0,0,0.88)">数据回填</span>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="stBackfillToggle" onchange="onBackfillToggle()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div id="stBackfillConfig" style="display:none;margin-top:12px;padding:16px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:8px">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.45);line-height:1.8;margin-bottom:14px">
+                      开启后，任务会先从指定的历史时间点开始，分批拉取历史数据直到追平当前时间。追平后自动切换到上方配置的载入模式（周期/实时）继续运行。回填过程支持限速保护源端、断点续传（失败或暂停后从上次进度继续），适用于首次接入大量历史数据的场景。
+                    </div>
+                    <div style="display:flex;gap:24px;flex-wrap:wrap">
+                      <div style="min-width:200px">
+                        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px">回填起始时间 <span style="color:rgba(0,0,0,0.25);font-size:11px" title="从哪个时间点开始拉取历史数据。选择"从最早可用数据开始"将自动探测源端最早的数据时间。">?</span></div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                          <select class="form-input" id="stBackfillStartMode" style="width:180px;height:32px;font-size:13px" onchange="onBackfillStartModeChange()">
+                            <option value="auto">从最早可用数据开始</option>
+                            <option value="custom">指定起始时间</option>
+                          </select>
+                          <input class="form-input" id="stBackfillStartDate" type="date" value="2020-01-01" style="display:none;width:150px;height:32px;font-size:13px">
+                        </div>
+                      </div>
+                      <div style="min-width:120px">
+                        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px">批次大小 <span style="color:rgba(0,0,0,0.25);font-size:11px" title="每批拉取的时间跨度。数据量越大建议批次越小，减少单批内存压力和对源端的负载。">?</span></div>
+                        <select class="form-input" id="stBackfillBatchSize" style="width:120px;height:32px;font-size:13px">
+                          <option value="1h">1 小时</option>
+                          <option value="6h">6 小时</option>
+                          <option value="1d" selected>1 天</option>
+                          <option value="7d">1 周</option>
+                          <option value="1M">1 个月</option>
+                        </select>
+                      </div>
+                      <div style="min-width:120px">
+                        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px">批次间隔 <span style="color:rgba(0,0,0,0.25);font-size:11px" title="每批之间的等待时间，用于控制对源端系统的负载压力。源端是生产系统时建议设置较大间隔。">?</span></div>
+                        <select class="form-input" id="stBackfillInterval" style="width:120px;height:32px;font-size:13px">
+                          <option value="0">无间隔</option>
+                          <option value="3">3 秒</option>
+                          <option value="5" selected>5 秒</option>
+                          <option value="10">10 秒</option>
+                          <option value="30">30 秒</option>
+                          <option value="60">60 秒</option>
+                        </select>
+                      </div>
+                      <div style="min-width:160px">
+                        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px">执行窗口 <span style="color:rgba(0,0,0,0.25);font-size:11px" title="限制回填只在指定时间段内执行，避免在业务高峰期占用源端资源。不限制则全天执行。">?</span></div>
+                        <select class="form-input" id="stBackfillWindow" style="width:160px;height:32px;font-size:13px">
+                          <option value="none">不限制（全天执行）</option>
+                          <option value="22-06" selected>22:00 - 06:00</option>
+                          <option value="00-08">00:00 - 08:00</option>
+                          <option value="20-08">20:00 - 08:00</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- 运行配置：任务 + SQL 计算资源 -->
+                <div style="margin-top:16px">
+                  <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:10px;line-height:1.6">结构化载入同时用两类算力：<b>通用资源</b>运行拉取 / 解析 / 映射等非 SQL 处理，<b>SQL 资源</b>负责写入 MO 表；各自默认走对应的平台默认资源。</div>
+                  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+                    <div>
+                      <div style="font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:8px">通用计算资源 <span style="color:rgba(0,0,0,0.35);font-size:11px" title="运行拉取 / 解析 / 映射 / 去重等非 SQL 处理。默认走平台默认通用资源，也可指定专属通用资源。">?</span></div>
+                      <select class="form-input" id="stTaskResource" style="width:260px;height:32px;font-size:13px">
+                        <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+                        <option value="cr-cpu-01">cpu-通用-01（CPU 通用型 · 1~4 节点）</option>
+                        <option value="cr-etl">etl-专属（CPU 内存型 · 2~8 节点 · 常驻）</option>
+                        <option value="cr-gpu-01">gpu-推理-01（GPU 推理型 · 1~2 节点）</option>
+                        <option value="cr-gpu-02">gpu-训练-01（GPU 训练型 · 1~4 卡）</option>
+                      </select>
+                    </div>
+                    <div>
+                      <div style="font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:8px">SQL 计算资源 <span style="color:rgba(0,0,0,0.35);font-size:11px" title="负责把数据写入 MO 表的 SQL 执行。默认走平台默认 SQL 资源，也可指定专属SQL 资源。">?</span></div>
+                      <select class="form-input" id="stQueryResource" style="width:260px;height:32px;font-size:13px">
+                        <option value="default" selected>默认 SQL 资源（弹性 0→n · 闲时缩容）</option>
+                        <option value="cq-s">query-s（SQL 算力档 · 小 · 1~2 节点）</option>
+                        <option value="cq-m">query-m（SQL 算力档 · 中 · 2~4 节点）</option>
+                        <option value="cq-l">query-l（SQL 算力档 · 大 · 常驻）</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /.form-card -->
+
+        <!-- 全量分区同步 (Hive only) -->
+        <div id="hivePartitionCard" class="form-card" style="display:none">
+          <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88)">全量分区同步</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hivePartitionToggle" onchange="onHivePartitionToggle()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div id="hivePartitionOptions" style="display:none;align-items:center;gap:8px">
+              <span style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.45);white-space:nowrap">分区字段</span>
+              <div style="position:relative">
+                <div class="hive-field-trigger" id="hiveFieldTrigger" onclick="toggleHiveFieldDropdown()">
+                  <span class="hive-field-placeholder" id="hiveFieldDisplay">请选择分区字段</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.4"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="hive-field-dropdown" id="hiveFieldDropdown"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 载入前预处理已废除：所有源端 SQL / MongoDB Aggregation / Python 预处理统一搬到工作流的「数据载入」节点
+             理由见 docs/moi-product-design.md §「载入任务 vs 工作流 dataIngest 节点」
+             此处保留一个空 div 作为占位，避免引用断裂 -->
+        <div id="preprocessCard" style="display:none"></div>
+
+        <!-- 统一底部表单 (表定义 / 表映射，多 sheet 时用 tab 切换) -->
+        <div id="bottomFormCard" class="form-card" style="display:none;padding-bottom:80px">
+          <!-- Sheet tabs (only shown in multi-sheet mode) -->
+          <div id="bottomSheetTabs" class="sheet-tabs" style="display:none"></div>
+
+          <!-- 表定义 content (for new table / new sheet) -->
+          <div id="tableDefContent">
+            <div style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:16px">表定义</div>
+
+            <!-- File-only settings (hidden for DB connector) -->
+            <div id="fileOnlyTableSettings">
+              <div class="form-group" style="margin-bottom:16px">
+                <label class="form-label" style="width:auto;padding-top:3px">使用标题作为列名</label>
+                <div style="display:flex;align-items:center;gap:16px;padding-top:3px;flex:1">
+                  <label class="toggle-switch" style="flex-shrink:0">
+                    <input type="checkbox" id="enableColName" checked onchange="onEnableColNameChange()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span id="colNameSettings" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:rgba(0,0,0,0.88)">标题所在行
+                    <input class="form-input" type="number" id="headerRowInput" value="1" min="1" style="width:64px;flex:none;height:28px;font-size:13px" onchange="onHeaderRowChange()">
+                  </span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:rgba(0,0,0,0.88)">从第
+                    <input class="form-input" type="number" id="dataStartRowInput" value="2" min="1" style="width:64px;flex:none;height:28px;font-size:13px">
+                  行开始导入</span>
+                  <button class="csv-config-btn" id="csvConfigBtnDef" onclick="openCsvConfigModal()" style="display:none;margin-left:auto">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    CSV 配置
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="pkConflictTableDef" class="form-group" style="display:none">
+              <label class="form-label">主键冲突处理：</label>
+              <div class="radio-group">
+                <label><input type="radio" name="pkConflict" value="fail" checked> 导入失败</label>
+                <label><input type="radio" name="pkConflict" value="skip"> 跳过冲突行</label>
+                <label><input type="radio" name="pkConflict" value="replace"> 替换冲突行</label>
+              </div>
+            </div>
+
+            <!-- 新建表 schema -->
+            <div id="newTableSchema" style="display:none;border-top:1px solid #f0f0f0;padding-top:20px;margin-top:8px">
+              <div class="new-table-header">
+                <div class="nth-field">
+                  <label><span class="required">*</span> 表名</label>
+                  <input type="text" placeholder="请输入表名" id="newTableNameInput">
+                </div>
+                <div class="nth-field">
+                  <label>表描述</label>
+                  <input type="text" placeholder="请输入表描述">
+                </div>
+                <div class="nth-field" style="flex:0 0 auto">
+                  <label>&nbsp;</label>
+                  <button style="padding:4px 14px;height:32px;border:1px solid #1677ff;border-radius:6px;background:#fff;color:#1677ff;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap" onmouseover="this.style.background='#e6f4ff'" onmouseout="this.style.background='#fff'" onclick="openSamplePreview()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    抽样预览
+                  </button>
+                </div>
+              </div>
+
+              <!-- 打平控制 (MongoDB only) -->
+              <div id="flattenControl" style="display:none;margin-bottom:12px;padding:10px 14px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:8px;align-items:center;gap:12px;font-size:13px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                <span style="color:rgba(0,0,0,0.65);flex:1">检测到嵌套 JSON 字段，当前已打平第一层。</span>
+                <span class="flatten-btns" style="display:flex;gap:6px"></span>
+              </div>
+
+              <table class="col-schema-table" id="colSchemaTable">
+                <thead id="colSchemaHead">
+                  <tr>
+                    <th class="col-check"><input type="checkbox" checked onclick="toggleAllSchemaCols(this)" style="accent-color:#1677ff;cursor:pointer"></th>
+                    <th class="col-idx">#</th>
+                    <th>列名</th>
+                    <th>行数据信息</th>
+                  </tr>
+                </thead>
+                <tbody id="colSchemaBody"></tbody>
+              </table>
+            </div>
+          </div><!-- /#tableDefContent -->
+
+          <!-- 表映射 content (for existing table / existing sheet) -->
+          <div id="colMappingContent" style="display:none">
+            <div style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:4px">表映射</div>
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">将数据源表的列映射到目标表的列，主键列必须映射，其余列可选择不映射</div>
+
+            <!-- File-only settings for mapping section (hidden for DB connector) -->
+            <div id="fileOnlyMappingSettings" style="margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:16px;font-size:14px;color:rgba(0,0,0,0.88)">
+                <span style="display:inline-flex;align-items:center;gap:8px">使用标题作为列名
+                  <label class="toggle-switch" style="flex-shrink:0">
+                    <input type="checkbox" id="enableColNameMapping" checked onchange="onEnableColNameChangeMapping()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </span>
+                <span id="colNameSettingsMapping" style="display:inline-flex;align-items:center;gap:6px">标题所在行
+                  <input class="form-input" type="number" id="headerRowInputMapping" value="1" min="1" style="width:64px;flex:none;height:28px;font-size:13px" onchange="onHeaderRowChangeMapping()">
+                </span>
+                <span style="display:inline-flex;align-items:center;gap:6px">从第
+                  <input class="form-input" type="number" id="dataStartRowInputMapping" value="2" min="1" style="width:64px;flex:none;height:28px;font-size:13px">
+                行开始导入</span>
+                <button class="csv-config-btn" id="csvConfigBtnMap" onclick="openCsvConfigModal()" style="display:none;margin-left:auto">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  CSV 配置
+                </button>
+              </div>
+            </div>
+
+            <div id="pkConflictMapping" class="form-group" style="margin-bottom:20px;display:none">
+              <label class="form-label">主键冲突处理：</label>
+              <div class="radio-group">
+                <label><input type="radio" name="mappingPkConflict" value="fail" checked> 导入失败</label>
+                <label><input type="radio" name="mappingPkConflict" value="skip"> 跳过冲突行</label>
+                <label><input type="radio" name="mappingPkConflict" value="replace"> 替换冲突行</label>
+              </div>
+            </div>
+
+            <div class="col-mapping-row">
+              <!-- 数据源表 (left) -->
+              <div class="col-mapping-side">
+                <div class="col-mapping-title">数据源表</div>
+                <table class="mapping-table" id="srcColTable">
+                  <thead><tr><th>列名</th><th>推荐类型</th></tr></thead>
+                  <tbody id="srcColList"></tbody>
+                </table>
+              </div>
+              <!-- 导入目标表 (right) -->
+              <div class="col-mapping-side">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                  <div class="col-mapping-title" style="margin-bottom:0">导入目标表</div>
+                  <div class="inline-tabs" id="mappingModeTabs">
+                    <div class="inline-tab active" onclick="onMappingModeChange('smart', this)">智能推荐</div>
+                    <div class="inline-tab" onclick="onMappingModeChange('sequential', this)">按序映射</div>
+                  </div>
+                </div>
+                <table class="mapping-table" id="tgtColTable">
+                  <thead><tr><th>列名</th><th>列类型</th><th>源列映射</th></tr></thead>
+                  <tbody id="tgtColList"></tbody>
+                </table>
+              </div>
+            </div>
+          </div><!-- /#colMappingContent -->
+        </div><!-- /.form-card 统一底部表单 -->
+      </div><!-- /#formStructured -->
+    </div><!-- /.page-content -->
+  </div><!-- /.main -->
+  <div class="bottom-bar">
+    <span class="file-count" id="fileCount">已选中 0 个文件</span>
+    <button class="btn-primary" onclick="createImport()">创建并开始载入</button>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/import-tasks.js?v=2"></script>
+  <script src="../scripts/data-import-create.js"></script>
+
+  <!-- File Browser Modal -->
+  <div class="catalog-modal-overlay" id="fileBrowserModal" onclick="if(event.target===this)closeFileBrowser()">
+    <div class="catalog-modal" style="width:520px">
+      <div class="catalog-modal-header">
+        <h3>选择文件</h3>
+        <button class="catalog-modal-close" onclick="closeFileBrowser()">✕</button>
+      </div>
+      <div style="padding:0 24px 4px;font-size:13px;color:rgba(0,0,0,0.45)">仅支持 csv、xls、xlsx 格式文件</div>
+      <div style="padding:0 24px 16px">
+        <div class="file-browser-list" id="fileBrowserList"></div>
+      </div>
+      <div class="catalog-modal-footer">
+        <button class="btn-cancel" onclick="closeFileBrowser()">取 消</button>
+        <button class="btn-confirm" id="fileBrowserConfirmBtn" onclick="confirmFileBrowser()">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Catalog Modal -->
+  <div class="catalog-modal-overlay" id="catalogModal" onclick="if(event.target===this)closeCatalogModal()">
+    <div class="catalog-modal">
+      <div class="catalog-modal-header">
+        <h3>选择载入目标</h3>
+        <button class="catalog-modal-close" onclick="closeCatalogModal()">✕</button>
+      </div>
+      <div class="catalog-modal-body">
+        <div class="catalog-col">
+          <div class="catalog-col-header">目录</div>
+          <div class="catalog-col-list" id="catalogDirList"></div>
+        </div>
+        <div class="catalog-col">
+          <div class="catalog-col-header">库</div>
+          <div class="catalog-col-list" id="catalogDbList"></div>
+        </div>
+        <div class="catalog-col" id="catalogColTable">
+          <div class="catalog-col-header">表</div>
+          <div class="catalog-col-list" id="catalogTableList"></div>
+        </div>
+      </div>
+      <div class="catalog-modal-footer">
+        <button class="btn-cancel" onclick="closeCatalogModal()">取 消</button>
+        <button class="btn-confirm" id="catalogConfirmBtn" onclick="confirmCatalogSelection()">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unstructured Catalog Modal (目录→库→卷) -->
+  <div class="catalog-modal-overlay" id="usCatalogModal" onclick="if(event.target===this)closeUsCatalogModal()">
+    <div class="catalog-modal">
+      <div class="catalog-modal-header">
+        <h3>选择载入位置</h3>
+        <button class="catalog-modal-close" onclick="closeUsCatalogModal()">✕</button>
+      </div>
+      <div style="padding:0 24px 12px;font-size:13px;color:rgba(0,0,0,0.45)">非结构化数据需要载入到卷（Volume）中</div>
+      <div class="catalog-modal-body">
+        <div class="catalog-col">
+          <div class="catalog-col-header">目录 <span style="cursor:pointer;color:#1677ff;font-size:13px;font-weight:400" onclick="alert('新建目录（模拟）')">+ 新建</span></div>
+          <div class="catalog-col-list" id="usCatalogDirList"></div>
+        </div>
+        <div class="catalog-col">
+          <div class="catalog-col-header">库 <span style="cursor:pointer;color:#1677ff;font-size:13px;font-weight:400" onclick="alert('新建库（模拟）')">+ 新建</span></div>
+          <div class="catalog-col-list" id="usCatalogDbList"></div>
+        </div>
+        <div class="catalog-col">
+          <div class="catalog-col-header">卷 <span style="cursor:pointer;color:#1677ff;font-size:13px;font-weight:400" onclick="alert('新建卷（模拟）')">+ 新建</span></div>
+          <div class="catalog-col-list" id="usCatalogVolList"></div>
+        </div>
+      </div>
+      <div class="catalog-modal-footer">
+        <button class="btn-cancel" onclick="closeUsCatalogModal()">取 消</button>
+        <button class="btn-confirm" id="usCatalogConfirmBtn" onclick="confirmUsCatalogSelection()">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CSV Config Modal -->
+  <div class="catalog-modal-overlay" id="csvConfigModal" onclick="if(event.target===this)closeCsvConfigModal()">
+    <div class="csv-modal">
+      <div class="csv-modal-header">
+        <h3>CSV 配置</h3>
+        <button class="catalog-modal-close" onclick="closeCsvConfigModal()">✕</button>
+      </div>
+      <div class="csv-modal-body">
+        <div class="csv-fields">
+          <div class="csv-field">
+            <span class="csv-field-label">分隔符</span>
+            <select id="csvSeparator" onchange="updateCsvPreview()">
+              <option value="," selected>逗号 (,)</option>
+              <option value=";">分号 (;)</option>
+              <option value="\t">制表符 (\t)</option>
+              <option value="|">管道符号 (|)</option>
+              <option value=" ">空格 ( )</option>
+            </select>
+          </div>
+          <div class="csv-field">
+            <span class="csv-field-label">定界符</span>
+            <select id="csvDelimiter" onchange="updateCsvPreview()">
+              <option value="&quot;" selected>双引号 ("")</option>
+              <option value="'">单引号 (')</option>
+              <option value="~">波浪号 (~)</option>
+              <option value="">无</option>
+            </select>
+          </div>
+          <div class="csv-toggle-field">
+            <span class="csv-field-label">反斜杠转义</span>
+            <label class="toggle-switch" style="margin-top:6px">
+              <input type="checkbox" id="csvEscape" onchange="updateCsvPreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="csv-preview" id="csvPreviewArea"></div>
+      </div>
+      <div class="catalog-modal-footer">
+        <button class="btn-cancel" onclick="closeCsvConfigModal()">取 消</button>
+        <button class="btn-confirm active" onclick="confirmCsvConfig()">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sample Preview Modal -->
+  <div class="catalog-modal-overlay" id="samplePreviewModal" onclick="if(event.target===this)closeSamplePreview()">
+    <div class="catalog-modal" style="width:720px;max-height:80vh">
+      <div class="catalog-modal-header" style="border-bottom:1px solid #f0f0f0">
+        <h3>抽样预览</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:rgba(0,0,0,0.45)" id="sampleIndex">第 1 条 / 共 5 条</span>
+          <button style="padding:4px 12px;height:28px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;color:rgba(0,0,0,0.65);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" onclick="nextSample()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            换一条
+          </button>
+          <button class="catalog-modal-close" onclick="closeSamplePreview()">✕</button>
+        </div>
+      </div>
+      <div style="padding:16px 20px;overflow-y:auto;max-height:calc(80vh - 60px)">
+        <div id="sampleContent" style="font-family:'SF Mono',Monaco,Consolas,monospace;font-size:13px;line-height:1.7;color:rgba(0,0,0,0.88);background:#fafafa;border:1px solid #f0f0f0;border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-all"></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
