@@ -9,16 +9,14 @@
 ### 企业级 AI 数据产品案例集
 
 <p>
-  <a href="docs/02-document-intelligence/"><img src="https://img.shields.io/badge/01-%F0%9F%93%84%20Document%20Intelligence-EAF3FF?style=flat-square&labelColor=4E82DF" alt="01 Document Intelligence" /></a>
-  <a href="docs/02-document-intelligence/"><img src="https://img.shields.io/badge/02-%F0%9F%94%8E%20Traceable%20RAG-E8F8F5?style=flat-square&labelColor=28A5A5" alt="02 Traceable RAG" /></a>
-  <a href="docs/03-agentic-data-workflow/"><img src="https://img.shields.io/badge/03-%F0%9F%9B%A0%EF%B8%8F%20Agentic%20Workflow-F0ECFF?style=flat-square&labelColor=8064D9" alt="03 Agentic Workflow" /></a>
-  <a href="docs/04-solution-poc/"><img src="https://img.shields.io/badge/04-%E2%9C%85%20Evaluation-FFF2DF?style=flat-square&labelColor=E59A43" alt="04 Evaluation" /></a>
-  <a href="docs/04-solution-poc/"><img src="https://img.shields.io/badge/05-%F0%9F%9B%A1%EF%B8%8F%20Trusted%20AI-E9F7EE?style=flat-square&labelColor=43A76C" alt="05 Trusted AI" /></a>
+  <a href="docs/prd/document-intelligence/"><img src="https://img.shields.io/badge/01-%F0%9F%93%84%20Document%20Intelligence-EAF3FF?style=flat-square&labelColor=4E82DF" alt="01 Document Intelligence" /></a>
+  <a href="docs/prd/agentic-data-workflow/"><img src="https://img.shields.io/badge/02-%F0%9F%9B%A0%EF%B8%8F%20Agentic%20Workflow-F0ECFF?style=flat-square&labelColor=8064D9" alt="02 Agentic Workflow" /></a>
+  <a href="docs/poc/enterprise-ai-solution/"><img src="https://img.shields.io/badge/03-%E2%9C%85%20Enterprise%20AI%20PoC-FFF2DF?style=flat-square&labelColor=E59A43" alt="03 Enterprise AI PoC" /></a>
 </p>
 
 <sub>多模态文档解析 · 可溯源 RAG · Agentic Workflow · 评测驱动迭代</sub>
 
-[案例总览](docs/00-portfolio/case-map.md) · [能力证据矩阵](docs/00-portfolio/jd-evidence-matrix.md) · [文档智能](docs/02-document-intelligence/) · [Agent 工作流](docs/03-agentic-data-workflow/) · [解决方案 PoC](docs/04-solution-poc/) · [English](README_EN.md)
+[产品调研](docs/research/) · [PRD](docs/prd/) · [PoC](docs/poc/) · [产品实现](product/) · [English](README_EN.md)
 
 </div>
 
@@ -43,9 +41,9 @@
 
 | 案例 | 要解决的问题 | 面试官可验证的产物 |
 | --- | --- | --- |
-| [01 · Document Intelligence](docs/02-document-intelligence/) | 复杂文档解析、结构化提取、检索问答与引用溯源。 | 架构、PRD、Prompt 版本、Golden Set、Rubric 与 Badcase。 |
-| [02 · Agentic Data Workflow](docs/03-agentic-data-workflow/) | 多步骤任务中的规划、工具调用、状态追踪与人工接管。 | Agent 设计、工作流、工具契约、失败恢复与评测方案。 |
-| [03 · Enterprise AI Solution PoC](docs/04-solution-poc/) | 将企业问题转化为可落地、可验收、可推广的 AI 方案。 | 需求澄清、方案设计、PoC、验收标准、推广与风险管理。 |
+| [01 · Document Intelligence](docs/prd/document-intelligence/) | 复杂文档解析、结构化提取、检索问答与引用溯源。 | 架构、PRD、Prompt 版本、Golden Set、Rubric 与 Badcase。 |
+| [02 · Agentic Data Workflow](docs/prd/agentic-data-workflow/) | 多步骤任务中的规划、工具调用、状态追踪与人工接管。 | Agent 设计、工作流、工具契约、失败恢复与评测方案。 |
+| [03 · Enterprise AI Solution PoC](docs/poc/enterprise-ai-solution/) | 将企业问题转化为可落地、可验收、可推广的 AI 方案。 | 需求澄清、方案设计、PoC、验收标准、推广与风险管理。 |
 
 ## AI Native 能力，不只是一份技术清单
 
@@ -59,7 +57,7 @@
 | 技术选型 | 模型能力、上下文、延迟、成本、部署和安全之间的产品取舍。 |
 | 解决方案 | 场景定义、PoC 范围、ROI、验收、培训和规模化推广。 |
 
-完整映射见 [JD Evidence Matrix](docs/00-portfolio/jd-evidence-matrix.md)。
+完整映射见 [能力证据矩阵](docs/prd/casebook/jd-evidence-matrix.md)。
 
 ## 5 分钟阅读路径
 
@@ -73,33 +71,28 @@ Agentic Data Workflow：从单次回答到可控任务执行
 Solution PoC：从产品能力到客户可验收交付
 ```
 
-1. 阅读 [产品定位](docs/00-portfolio/positioning.md) 和 [能力证据矩阵](docs/00-portfolio/jd-evidence-matrix.md)。
-2. 查看文档智能案例中的架构、评测方案和 Badcase 复盘。
-3. 查看 Agent 的工具契约、工作流状态和人工接管设计。
-4. 最后进入解决方案 PoC，理解能力如何变成客户价值与验收结果。
+1. 阅读 [产品定位](docs/prd/casebook/positioning.md) 和 [能力证据矩阵](docs/prd/casebook/jd-evidence-matrix.md)。
+2. 从 [产品调研](docs/research/) 进入 RAG、数据质量与 Data + AI 的研究结论。
+3. 查看 [文档智能](docs/prd/document-intelligence/) 与 [Agent 工作流](docs/prd/agentic-data-workflow/) 的 PRD。
+4. 最后进入 [解决方案 PoC](docs/poc/enterprise-ai-solution/)，理解能力如何变成客户价值与验收结果。
 
 ## 仓库结构
 
 ```text
-docs/       产品、方案、PoC 与交付文档
-apps/       后续可运行的文档智能与 Agent Demo
-packages/   Schema、Prompt Library 与 Evaluation Kit
-evals/      Golden Set、Rubric、Badcase、回归结果
-data/       仅公开授权或完全自制的样例数据
-assets/     重新绘制的架构图、工作流图、截图与演示
-scripts/    数据准备、评测、报告与公开发布检查
-tests/      单元、集成、端到端和回归测试
+docs/       research、prd 与 poc 三类产品文档
+product/    未来的原型、可运行产品代码和工程文档
+assets/     公开可用的架构图、工作流图与研究配图
 ```
 
 ## 当前进度
 
-- [x] 搭建案例、代码、评测和公开发布检查的目录骨架。
-- [x] 定义 JD 能力到公开证据的映射。
+- [x] 完成以 research、prd、poc 和 product 为核心的信息架构。
+- [x] 移除公开仓库中的产品源码快照与空工程骨架。
 - [ ] 从源材料独立重写案例叙事与个人贡献边界。
-- [ ] 使用公开或合成数据补全 Demo、Golden Set 与评测结果。
-- [ ] 重新绘制架构图与工作流图。
-- [ ] 通过公开发布检查后再创建 GitHub 仓库。
+- [ ] 在 `product/` 中补全产品原型与可运行实现。
+- [ ] 使用公开或合成数据补全 PoC 的评测结果。
+- [ ] 完成图片来源与许可证的逐项审核。
 
 ## Public Release Boundary
 
-这是个人作品集，不是产品资料归档。提交任何内容前，请先阅读 [公开发布与保密边界](DISCLAIMER.md) 与 [数据来源及许可证清单](docs/05-references/data-license-manifest.md)。
+这是个人作品集，不是产品资料归档。提交任何内容前，请先阅读 [公开发布与保密边界](DISCLAIMER.md) 与 [数据来源及许可证清单](docs/research/references/data-license-manifest.md)。

@@ -17,7 +17,7 @@ This repository presents independently recreated product cases for learning and 
 2. Replace names, dates, versions, internal terminology, screenshots, and data with generic or synthetic equivalents.
 3. Verify that every statement about personal contribution is factual and can be explained in an interview.
 4. Record the source and license for every public dataset or external visual asset.
-5. Run the future `scripts/verify-public-release/` checks and perform a manual review.
+5. Perform a manual public-release review before every publication.
 
 ## Naming
 

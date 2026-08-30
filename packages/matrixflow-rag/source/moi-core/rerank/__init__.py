@@ -1,1 +1,0 @@
-"""Rerank service package."""

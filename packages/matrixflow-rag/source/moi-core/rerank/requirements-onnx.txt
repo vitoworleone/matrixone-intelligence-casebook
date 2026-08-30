@@ -1,5 +1,0 @@
--r requirements-base.txt
-onnx>=1.15.0
-onnxruntime>=1.17.0
-# Use onnxruntime-gpu when running on CUDA/TensorRT environments
-# onnxruntime-gpu>=1.17.0
