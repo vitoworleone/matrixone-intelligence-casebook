@@ -18,7 +18,7 @@
 
 围绕企业知识检索、复杂文档理解与可追溯证据的研究与设计判断。
 
-### [POC 方案集](docs/poc/moi-solution-playbook/)
+### [POC 方案集](docs/poc/)
 
 从场景澄清、验证范围到验收与复盘的交付方法。
 
@@ -32,4 +32,4 @@ assets/     公开可用的架构图、工作流图与研究配图
 
 ## 延伸阅读
 
-[产品调研](docs/research/) · [平台 PRD](docs/prd/) · [POC 方案集](docs/poc/moi-solution-playbook/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)
+[产品调研](docs/research/) · [平台 PRD](docs/prd/) · [POC 方案集](docs/poc/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)

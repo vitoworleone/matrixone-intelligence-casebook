@@ -18,10 +18,10 @@ Product requirements spanning data ingestion, workflow processing, knowledge ret
 
 Research and design judgment for enterprise knowledge retrieval, complex document understanding, and traceable evidence.
 
-### [PoC Playbook](docs/poc/moi-solution-playbook/)
+### [PoC Playbook](docs/poc/)
 
 A delivery approach from problem framing and validation scope through acceptance and retrospective.
 
 ## Further reading
 
-[Research](docs/research/) · [Platform PRDs](docs/prd/) · [PoC playbook](docs/poc/moi-solution-playbook/) · [Product prototype](product/moi-platform-prototype/) · [Publication policy](DISCLAIMER.md)
+[Research](docs/research/) · [Platform PRDs](docs/prd/) · [PoC playbook](docs/poc/) · [Product prototype](product/moi-platform-prototype/) · [Publication policy](DISCLAIMER.md)
