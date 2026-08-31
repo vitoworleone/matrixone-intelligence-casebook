@@ -16,3 +16,10 @@ Serve this directory with any static HTTP server, then open `index.html`. The pr
 - `images/`, `styles/`, `scripts/` — static resources used by the prototype
 
 The original offline research and document-editing scripts are intentionally not included: they are not needed to run this prototype.
+
+## Upstream synchronization
+
+This directory is maintained as a Git subtree of `moi-prototype/html`. See the
+[casebook synchronization guide](../moi-platform-prototype-sync.md) before
+updating it. Keep public-demo sanitization and casebook-only changes in this
+repository rather than copying files manually.
