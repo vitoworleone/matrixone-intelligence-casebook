@@ -433,7 +433,7 @@
           + '<td>' + tagsHtml + '</td>'
           + '<td><span class="status-badge"><span class="dot '+(u.status?'on':'off')+'"></span>'+(u.status?'启用':'禁用')+'</span></td>'
           + '<td style="font-size:13px;color:rgba(0,0,0,0.55)">'+u.lastLogin+'</td>'
-          + '<td>'+(u.isSystem?'<span style="font-size:12px;color:rgba(0,0,0,0.2)">—</span>':'<div style="display:flex;gap:4px"><button class="btn-sm" onclick="editUser(\''+u.id+'\')">编辑</button><button class="btn-sm'+(u.status?' danger':'')+'" onclick="toggleUser(\''+u.id+'\')">'+(u.status?'禁用':'启用')+'</button></div>')+'</td></tr>';
+          + '<td>'+(u.isSystem?'<span style="font-size:12px;color:rgba(0,0,0,0.2)">—</span>':'<div style="display:flex;gap:4px"><button class="btn-sm" onclick="editUser(\''+u.id+'\')">编辑</button><button class="btn-sm'+(u.status?' danger':'')+'" onclick="toggleUser(\''+u.id+'\')">'+(u.status?'禁用':'启用')+'</button><button class="btn-sm danger" onclick="removeStaff(\''+u.id+'\')" title="收回角色，降为普通用户">移除</button></div>')+'</td></tr>';
       }).join('');
       document.getElementById('usersBody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(0,0,0,0.25)">暂无用户</td></tr>';
     }
@@ -533,6 +533,17 @@
       renderUsers();
     }
     function toggleUser(id) { var u=usersData.find(function(x){return x.id===id;});if(!u||u.isSystem)return;u.status=!u.status;renderUsers(); }
+
+    // 移除管理用户:收回角色、降为普通用户(账号本身与数据不受影响,回到普通用户列表,可重新添加)
+    function removeStaff(id) {
+      var u = usersData.find(function(x) { return x.id === id; });
+      if (!u || u.isSystem) return;
+      var r = roleMap[u.role] || { name: u.role };
+      if (!confirm('移除管理用户「' + u.name + '」？\n\n移除后将收回其「' + r.name + '」角色、降为普通用户，不再能访问管理后台；账号本身、数据与分组不受影响，之后可随时重新添加为管理用户。')) return;
+      usersData = usersData.filter(function(x) { return x.id !== id; });
+      renderUsers();
+      if (typeof renderRegularUsers === 'function') renderRegularUsers();
+    }
     function closeUserModal() { document.getElementById('userModalOverlay').classList.remove('open'); }
 
     renderUsers();

@@ -91,11 +91,152 @@
   ];
 
   const catalogSources = [
-    { id: 'catalog-bpc', name: 'bpc_consolidated_report', type: '数据表', size: '2,486,320 行', path: '默认 / jst_flat_table / bpc_consolidated_report', comment: 'BPC 合并报表明细，用于合并报表指标、期间和组织维度查询', updated: '2026-07-22 16:07' },
-    { id: 'catalog-org', name: 'organization_master', type: '数据表', size: '1,286 行', path: '默认 / jst_flat_table / organization_master', comment: '组织主数据，包含组织编码、名称及上下级关系', updated: '2026-07-22 15:48' },
-    { id: 'catalog-account', name: 'account_mapping', type: '数据表', size: '8,642 行', path: '默认 / jst_flat_table / account_mapping', comment: '合并科目映射，包含科目编码、名称、父级编码和置反标识', updated: '2026-07-21 18:26' },
-    { id: 'catalog-bpc-guide', name: 'BPC_指标口径说明.pdf', type: '文件', size: '2.8 MB', path: '默认 / BPC / BPC_指标口径说明.pdf', updated: '2026-07-20 11:35' }
+    { id: 'catalog-bpc', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'tables', name: 'bpc_consolidated_report', type: '数据表', size: '2,486,320 行', path: '默认 / jst_flat_table / bpc_consolidated_report', comment: 'BPC 合并报表明细，用于合并报表指标、期间和组织维度查询', updated: '2026-07-22 16:07' },
+    { id: 'catalog-org', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'tables', name: 'organization_master', type: '数据表', size: '1,286 行', path: '默认 / jst_flat_table / organization_master', comment: '组织主数据，包含组织编码、名称及上下级关系', updated: '2026-07-22 15:48' },
+    { id: 'catalog-account', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'tables', name: 'account_mapping', type: '数据表', size: '8,642 行', path: '默认 / jst_flat_table / account_mapping', comment: '合并科目映射，包含科目编码、名称、父级编码和置反标识', updated: '2026-07-21 18:26' },
+    { id: 'catalog-bpc-guide', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', name: 'BPC_指标口径说明.pdf', type: '文件', size: '2.8 MB', path: '默认 / jst_flat_table / BPC / BPC_指标口径说明.pdf', updated: '2026-07-20 11:35' },
+    { id: 'catalog-bpc-policy', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', folderId: 'accounting-standards', name: '合并报表业务规则.docx', type: '文件', size: '1.4 MB', path: '默认 / jst_flat_table / BPC / 会计准则 / 合并报表业务规则.docx', updated: '2026-07-18 09:20' },
+    { id: 'catalog-bpc-archive', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', name: '历史底稿归档.zip', type: '文件', size: '18.6 MB', path: '默认 / jst_flat_table / BPC / 历史底稿归档.zip', updated: '2026-07-15 13:08', supported: false },
+    { id: 'catalog-product', catalogId: 'default', databaseId: 'business_data', scopeId: 'tables', name: 'product_master', type: '数据表', size: '32,680 行', path: '默认 / business_data / product_master', comment: '产品主数据，包含产品编码、分类及生命周期状态', updated: '2026-07-19 10:42' },
+    { id: 'catalog-product-guide', catalogId: 'default', databaseId: 'business_data', scopeId: 'product-volume', name: '产品使用手册.pdf', type: '文件', size: '6.2 MB', path: '默认 / business_data / 产品资料 / 产品使用手册.pdf', updated: '2026-07-17 17:05' },
+    { id: 'catalog-finance-policy', catalogId: 'finance', databaseId: 'finance_docs', scopeId: 'policy-volume', name: '财务制度汇编.pdf', type: '文件', size: '9.8 MB', path: '财务共享 / finance_docs / 制度文件 / 财务制度汇编.pdf', updated: '2026-07-16 14:30' }
   ];
+
+  const catalogLocations = [
+    {
+      id: 'default', name: '默认', databases: [
+        { id: 'jst_flat_table', name: 'jst_flat_table', scopes: [{ id: 'tables', name: '数据表', type: '数据表' }, { id: 'bpc-volume', name: 'BPC', type: 'Volume' }] },
+        { id: 'business_data', name: 'business_data', scopes: [{ id: 'tables', name: '数据表', type: '数据表' }, { id: 'product-volume', name: '产品资料', type: 'Volume' }] }
+      ]
+    },
+    {
+      id: 'finance', name: '财务共享', databases: [
+        { id: 'finance_docs', name: 'finance_docs', scopes: [{ id: 'policy-volume', name: '制度文件', type: 'Volume' }] }
+      ]
+    }
+  ];
+
+  const catalogFolders = [
+    { id: 'accounting-standards', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', name: '会计准则' },
+    { id: 'bpc-annual-reports', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', name: '年度报告' },
+    { id: 'bpc-audit-packages', catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', name: '审计底稿' },
+    { id: 'product-manuals', catalogId: 'default', databaseId: 'business_data', scopeId: 'product-volume', name: '产品手册' },
+    { id: 'product-training', catalogId: 'default', databaseId: 'business_data', scopeId: 'product-volume', name: '培训资料' },
+    { id: 'finance-policies', catalogId: 'finance', databaseId: 'finance_docs', scopeId: 'policy-volume', name: '财务制度' },
+    { id: 'finance-archives', catalogId: 'finance', databaseId: 'finance_docs', scopeId: 'policy-volume', name: '历史归档' }
+  ];
+
+  // Large Catalog fixture: enough rows to exercise pagination, scrolling, selection ranges and large-file display.
+  (function appendLargeCatalogMocks() {
+    const tableNames = [
+      'customer_profile_daily', 'sales_order_detail', 'sales_order_item', 'product_inventory_snapshot',
+      'organization_hierarchy', 'account_balance_monthly', 'cash_flow_daily', 'profit_center_summary',
+      'cost_center_allocation', 'supplier_master', 'customer_contract', 'invoice_detail',
+      'payment_transaction', 'marketing_campaign_result', 'channel_performance', 'store_sales_hourly',
+      'employee_directory', 'budget_version_detail', 'forecast_monthly', 'exchange_rate_daily',
+      'tax_calculation_detail', 'asset_depreciation', 'purchase_order_detail', 'warehouse_movement',
+      'quality_inspection_result', 'service_ticket_detail', 'membership_activity', 'coupon_redemption',
+      'web_event_session', 'mobile_event_session', 'recommendation_impression', 'recommendation_conversion'
+    ];
+    tableNames.forEach(function (name, index) {
+      catalogSources.push({
+        id: 'mock-table-' + (index + 1), catalogId: 'default', databaseId: index < 18 ? 'jst_flat_table' : 'business_data',
+        scopeId: 'tables', name: name, type: '数据表', size: ((index + 3) * 128500).toLocaleString('en-US') + ' 行',
+        path: '默认 / ' + (index < 18 ? 'jst_flat_table' : 'business_data') + ' / ' + name,
+        comment: '大数据量分页与范围选择测试表 ' + (index + 1), updated: '2026-08-' + String(30 - (index % 20)).padStart(2, '0') + ' ' + String(8 + (index % 10)).padStart(2, '0') + ':20'
+      });
+    });
+
+    const fileFixtures = [
+      { prefix: 'BPC_年度合并报告', count: 72, catalogId: 'default', databaseId: 'jst_flat_table', scopeId: 'bpc-volume', folders: ['bpc-annual-reports', 'bpc-audit-packages', 'accounting-standards'] },
+      { prefix: '产品技术资料', count: 64, catalogId: 'default', databaseId: 'business_data', scopeId: 'product-volume', folders: ['product-manuals', 'product-training'] },
+      { prefix: '财务制度与凭证', count: 48, catalogId: 'finance', databaseId: 'finance_docs', scopeId: 'policy-volume', folders: ['finance-policies', 'finance-archives'] }
+    ];
+    const supportedExtensions = ['pdf', 'docx', 'pptx', 'xlsx', 'txt', 'md', 'html', 'eml', 'msg'];
+    const largeSizes = ['128 MB', '256 MB', '512 MB', '768 MB', '1.2 GB', '2.5 GB', '4.8 GB', '8.6 GB', '12.4 GB', '18.7 GB'];
+    let fileIndex = 0;
+    fileFixtures.forEach(function (fixture) {
+      for (let index = 0; index < fixture.count; index += 1) {
+        fileIndex += 1;
+        const unsupported = index > 0 && index % 13 === 0;
+        const extension = unsupported ? (index % 2 ? 'zip' : 'mp4') : supportedExtensions[index % supportedExtensions.length];
+        const folderId = fixture.folders[index % fixture.folders.length];
+        const folder = catalogFolders.find(function (item) { return item.id === folderId; });
+        const name = fixture.prefix + '_' + String(index + 1).padStart(3, '0') + '.' + extension;
+        catalogSources.push({
+          id: 'mock-large-file-' + fileIndex, catalogId: fixture.catalogId, databaseId: fixture.databaseId,
+          scopeId: fixture.scopeId, folderId: folderId, name: name, type: '文件', size: largeSizes[index % largeSizes.length],
+          path: (fixture.catalogId === 'finance' ? '财务共享' : '默认') + ' / ' + fixture.databaseId + ' / ' + (folder ? folder.name : '') + ' / ' + name,
+          updated: '2026-08-' + String(30 - (index % 20)).padStart(2, '0') + ' ' + String(9 + (index % 9)).padStart(2, '0') + ':35',
+          supported: !unsupported
+        });
+      }
+    });
+  })();
+
+  // Wide Catalog fixture: exercises long Catalog/Database navigation lists and multi-page database browsing.
+  (function appendCatalogAndDatabaseMocks() {
+    const catalogFixtures = [
+      ['sales-operations', '销售运营', 'sales'],
+      ['customer-360', '客户数据', 'customer'],
+      ['supply-chain', '供应链', 'supply'],
+      ['manufacturing', '生产制造', 'manufacturing'],
+      ['human-resources', '人力资源', 'hr'],
+      ['marketing-growth', '市场增长', 'marketing'],
+      ['risk-compliance', '风险合规', 'risk'],
+      ['data-governance', '数据治理', 'governance'],
+      ['iot-platform', 'IoT 设备', 'iot'],
+      ['archive-center', '历史归档', 'archive']
+    ];
+    const databaseDomains = [
+      'core', 'master', 'transaction', 'analytics', 'realtime', 'reporting',
+      'warehouse', 'lakehouse', 'staging', 'sandbox', 'quality', 'audit',
+      'forecast', 'planning', 'operation', 'finance', 'document', 'events',
+      'profile', 'metric', 'snapshot', 'history', 'external', 'backup'
+    ];
+    const fileExtensions = ['pdf', 'docx', 'xlsx', 'pptx', 'txt', 'md', 'html', 'eml'];
+    const fileSizes = ['256 MB', '768 MB', '1.5 GB', '3.2 GB', '6.4 GB', '9.8 GB', '14.6 GB', '20.5 GB'];
+    catalogFixtures.forEach(function (fixture, catalogIndex) {
+      const catalogId = fixture[0], catalogName = fixture[1], prefix = fixture[2];
+      const databases = databaseDomains.map(function (domain, databaseIndex) {
+        const ordinal = String(databaseIndex + 1).padStart(2, '0');
+        const databaseId = prefix + '_' + domain + '_' + ordinal;
+        const volumeId = databaseId + '-volume';
+        const folderId = databaseId + '-large-files';
+        const databaseName = prefix + '_' + domain;
+        catalogFolders.push({ id: folderId, catalogId: catalogId, databaseId: databaseId, scopeId: volumeId, name: '批量大文件' });
+        for (let tableIndex = 0; tableIndex < 3; tableIndex += 1) {
+          const tableName = databaseName + '_dataset_' + String(tableIndex + 1).padStart(2, '0');
+          catalogSources.push({
+            id: 'mock-wide-table-' + catalogIndex + '-' + databaseIndex + '-' + tableIndex,
+            catalogId: catalogId, databaseId: databaseId, scopeId: 'tables', name: tableName, type: '数据表',
+            size: ((catalogIndex + 2) * (databaseIndex + 3) * (tableIndex + 4) * 128500).toLocaleString('en-US') + ' 行',
+            path: catalogName + ' / ' + databaseName + ' / ' + tableName,
+            comment: catalogName + '批量数据库 Mock 数据表',
+            updated: '2026-08-' + String(30 - ((databaseIndex + tableIndex) % 20)).padStart(2, '0') + ' 10:20'
+          });
+        }
+        for (let fileIndex = 0; fileIndex < 8; fileIndex += 1) {
+          const extension = fileIndex === 7 && databaseIndex % 5 === 0 ? 'zip' : fileExtensions[fileIndex];
+          const fileName = catalogName + '_' + domain + '_大文件_' + String(fileIndex + 1).padStart(2, '0') + '.' + extension;
+          catalogSources.push({
+            id: 'mock-wide-file-' + catalogIndex + '-' + databaseIndex + '-' + fileIndex,
+            catalogId: catalogId, databaseId: databaseId, scopeId: volumeId, folderId: folderId,
+            name: fileName, type: '文件', size: fileSizes[fileIndex],
+            path: catalogName + ' / ' + databaseName + ' / 业务文档 / 批量大文件 / ' + fileName,
+            updated: '2026-08-' + String(30 - ((databaseIndex + fileIndex) % 20)).padStart(2, '0') + ' 14:35',
+            supported: extension !== 'zip'
+          });
+        }
+        return {
+          id: databaseId,
+          name: databaseName,
+          scopes: [{ id: 'tables', name: '数据表', type: '数据表' }, { id: volumeId, name: '业务文档', type: 'Volume' }]
+        };
+      });
+      catalogLocations.push({ id: catalogId, name: catalogName, databases: databases });
+    });
+  })();
 
   const tableComments = {
     bpc: 'BPC 报表数据，包含合并科目、组织、期间和金额等信息',
@@ -169,10 +310,15 @@
     semanticImportMode: 'append',
     createDraft: { name: '', description: '' },
     sourceSelected: [],
-    catalogScope: 'tables',
+    catalogView: 'browse',
+    catalogCatalog: '',
+    catalogDatabase: '',
+    catalogScope: '',
+    catalogFolder: '',
     catalogQuery: '',
+    catalogSearchInput: '',
     catalogPage: 1,
-    catalogTreeOpen: { catalog: true, database: true },
+    catalogExpanded: {},
     editingAsset: null,
     assetDraft: null,
     assetError: '',
@@ -1359,48 +1505,139 @@
 
   function renderSourcePicker() {
     const selected = state.sourceSelected;
-    const tableScope = state.catalogScope === 'tables';
-    const query = state.catalogQuery.trim().toLowerCase();
-    const scopeRows = catalogSources.filter(function (source) { return (tableScope ? source.type === '数据表' : source.type === '文件') && (!query || source.name.toLowerCase().includes(query)); });
-    const pageSize = 20;
-    const pageCount = Math.max(1, Math.ceil(scopeRows.length / pageSize));
-    const currentPage = Math.min(state.catalogPage, pageCount);
-    const visibleRows = scopeRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-    const selectableRows = scopeRows.filter(function (source) { return !getSources().some(function (current) { return current.name === source.name; }); });
-    const allSelected = selectableRows.length > 0 && selectableRows.every(function (source) { return selected.includes(source.id); });
     const selectedSources = selected.map(function (id) { return catalogSources.find(function (source) { return source.id === id; }); }).filter(Boolean);
+    const selectedCatalog = catalogLocations.find(function (item) { return item.id === state.catalogCatalog; });
+    const selectedDatabase = selectedCatalog && selectedCatalog.databases.find(function (item) { return item.id === state.catalogDatabase; });
+    const selectedScope = selectedDatabase && selectedDatabase.scopes.find(function (item) { return item.id === state.catalogScope; });
+    const selectedFolder = catalogFolders.find(function (item) { return item.id === state.catalogFolder; });
+    const query = state.catalogQuery.trim().toLowerCase();
+    const existingNames = new Set(getSources().map(function (source) { return source.name; }));
+    const icon = function (type, cls) {
+      const paths = {
+        catalog: '<path d="M3.5 6.5h6l1.7 2h9.3v10a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/>',
+        database: '<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6M4 11.5v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+        volume: '<path d="M4 8.5 7 4h10l3 4.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 9h16M16.5 14h.01"/>',
+        table: '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9h17M9 9v11"/>',
+        folder: '<path d="M3.5 6.5h6l1.7 2h9.3v10a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
+        file: '<path d="M6 2.8h8l4 4V21H6z"/><path d="M14 2.8V7h4"/>',
+        empty: '<path d="M4 7h16v13H4zM8 4h8v3"/><path d="M8 12h8M8 16h5"/>'
+      };
+      return '<svg class="kv2-catalog-svg ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">' + paths[type] + '</svg>';
+    };
+    const chevron = '<svg class="kv2-catalog-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 3 5 5-5 5"/></svg>';
+    const trash = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 4.5h11M6 2.5h4M4.5 4.5l.6 9h5.8l.6-9M6.5 7v4M9.5 7v4"/></svg>';
+    const selectable = function (source) { return source.supported !== false && !existingNames.has(source.name); };
+    const sourcesFor = function (catalogId, databaseId, scopeId, folderId) {
+      return catalogSources.filter(function (source) {
+        return source.catalogId === catalogId && source.databaseId === databaseId
+          && (!scopeId || source.scopeId === scopeId) && (folderId === undefined || (source.folderId || '') === folderId);
+      });
+    };
+    const checkedState = function (items) {
+      const ids = items.filter(selectable).map(function (source) { return source.id; });
+      const count = ids.filter(function (id) { return selected.includes(id); }).length;
+      return { checked: ids.length > 0 && count === ids.length, mixed: count > 0 && count < ids.length, disabled: ids.length === 0 };
+    };
+    const checkbox = function (input, value, label, status, extra) {
+      return '<label class="kv2-ant-checkbox ' + (status.disabled ? 'disabled' : '') + '"><input type="checkbox" data-input="' + input + '" value="' + attr(value) + '" aria-label="' + attr(label) + '" ' + (extra || '') + (status.checked ? ' checked' : '') + (status.disabled ? ' disabled' : '') + '><span class="kv2-ant-checkbox-box ' + (status.mixed ? 'mixed' : '') + '"></span></label>';
+    };
+    const navItem = function (kind, id, label, active) {
+      return '<button type="button" class="kv2-catalog-nav-item ' + (active ? 'active' : '') + '" data-action="catalog-' + kind + '" data-id="' + attr(id) + '" title="' + attr(label) + '">' + icon(kind) + '<span class="kv2-catalog-nav-label">' + h(label) + '</span>' + chevron + '</button>';
+    };
+    const catalogItems = catalogLocations.map(function (item) { return navItem('catalog', item.id, item.name, item.id === state.catalogCatalog); }).join('');
+    const databaseItems = selectedCatalog ? selectedCatalog.databases.map(function (item) { return navItem('database', item.id, item.name, item.id === state.catalogDatabase); }).join('') : '';
+    const navigator = '<div class="kv2-catalog-navigator"><section class="kv2-catalog-nav-column"><h4>Catalog</h4><div class="kv2-catalog-nav-list">' + (catalogItems || '<div class="kv2-catalog-nav-empty">' + icon('empty') + '<span>暂无数据</span></div>') + '</div></section><section class="kv2-catalog-nav-column"><h4>Database</h4><div class="kv2-catalog-nav-list">' + (databaseItems || '<div class="kv2-catalog-nav-empty">' + icon('empty') + '<span>暂无数据</span></div>') + '</div></section></div>';
+    const crumb = function (level, label, current) { return (current ? '<span class="current">' + h(label) + '</span>' : '<button type="button" data-action="catalog-crumb" data-level="' + level + '">' + h(label) + '</button>'); };
+    const crumbs = selectedCatalog ? crumb('catalog', selectedCatalog.name, !selectedDatabase) + (selectedDatabase ? '<i>/</i>' + crumb('database', selectedDatabase.name, !selectedScope) : '') + (selectedScope ? '<i>/</i>' + crumb('scope', selectedScope.name, !selectedFolder) : '') + (selectedFolder ? '<i>/</i>' + crumb('folder', selectedFolder.name, true) : '') : '';
+    const search = '<label class="kv2-catalog-search"><input data-input="catalog-search" value="' + attr(state.catalogSearchInput) + '" placeholder="搜索"><button type="button" aria-label="搜索" data-action="catalog-search-submit">' + icons.search + '</button></label>';
+    const rowForSource = function (source) {
+      const existing = existingNames.has(source.name), unsupported = source.supported === false;
+      const status = { checked: existing || selected.includes(source.id), disabled: existing || unsupported, mixed: false };
+      return '<tr class="kv2-catalog-detail-row"><td>' + checkbox('source-check', source.id, '选择 ' + source.name, status) + '</td><td><span class="kv2-catalog-source-name">' + icon(source.type === '数据表' ? 'table' : 'file') + '<strong title="' + attr(source.name) + '">' + h(source.name) + '</strong>' + (existing ? '<span class="kv2-catalog-state">已添加</span>' : '') + (unsupported ? '<span class="kv2-catalog-state">不支持</span>' : '') + '</span></td><td>' + h(source.updated) + '</td><td>' + h(source.size) + '</td></tr>';
+    };
+    const volumeRow = function (scope) {
+      const resources = sourcesFor(selectedCatalog.id, selectedDatabase.id, scope.id);
+      const status = checkedState(resources);
+      return '<tr class="kv2-catalog-detail-row"><td>' + checkbox('scope-check', scope.id, '选择 ' + scope.name, status) + '</td><td><button type="button" class="kv2-catalog-folder-link" data-action="catalog-scope" data-scope="' + attr(scope.id) + '">' + icon('volume') + '<strong title="' + attr(scope.name) + '">' + h(scope.name) + '</strong>' + chevron + '</button></td><td>-</td><td>-</td></tr>';
+    };
+    const folderRow = function (folder) {
+      const resources = sourcesFor(selectedCatalog.id, selectedDatabase.id, selectedScope.id).filter(function (source) { return source.folderId === folder.id; });
+      return '<tr class="kv2-catalog-detail-row"><td>' + checkbox('folder-check', folder.id, '选择 ' + folder.name, checkedState(resources)) + '</td><td><button type="button" class="kv2-catalog-folder-link" data-action="catalog-folder" data-folder="' + attr(folder.id) + '">' + icon('folder') + '<strong title="' + attr(folder.name) + '">' + h(folder.name) + '</strong>' + chevron + '</button></td><td>-</td><td>-</td></tr>';
+    };
+    let content = '<div class="kv2-catalog-content"><div class="kv2-catalog-breadcrumb-bar"></div><div class="kv2-catalog-content-head"><strong>数据明细</strong></div><div class="kv2-catalog-placeholder"><div>' + icon('empty') + '<strong>请从上方文件树选择 Catalog、Database、数据表或 Volume</strong></div></div></div>';
+    if (selectedCatalog) {
+      let detailRows = [], rangeItems = [], title = selectedCatalog.name;
+      if (!selectedDatabase) {
+        detailRows = selectedCatalog.databases.filter(function (database) { return !query || database.name.toLowerCase().includes(query); }).map(function (database) {
+          const resources = sourcesFor(selectedCatalog.id, database.id);
+          return '<tr class="kv2-catalog-detail-row"><td>' + checkbox('group-check', database.id, '选择 ' + database.name, checkedState(resources), ' data-level="database"') + '</td><td><button type="button" class="kv2-catalog-folder-link" data-action="catalog-database" data-id="' + attr(database.id) + '">' + icon('database') + '<strong title="' + attr(database.name) + '">' + h(database.name) + '</strong>' + chevron + '</button></td><td>-</td><td>-</td></tr>';
+        });
+        rangeItems = sourcesFor(selectedCatalog.id);
+      } else if (!selectedScope) {
+        title = selectedDatabase.name;
+        const volumes = selectedDatabase.scopes.filter(function (scope) { return scope.type === 'Volume' && (!query || scope.name.toLowerCase().includes(query)); });
+        const tables = sourcesFor(selectedCatalog.id, selectedDatabase.id).filter(function (source) { return source.type === '数据表' && (!query || source.name.toLowerCase().includes(query)); });
+        detailRows = volumes.map(volumeRow).concat(tables.map(rowForSource));
+        rangeItems = sourcesFor(selectedCatalog.id, selectedDatabase.id);
+      } else {
+        title = selectedFolder ? selectedFolder.name : selectedScope.name;
+        const rows = sourcesFor(selectedCatalog.id, selectedDatabase.id, selectedScope.id, selectedFolder ? selectedFolder.id : '').filter(function (source) { return !query || source.name.toLowerCase().includes(query); });
+        const folders = selectedFolder ? [] : catalogFolders.filter(function (folder) { return folder.catalogId === selectedCatalog.id && folder.databaseId === selectedDatabase.id && folder.scopeId === selectedScope.id && (!query || folder.name.toLowerCase().includes(query)); });
+        detailRows = folders.map(folderRow).concat(rows.map(rowForSource));
+        rangeItems = sourcesFor(selectedCatalog.id, selectedDatabase.id, selectedScope.id).filter(function (source) { return selectedFolder ? source.folderId === selectedFolder.id : true; });
+      }
+      const range = checkedState(rangeItems);
+      const pageSize = 20;
+      const detailTotal = detailRows.length;
+      const pageCount = Math.max(1, Math.ceil(detailTotal / pageSize));
+      const currentPage = Math.min(Math.max(1, state.catalogPage), pageCount);
+      const visibleDetailRows = detailRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+      const pageButtons = Array.from({ length: pageCount }, function (_, index) {
+        const page = index + 1;
+        return '<button type="button" data-action="catalog-page" data-page="' + page + '" class="' + (page === currentPage ? 'active' : '') + '" aria-label="第 ' + page + ' 页">' + page + '</button>';
+      }).join('');
+      const pagination = '<div class="kv2-catalog-pagination"><span>第 ' + currentPage + ' / ' + pageCount + ' 页</span><div><button type="button" data-action="catalog-page" data-page="' + Math.max(1, currentPage - 1) + '" aria-label="上一页" ' + (currentPage === 1 ? 'disabled' : '') + '>‹</button>' + pageButtons + '<button type="button" data-action="catalog-page" data-page="' + Math.min(pageCount, currentPage + 1) + '" aria-label="下一页" ' + (currentPage === pageCount ? 'disabled' : '') + '>›</button></div></div>';
+      content = '<div class="kv2-catalog-content"><div class="kv2-catalog-breadcrumb-bar">' + crumbs + '</div><div class="kv2-catalog-content-head"><div class="kv2-catalog-title-actions">' + (selectedScope ? '<button type="button" class="kv2-catalog-back" data-action="catalog-back">← 返回</button>' : '') + '<strong title="' + attr(title) + '">' + h(title) + '</strong></div>' + search + '</div><div class="kv2-catalog-toolbar"><label>' + checkbox('source-select-all', '', '全选当前范围', range) + '<span>全选当前范围</span></label><span>共 ' + detailTotal + ' 项</span></div><div class="kv2-catalog-table-wrap"><table class="kv2-catalog-table"><colgroup><col class="check"><col class="name"><col class="updated"><col class="size"></colgroup><thead><tr><th></th><th>名称</th><th>更新时间</th><th>大小</th></tr></thead><tbody>' + (visibleDetailRows.join('') || '<tr><td colspan="4" class="kv2-catalog-empty">暂无数据</td></tr>') + '</tbody></table></div>' + pagination + '</div>';
+    }
+    const browsePanel = '<div class="kv2-catalog-selector-layout">' + navigator + content + '</div>';
+    const treeRow = function (type, name, depth, meta, source, key, hasChildren, expanded) {
+      const removable = source ? ' data-action="remove-selected-source" data-id="' + attr(source.id) + '"' : ' data-action="remove-selected-group" data-key="' + attr(key) + '"';
+      const toggle = hasChildren ? '<button type="button" class="kv2-tree-toggle ' + (expanded ? 'open' : '') + '" data-action="toggle-selected-group" data-key="' + attr(key) + '" aria-label="' + (expanded ? '收起' : '展开') + '">' + chevron + '</button>' : '<span class="kv2-tree-spacer"></span>';
+      return '<tr class="kv2-selected-tree-row" style="--tree-depth:' + depth + '"><td><div class="kv2-selected-tree-name">' + toggle + icon(type) + '<strong title="' + attr(name) + '">' + h(name) + '</strong></div></td><td>' + h(meta || '-') + '</td><td>' + h(source ? source.size : '-') + '</td><td><button type="button" title="移除" aria-label="移除 ' + attr(name) + '"' + removable + '>' + trash + '</button></td></tr>';
+    };
+    const isExpanded = function (key, fallback) { return state.catalogExpanded[key] === undefined ? fallback : state.catalogExpanded[key]; };
+    const selectedGroups = catalogLocations.map(function (catalog) {
+      const cItems = selectedSources.filter(function (source) { return source.catalogId === catalog.id; }); if (!cItems.length) return '';
+      const catalogKey = 'catalog:' + catalog.id, catalogOpen = isExpanded(catalogKey, true);
+      let out = treeRow('catalog', catalog.name, 0, '-', null, catalogKey, true, catalogOpen);
+      if (!catalogOpen) return out;
+      catalog.databases.forEach(function (database) {
+        const dItems = cItems.filter(function (source) { return source.databaseId === database.id; }); if (!dItems.length) return;
+        const databaseKey = 'database:' + catalog.id + ':' + database.id, databaseOpen = isExpanded(databaseKey, true);
+        out += treeRow('database', database.name, 1, '-', null, databaseKey, true, databaseOpen);
+        if (!databaseOpen) return;
+        database.scopes.forEach(function (scope) {
+          const sItems = dItems.filter(function (source) { return source.scopeId === scope.id; }); if (!sItems.length) return;
+          if (scope.type !== 'Volume') { sItems.forEach(function (source) { out += treeRow('table', source.name, 2, source.updated, source); }); return; }
+          const scopeKey = 'scope:' + catalog.id + ':' + database.id + ':' + scope.id, scopeOpen = isExpanded(scopeKey, false);
+          out += treeRow('volume', scope.name, 2, '-', null, scopeKey, true, scopeOpen);
+          if (!scopeOpen) return;
+          sItems.filter(function (source) { return !source.folderId; }).forEach(function (source) { out += treeRow('file', source.name, 3, source.updated, source); });
+          catalogFolders.filter(function (folder) { return folder.catalogId === catalog.id && folder.databaseId === database.id && folder.scopeId === scope.id && sItems.some(function (source) { return source.folderId === folder.id; }); }).forEach(function (folder) {
+            const folderKey = 'folder:' + catalog.id + ':' + database.id + ':' + scope.id + ':' + folder.id, folderOpen = isExpanded(folderKey, false);
+            out += treeRow('folder', folder.name, 3, '-', null, folderKey, true, folderOpen);
+            if (folderOpen) sItems.filter(function (source) { return source.folderId === folder.id; }).forEach(function (source) { out += treeRow('file', source.name, 4, source.updated, source); });
+          });
+        });
+      });
+      return out;
+    }).join('');
+    const selectedPanel = '<div class="kv2-selected-panel">' + (selectedGroups ? '<table class="kv2-selected-tree"><colgroup><col class="name"><col class="updated"><col class="size"><col class="action"></colgroup><thead><tr><th>名称</th><th>更新时间</th><th>大小</th><th>操作</th></tr></thead><tbody>' + selectedGroups + '</tbody></table>' : '<div class="kv2-catalog-selected-empty">' + icon('empty') + '<strong>暂未选择数据</strong></div>') + '</div>';
     const selectedFiles = selectedSources.filter(function (source) { return source.type === '文件'; }).length;
     const selectedTables = selectedSources.filter(function (source) { return source.type === '数据表'; }).length;
-    const catalogOpen = state.catalogTreeOpen.catalog !== false;
-    const databaseOpen = state.catalogTreeOpen.database !== false;
-    const treeNode = function (node, label, icon, depth, open) {
-      return '<button type="button" class="kv2-catalog-tree-node depth-' + depth + '" data-action="toggle-catalog-tree" data-node="' + node + '" aria-expanded="' + open + '"><span class="kv2-catalog-tree-chevron ' + (open ? 'open' : '') + '">›</span><span class="kv2-catalog-nav-icon">' + icon + '</span><span class="kv2-catalog-tree-label">' + h(label) + '</span></button>';
-    };
-    const treeLeaf = function (scope, label, icon, count) {
-      const active = state.catalogScope === scope;
-      return '<button type="button" class="kv2-catalog-tree-node depth-3 leaf ' + (active ? 'active' : '') + '" data-action="catalog-scope" data-scope="' + scope + '" aria-current="' + (active ? 'page' : 'false') + '"><span class="kv2-catalog-tree-spacer"></span><span class="kv2-catalog-nav-icon">' + icon + '</span><span class="kv2-catalog-tree-label">' + h(label) + '</span><span class="kv2-catalog-tree-count">' + count + '</span></button>';
-    };
-    const navigator = '<div class="kv2-catalog-navigator"><div class="kv2-catalog-tree-head"><strong>Catalog 目录</strong><span>按目录层级展开并选择数据</span></div><div class="kv2-catalog-tree" role="tree">'
-      + treeNode('catalog', '默认', '□', 1, catalogOpen)
-      + (catalogOpen ? '<div role="group">' + treeNode('database', 'jst_flat_table', '▦', 2, databaseOpen)
-        + (databaseOpen ? '<div role="group">' + treeLeaf('tables', '数据表', '▦', catalogSources.filter(function (source) { return source.type === '数据表'; }).length) + treeLeaf('files', 'BPC', '▱', catalogSources.filter(function (source) { return source.type === '文件'; }).length) + '</div>' : '') + '</div>' : '')
-      + '</div></div>';
-    const rows = visibleRows.map(function (source) {
-      const existing = getSources().some(function (current) { return current.name === source.name; });
-      const sourceName = source.type === '数据表'
-        ? '<span class="kv2-catalog-source-copy"><strong>' + h(source.name) + '</strong><small>' + h(tableCommentFor(source.name, source.comment)) + '</small></span>'
-        : '<span class="kv2-catalog-source-copy"><strong>' + h(source.name) + '</strong></span>';
-      return '<tr><td class="kv2-catalog-check"><input type="checkbox" data-input="source-check" value="' + source.id + '" ' + (existing || selected.includes(source.id) ? 'checked' : '') + ' ' + (existing ? 'disabled' : '') + '></td><td><span class="kv2-catalog-source-name"><span>' + (source.type === '数据表' ? '▦' : '▤') + '</span>' + sourceName + (existing ? '<span class="kv2-catalog-state">已添加</span>' : '') + '</span></td><td>' + h(source.size) + '</td><td>' + h(source.updated) + '</td></tr>';
-    }).join('');
-    const documentNotice = tableScope ? '' : '<div class="kv2-document-use-notice" role="note"><span class="kv2-document-use-icon">i</span><div><strong>非结构化文档需完成解析与向量嵌入后才会被知识库使用</strong><span>添加后系统将自动处理文档；处理完成前，文档不会参与知识检索和回答。</span></div></div>';
-    const pagination = scopeRows.length > pageSize
-      ? '<div class="kv2-catalog-pagination"><span>第 ' + currentPage + ' / ' + pageCount + ' 页</span><div><button type="button" data-action="catalog-page" data-page="' + Math.max(1, currentPage - 1) + '" ' + (currentPage === 1 ? 'disabled' : '') + '>上一页</button><button type="button" data-action="catalog-page" data-page="' + Math.min(pageCount, currentPage + 1) + '" ' + (currentPage === pageCount ? 'disabled' : '') + '>下一页</button></div></div>'
-      : '';
-    const leafPanel = '<div class="kv2-catalog-leaf"><div class="kv2-catalog-leaf-head"><div><span class="kv2-catalog-breadcrumb">默认 / jst_flat_table / ' + (tableScope ? '数据表' : 'BPC') + '</span><strong>' + (tableScope ? '数据表' : 'BPC 文件') + '</strong></div><label class="kv2-catalog-search"><span>' + icons.search + '</span><input data-input="catalog-search" value="' + attr(state.catalogQuery) + '" placeholder="' + (tableScope ? '搜索当前目录下的表' : '搜索当前目录下的文件') + '"></label></div>' + documentNotice + '<div class="kv2-catalog-toolbar"><label><input type="checkbox" data-input="source-select-all" ' + (allSelected ? 'checked' : '') + ' ' + (selectableRows.length ? '' : 'disabled') + '> 全选当前搜索结果</label><span>共 ' + scopeRows.length + ' 项</span></div><div class="kv2-catalog-table-wrap"><table class="kv2-catalog-table"><thead><tr><th></th><th>' + (tableScope ? '表名' : '文件名') + '</th><th>' + (tableScope ? '行数' : '大小') + '</th><th>更新时间</th></tr></thead><tbody>' + (rows || '<tr><td colspan="4" class="kv2-catalog-empty">没有找到匹配的数据</td></tr>') + '</tbody></table></div>' + pagination + '</div>';
-    const pickerIntro = '<div class="kv2-source-picker-intro"><div><strong>从 Catalog 选择数据</strong><span>选择数据表或目录卷中的文档，添加到当前知识库。</span></div><div class="kv2-source-picker-count"><strong>' + selected.length + '</strong><span>已选择</span></div></div>';
-    const catalogPicker = pickerIntro + '<div class="kv2-catalog-selector-layout">' + navigator + leafPanel + '</div>';
-    const footer = '<div class="kv2-source-selection"><strong>共选择 ' + selected.length + ' 项</strong><span>已选 ' + selectedFiles + ' 个文件，' + selectedTables + ' 张表</span></div><div class="kv2-modal-foot-actions"><button class="kv2-btn" data-action="close-modal">取消</button><button class="kv2-btn primary" data-action="save-sources" ' + (selected.length ? '' : 'disabled') + '>添加</button></div>';
-    return modalFrame('选择数据', catalogPicker, footer, 'source-picker');
+    const selector = '<div class="kv2-catalog-selector"><div class="kv2-catalog-selector-shell"><div class="kv2-catalog-view-head"><div class="kv2-catalog-view-tabs" role="tablist"><button type="button" role="tab" aria-selected="' + (state.catalogView === 'browse') + '" class="' + (state.catalogView === 'browse' ? 'active' : '') + '" data-action="catalog-view" data-view="browse">浏览数据</button><button type="button" role="tab" aria-selected="' + (state.catalogView === 'selected') + '" class="' + (state.catalogView === 'selected' ? 'active' : '') + '" data-action="catalog-view" data-view="selected">已选内容</button></div><span>已选 ' + selectedFiles + ' 个文件，' + selectedTables + ' 张表</span></div>' + (state.catalogView === 'selected' ? selectedPanel : browsePanel) + '</div></div>';
+    const footer = '<div class="kv2-modal-foot-actions"><button class="kv2-btn" data-action="close-modal">取消</button><button class="kv2-btn primary" data-action="save-sources">追加</button></div>';
+    return modalFrame('选择数据', selector, footer, 'source-picker');
   }
 
   function renderEditModelModal() {
@@ -2220,7 +2457,7 @@
     if (action === 'back-from-chat') { if (state.chatReturn === 'detail' && models.some(function (model) { return model.id === state.modelId; })) { restoreDeletedDemo(state.modelId); state.page = 'detail'; state.detailTab = state.chatReturnDetailTab || 'source'; } else { restoreDeletedDemo(); state.page = 'board'; state.boardTab = 'knowledge'; } render(); return; }
     if (action === 'back-board') { state.page = 'board'; state.boardTab = 'knowledge'; state.modal = null; render(); return; }
     if (action === 'detail-tab') { state.detailTab = el.dataset.tab; render(); return; }
-    if (action === 'add-source') { state.sourceSelected = []; state.catalogScope = 'tables'; state.catalogQuery = ''; state.catalogPage = 1; state.catalogTreeOpen = { catalog: true, database: true }; state.modal = 'add-source'; render(); return; }
+    if (action === 'add-source') { state.sourceSelected = []; state.catalogView = 'browse'; state.catalogCatalog = ''; state.catalogDatabase = ''; state.catalogScope = ''; state.catalogFolder = ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; state.catalogExpanded = {}; state.modal = 'add-source'; render(); return; }
     if (action === 'sem-scope') { const group = semanticGroups.find(function (item) { return item.key === el.dataset.scope; }); if (group && group.categories.length) state.semCategory = group.categories[0]; if (group && group.key === 'structured') state.semanticAdvancedOpen = false; state.semQuery = ''; state.semanticPage = 1; render(); return; }
     if (action === 'toggle-sem-advanced') { const advancedCategoryKeys = ['schema', 'constraint', 'dynamic-query']; if (advancedCategoryKeys.includes(state.semCategory)) { state.semCategory = 'metric'; state.semanticAdvancedOpen = false; state.semQuery = ''; state.semanticPage = 1; } else state.semanticAdvancedOpen = !state.semanticAdvancedOpen; render(); return; }
     if (action === 'sem-category') { state.semCategory = el.dataset.category; if (['schema', 'constraint', 'dynamic-query'].includes(state.semCategory)) state.semanticAdvancedOpen = true; state.semQuery = ''; state.semanticPage = 1; render(); return; }
@@ -2362,8 +2599,17 @@
     if (action === 'add-join-condition') { syncAssetDraftFromForm(); state.assetDraft.joinConditions.push({ leftField: '', comparison: 'equals', rightField: '' }); render({ preserveModalScroll: true }); return; }
     if (action === 'remove-join-condition') { syncAssetDraftFromForm(); state.assetDraft.joinConditions.splice(Number(el.dataset.index), 1); render({ preserveModalScroll: true }); return; }
     if (action === 'create-model') { createModel(); return; }
-    if (action === 'toggle-catalog-tree') { const node = el.dataset.node; state.catalogTreeOpen[node] = !state.catalogTreeOpen[node]; render(); return; }
-    if (action === 'catalog-scope') { state.catalogScope = el.dataset.scope; state.catalogQuery = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-view') { state.catalogView = el.dataset.view === 'selected' ? 'selected' : 'browse'; render(); return; }
+    if (action === 'catalog-catalog') { state.catalogCatalog = el.dataset.id || ''; state.catalogDatabase = ''; state.catalogScope = ''; state.catalogFolder = ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-database') { state.catalogDatabase = el.dataset.id || ''; state.catalogScope = ''; state.catalogFolder = ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-scope') { state.catalogScope = el.dataset.scope || ''; state.catalogFolder = ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-folder') { state.catalogFolder = el.dataset.folder || ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-back') { if (state.catalogFolder) state.catalogFolder = ''; else state.catalogScope = ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-crumb') { if (el.dataset.level === 'catalog') { state.catalogDatabase = ''; state.catalogScope = ''; state.catalogFolder = ''; } else if (el.dataset.level === 'database') { state.catalogScope = ''; state.catalogFolder = ''; } else if (el.dataset.level === 'scope') state.catalogFolder = ''; state.catalogQuery = ''; state.catalogSearchInput = ''; state.catalogPage = 1; render(); return; }
+    if (action === 'catalog-search-submit') { state.catalogQuery = state.catalogSearchInput; state.catalogPage = 1; render(); return; }
+    if (action === 'remove-selected-source') { state.sourceSelected = state.sourceSelected.filter(function (id) { return id !== el.dataset.id; }); render(); return; }
+    if (action === 'toggle-selected-group') { const key = el.dataset.key || ''; state.catalogExpanded[key] = !(state.catalogExpanded[key] === undefined ? !key.startsWith('scope:') && !key.startsWith('folder:') : state.catalogExpanded[key]); render(); return; }
+    if (action === 'remove-selected-group') { const parts = String(el.dataset.key || '').split(':'); state.sourceSelected = state.sourceSelected.filter(function (id) { const source = catalogSources.find(function (item) { return item.id === id; }); if (!source) return false; if (parts[0] === 'catalog') return source.catalogId !== parts[1]; if (parts[0] === 'database') return !(source.catalogId === parts[1] && source.databaseId === parts[2]); if (parts[0] === 'folder') return !(source.catalogId === parts[1] && source.databaseId === parts[2] && source.scopeId === parts[3] && source.folderId === parts[4]); return !(source.catalogId === parts[1] && source.databaseId === parts[2] && source.scopeId === parts[3]); }); render(); return; }
     if (action === 'catalog-page') { state.catalogPage = Math.max(1, Number(el.dataset.page) || 1); render(); return; }
     if (action === 'save-sources') { saveSources(); return; }
     if (action === 'save-model-meta') { saveModelMeta(); return; }
@@ -2389,7 +2635,16 @@
   }
 
   function saveSources() {
-    if (!state.sourceSelected.length) return;
+    if (!state.sourceSelected.length) {
+      const previous = document.querySelector('.kv2-message-toast');
+      if (previous) previous.remove();
+      const toast = document.createElement('div');
+      toast.className = 'kv2-message-toast';
+      toast.innerHTML = '<span>!</span><strong>请选择 Catalog 文件或数据表</strong>';
+      document.body.appendChild(toast);
+      window.setTimeout(function () { toast.remove(); }, 2400);
+      return;
+    }
     const picked = state.sourceSelected.map(function (id) { return catalogSources.find(function (s) { return s.id === id; }); }).filter(Boolean);
     picked.forEach(function (item) {
       if (item && !getSources().some(function (s) { return s.name === item.name; })) getSources().push({ id: nextSourceId++, name: item.name, type: item.type, size: item.size, path: item.path, comment: item.comment || '', status: '处理中', updated: nowText(), enabled: true });
@@ -2572,7 +2827,7 @@
     }
     if (type === 'board-search') { state.query = e.target.value; render(); const input = app.querySelector('[data-input="board-search"]'); if (input) { input.focus(); input.setSelectionRange(state.query.length, state.query.length); } }
     if (type === 'sem-search') { state.semQuery = e.target.value; state.semanticPage = 1; render(); const input = app.querySelector('[data-input="sem-search"]'); if (input) { input.focus(); input.setSelectionRange(state.semQuery.length, state.semQuery.length); } }
-    if (type === 'catalog-search') { state.catalogQuery = e.target.value; state.catalogPage = 1; render(); const input = app.querySelector('[data-input="catalog-search"]'); if (input) { input.focus(); input.setSelectionRange(state.catalogQuery.length, state.catalogQuery.length); } }
+    if (type === 'catalog-search') { state.catalogSearchInput = e.target.value; }
     if (type === 'schema-column-search') { state.schemaColumnSearch = e.target.value; render(); const input = app.querySelector('[data-input="schema-column-search"]'); if (input) { input.focus(); input.setSelectionRange(state.schemaColumnSearch.length, state.schemaColumnSearch.length); } }
     if (type === 'semantic-picker-search') {
       state.semanticPicker = e.target.dataset.pickerKey;
@@ -2642,11 +2897,49 @@
       render();
     }
     if (e.target.dataset.input === 'source-select-all') {
-      const tableScope = state.catalogScope === 'tables';
-      const query = state.catalogQuery.trim().toLowerCase();
       const selectableIds = catalogSources.filter(function (source) {
-        return (tableScope ? source.type === '数据表' : source.type === '文件')
-          && (!query || source.name.toLowerCase().includes(query))
+        return source.catalogId === state.catalogCatalog
+          && (!state.catalogDatabase || source.databaseId === state.catalogDatabase)
+          && (!state.catalogScope || source.scopeId === state.catalogScope)
+          && (state.catalogFolder ? source.folderId === state.catalogFolder : true)
+          && source.supported !== false
+          && !getSources().some(function (current) { return current.name === source.name; });
+      }).map(function (source) { return source.id; });
+      if (e.target.checked) selectableIds.forEach(function (id) { if (!state.sourceSelected.includes(id)) state.sourceSelected.push(id); });
+      else state.sourceSelected = state.sourceSelected.filter(function (id) { return !selectableIds.includes(id); });
+      render();
+    }
+    if (e.target.dataset.input === 'group-check') {
+      const databaseId = e.target.value;
+      const selectableIds = catalogSources.filter(function (source) {
+        return source.catalogId === state.catalogCatalog && source.databaseId === databaseId
+          && source.supported !== false && !getSources().some(function (current) { return current.name === source.name; });
+      }).map(function (source) { return source.id; });
+      if (e.target.checked) selectableIds.forEach(function (id) { if (!state.sourceSelected.includes(id)) state.sourceSelected.push(id); });
+      else state.sourceSelected = state.sourceSelected.filter(function (id) { return !selectableIds.includes(id); });
+      render();
+    }
+    if (e.target.dataset.input === 'scope-check') {
+      const scopeId = e.target.value;
+      const selectableIds = catalogSources.filter(function (source) {
+        return source.catalogId === state.catalogCatalog
+          && source.databaseId === state.catalogDatabase
+          && source.scopeId === scopeId
+          && source.supported !== false
+          && !getSources().some(function (current) { return current.name === source.name; });
+      }).map(function (source) { return source.id; });
+      if (e.target.checked) selectableIds.forEach(function (id) { if (!state.sourceSelected.includes(id)) state.sourceSelected.push(id); });
+      else state.sourceSelected = state.sourceSelected.filter(function (id) { return !selectableIds.includes(id); });
+      render();
+    }
+    if (e.target.dataset.input === 'folder-check') {
+      const folderId = e.target.value;
+      const selectableIds = catalogSources.filter(function (source) {
+        return source.catalogId === state.catalogCatalog
+          && source.databaseId === state.catalogDatabase
+          && source.scopeId === state.catalogScope
+          && source.folderId === folderId
+          && source.supported !== false
           && !getSources().some(function (current) { return current.name === source.name; });
       }).map(function (source) { return source.id; });
       if (e.target.checked) selectableIds.forEach(function (id) { if (!state.sourceSelected.includes(id)) state.sourceSelected.push(id); });
@@ -2678,6 +2971,7 @@
     }
   });
   app.addEventListener('keydown', function (e) {
+    if (e.target.dataset.input === 'catalog-search' && e.key === 'Enter') { e.preventDefault(); state.catalogQuery = state.catalogSearchInput; state.catalogPage = 1; render(); }
     if (e.target.id === 'kv2ChatInput' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
     if (e.target.id === 'kv2SynonymInput' && e.key === 'Enter') { e.preventDefault(); addEntry('synonym'); }
     if (e.target.id === 'kv2SimilarQuestionInput' && e.key === 'Enter') { e.preventDefault(); addEntry('question'); }

@@ -265,6 +265,7 @@ var MOI_I18N = {
   '总消耗 Credit':{en:'Total Credits'},
   // Page: knowledge-base.html
   '创建知识库':{en:'Create Knowledge Base'},'选择数据':{en:'Select Data'},'从 Catalog 中选择目录、库、卷或表添加到知识库（不含算子和模型）':{en:'Select directories, databases, volumes or tables from Catalog to add to knowledge base (excluding operators and models)'},'已选 0 项':{en:'0 items selected'},
+  '添加数据':{en:'Add Data'},'浏览数据':{en:'Browse data'},'已选内容':{en:'Selected items'},'数据明细':{en:'Data details'},'搜索当前目录':{en:'Search this directory'},'返回上一级':{en:'Back one level'},'全选当前范围':{en:'Select current scope'},'资源类型':{en:'Resource type'},'不支持':{en:'Unsupported'},'暂未选择数据':{en:'No data selected'},'请从上方文件树选择 Catalog、Database、数据表或 Volume':{en:'Select a Catalog, Database, table, or Volume from the file tree above'},
   '表详情':{en:'Table Details'},'抽样数据':{en:'Sample Data'},'暂无统计信息':{en:'No statistics available'},'在此编写或调整针对该表的查询语句，实际执行以环境配置为准。':{en:'Write or adjust queries for this table. Actual execution depends on environment config.'},
   '处理结果':{en:'Processing Results'},'原文件预览':{en:'File Preview'},'分段结果':{en:'Chunking Results'},'新建分段':{en:'New Chunk'},'第 1 / 1 页':{en:'Page 1 / 1'},
   '新增通配符':{en:'New Wildcard'},'通配符可以帮助模型更好地理解和处理用户问题中的变量部分。':{en:'Wildcards help the model better understand and handle variable parts in user questions.'},'每个通配符可以包含多个枚举值，用于匹配用户问题中的变量部分':{en:'Each wildcard can contain multiple enum values to match variable parts in user questions'},
