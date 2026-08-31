@@ -14,7 +14,7 @@ MOI Storybook 是核心产品能力的**场景化回归验收集**。它把原�
 
 Storybook 可以引用 Eval 指标作为补充证据，但不会用均分替代一条场景的明确验收断言。
 
-完整的设计、执行和治理方法见 [Storybook 测试方法论](testing-methodology.md)。
+完整的设计、执行和治理方法见 [Storybook 测试方法论](testing-methodology.md)。新建 Case 请从 [Case 模板](case-template.md) 开始；运行产物遵循 [运行、证据与报告规范](execution-and-evidence.md)。
 
 ## Case 合同
 
@@ -38,6 +38,9 @@ Case 内容状态：`draft`、`ready`、`deprecated`。
 ## 目录
 
 - [testing-methodology.md](testing-methodology.md)：从产品承诺、风险建模、夹具和断言，到运行门禁、证据与 Case 治理的完整方法。
+- [case-template.md](case-template.md)：可复制的 Case 合同模板与填写口径。
+- [coverage-map.md](coverage-map.md)：产品承诺、风险与 Storybook Case 的覆盖规划矩阵。
+- [execution-and-evidence.md](execution-and-evidence.md)：统一的运行阶段、JSON 报告、证据脱敏、失败分类和清理协议。
 - `document-intelligence/`：文档、图片、音视频的理解、抽取与交付。
 - 后续按产品域增加 `data-knowledge/`、`workflow/`、`agent/` 与 `evaluation/`。
 
