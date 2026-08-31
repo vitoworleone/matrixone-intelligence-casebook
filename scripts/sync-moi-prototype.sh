@@ -40,6 +40,11 @@ esac
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || die "run this script inside the casebook repository"
 cd "$repo_root"
 
+upstream_source="$upstream_url"
+if [[ "$upstream_url" != *://* && -d "$upstream_url/.git" ]]; then
+  upstream_source=$(cd "$upstream_url" && pwd -P)
+fi
+
 [[ -x "$(git --exec-path)/git-subtree" ]] || die "git-subtree is not installed"
 [[ -d "$target_prefix" ]] || die "missing target directory: $target_prefix"
 git ls-files -- "$target_prefix" | grep -q . || die "target directory is not tracked: $target_prefix"
@@ -65,12 +70,12 @@ cache_dir="$git_dir/moi-prototype-sync-cache"
 if [[ ! -d "$cache_dir/.git" ]]; then
   printf 'Creating the local upstream cache…\n'
   git clone --quiet --filter=blob:none --no-checkout --single-branch --branch "$upstream_branch" \
-    "$upstream_url" "$cache_dir"
+    "$upstream_source" "$cache_dir"
   git -C "$cache_dir" sparse-checkout init --cone
   git -C "$cache_dir" sparse-checkout set "$upstream_prefix"
   git -C "$cache_dir" checkout --quiet --detach "origin/$upstream_branch"
 else
-  git -C "$cache_dir" remote set-url origin "$upstream_url"
+  git -C "$cache_dir" remote set-url origin "$upstream_source"
   printf 'Refreshing the local upstream cache…\n'
   git -C "$cache_dir" fetch --quiet --prune origin "$upstream_branch"
   git -C "$cache_dir" sparse-checkout init --cone
