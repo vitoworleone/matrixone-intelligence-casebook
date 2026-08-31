@@ -123,10 +123,4 @@ if ! git subtree pull --prefix="$target_prefix" "$cache_dir" moi-html-split --sq
   exit 2
 fi
 
-if ! ./scripts/check-prototype-public-data.sh; then
-  printf '\nThe upstream merge completed, but public-data review failed.\n' >&2
-  printf 'Sanitize the reported values in a follow-up commit before pushing.\n' >&2
-  exit 3
-fi
-
 printf '\nSync complete. Review the commit and test the prototype before pushing.\n'

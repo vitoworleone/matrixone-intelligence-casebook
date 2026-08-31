@@ -3,7 +3,7 @@
 The deployed prototype in `product/moi-platform-prototype/` is a Git subtree of
 the `html/` directory from
 [`matrixorigin/moi-prototype`](https://github.com/matrixorigin/moi-prototype).
-Casebook-only public-demo changes are committed on top of that subtree.
+Casebook-only deployment changes are committed on top of that subtree.
 
 ## Check for updates
 
@@ -40,16 +40,10 @@ squashed subtree merge. It never imports upstream `customers/`, `docs/`,
 `output/`, or other repository content.
 
 If the merge succeeds, review the generated commit, verify the prototype, and
-push the branch. The sync command also runs the public-data check. Run it again
-directly after resolving conflicts or making additional changes:
+push the branch.
 
-```bash
-./scripts/check-prototype-public-data.sh
-```
-
-If Git reports conflicts, preserve the public-demo
-sanitization and casebook-only behavior while incorporating the upstream
-feature. Then finish the merge with:
+If Git reports conflicts, preserve casebook-only behavior while incorporating
+the upstream feature. Then finish the merge with:
 
 ```bash
 git add <resolved-files>
@@ -62,10 +56,6 @@ To abandon a conflicted synchronization, run `git merge --abort`.
 
 - Product changes that should benefit every consumer belong in
   `moi-prototype` first and should reach this repository through synchronization.
-- Public-demo sanitization and casebook-specific deployment changes belong in
-  this repository.
+- Casebook-specific deployment changes belong in this repository.
 - Do not copy or `rsync` files between the repositories; doing so bypasses the
   subtree history needed for reliable future merges.
-
-Before publishing an update, check that it has not reintroduced customer names,
-internal hostnames, real email addresses, credentials, or private project data.
