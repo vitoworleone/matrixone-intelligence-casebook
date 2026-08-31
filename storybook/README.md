@@ -41,8 +41,17 @@ Case 内容状态：`draft`、`ready`、`deprecated`。
 - [case-template.md](case-template.md)：可复制的 Case 合同模板与填写口径。
 - [coverage-map.md](coverage-map.md)：产品承诺、风险与 Storybook Case 的覆盖规划矩阵。
 - [execution-and-evidence.md](execution-and-evidence.md)：统一的运行阶段、JSON 报告、证据脱敏、失败分类和清理协议。
-- `document-intelligence/`：文档、图片、音视频的理解、抽取与交付。
-- 后续按产品域增加 `data-knowledge/`、`workflow/`、`agent/` 与 `evaluation/`。
+
+按产品域组织的完整导航见 [INDEX.md](INDEX.md)。
+
+| 目录 | 回归范围 |
+|---|---|
+| [document-intelligence/](document-intelligence/) | 文档、图片、音视频的理解、抽取与交付。 |
+| [workflow/](workflow/) | 编排、数据输入输出、触发器与受控执行。 |
+| [data-knowledge/](data-knowledge/) | 数据接入、Catalog、知识库、检索与可追溯问答。 |
+| [agent/](agent/) | 智能体、工具协作、结构化交付与安全边界。 |
+| [evaluation/](evaluation/) | 评测数据、基准执行、结果审计与质量门槛。 |
+| [operations/](operations/) | 发布、运行、诊断、模型服务与运营治理。 |
 
 ## 公开边界
 
