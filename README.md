@@ -22,14 +22,27 @@
 
 从场景澄清、验证范围到验收与复盘的交付方法。
 
+### [产品架构](docs/architecture/)
+
+MOI 的公开产品架构、能力分层与关键协作链路。
+
+### [评测与质量](docs/eval/)
+
+RAG、Agent、文档解析与产品验证的质量度量方法和脱敏证据。
+
+### [MOI Storybook](storybook/)
+
+以可复现业务场景组织的产品演示与端到端验收设计。
+
 ## 仓库内容
 
 ```text
-docs/       research、prd 与 poc 三类产品文档
+docs/       产品文档、架构与评测方法
 product/    可交互原型、可运行产品代码和工程文档
+storybook/  场景化产品演示与验证设计
 assets/     公开可用的架构图、工作流图与研究配图
 ```
 
 ## 延伸阅读
 
-[产品调研](docs/research/) · [平台 PRD](docs/prd/) · [POC 方案集](docs/poc/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)
+[产品调研](docs/research/) · [平台 PRD](docs/prd/) · [产品架构](docs/architecture/) · [评测与质量](docs/eval/) · [MOI Storybook](storybook/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)
