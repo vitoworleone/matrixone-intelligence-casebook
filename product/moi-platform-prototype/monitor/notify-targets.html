@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 通知对象</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .main { padding: 0 !important; overflow: auto; }
+    .ar-page { padding: 20px 24px 40px; min-width: 1080px; }
+    .ar-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+    .ar-title { font-size: 20px; font-weight: 700; color: rgba(0,0,0,0.88); }
+    .ar-sub { font-size: 12.5px; color: rgba(0,0,0,0.45); }
+
+    .th-filter-btn {
+      display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+      border-radius: 6px; background: #f5f5f5; cursor: pointer; vertical-align: middle; margin-left: 3px;
+    }
+    .th-filter-btn svg { width: 11px; height: 11px; stroke: rgba(0,0,0,0.35); }
+    .th-filter-btn.active { background: #e6f4ff; }
+    .th-filter-btn.active svg { stroke: #1677ff; }
+
+    .ar-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; }
+    .ar-search { position: relative; }
+    .ar-search input {
+      width: 260px; height: 34px; border: 1px solid #d9d9d9; border-radius: 8px; font-size: 13px;
+      padding: 0 30px 0 11px; outline: none; background: #fff; transition: border-color 0.2s;
+    }
+    .ar-search input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.08); }
+    .ar-search .s-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; color: rgba(0,0,0,0.3); pointer-events: none; }
+    .ar-toolbar .spacer { flex: 1; }
+    .ar-create-btn {
+      height: 34px; padding: 0 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
+      background: #1677ff; border: none; color: #fff; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .ar-create-btn:hover { background: #4096ff; }
+    .ar-create-btn svg { width: 13px; height: 13px; }
+
+    .ar-table-wrap { border: 1px solid #f0f0f0; border-radius: 10px; overflow-x: auto; background: #fff; }
+    table.ar-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; table-layout: fixed; }
+    .ar-table td, .ar-table th { overflow: hidden; text-overflow: ellipsis; }
+    .ar-table thead th { background: #fafbfc; color: rgba(0,0,0,0.5); font-weight: 500; text-align: left; padding: 11px 8px; white-space: nowrap; border-bottom: 1px solid #f0f0f0; }
+    .ar-table th.sortable { cursor: pointer; user-select: none; }
+    .ar-table th .sort-ic { margin-left: 4px; opacity: 0.4; font-size: 10px; }
+    .ar-table th.sorted .sort-ic { opacity: 1; color: #1677ff; }
+    .ar-table tbody td { padding: 11px 8px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.82); white-space: nowrap; vertical-align: middle; }
+    .ar-table tbody tr:last-child td { border-bottom: none; }
+    .ar-table tbody tr { transition: background 0.12s; }
+    .ar-table tbody tr:hover { background: #f7faff; }
+
+    .nt-name { color: #1677ff; cursor: pointer; }
+    .nt-name:hover { text-decoration: underline; }
+    .nt-info { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12.5px; color: rgba(0,0,0,0.72); }
+    .type-tag { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.65); }
+
+    .sw { position: relative; display: inline-block; width: 34px; height: 18px; vertical-align: middle; }
+    .sw input { display: none; }
+    .sw .sl { position: absolute; inset: 0; background: #d9d9d9; border-radius: 18px; cursor: pointer; transition: .2s; }
+    .sw .sl::before { content: ''; position: absolute; width: 14px; height: 14px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .2s; }
+    .sw input:checked + .sl { background: #1677ff; }
+    .sw input:checked + .sl::before { transform: translateX(16px); }
+
+    .op-btn { border: none; background: none; cursor: pointer; color: rgba(0,0,0,0.45); width: 26px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
+    .op-btn:hover { background: rgba(22,119,255,0.08); color: #1677ff; }
+    .op-btn.danger:hover { background: #fff1f0; color: #ff4d4f; }
+    .op-btn svg { width: 14px; height: 14px; }
+
+    .ar-empty { text-align: center; padding: 60px 0; color: rgba(0,0,0,0.3); font-size: 13px; }
+    .ar-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 12.5px; color: rgba(0,0,0,0.45); }
+    .ar-pg { display: flex; align-items: center; gap: 6px; }
+    .ar-pg-btn { min-width: 28px; height: 28px; padding: 0 6px; border: 1px solid #e5e6eb; border-radius: 6px; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; color: rgba(0,0,0,0.6); }
+    .ar-pg-btn.active { background: #1677ff; border-color: #1677ff; color: #fff; }
+    .ar-pg-btn:disabled { color: rgba(0,0,0,0.2); cursor: not-allowed; }
+
+    /* ===== 创建 / 编辑弹窗 ===== */
+    .ar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: center; justify-content: center; overflow-y: auto; }
+    .ar-overlay.open { display: flex; }
+    .ar-modal { background: #fff; border-radius: 14px; width: 520px; box-shadow: 0 12px 40px rgba(0,0,0,0.16); padding: 22px 28px 20px; }
+    .ar-m-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .ar-m-title { font-size: 16px; font-weight: 700; color: rgba(0,0,0,0.88); }
+    .ar-m-close { width: 30px; height: 30px; border: none; background: none; cursor: pointer; border-radius: 6px; color: rgba(0,0,0,0.45); font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .ar-m-close:hover { background: rgba(0,0,0,0.05); }
+    .nt-form-group { margin-bottom: 16px; }
+    .nt-form-label { display: block; font-size: 13px; color: rgba(0,0,0,0.7); margin-bottom: 7px; }
+    .nt-form-label .req { color: #ff4d4f; margin-right: 3px; }
+    .nt-input, .nt-select, .nt-textarea {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 8px; font-size: 13px; padding: 0 11px;
+      outline: none; background: #fff; color: rgba(0,0,0,0.85); transition: border-color 0.2s;
+    }
+    .nt-input, .nt-select { height: 38px; }
+    .nt-select { cursor: pointer; }
+    .nt-textarea { height: 96px; padding: 9px 11px; resize: vertical; line-height: 1.6; font-family: inherit; }
+    .nt-input:focus, .nt-select:focus, .nt-textarea:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.08); }
+    .ar-m-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+    .ar-btn { height: 36px; padding: 0 22px; border-radius: 8px; font-size: 13.5px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,0.7); }
+    .ar-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .ar-btn.primary { background: #1677ff; border-color: #1677ff; color: #fff; font-weight: 500; }
+    .ar-btn.primary:hover { background: #4096ff; color: #fff; }
+
+    .ar-toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 999; background: rgba(0,0,0,0.78); color: #fff; font-size: 12.5px; padding: 7px 14px; border-radius: 8px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <div class="layout">
+    <div class="sidebar"><div class="menu-section"></div></div>
+
+    <div class="main">
+      <div class="ar-page">
+        <div class="ar-head">
+          <span class="ar-title">通知对象</span>
+          <span class="ar-sub">告警触发后的通知送达目标，供告警规则的通知对象选择使用</span>
+        </div>
+
+        <div class="ar-toolbar">
+          <div class="ar-search">
+            <input type="text" id="ntSearch" placeholder="搜索通知对象名称 / 信息……" oninput="renderTargets()">
+            <span class="s-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          </div>
+          <div class="spacer"></div>
+          <button class="ar-create-btn" onclick="openTargetModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            创建通知对象
+          </button>
+        </div>
+
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead>
+              <tr>
+                <th style="width:16%">名称</th>
+                <th style="width:96px">类型<span class="th-filter-btn" id="typeFilterBtn" onclick="event.stopPropagation();toggleColFilter('type')"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th>
+                <th style="width:22%">信息</th>
+                <th class="sortable" data-sort="created" onclick="toggleSort('created')" style="width:11%">创建时间<span class="sort-ic">▼</span></th>
+                <th class="sortable" data-sort="updated" onclick="toggleSort('updated')" style="width:11%">更新时间<span class="sort-ic">▼</span></th>
+                <th style="width:14%">备注</th>
+                <th style="width:96px">启用状态<span class="th-filter-btn" id="enabledFilterBtn" onclick="event.stopPropagation();toggleColFilter('enabled')"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th>
+                <th style="width:80px">操作</th>
+              </tr>
+            </thead>
+            <tbody id="ntTbody"></tbody>
+          </table>
+          <div class="ar-empty" id="ntEmpty" style="display:none">没有符合条件的通知对象</div>
+        </div>
+
+        <div class="ar-foot">
+          <span id="ntCount"></span>
+          <div class="ar-pg">
+            <button class="ar-pg-btn" disabled>‹</button>
+            <button class="ar-pg-btn active">1</button>
+            <button class="ar-pg-btn" disabled>›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 创建 / 编辑通知对象弹窗 -->
+  <div class="ar-overlay" id="ntOverlay" onclick="if(event.target===this)closeTargetModal()">
+    <div class="ar-modal">
+      <div class="ar-m-head">
+        <span class="ar-m-title" id="ntModalTitle">创建通知对象</span>
+        <button class="ar-m-close" onclick="closeTargetModal()">✕</button>
+      </div>
+
+      <div class="nt-form-group">
+        <label class="nt-form-label"><span class="req">*</span>名称</label>
+        <input class="nt-input" id="ntName" placeholder="请输入通知对象名称" maxlength="50">
+      </div>
+
+      <div class="nt-form-group">
+        <label class="nt-form-label"><span class="req">*</span>类型</label>
+        <select class="nt-select" id="ntType" onchange="renderInfoField()">
+          <option value="邮箱">邮箱</option>
+          <option value="短信">短信</option>
+          <option value="电话">电话</option>
+          <option value="企业微信">企业微信</option>
+        </select>
+      </div>
+
+      <div class="nt-form-group">
+        <label class="nt-form-label"><span class="req">*</span><span id="ntInfoLabel">邮箱</span></label>
+        <input class="nt-input" id="ntInfo" placeholder="请输入邮箱地址">
+      </div>
+
+      <div class="nt-form-group">
+        <label class="nt-form-label">备注</label>
+        <textarea class="nt-textarea" id="ntRemark" placeholder="请输入备注信息" maxlength="200"></textarea>
+      </div>
+
+      <div class="ar-m-foot">
+        <button class="ar-btn" onclick="closeTargetModal()">取 消</button>
+        <button class="ar-btn primary" onclick="saveTarget()">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗（居中） -->
+  <div class="ar-overlay" id="ntDelOverlay" onclick="if(event.target===this)closeDelModal()">
+    <div class="ar-modal" style="width:420px;padding:20px 24px 18px">
+      <div class="ar-m-head" style="margin-bottom:10px">
+        <span class="ar-m-title">删除通知对象</span>
+        <button class="ar-m-close" onclick="closeDelModal()">✕</button>
+      </div>
+      <div style="font-size:13.5px;color:rgba(0,0,0,0.7);line-height:1.6;margin-bottom:20px">您是否确定删除该通知对象？删除后，引用它的告警规则将不再向其发送通知。</div>
+      <div class="ar-m-foot" style="margin-top:0">
+        <button class="ar-btn" onclick="closeDelModal()">取 消</button>
+        <button class="ar-btn primary" onclick="confirmDelete()">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ar-toast" id="ntToast"></div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/obj-perm.js"></script>
+  <script>
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // 类型 → 信息字段的标签与占位（照 4.0 弹窗）
+    var TYPE_INFO = {
+      '邮箱':     { label: '邮箱',     ph: '请输入邮箱地址' },
+      '短信':     { label: '短信',     ph: '请输入接收通知的手机号码' },
+      '电话':     { label: '电话',     ph: '请输入接收通知的电话号码' },
+      '企业微信': { label: '企业微信', ph: '请输入企业微信群机器人 webhook key' }
+    };
+
+    // Mock：与告警规则页的通知对象同名对齐（两页同一份故事）
+    var TARGETS = [
+      { id: 't1', name: '数据平台组邮箱', type: '邮箱', info: 'dataops@example.com', remark: '', created: '2026-07-14 14:33:19', updated: '2026-07-14 14:33:19', enabled: true },
+      { id: 't2', name: '值班邮箱组', type: '邮箱', info: 'oncall@example.com', remark: '数据值班公共邮箱', created: '2026-07-12 09:40:02', updated: '2026-07-12 09:40:02', enabled: true },
+      { id: 't3', name: '数据值班电话', type: '电话', info: '13800001234', remark: '7×24 值班', created: '2026-07-11 15:22:47', updated: '2026-07-13 10:05:11', enabled: true },
+      { id: 't4', name: '值班短信组', type: '短信', info: '13800005678', remark: '', created: '2026-07-10 11:08:30', updated: '2026-07-10 11:08:30', enabled: true },
+      { id: 't5', name: '数据告警群机器人', type: '企业微信', info: 'wh-****-9f3a', remark: '数据告警群', created: '2026-07-08 16:55:19', updated: '2026-07-09 09:12:44', enabled: true },
+      { id: 't6', name: '旧值班邮箱', type: '邮箱', info: 'legacy-oncall@example.com', remark: '已停用，保留记录', created: '2026-06-20 10:00:00', updated: '2026-07-01 18:30:25', enabled: false }
+    ];
+    var targetSeq = 7;
+
+    // ===== 列头筛选 =====
+    var colFilters = { type: [], enabled: [] };
+    var COL_FILTER_DEFS = {
+      type:    { btnId: 'typeFilterBtn',    width: 150, options: [ { val: '邮箱', label: '邮箱' }, { val: '短信', label: '短信' }, { val: '电话', label: '电话' }, { val: '企业微信', label: '企业微信' } ] },
+      enabled: { btnId: 'enabledFilterBtn', width: 130, options: [ { val: 'on', label: '启用' }, { val: 'off', label: '停用' } ] }
+    };
+    function toggleColFilter(key) {
+      var existing = document.getElementById('colFilterDrop');
+      var wasFor = existing && existing.getAttribute('data-for');
+      document.querySelectorAll('#colFilterDrop').forEach(function(d) { d.remove(); });
+      if (wasFor === key) return;
+      var def = COL_FILTER_DEFS[key];
+      var anchor = document.getElementById(def.btnId);
+      var rect = anchor.getBoundingClientRect();
+      var top = rect.bottom + 4;
+      var drop = document.createElement('div');
+      drop.id = 'colFilterDrop';
+      drop.setAttribute('data-for', key);
+      drop.style.cssText = 'position:fixed;top:' + top + 'px;left:' + Math.min(rect.left, window.innerWidth - def.width - 12) + 'px;width:' + def.width + 'px;max-height:' + Math.min(360, window.innerHeight - top - 12) + 'px;background:#fff;border:1px solid #e5e6eb;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.12);z-index:9999;display:flex;flex-direction:column;overflow:hidden';
+      drop.onclick = function(e) { e.stopPropagation(); };
+      var html = '<div style="flex:1 1 auto;overflow-y:auto;padding:8px 4px">';
+      def.options.forEach(function(o) {
+        var checked = colFilters[key].length === 0 || colFilters[key].indexOf(o.val) !== -1;
+        html += '<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:13px;color:rgba(0,0,0,0.88);cursor:pointer;border-radius:4px" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'none\'"><input type="checkbox" value="' + esc(o.val) + '"' + (checked ? ' checked' : '') + ' style="accent-color:#1677ff;width:15px;height:15px;cursor:pointer">' + esc(o.label) + '</label>';
+      });
+      html += '</div>';
+      html += '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid #f0f0f0;background:#fafbfc">'
+        + '<span style="font-size:12px;color:rgba(0,0,0,0.55);cursor:pointer" onclick="resetColFilter(\'' + key + '\')">重置</span>'
+        + '<button style="padding:4px 16px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;background:#1677ff;color:#fff;border:none" onclick="applyColFilter(\'' + key + '\')">确定</button>'
+        + '</div>';
+      drop.innerHTML = html;
+      document.body.appendChild(drop);
+      setTimeout(function() {
+        document.addEventListener('click', function handler(e) {
+          if (!drop.contains(e.target)) { drop.remove(); document.removeEventListener('click', handler); }
+        });
+      }, 0);
+    }
+    function applyColFilter(key) {
+      var checks = document.querySelectorAll('#colFilterDrop input[type="checkbox"]');
+      var selected = [];
+      checks.forEach(function(c) { if (c.checked) selected.push(c.value); });
+      colFilters[key] = selected.length === COL_FILTER_DEFS[key].options.length ? [] : selected;
+      var drop = document.getElementById('colFilterDrop');
+      if (drop) drop.remove();
+      updateFilterBtns();
+      renderTargets();
+    }
+    function resetColFilter(key) {
+      colFilters[key] = [];
+      document.querySelectorAll('#colFilterDrop input[type="checkbox"]').forEach(function(c) { c.checked = true; });
+    }
+    function updateFilterBtns() {
+      Object.keys(COL_FILTER_DEFS).forEach(function(key) {
+        var btn = document.getElementById(COL_FILTER_DEFS[key].btnId);
+        if (btn) btn.classList.toggle('active', colFilters[key].length > 0);
+      });
+    }
+
+    // ===== 排序 =====
+    var sortKey = 'created', sortAsc = false;
+    function toggleSort(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = false; }
+      renderTargets();
+    }
+
+    // ===== 列表渲染 =====
+    var OPS = {
+      edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>',
+      del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+    };
+    function renderTargets() {
+      var q = (document.getElementById('ntSearch').value || '').trim().toLowerCase();
+      var list = TARGETS.filter(function(t) {
+        if (colFilters.type.length && colFilters.type.indexOf(t.type) === -1) return false;
+        if (colFilters.enabled.length && colFilters.enabled.indexOf(t.enabled ? 'on' : 'off') === -1) return false;
+        if (q && (t.name + ' ' + t.info).toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+      list.sort(function(a, b) {
+        var va = a[sortKey], vb = b[sortKey];
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+      });
+      document.querySelectorAll('.ar-table th.sortable').forEach(function(th) {
+        var on = th.getAttribute('data-sort') === sortKey;
+        th.classList.toggle('sorted', on);
+        th.querySelector('.sort-ic').textContent = on ? (sortAsc ? '▲' : '▼') : '▼';
+      });
+
+      var html = list.map(function(t) {
+        var idx = TARGETS.indexOf(t);
+        var row = '<tr>';
+        row += '<td><span style="font-weight:500">' + esc(t.name) + '</span></td>';
+        row += '<td><span class="type-tag">' + esc(t.type) + '</span></td>';
+        row += '<td><span class="nt-info" title="' + esc(t.info) + '">' + esc(t.info) + '</span></td>';
+        row += '<td title="' + esc(t.created) + '">' + esc(t.created.slice(5, 16)) + '</td>';
+        row += '<td title="' + esc(t.updated) + '">' + esc(t.updated.slice(5, 16)) + '</td>';
+        row += '<td title="' + esc(t.remark || '') + '">' + (t.remark ? esc(t.remark) : '<span style="color:rgba(0,0,0,0.25)">-</span>') + '</td>';
+        row += '<td><label class="sw"><input type="checkbox"' + (t.enabled ? ' checked' : '') + ' onchange="toggleTarget(' + idx + ', this.checked)"><span class="sl"></span></label></td>';
+        row += '<td>'
+          + '<button class="op-btn" title="权限" onclick="ObjPerm.open(\'通知对象\', \'' + esc(t.name) + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>'
+          + '<button class="op-btn" title="编辑" onclick="openTargetModal(' + idx + ')">' + OPS.edit + '</button>'
+          + '<button class="op-btn danger" title="删除" onclick="deleteTarget(' + idx + ')">' + OPS.del + '</button>'
+          + '</td>';
+        row += '</tr>';
+        return row;
+      }).join('');
+      document.getElementById('ntTbody').innerHTML = html;
+      document.getElementById('ntEmpty').style.display = list.length ? 'none' : '';
+      document.getElementById('ntCount').textContent = '共 ' + list.length + ' 个通知对象';
+    }
+    function toggleTarget(idx, on) {
+      TARGETS[idx].enabled = on;
+      TARGETS[idx].updated = nowStr();
+      toast(on ? '通知对象已启用' : '通知对象已停用');
+      renderTargets();
+    }
+    function nowStr() {
+      var d = new Date();
+      function p(n) { return n < 10 ? '0' + n : n; }
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+
+    // ===== 创建 / 编辑弹窗 =====
+    var editIdx = null;
+    function openTargetModal(idx) {
+      editIdx = (idx == null ? null : idx);
+      if (editIdx == null) {
+        document.getElementById('ntModalTitle').textContent = '创建通知对象';
+        document.getElementById('ntName').value = '';
+        document.getElementById('ntType').value = '邮箱';
+        document.getElementById('ntInfo').value = '';
+        document.getElementById('ntRemark').value = '';
+      } else {
+        var t = TARGETS[editIdx];
+        document.getElementById('ntModalTitle').textContent = '编辑通知对象';
+        document.getElementById('ntName').value = t.name;
+        document.getElementById('ntType').value = t.type;
+        document.getElementById('ntInfo').value = t.info;
+        document.getElementById('ntRemark').value = t.remark || '';
+      }
+      renderInfoField(true);
+      document.getElementById('ntOverlay').classList.add('open');
+    }
+    function closeTargetModal() { document.getElementById('ntOverlay').classList.remove('open'); }
+
+    // 类型切换 → 信息字段的标签与占位跟随；keepValue 用于编辑回填
+    function renderInfoField(keepValue) {
+      var type = document.getElementById('ntType').value;
+      var meta = TYPE_INFO[type];
+      document.getElementById('ntInfoLabel').textContent = meta.label;
+      var info = document.getElementById('ntInfo');
+      info.placeholder = meta.ph;
+      if (!keepValue) info.value = '';
+    }
+
+    function saveTarget() {
+      var name = document.getElementById('ntName').value.trim();
+      var type = document.getElementById('ntType').value;
+      var info = document.getElementById('ntInfo').value.trim();
+      var remark = document.getElementById('ntRemark').value.trim();
+      if (!name) { toast('请输入通知对象名称'); return; }
+      if (!info) { toast(TYPE_INFO[type].ph); return; }
+      if (type === '邮箱' && info.indexOf('@') === -1) { toast('请输入正确的邮箱地址'); return; }
+      if ((type === '短信' || type === '电话') && !/^\d{6,15}$/.test(info)) { toast('请输入正确的号码'); return; }
+      if (editIdx == null) {
+        TARGETS.unshift({ id: 't' + (targetSeq++), name: name, type: type, info: info, remark: remark, created: nowStr(), updated: nowStr(), enabled: true });
+        toast('通知对象已创建');
+      } else {
+        var t = TARGETS[editIdx];
+        t.name = name; t.type = type; t.info = info; t.remark = remark; t.updated = nowStr();
+        toast('通知对象已更新');
+      }
+      closeTargetModal();
+      renderTargets();
+    }
+
+    // ===== 删除（居中确认弹窗）=====
+    var delIdx = null;
+    function deleteTarget(idx) {
+      delIdx = idx;
+      document.getElementById('ntDelOverlay').classList.add('open');
+    }
+    function closeDelModal() {
+      delIdx = null;
+      document.getElementById('ntDelOverlay').classList.remove('open');
+    }
+    function confirmDelete() {
+      if (delIdx != null) {
+        TARGETS.splice(delIdx, 1);
+        renderTargets();
+        toast('通知对象已删除');
+      }
+      closeDelModal();
+    }
+
+    // ===== Toast =====
+    var toastTimer = null;
+    function toast(msg) {
+      var el = document.getElementById('ntToast');
+      el.textContent = msg; el.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { el.style.display = 'none'; }, 1800);
+    }
+
+    // ===== Init =====
+    renderTargets();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 数据导出</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    :root { --primary:#1677ff; --border:#e5e7eb; --muted:rgba(0,0,0,.45); --text:rgba(0,0,0,.88); }
+    .btn-primary {
+      background: #1677ff; color: #fff; border: none; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 400;
+      display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #4096ff; }
+
+    .summary-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
+    .summary-item { appearance:none; width:100%; background:#fff; border:1px solid #f0f0f0; border-radius:8px; padding:12px 14px; text-align:left; cursor:pointer; transition:.18s; }
+    .summary-item:hover { border-color:#91caff; box-shadow:0 3px 10px rgba(22,119,255,.06); }
+    .summary-item.active { border-color:#1677ff; background:#f7fbff; box-shadow:0 0 0 1px #1677ff inset; }
+    .summary-label { color:var(--muted); font-size:12px; }
+    .summary-value { margin-top:2px; font-size:20px; line-height:26px; font-weight:600; color:var(--text); }
+    .summary-value.running { color:#1677ff; }
+    .summary-value.failed { color:#ff4d4f; }
+    .task-list-panel { overflow:hidden; background:#fff; border:1px solid #e8e8e8; border-radius:10px; }
+    .task-list-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-bottom:1px solid #f0f0f0; }
+    .toolbar-left { display:flex; gap:8px; align-items:center; flex:1; min-width:0; flex-wrap:wrap; }
+    .toolbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .task-list-count { font-size:12px; color:var(--muted); white-space:nowrap; margin-left:4px; }
+    .search-box { width:240px; max-width:100%; height:32px; border:1px solid #d9d9d9; border-radius:6px; padding:0 11px; box-sizing:border-box; outline:none; font-size:13px; }
+    .search-box:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(5,145,255,.1); }
+    .filter-select { height:32px; border:1px solid #d9d9d9; border-radius:6px; background:#fff; padding:0 30px 0 10px; color:rgba(0,0,0,.65); font-size:13px; }
+
+    .data-table { width:100%; border-collapse:collapse; background:#fff; table-layout:fixed; }
+    .data-table th { text-align:left; padding:8px 14px; font-size:12px; color:rgba(0,0,0,.45); font-weight:500; background:#fafafa; border-bottom:1px solid #f0f0f0; }
+    .data-table td { padding:10px 14px; vertical-align:middle; font-size:13px; color:rgba(0,0,0,.88); border-bottom:1px solid #f0f0f0; transition:background .16s; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background:#f7fbff; }
+    .data-table tbody tr[data-status="失败"] td:first-child { box-shadow:inset 3px 0 #ff4d4f; }
+    .task-empty { padding:52px 20px; border-top:1px solid #f0f0f0; text-align:center; color:var(--muted); font-size:13px; }
+    .task-empty-title { margin-bottom:10px; color:rgba(0,0,0,.65); font-size:14px; }
+    .empty-state { padding: 60px 0; text-align: center; color: rgba(0,0,0,0.25); font-size: 14px; }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 8px; opacity: 0.4; }
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 4px; font-size: 12px; line-height:18px; }
+    .status-badge.success { background: #f6ffed; color: #52c41a; }
+    .status-badge.running { background: #e6f4ff; color: #1677ff; }
+    .status-badge.failed { background: #fff2f0; color: #ff4d4f; }
+    .action-btns { display:flex; align-items:center; justify-content:flex-end; gap:16px; width:100%; white-space:nowrap; }
+    .action-btn-sm { padding:0; height:22px; border:0; border-radius:0; background:transparent; font-size:13px; line-height:22px; cursor:pointer; color:#1677ff; transition:color .15s; display:inline-flex; align-items:center; justify-content:center; min-width:2em; }
+    .action-btn-sm:hover { color:#4096ff; }
+    .action-btn-sm:disabled, .action-btn-sm.task-run-btn:disabled { color:rgba(0,0,0,.25); cursor:not-allowed; }
+    .action-btn-sm.danger { color:rgba(0,0,0,.45); }
+    .action-btn-sm.danger:hover { color:#ff4d4f; }
+    .action-more-btn { width:22px; height:22px; padding:0; border:0; border-radius:4px; background:transparent; color:rgba(0,0,0,.35); cursor:pointer; font-size:14px; line-height:1; letter-spacing:1px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .action-more-btn:hover { color:#1677ff; background:rgba(22,119,255,.06); }
+    .task-name-btn { display:block; max-width:100%; padding:0; border:0; background:none; color:var(--text); font-size:13px; line-height:18px; font-weight:600; text-align:left; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .task-name-btn:hover { color:#1677ff; }
+    .th-sort-btn {
+      display:inline-flex; align-items:center; gap:4px; padding:0; border:0; background:transparent;
+      color:inherit; font:inherit; cursor:pointer; line-height:1;
+    }
+    .th-sort-btn:hover { color:#1677ff; }
+    .th-sort-arrows { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; color:rgba(0,0,0,.25); line-height:.65; }
+    .th-sort-btn:hover .th-sort-arrows { color:#1677ff; }
+    .th-sort-arrows .sort-up, .th-sort-arrows .sort-down { font-size:9px; }
+    .th-sort-btn[data-dir="asc"] .sort-up { color:#1677ff; }
+    .th-sort-btn[data-dir="desc"] .sort-down { color:#1677ff; }
+    .flow-line { display:flex; align-items:center; gap:6px; min-width:0; }
+    .flow-source { min-width:0; overflow:hidden; color:rgba(0,0,0,.78); font-weight:500; text-overflow:ellipsis; white-space:nowrap; }
+    .flow-arrow { flex-shrink:0; color:#1677ff; font-size:13px; }
+    .flow-line .target-chip { flex-shrink:1; min-width:0; max-width:42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .schedule-main,.last-run-main { color:rgba(0,0,0,.78); font-weight:500; font-size:13px; line-height:18px; }
+    .last-run-cell { display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+    .run-result { display:inline-flex; align-items:center; justify-content:center; padding:0 8px; height:20px; border-radius:4px; font-size:12px; line-height:20px; font-weight:500; background:#f6ffed; color:#52c41a; flex-shrink:0; }
+    .run-result.failed { background:#fff2f0; color:#ff4d4f; }
+    .run-result.running { background:#e6f4ff; color:#1677ff; }
+    .run-result.pending { background:#f5f5f5; color:rgba(0,0,0,.45); }
+    .progress-track { width:72px; height:3px; margin-top:4px; overflow:hidden; border-radius:3px; background:#e6f4ff; }
+    .progress-bar { display:block; height:100%; border-radius:3px; background:#1677ff; }
+
+    /* Export wizard */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 10px; width: 560px; max-height: 88vh; overflow: hidden;
+      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+    }
+    .modal-header { padding: 18px 24px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom:1px solid #f0f0f0; }
+    .modal-header h2 { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .modal-close { cursor: pointer; font-size: 16px; color: rgba(0,0,0,0.45); padding: 4px; background: none; border: none; }
+    .modal-close:hover { color: rgba(0,0,0,0.88); }
+    .modal-body { padding:20px 24px 8px; max-height:62vh; overflow-y:auto; }
+    .modal-footer { padding:14px 24px; display: flex; justify-content: flex-end; gap: 8px; border-top:1px solid #f0f0f0; background:#fff; }
+    .footer-right { display:flex; gap:8px; }
+    .form-error { margin-top:6px; font-size:12px; color:#ff4d4f; display:none; }
+    .form-error.show { display:block; }
+    .file-tree-box {
+      border:1px solid #d9d9d9; border-radius:8px; max-height:220px; overflow:auto; padding:6px 0; background:#fff;
+    }
+    .file-tree-box .tree-folder-row {
+      display:flex; align-items:center; gap:6px; padding:6px 12px; cursor:pointer; user-select:none; color:rgba(0,0,0,.78); font-size:13px;
+    }
+    .file-tree-box .tree-folder-row:hover { background:#f5f5f5; }
+    .file-tree-box .tree-caret {
+      width:14px; display:inline-flex; justify-content:center; color:rgba(0,0,0,.45); transition:transform .15s; font-size:11px;
+    }
+    .file-tree-box .tree-folder.collapsed > .tree-folder-row .tree-caret { transform:rotate(-90deg); }
+    .file-tree-box .tree-folder.collapsed > .tree-children { display:none; }
+    .file-tree-box .tree-children { padding-left:16px; }
+    .file-tree-box .tree-file {
+      display:flex; align-items:center; gap:8px; padding:5px 12px 5px 30px; font-size:13px; color:rgba(0,0,0,.78); cursor:pointer;
+    }
+    .file-tree-box .tree-file:hover { background:#f7fbff; }
+    .file-tree-box .tree-file input { accent-color:#1677ff; margin:0; }
+    .file-tree-box .tree-file-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-tree-box .tree-file-meta { color:var(--muted); font-size:12px; flex-shrink:0; }
+    .file-select-hint { margin-top:6px; font-size:12px; color:var(--muted); }
+    .export-location-row { display:flex; align-items:center; gap:10px; }
+    .export-location-row .vform-select { width:220px; flex-shrink:0; }
+    .export-location-row .vform-input { flex:1; min-width:0; }
+
+    /* Vertical form fields */
+    .vform-group { margin-bottom: 20px; }
+    .vform-label {
+      display: block; font-size: 14px; color: rgba(0,0,0,0.88); font-weight: 400;
+      margin-bottom: 8px; line-height: 22px;
+    }
+    .vform-label .required { color: #ff4d4f; margin-right: 4px; }
+    .vform-input {
+      width: 100%; padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; transition: all 0.2s; box-sizing: border-box;
+    }
+    .vform-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .vform-input::placeholder { color: rgba(0,0,0,0.25); }
+    .vform-select {
+      padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+      box-sizing: border-box;
+    }
+    .vform-select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .vform-select-full { width: 100%; }
+    .vform-select-row { display: flex; gap: 12px; }
+    .vform-select-row .vform-select { flex: 1; }
+    .vform-hint { font-size: 12px; color: rgba(0,0,0,0.45); margin-top: 4px; }
+
+    .source-tabs { display:flex; gap:4px; margin-bottom:12px; border-bottom:1px solid #f0f0f0; }
+    .source-tab { padding:8px 14px; cursor:pointer; color:rgba(0,0,0,.55); border-bottom:2px solid transparent; }
+    .source-tab.active { color:#1677ff; border-color:#1677ff; }
+    .catalog-picker { border:1px solid #d9d9d9; border-radius:8px; display:grid; grid-template-columns:210px 1fr; min-height:238px; overflow:hidden; }
+    .catalog-tree { padding:10px; background:#fafafa; border-right:1px solid #f0f0f0; }
+    .catalog-node { padding:8px 10px; border-radius:5px; cursor:pointer; font-size:13px; }
+    .catalog-node:hover { background:#f0f5ff; }
+    .catalog-node.active { color:#1677ff; background:#e6f4ff; font-weight:500; }
+    .catalog-node.indent { padding-left:28px; }
+    .catalog-node.indent-2 { padding-left:44px; }
+    .tree-folder-arrow { display:inline-flex; width:14px; justify-content:center; margin-right:3px; transition:transform .18s; color:rgba(0,0,0,.45); }
+    .tree-folder-arrow.collapsed { transform:rotate(-90deg); }
+    .tree-group-children { overflow:hidden; }
+    .tree-group-children.collapsed { display:none; }
+    .file-row.hidden-row { display:none; }
+    .source-preview { padding:16px; }
+    .source-card { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #91caff; background:#f0f7ff; border-radius:8px; }
+    .source-icon { width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#fff; color:#1677ff; font-size:19px; }
+    .source-name { font-weight:600; font-size:14px; }
+    .source-meta { color:var(--muted); font-size:12px; margin-top:3px; }
+    .mini-table { width:100%; border-collapse:collapse; margin-top:14px; font-size:12px; }
+    .mini-table th,.mini-table td { text-align:left; padding:8px; border-bottom:1px solid #f0f0f0; }
+    .mini-table th { color:var(--muted); font-weight:500; background:#fafafa; }
+    .target-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+    .target-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .target-filter { height:30px; padding:0 12px; border:1px solid #d9d9d9; border-radius:6px; background:#fff; color:rgba(0,0,0,.65); cursor:pointer; font-size:13px; }
+    .target-filter:hover { color:#1677ff; border-color:#69b1ff; }
+    .target-filter.active { color:#1677ff; border-color:#1677ff; background:#f0f7ff; }
+    .target-card { border:1px solid #d9d9d9; border-radius:8px; padding:14px; cursor:pointer; transition:.2s; min-height:72px; }
+    .target-card.hidden { display:none; }
+    .target-card:hover { border-color:#69b1ff; }
+    .target-card.active { border-color:#1677ff; background:#f0f7ff; box-shadow:0 0 0 1px #1677ff inset; }
+    .target-name { font-size:14px; font-weight:600; }
+    .target-desc { font-size:12px; color:var(--muted); margin-top:5px; line-height:18px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+    .form-grid .full { grid-column:1/-1; }
+    .setting-box { border:1px solid #f0f0f0; background:#fafafa; border-radius:8px; padding:14px 16px; margin-bottom:14px; }
+    .setting-title { font-weight:600; font-size:13px; margin-bottom:10px; }
+    .schedule-options { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .schedule-option { border:1px solid #d9d9d9; border-radius:8px; padding:12px; cursor:pointer; }
+    .schedule-option.active { border-color:#1677ff; background:#f0f7ff; }
+    .schedule-option input { margin-right:6px; accent-color:#1677ff; }
+    .schedule-help { font-size:12px; color:var(--muted); margin:5px 0 0 22px; }
+    .review-card { border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; }
+    .review-row { display:grid; grid-template-columns:115px 1fr; padding:11px 14px; border-bottom:1px solid #f0f0f0; font-size:13px; }
+    .review-row:last-child { border-bottom:none; }
+    .review-label { color:var(--muted); }
+    .review-value { color:var(--text); font-weight:500; }
+    .notice { display:flex; gap:9px; background:#e6f4ff; border:1px solid #91caff; color:rgba(0,0,0,.65); padding:10px 12px; border-radius:7px; font-size:12px; line-height:18px; margin-top:14px; }
+    .status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; }
+    .target-chip { display:inline-flex; align-items:center; padding:1px 6px; border-radius:4px; background:#f5f5f5; color:rgba(0,0,0,.65); font-size:12px; line-height:18px; }
+    .cell-main { font-weight:600; color:var(--text); line-height:18px; }
+    .cell-sub { margin-top:2px; font-size:12px; line-height:16px; color:var(--muted); }
+    .action-menu-wrap { position:relative; }
+    .action-menu { display:none; position:fixed; z-index:500; width:128px; padding:5px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,.12); }
+    .action-menu.show { display:block; }
+    .action-menu button { width:100%; height:30px; padding:0 9px; border:0; background:#fff; border-radius:5px; text-align:left; cursor:pointer; color:rgba(0,0,0,.75); }
+    .action-menu button:hover { background:#f5f5f5; }
+    .action-menu button.danger { color:#ff4d4f; }
+    .connection-control { display:flex; align-items:center; gap:8px; }
+    .connection-control .vform-select { flex:1; min-width:0; }
+    .connection-control .btn-secondary { flex:none; height:32px; white-space:nowrap; }
+    .inline-success { color:#52c41a; font-size:12px; margin-top:5px; }
+    .toast { position:fixed; left:50%; top:72px; transform:translate(-50%,-12px); z-index:900; padding:10px 16px; border-radius:8px; color:rgba(0,0,0,.75); background:#fff; border:1px solid #b7eb8f; box-shadow:0 8px 24px rgba(0,0,0,.14); opacity:0; pointer-events:none; transition:.25s; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    .text-link { background:none; border:none; color:#1677ff; cursor:pointer; padding:0; font-size:13px; }
+    .hidden { display:none!important; }
+    .legacy-export { display:none!important; }
+
+    /* Radio inline */
+    .vform-radio-group { display: flex; gap: 20px; padding-top: 2px; }
+    .vform-radio-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: rgba(0,0,0,0.88); cursor: pointer; }
+
+    .btn-secondary {
+      background: #fff; color: rgba(0,0,0,0.88); border: 1px solid #d9d9d9; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center;
+    }
+    .btn-secondary:hover { border-color: #1677ff; color: #1677ff; }
+    @media (max-width:1000px) { .summary-strip{grid-template-columns:repeat(2,1fr)} .task-list-head{align-items:stretch;flex-direction:column}.toolbar-right{justify-content:flex-end}.modal{width:92vw}.target-grid{grid-template-columns:1fr 1fr} }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item active" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="dataConn">
+        <a class="sub-item" href="connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item active" href="data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataProc">
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="resCenter">
+        <a class="sub-item" href="../resource-center/catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="../resource-center/compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item" href="../resource-center/data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="../resource-center/knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="page-content">
+      <div class="summary-strip">
+        <button class="summary-item active" type="button" data-status="" onclick="filterBySummary(this)"><div class="summary-label">全部任务</div><div class="summary-value" id="summaryAll">6</div></button>
+        <button class="summary-item" type="button" data-status="运行中" onclick="filterBySummary(this)"><div class="summary-label">运行中</div><div class="summary-value running" id="summaryRunning">1</div></button>
+        <button class="summary-item" type="button" data-status="未运行" onclick="filterBySummary(this)"><div class="summary-label">未运行</div><div class="summary-value" id="summaryIdle">4</div></button>
+        <button class="summary-item" type="button" data-status="失败" onclick="filterBySummary(this)"><div class="summary-label">运行失败</div><div class="summary-value failed" id="summaryFailed">1</div></button>
+      </div>
+
+      <div class="task-list-panel">
+        <div class="task-list-head">
+          <div class="toolbar-left">
+            <input class="search-box" id="taskSearch" placeholder="搜索任务、源数据或目标" oninput="filterExportTasks()">
+            <select class="filter-select" id="targetFilter" onchange="filterExportTasks()">
+              <option value="">全部目标</option><option>对象存储</option><option>数据库</option><option>邮件</option><option>文件协议</option><option>消息队列</option><option>企业应用</option><option>协作平台</option><option>模型平台</option>
+            </select>
+            <button class="refresh-btn" onclick="refreshData(this)" title="刷新" aria-label="刷新任务列表"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.5 2v6h-6"/><path d="M2.5 22v-6h6"/><path d="M2.5 11.5a10 10 0 0 1 17.3-5.7L21.5 8"/><path d="M21.5 12.5a10 10 0 0 1-17.3 5.7L2.5 16"/></svg></button>
+            <span class="task-list-count" id="visibleTaskCount">共 6 项</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn-primary" onclick="openExportWizard()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3v10M3 8h10"/></svg>
+              新建导出任务
+            </button>
+          </div>
+        </div>
+        <table class="data-table" id="newExportTable">
+          <colgroup><col style="width:17%"><col style="width:30%"><col style="width:11%"><col style="width:11%"><col style="width:19%"><col style="width:12%"></colgroup>
+          <thead><tr><th><button type="button" class="th-sort-btn" id="sortCreatedAtBtn" onclick="toggleSortCreatedAt(event)" title="按创建时间排序" aria-label="按创建时间排序">任务<span class="th-sort-arrows"><span class="sort-up">▲</span><span class="sort-down">▼</span></span></button></th><th>数据流</th><th>调度</th><th>状态</th><th>最近运行</th><th style="text-align:right">操作</th></tr></thead>
+          <tbody id="newExportTableBody">
+            <tr data-target="对象存储" data-status="未运行"><td><button class="task-name-btn" type="button">Gold 指标每日归档</button><div class="cell-sub">2026-07-18 创建</div></td><td><div class="flow-line"><span class="flow-source">NESR / Gold / pump_daily_kpis</span><span class="flow-arrow">→</span><span class="target-chip">S3 · nesr-report</span></div><div class="cell-sub">表 · 8 列 · 28.6 万行</div></td><td><div class="schedule-main">每天 02:00</div></td><td><span class="status-badge">未运行</span></td><td><div class="last-run-cell"><div class="last-run-main">2026-08-11 02:01</div><span class="run-result">成功</span></div></td><td><div class="action-btns"><button class="action-btn-sm task-run-btn" onclick="runTask(this)">运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td></tr>
+            <tr data-target="模型平台" data-status="运行中"><td><button class="task-name-btn" type="button">客服问答训练集发布</button><div class="cell-sub">2026-07-25 创建</div></td><td><div class="flow-line"><span class="flow-source">客服知识库 / training_qa</span><span class="flow-arrow">→</span><span class="target-chip">Hugging Face</span></div><div class="cell-sub">表 · 4 列 · 12.8 万行</div></td><td><div class="schedule-main">手动</div></td><td><span class="status-badge running">运行中 68%</span><div class="progress-track"><span class="progress-bar" style="width:68%"></span></div></td><td><div class="last-run-cell"><div class="last-run-main">2026-08-11 13:18</div><span class="run-result running">运行中</span></div></td><td><div class="action-btns"><button class="action-btn-sm task-run-btn" disabled>运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td></tr>
+            <tr data-target="数据库" data-status="未运行"><td><button class="task-name-btn" type="button">销售汇总同步</button><div class="cell-sub">2026-06-30 创建</div></td><td><div class="flow-line"><span class="flow-source">销售分析 / monthly_summary</span><span class="flow-arrow">→</span><span class="target-chip">MatrixOne · bi_prod</span></div><div class="cell-sub">表 · 12 列 · 4.2 万行</div></td><td><div class="schedule-main">每月 1 日</div></td><td><span class="status-badge">未运行</span></td><td><div class="last-run-cell"><div class="last-run-main">2026-08-01 03:12</div><span class="run-result">成功</span></div></td><td><div class="action-btns"><button class="action-btn-sm task-run-btn" onclick="runTask(this)">运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td></tr>
+            <tr data-target="对象存储" data-status="失败"><td><button class="task-name-btn" type="button">审计文件长期归档</button><div class="cell-sub">2026-06-12 创建</div></td><td><div class="flow-line"><span class="flow-source">合规中心 / audit_files</span><span class="flow-arrow">→</span><span class="target-chip">OSS · compliance</span></div><div class="cell-sub">卷 · 326 个文件 · 1.8 GB</div></td><td><div class="schedule-main">每周一 03:00</div></td><td><span class="status-badge failed">运行失败</span></td><td><div class="last-run-cell"><div class="last-run-main">2026-08-04 03:06</div><span class="run-result failed">失败</span></div></td><td><div class="action-btns"><button class="action-btn-sm task-run-btn" onclick="runTask(this)">运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td></tr>
+            <tr data-target="对象存储" data-status="未运行"><td><button class="task-name-btn" type="button">原始附件备份</button><div class="cell-sub">2026-05-22 创建</div></td><td><div class="flow-line"><span class="flow-source">default / 合同附件卷</span><span class="flow-arrow">→</span><span class="target-chip">S3 · archive</span></div><div class="cell-sub">卷 · 1,208 个文件 · 8.4 GB</div></td><td><div class="schedule-main">每天 01:00</div></td><td><span class="status-badge">未运行</span></td><td><div class="last-run-cell"><div class="last-run-main">2026-08-05 01:16</div><span class="run-result">成功</span></div></td><td><div class="action-btns"><button class="action-btn-sm task-run-btn" onclick="runTask(this)">运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td></tr>
+            <tr data-target="模型平台" data-status="未运行"><td><button class="task-name-btn" type="button">指令微调数据集</button><div class="cell-sub">2026-05-08 创建</div></td><td><div class="flow-line"><span class="flow-source">模型中心 / sft_alpaca_v3</span><span class="flow-arrow">→</span><span class="target-chip">LLaMA Factory</span></div><div class="cell-sub">JSONL · 5.6 万条 · 186 MB</div></td><td><div class="schedule-main">手动</div></td><td><span class="status-badge">未运行</span></td><td><div class="last-run-cell"><div class="last-run-main">2026-07-28 16:42</div><span class="run-result">成功</span></div></td><td><div class="action-btns"><button class="action-btn-sm task-run-btn" onclick="runTask(this)">运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td></tr>
+          </tbody>
+        </table>
+        <div class="task-empty hidden" id="taskEmptyState"><div class="task-empty-title">没有符合条件的导出任务</div><button class="text-link" type="button" onclick="clearTaskFilters()">清空筛选</button></div>
+      </div>
+      <div class="action-menu" id="taskActionMenu"><button onclick="showCurrentDetail()">查看详情</button><button onclick="editCurrentTask()">修改配置</button><button onclick="openCurrentPermission()">权限</button><button onclick="openCurrentJob()">查看作业</button><button id="pauseMenuItem" onclick="toggleCurrentPause()">暂停任务</button><button class="danger" onclick="deleteCurrentTask()">删除</button></div>
+    </div>
+  </div>
+
+  <!-- Legacy export prototype retained for reference, hidden from the redesigned page. -->
+  <div class="main legacy-export">
+    <div class="page-content">
+      <!-- Export Destination Cards -->
+      <div class="export-cards">
+        <div class="export-card">
+          <div class="card-title">导出至模型/数据集平台</div>
+          <div class="card-desc">导出数据集用于模型训练</div>
+          <div class="card-tags">
+            <span class="export-tag huggingface" onclick="openExportModal('huggingface')">🤗 Hugging Face</span>
+            <span class="export-tag llama" onclick="openExportModal('llama')">🦙 LLaMA Factory</span>
+          </div>
+        </div>
+        <div class="export-card">
+          <div class="card-title">导出到对象存储</div>
+          <div class="card-desc">将数据备份到对象存储中</div>
+          <div class="card-tags">
+            <span class="export-tag oss" onclick="openExportModal('oss')">☁️ OSS</span>
+            <span class="export-tag s3" onclick="openExportModal('s3')">🪣 标准 S3</span>
+          </div>
+        </div>
+        <div class="export-card">
+          <div class="card-title">导出至数据库</div>
+          <div class="card-desc">将文件或数据发布到数据库中，用于数据检索</div>
+          <div class="card-tags">
+            <span class="export-tag matrixone" onclick="openExportModal('matrixone')">🗄️ MatrixOne</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Task List -->
+      <div class="section-header">
+        <div class="section-title">导出任务列表</div>
+        <button class="refresh-btn" onclick="refreshData(this)" title="刷新">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M2.5 22v-6h6"/><path d="M2.5 11.5a10 10 0 0 1 17.3-5.7L21.5 8"/><path d="M21.5 12.5a10 10 0 0 1-17.3 5.7L2.5 16"/></svg>
+        </button>
+      </div>
+      <table class="data-table" id="exportTable">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>文件详情</th>
+            <th>导出目标</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th>完成时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="exportTableBody">
+          <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📭</div><div>暂无数据</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== Create Export Modal ========== -->
+  <div class="modal-overlay" id="exportWizard">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wizardTitle">
+      <div class="modal-header">
+        <h2 id="wizardTitle">新建导出任务</h2>
+        <button class="modal-close" onclick="closeExportWizard()" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 任务名称</label>
+          <input class="vform-input" id="taskNameInput" type="text" placeholder="请输入任务名称" oninput="this.style.borderColor='';document.getElementById('taskNameError').classList.remove('show')">
+          <div class="form-error" id="taskNameError">请填写任务名称</div>
+        </div>
+
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择文件</label>
+          <div class="file-tree-box" id="exportFileTree">
+            <div class="tree-folder">
+              <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>default</span></div>
+              <div class="tree-children">
+                <div class="tree-folder">
+                  <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>产品资料</span></div>
+                  <div class="tree-children">
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="产品文档.pdf" data-path="default / 产品资料 / 产品文档.pdf" data-size="8.4" onchange="updateExportFileHint()"><span class="tree-file-name">产品文档.pdf</span><span class="tree-file-meta">8.4 MB</span></label>
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="用户手册.docx" data-path="default / 产品资料 / 用户手册.docx" data-size="5.2" onchange="updateExportFileHint()"><span class="tree-file-name">用户手册.docx</span><span class="tree-file-meta">5.2 MB</span></label>
+                  </div>
+                </div>
+                <div class="tree-folder">
+                  <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>合同附件卷</span></div>
+                  <div class="tree-children">
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="销售合同-A.pdf" data-path="default / 合同附件卷 / 销售合同-A.pdf" data-size="2.1" onchange="updateExportFileHint()"><span class="tree-file-name">销售合同-A.pdf</span><span class="tree-file-meta">2.1 MB</span></label>
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="采购协议.docx" data-path="default / 合同附件卷 / 采购协议.docx" data-size="1.4" onchange="updateExportFileHint()"><span class="tree-file-name">采购协议.docx</span><span class="tree-file-meta">1.4 MB</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tree-folder">
+              <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>欧坚</span></div>
+              <div class="tree-children">
+                <div class="tree-folder">
+                  <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>技术资料</span></div>
+                  <div class="tree-children">
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="技术规范.pdf" data-path="欧坚 / 技术资料 / 技术规范.pdf" data-size="12.1" onchange="updateExportFileHint()"><span class="tree-file-name">技术规范.pdf</span><span class="tree-file-meta">12.1 MB</span></label>
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="接口说明.md" data-path="欧坚 / 技术资料 / 接口说明.md" data-size="0.3" onchange="updateExportFileHint()"><span class="tree-file-name">接口说明.md</span><span class="tree-file-meta">0.3 MB</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tree-folder">
+              <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>合规中心</span></div>
+              <div class="tree-children">
+                <div class="tree-folder">
+                  <div class="tree-folder-row" onclick="toggleExportTree(this)"><span class="tree-caret">▾</span><span>audit_files</span></div>
+                  <div class="tree-children">
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="审计日志_2026Q2.zip" data-path="合规中心 / audit_files / 审计日志_2026Q2.zip" data-size="186" onchange="updateExportFileHint()"><span class="tree-file-name">审计日志_2026Q2.zip</span><span class="tree-file-meta">186 MB</span></label>
+                    <label class="tree-file"><input type="checkbox" class="export-file-check" value="访问记录.csv" data-path="合规中心 / audit_files / 访问记录.csv" data-size="24.5" onchange="updateExportFileHint()"><span class="tree-file-name">访问记录.csv</span><span class="tree-file-meta">24.5 MB</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="file-select-hint" id="exportFileHint">尚未选择文件</div>
+          <div class="form-error" id="fileSelectError">请至少选择一个文件</div>
+        </div>
+
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 导出位置</label>
+          <div class="export-location-row">
+            <select class="vform-select" id="exportConnectorSelect" onchange="onExportConnectorChange()">
+              <option value="">请选择连接器</option>
+              <option>NESR 备份桶 · AWS S3</option>
+              <option>营销素材库 · 阿里云 OSS</option>
+              <option>政企归档 · 华为云 OBS</option>
+              <option>生产数据 S3</option>
+              <option>客户合同同步 · SFTP</option>
+            </select>
+            <input class="vform-input hidden" id="exportPathInput" type="text" placeholder="请填写目标路径，例如 exports/archive/" oninput="this.style.borderColor='';document.getElementById('exportLocationError').classList.remove('show')">
+          </div>
+          <div class="form-error" id="exportLocationError">请选择连接器并填写路径</div>
+        </div>
+
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 压缩方式</label>
+          <div class="vform-radio-group">
+            <label><input type="radio" name="exportCompress" value="Gzip" checked> Gzip</label>
+            <label><input type="radio" name="exportCompress" value="不压缩"> 不压缩</label>
+          </div>
+          <div class="form-error" id="compressError">请选择压缩方式</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeExportWizard()">取 消</button>
+        <button class="btn-primary" id="createTaskBtn" onclick="createExportTask()">创建任务</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="taskDetailModal">
+    <div class="modal" style="width:620px" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="modal-header"><h2 id="detailTitle">导出任务详情</h2><button class="modal-close" onclick="closeTaskDetail()" aria-label="关闭">✕</button></div>
+      <div class="modal-body" style="min-height:0">
+        <div class="review-card">
+          <div class="review-row"><div class="review-label">任务名称</div><div class="review-value" id="detailName">—</div></div>
+          <div class="review-row"><div class="review-label">源数据</div><div class="review-value" id="detailSource">—</div></div>
+          <div class="review-row"><div class="review-label">导出目标</div><div class="review-value" id="detailTarget">—</div></div>
+          <div class="review-row"><div class="review-label">调度</div><div class="review-value" id="detailSchedule">—</div></div>
+          <div class="review-row"><div class="review-label">状态</div><div class="review-value" id="detailStatus">—</div></div>
+          <div class="review-row"><div class="review-label">最近运行</div><div class="review-value"><div class="last-run-cell" id="detailLastRun"><div class="last-run-main">—</div></div></div></div>
+        </div>
+        <div class="notice"><span>ⓘ</span><span>Mock 详情展示任务配置与最近运行信息；“作业”可查看每一次运行实例。</span></div>
+      </div>
+      <div class="modal-footer"><button class="text-link" onclick="closeTaskDetail()">关闭</button><div class="footer-right"><button class="btn-secondary" onclick="openDetailJob()">查看作业</button><button class="btn-primary" onclick="editFromDetail()">修改配置</button></div></div>
+    </div>
+  </div>
+
+  <!-- ========== Export to OSS Modal ========== -->
+  <div class="modal-overlay" id="modal-oss">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>导出到OSS</h2>
+        <button class="modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 任务名称</label>
+          <input class="vform-input" type="text" placeholder="请输入任务名称">
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择要导出的文件</label>
+          <div class="file-tree-box">
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>默认</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 产品文档.pdf</div>
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 用户手册.docx</div>
+            </div>
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>欧坚</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 技术规范.pdf</div>
+            </div>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择导出位置</label>
+          <select class="vform-select vform-select-full" style="width:280px">
+            <option value="">请选择连接器</option>
+            <option>阿里云 OSS 备份</option>
+          </select>
+          <div class="vform-hint">暂无可用连接器，请先创建连接器</div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 压缩方式</label>
+          <div class="vform-radio-group">
+            <label><input type="radio" name="ossCompress" value="gzip" checked> Gzip</label>
+            <label><input type="radio" name="ossCompress" value="none"> 不压缩</label>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label">运行配置</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:13px;color:rgba(0,0,0,0.55)">通用计算资源</span>
+            <select class="vform-select" style="width:auto;min-width:220px">
+              <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+              <option>cpu-通用-01（CPU 通用型）</option>
+              <option>etl-专属（CPU 内存型 · 常驻）</option>
+              <option>gpu-推理-01（GPU 推理型）</option>
+              <option>gpu-训练-01（GPU 训练型）</option>
+            </select>
+          </div>
+          <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:5px">导出卷内文件属非 SQL 处理，挂通用计算资源；默认走平台默认通用资源。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeAllModals()">取 消</button>
+        <button class="btn-primary" onclick="submitExport('OSS')">开始导出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Export to S3 Modal ========== -->
+  <div class="modal-overlay" id="modal-s3">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>导出到标准 S3</h2>
+        <button class="modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 任务名称</label>
+          <input class="vform-input" type="text" placeholder="请输入任务名称">
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择要导出的文件</label>
+          <div class="file-tree-box">
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>默认</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 产品文档.pdf</div>
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 用户手册.docx</div>
+            </div>
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>欧坚</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 技术规范.pdf</div>
+            </div>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择导出位置</label>
+          <select class="vform-select vform-select-full" style="width:280px">
+            <option value="">请选择连接器</option>
+            <option>生产数据 S3</option>
+          </select>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 压缩方式</label>
+          <div class="vform-radio-group">
+            <label><input type="radio" name="s3Compress" value="gzip" checked> Gzip</label>
+            <label><input type="radio" name="s3Compress" value="none"> 不压缩</label>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label">运行配置</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:13px;color:rgba(0,0,0,0.55)">通用计算资源</span>
+            <select class="vform-select" style="width:auto;min-width:220px">
+              <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+              <option>cpu-通用-01（CPU 通用型）</option>
+              <option>etl-专属（CPU 内存型 · 常驻）</option>
+              <option>gpu-推理-01（GPU 推理型）</option>
+              <option>gpu-训练-01（GPU 训练型）</option>
+            </select>
+          </div>
+          <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:5px">导出卷内文件属非 SQL 处理，挂通用计算资源；默认走平台默认通用资源。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeAllModals()">取 消</button>
+        <button class="btn-primary" onclick="submitExport('标准 S3')">开始导出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Export to MatrixOne Modal ========== -->
+  <div class="modal-overlay" id="modal-matrixone">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>导出到MatrixOne</h2>
+        <button class="modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 任务名称</label>
+          <input class="vform-input" type="text" placeholder="请输入任务名称">
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择要导出的文件</label>
+          <div class="file-tree-box">
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>默认</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 产品文档.pdf</div>
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 用户手册.docx</div>
+            </div>
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>欧坚</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 技术规范.pdf</div>
+            </div>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择导出位置</label>
+          <div class="vform-select-row">
+            <select class="vform-select">
+              <option value="">请选择连接器</option>
+              <option>MatrixOne 数据库</option>
+            </select>
+            <select class="vform-select">
+              <option value="">请选择数据库</option>
+              <option>analytics_db</option>
+              <option>knowledge_db</option>
+            </select>
+            <select class="vform-select">
+              <option value="">请选择或新建一个表</option>
+              <option>doc_segments</option>
+              <option>knowledge_base</option>
+            </select>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label">运行配置</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:13px;color:rgba(0,0,0,0.55)">通用计算资源</span>
+            <select class="vform-select" style="width:auto;min-width:220px">
+              <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+              <option>cpu-通用-01（CPU 通用型）</option>
+              <option>etl-专属（CPU 内存型 · 常驻）</option>
+              <option>gpu-推理-01（GPU 推理型）</option>
+              <option>gpu-训练-01（GPU 训练型）</option>
+            </select>
+          </div>
+          <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:5px">导出卷内文件、写到外部目标，均属非 SQL 处理，挂通用计算资源；默认走平台默认通用资源。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeAllModals()">取 消</button>
+        <button class="btn-primary" onclick="submitExport('MatrixOne')">开始导出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Export to Hugging Face Modal ========== -->
+  <div class="modal-overlay" id="modal-huggingface">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>导出到 Hugging Face</h2>
+        <button class="modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 任务名称</label>
+          <input class="vform-input" type="text" placeholder="请输入任务名称">
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择要导出的文件</label>
+          <div class="file-tree-box">
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>默认</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 产品文档.pdf</div>
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 用户手册.docx</div>
+            </div>
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>欧坚</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 技术规范.pdf</div>
+            </div>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择导出位置</label>
+          <select class="vform-select vform-select-full" style="width:280px">
+            <option value="">请选择连接器</option>
+            <option>Hugging Face 连接器</option>
+          </select>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label">运行配置</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:13px;color:rgba(0,0,0,0.55)">通用计算资源</span>
+            <select class="vform-select" style="width:auto;min-width:220px">
+              <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+              <option>cpu-通用-01（CPU 通用型）</option>
+              <option>etl-专属（CPU 内存型 · 常驻）</option>
+              <option>gpu-推理-01（GPU 推理型）</option>
+              <option>gpu-训练-01（GPU 训练型）</option>
+            </select>
+          </div>
+          <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:5px">导出数据集属非 SQL 处理，挂通用计算资源；默认走平台默认通用资源。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeAllModals()">取 消</button>
+        <button class="btn-primary" onclick="submitExport('Hugging Face')">开始导出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Export to LLaMA Factory Modal ========== -->
+  <div class="modal-overlay" id="modal-llama">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>导出到 LLaMA Factory</h2>
+        <button class="modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 任务名称</label>
+          <input class="vform-input" type="text" placeholder="请输入任务名称">
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择要导出的文件</label>
+          <div class="file-tree-box">
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>默认</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 产品文档.pdf</div>
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 用户手册.docx</div>
+            </div>
+            <div class="tree-node" onclick="toggleTree(this)">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📚</span>
+              <span>欧坚</span>
+            </div>
+            <div class="tree-children">
+              <div class="tree-node"><input type="checkbox" class="tree-leaf-check"> <span class="tree-icon">📄</span> 技术规范.pdf</div>
+            </div>
+          </div>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label"><span class="required">*</span> 选择导出位置</label>
+          <select class="vform-select vform-select-full" style="width:280px">
+            <option value="">请选择连接器</option>
+            <option>LLaMA Factory 连接器</option>
+          </select>
+        </div>
+        <div class="vform-group">
+          <label class="vform-label">运行配置</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:13px;color:rgba(0,0,0,0.55)">通用计算资源</span>
+            <select class="vform-select" style="width:auto;min-width:220px">
+              <option value="default" selected>默认通用资源（弹性 0→n · 闲时缩容）</option>
+              <option>cpu-通用-01（CPU 通用型）</option>
+              <option>etl-专属（CPU 内存型 · 常驻）</option>
+              <option>gpu-推理-01（GPU 推理型）</option>
+              <option>gpu-训练-01（GPU 训练型）</option>
+            </select>
+          </div>
+          <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:5px">导出数据集属非 SQL 处理，挂通用计算资源；默认走平台默认通用资源。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeAllModals()">取 消</button>
+        <button class="btn-primary" onclick="submitExport('LLaMA Factory')">开始导出</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="exportToast">✓ 导出任务已创建</div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/op-icons.js"></script>
+  <script src="../scripts/obj-perm.js"></script>
+  <script>
+    let currentActionRow = null;
+    let detailRow = null;
+    let editingRow = null;
+    let activeStatusFilter = '';
+
+    const connectorCategoryMap = {
+      'NESR 备份桶 · AWS S3': '对象存储',
+      '营销素材库 · 阿里云 OSS': '对象存储',
+      '政企归档 · 华为云 OBS': '对象存储',
+      '生产数据 S3': '对象存储',
+      '客户合同同步 · SFTP': '文件协议'
+    };
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value;
+      return div.innerHTML;
+    }
+
+    function openExportWizard(isEdit) {
+      editingRow = isEdit ? editingRow : null;
+      document.getElementById('wizardTitle').textContent = editingRow ? '修改导出任务' : '新建导出任务';
+      document.getElementById('createTaskBtn').textContent = editingRow ? '保存配置' : '创建任务';
+      if (!isEdit) resetExportForm();
+      document.getElementById('exportWizard').classList.add('show');
+    }
+
+    function closeExportWizard() {
+      document.getElementById('exportWizard').classList.remove('show');
+      editingRow = null;
+    }
+
+    function resetExportForm() {
+      document.getElementById('taskNameInput').value = '';
+      document.getElementById('taskNameInput').style.borderColor = '';
+      document.querySelectorAll('.export-file-check').forEach(cb => { cb.checked = false; });
+      document.getElementById('exportConnectorSelect').value = '';
+      document.getElementById('exportPathInput').value = '';
+      document.getElementById('exportPathInput').classList.add('hidden');
+      const gzip = document.querySelector('input[name="exportCompress"][value="Gzip"]');
+      if (gzip) gzip.checked = true;
+      document.querySelectorAll('#exportFileTree .tree-folder').forEach(folder => folder.classList.remove('collapsed'));
+      clearFormErrors();
+      updateExportFileHint();
+    }
+
+    function onExportConnectorChange() {
+      const connector = document.getElementById('exportConnectorSelect');
+      const path = document.getElementById('exportPathInput');
+      connector.style.borderColor = '';
+      document.getElementById('exportLocationError').classList.remove('show');
+      const hasConnector = !!connector.value;
+      path.classList.toggle('hidden', !hasConnector);
+      if (!hasConnector) {
+        path.value = '';
+        path.style.borderColor = '';
+      }
+    }
+
+    function clearFormErrors() {
+      ['taskNameError', 'fileSelectError', 'exportLocationError', 'compressError'].forEach(id => {
+        document.getElementById(id).classList.remove('show');
+      });
+      document.getElementById('taskNameInput').style.borderColor = '';
+      document.getElementById('exportConnectorSelect').style.borderColor = '';
+      document.getElementById('exportPathInput').style.borderColor = '';
+    }
+
+    function toggleExportTree(row) {
+      const folder = row.closest('.tree-folder');
+      if (folder) folder.classList.toggle('collapsed');
+    }
+
+    function getSelectedExportFiles() {
+      return Array.from(document.querySelectorAll('.export-file-check:checked'));
+    }
+
+    function updateExportFileHint() {
+      const checked = getSelectedExportFiles();
+      const hint = document.getElementById('exportFileHint');
+      if (!checked.length) {
+        hint.textContent = '尚未选择文件';
+        return;
+      }
+      const size = checked.reduce((sum, item) => sum + Number(item.dataset.size || 0), 0);
+      const sizeText = size >= 100 ? size.toFixed(0) : size.toFixed(1);
+      hint.textContent = '已选择 ' + checked.length + ' 个文件 · ' + sizeText + ' MB';
+      document.getElementById('fileSelectError').classList.remove('show');
+    }
+
+    function getSelectedCompression() {
+      const checked = document.querySelector('input[name="exportCompress"]:checked');
+      return checked ? checked.value : '';
+    }
+
+    function validateExportForm() {
+      clearFormErrors();
+      let ok = true;
+      const nameInput = document.getElementById('taskNameInput');
+      if (!nameInput.value.trim()) {
+        nameInput.style.borderColor = '#ff4d4f';
+        document.getElementById('taskNameError').classList.add('show');
+        if (ok) nameInput.focus();
+        ok = false;
+      }
+      if (!getSelectedExportFiles().length) {
+        document.getElementById('fileSelectError').classList.add('show');
+        ok = false;
+      }
+      const connector = document.getElementById('exportConnectorSelect');
+      const path = document.getElementById('exportPathInput');
+      if (!connector.value || !path.value.trim()) {
+        if (!connector.value) connector.style.borderColor = '#ff4d4f';
+        if (!path.value.trim()) path.style.borderColor = '#ff4d4f';
+        document.getElementById('exportLocationError').classList.add('show');
+        if (ok) (connector.value ? path : connector).focus();
+        ok = false;
+      }
+      if (!getSelectedCompression()) {
+        document.getElementById('compressError').classList.add('show');
+        ok = false;
+      }
+      return ok;
+    }
+
+    function buildSourceSummary(files) {
+      if (!files.length) return { path: '', meta: '' };
+      const paths = files.map(f => f.dataset.path);
+      const size = files.reduce((sum, item) => sum + Number(item.dataset.size || 0), 0);
+      const sizeText = size >= 100 ? size.toFixed(0) : size.toFixed(1);
+      const path = files.length === 1 ? paths[0] : (paths[0].split(' / ').slice(0, -1).join(' / ') + ' 等 ' + files.length + ' 个文件');
+      return { path: path, meta: '文件 · ' + files.length + ' 个 · ' + sizeText + ' MB' };
+    }
+
+    function shortConnectorLabel(connector) {
+      if (connector.includes('S3')) return 'S3 · ' + connector.split('·')[0].trim();
+      if (connector.includes('OSS')) return 'OSS · ' + connector.split('·')[0].trim();
+      if (connector.includes('OBS')) return 'OBS · ' + connector.split('·')[0].trim();
+      if (connector.includes('SFTP')) return 'SFTP · ' + connector.split('·')[0].trim();
+      return connector;
+    }
+
+    function createExportTask() {
+      if (!validateExportForm()) return;
+      const name = document.getElementById('taskNameInput').value.trim();
+      const files = getSelectedExportFiles();
+      const source = buildSourceSummary(files);
+      const connector = document.getElementById('exportConnectorSelect').value;
+      const path = document.getElementById('exportPathInput').value.trim();
+      const compress = getSelectedCompression();
+      const category = connectorCategoryMap[connector] || '对象存储';
+      const tbody = document.getElementById('newExportTableBody');
+      const tr = editingRow || document.createElement('tr');
+      tr.dataset.target = category;
+      tr.dataset.status = '未运行';
+      tr.dataset.mockConfig = JSON.stringify({
+        files: files.map(f => f.dataset.path),
+        source: source.path,
+        sourceMeta: source.meta,
+        connector: connector,
+        path: path,
+        compress: compress,
+        category: category,
+        schedule: '手动'
+      });
+      const createdAt = editingRow && editingRow.dataset.createdAt ? editingRow.dataset.createdAt : formatRunTime();
+      tr.dataset.createdAt = createdAt;
+      if (!editingRow) tr.dataset.origIdx = String(Date.now());
+      const createdLabel = createdAt.split(/\s+/)[0] + (editingRow ? ' 更新' : ' 创建');
+      tr.innerHTML =
+        '<td><button class="task-name-btn" type="button">' + escapeHtml(name) + '</button><div class="cell-sub">' + createdLabel + '</div></td>' +
+        '<td><div class="flow-line"><span class="flow-source">' + escapeHtml(source.path) + '</span><span class="flow-arrow">→</span><span class="target-chip">' + escapeHtml(shortConnectorLabel(connector)) + '</span></div><div class="cell-sub">' + escapeHtml(source.meta + ' · ' + compress) + '</div></td>' +
+        '<td><div class="schedule-main">手动</div></td>' +
+        '<td><span class="status-badge">未运行</span></td>' +
+        '<td><div class="last-run-cell"><div class="last-run-main">—</div><span class="run-result pending">未运行</span></div></td>' +
+        '<td><div class="action-btns"><button class="action-btn-sm task-run-btn" onclick="runTask(this)">运行</button><button class="action-more-btn" onclick="toggleActionMenu(this)" aria-label="更多操作" title="更多操作">•••</button></div></td>';
+      if (!editingRow) tbody.prepend(tr);
+      updateSummaryCounts();
+      closeExportWizard();
+      showExportToast(editingRow ? '✓ 导出任务配置已保存' : '✓ 导出任务已创建');
+      editingRow = null;
+    }
+
+    function showExportToast(message) {
+      const toast = document.getElementById('exportToast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function updateSummaryCounts() {
+      const rows = Array.from(document.querySelectorAll('#newExportTableBody tr'));
+      document.getElementById('summaryAll').textContent = rows.length;
+      document.getElementById('summaryRunning').textContent = rows.filter(r => r.dataset.status === '运行中').length;
+      document.getElementById('summaryIdle').textContent = rows.filter(r => r.dataset.status === '未运行').length;
+      document.getElementById('summaryFailed').textContent = rows.filter(r => r.dataset.status === '失败').length;
+      filterExportTasks();
+    }
+
+    function filterBySummary(card) {
+      activeStatusFilter = card.dataset.status || '';
+      document.querySelectorAll('.summary-item').forEach(item => item.classList.toggle('active', item === card));
+      filterExportTasks();
+    }
+
+    // null = 原始顺序，desc = 新→旧，asc = 旧→新
+    let _sortCreatedAtDir = null;
+
+    function ensureExportCreatedAt(row) {
+      if (row.dataset.createdAt) return row.dataset.createdAt;
+      const sub = row.cells[0] && row.cells[0].querySelector('.cell-sub');
+      const text = sub ? sub.textContent.trim() : '';
+      const m = text.match(/(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)/);
+      if (m) row.dataset.createdAt = m[1];
+      else if (text.indexOf('刚刚') !== -1) row.dataset.createdAt = formatRunTime();
+      else row.dataset.createdAt = '';
+      return row.dataset.createdAt;
+    }
+
+    function updateSortCreatedAtBtn() {
+      const btn = document.getElementById('sortCreatedAtBtn');
+      if (!btn) return;
+      if (_sortCreatedAtDir) btn.setAttribute('data-dir', _sortCreatedAtDir);
+      else btn.removeAttribute('data-dir');
+      btn.title = _sortCreatedAtDir === 'desc' ? '创建时间：新→旧（再点切为旧→新）'
+        : _sortCreatedAtDir === 'asc' ? '创建时间：旧→新（再点取消排序）'
+        : '按创建时间排序';
+    }
+
+    function applyCreatedAtSort() {
+      const tbody = document.getElementById('newExportTableBody');
+      if (!tbody) return;
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.forEach(ensureExportCreatedAt);
+      if (_sortCreatedAtDir === null) {
+        rows.sort((a, b) => (+a.dataset.origIdx || 0) - (+b.dataset.origIdx || 0));
+      } else {
+        rows.sort((a, b) => {
+          const ca = a.dataset.createdAt || '';
+          const cb = b.dataset.createdAt || '';
+          const cmp = ca < cb ? -1 : ca > cb ? 1 : ((+a.dataset.origIdx || 0) - (+b.dataset.origIdx || 0));
+          return _sortCreatedAtDir === 'asc' ? cmp : -cmp;
+        });
+      }
+      rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function toggleSortCreatedAt(e) {
+      if (e) e.stopPropagation();
+      _sortCreatedAtDir = _sortCreatedAtDir === null ? 'desc' : (_sortCreatedAtDir === 'desc' ? 'asc' : null);
+      updateSortCreatedAtBtn();
+      applyCreatedAtSort();
+      filterExportTasks();
+    }
+
+    function filterExportTasks() {
+      const q = document.getElementById('taskSearch').value.trim().toLowerCase();
+      const target = document.getElementById('targetFilter').value;
+      const status = activeStatusFilter;
+      let visible = 0;
+      applyCreatedAtSort();
+      document.querySelectorAll('#newExportTableBody tr').forEach(row => {
+        const matched = (!q || row.textContent.toLowerCase().includes(q)) && (!target || row.dataset.target === target) && (!status || row.dataset.status === status);
+        row.style.display = matched ? '' : 'none';
+        if (matched) visible++;
+      });
+      document.getElementById('visibleTaskCount').textContent = '共 ' + visible + ' 项';
+      document.getElementById('taskEmptyState').classList.toggle('hidden', visible !== 0);
+    }
+
+    function clearTaskFilters() {
+      document.getElementById('taskSearch').value = '';
+      document.getElementById('targetFilter').value = '';
+      activeStatusFilter = '';
+      const allCard = document.querySelector('.summary-item[data-status=""]');
+      document.querySelectorAll('.summary-item').forEach(item => item.classList.toggle('active', item === allCard));
+      filterExportTasks();
+    }
+
+    function formatRunTime(date) {
+      const d = date || new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function runTask(button) {
+      const row = button.closest('tr');
+      const now = formatRunTime();
+      row.dataset.status = '运行中';
+      row.cells[3].innerHTML = '<span class="status-badge running">运行中 0%</span><div class="progress-track"><span class="progress-bar" style="width:8%"></span></div>';
+      row.cells[4].innerHTML = '<div class="last-run-cell"><div class="last-run-main">' + now + '</div><span class="run-result running">运行中</span></div>';
+      button.textContent = '运行';
+      button.disabled = true;
+      updateSummaryCounts();
+      showExportToast('⟳ 导出任务已开始运行');
+      setTimeout(function() {
+        row.dataset.status = '未运行';
+        row.cells[3].innerHTML = '<span class="status-badge">未运行</span>';
+        row.cells[4].innerHTML = '<div class="last-run-cell"><div class="last-run-main">' + now + '</div><span class="run-result">成功</span></div>';
+        button.disabled = false;
+        updateSummaryCounts();
+        showExportToast('✓ 导出任务运行成功');
+      }, 1200);
+    }
+
+    function showTaskDetail(trigger) {
+      detailRow = trigger.tagName === 'TR' ? trigger : trigger.closest('tr');
+      document.getElementById('detailName').textContent = detailRow.cells[0].querySelector('.task-name-btn').textContent;
+      const sourceEl = detailRow.cells[1].querySelector('.flow-source');
+      const metaEl = detailRow.cells[1].querySelector('.cell-sub');
+      document.getElementById('detailSource').textContent = (sourceEl ? sourceEl.textContent : '') + (metaEl ? ' · ' + metaEl.textContent : '');
+      document.getElementById('detailTarget').textContent = detailRow.cells[1].querySelector('.target-chip').textContent;
+      document.getElementById('detailSchedule').textContent = detailRow.cells[2].textContent.trim();
+      document.getElementById('detailStatus').textContent = detailRow.cells[3].textContent.trim();
+      const lastRunCell = detailRow.cells[4].querySelector('.last-run-cell');
+      const lastRunTime = lastRunCell ? lastRunCell.querySelector('.last-run-main') : null;
+      const lastRunResult = lastRunCell ? lastRunCell.querySelector('.run-result') : null;
+      const detailLastRun = document.getElementById('detailLastRun');
+      detailLastRun.innerHTML = '<div class="last-run-main">' + escapeHtml(lastRunTime ? lastRunTime.textContent : '—') + '</div>' +
+        (lastRunResult ? '<span class="run-result ' + (lastRunResult.classList.contains('failed') ? 'failed' : lastRunResult.classList.contains('running') ? 'running' : lastRunResult.classList.contains('pending') ? 'pending' : '') + '">' + escapeHtml(lastRunResult.textContent) + '</span>' : '');
+      document.getElementById('taskDetailModal').classList.add('show');
+    }
+    function showCurrentDetail() { if (!currentActionRow) return; closeActionMenu(); showTaskDetail(currentActionRow); }
+    function closeTaskDetail() { document.getElementById('taskDetailModal').classList.remove('show'); }
+    function openDetailJob() { if (!detailRow) return; const name = detailRow.cells[0].querySelector('.task-name-btn').textContent; location.href = '../monitor/job.html?type=exp&q=' + encodeURIComponent(name); }
+    function editFromDetail() { if (!detailRow) return; closeTaskDetail(); currentActionRow = detailRow; editCurrentTask(); }
+
+    function toggleActionMenu(button) {
+      const menu = document.getElementById('taskActionMenu');
+      const nextRow = button.closest('tr');
+      const closingSameMenu = currentActionRow === nextRow && menu.classList.contains('show');
+      currentActionRow = nextRow;
+      if (closingSameMenu) { closeActionMenu(); return; }
+      const rect = button.getBoundingClientRect();
+      menu.style.left = Math.max(8, rect.right - 128) + 'px';
+      const menuHeight = 198;
+      menu.style.top = (rect.bottom + 5 + menuHeight > window.innerHeight ? Math.max(8, rect.top - menuHeight - 5) : rect.bottom + 5) + 'px';
+      document.getElementById('pauseMenuItem').textContent = '暂停任务';
+      menu.classList.add('show');
+    }
+
+    function closeActionMenu() { document.getElementById('taskActionMenu').classList.remove('show'); }
+
+    function editCurrentTask() {
+      if (!currentActionRow) return;
+      closeActionMenu();
+      editingRow = currentActionRow;
+      openExportWizard(true);
+      document.getElementById('taskNameInput').value = currentActionRow.cells[0].querySelector('.task-name-btn').textContent;
+      const config = currentActionRow.dataset.mockConfig ? JSON.parse(currentActionRow.dataset.mockConfig) : null;
+      document.querySelectorAll('.export-file-check').forEach(cb => {
+        cb.checked = !!(config && config.files && config.files.includes(cb.dataset.path));
+      });
+      updateExportFileHint();
+      if (config) {
+        const connectorSelect = document.getElementById('exportConnectorSelect');
+        if (Array.from(connectorSelect.options).some(o => o.value === config.connector)) connectorSelect.value = config.connector;
+        onExportConnectorChange();
+        document.getElementById('exportPathInput').value = config.path || '';
+        const compressRadio = document.querySelector('input[name="exportCompress"][value="' + (config.compress || 'Gzip') + '"]');
+        if (compressRadio) compressRadio.checked = true;
+      } else {
+        onExportConnectorChange();
+      }
+      clearFormErrors();
+    }
+
+    function openCurrentPermission() { if (!currentActionRow) return; closeActionMenu(); ObjPerm.open('导出任务', currentActionRow.cells[0].querySelector('.task-name-btn').textContent); }
+    function openCurrentJob() { if (!currentActionRow) return; const name = currentActionRow.cells[0].querySelector('.task-name-btn').textContent; location.href = '../monitor/job.html?type=exp&q=' + encodeURIComponent(name); }
+    function toggleCurrentPause() { if (!currentActionRow) return; closeActionMenu(); const btn = currentActionRow.querySelector('.task-run-btn'); togglePause(btn); }
+    function togglePause(button) {
+      const row = button.closest('tr');
+      row.dataset.status = '未运行';
+      row.cells[3].innerHTML = '<span class="status-badge">未运行</span>';
+      if (button) {
+        button.textContent = '运行';
+        button.disabled = false;
+        button.setAttribute('onclick', 'runTask(this)');
+      }
+      updateSummaryCounts();
+      showExportToast('任务已暂停');
+    }
+    function deleteCurrentTask() {
+      if (!currentActionRow) return;
+      const name = currentActionRow.cells[0].querySelector('.task-name-btn').textContent;
+      closeActionMenu();
+      if (confirm('确定删除导出任务「' + name + '」？')) { currentActionRow.remove(); updateSummaryCounts(); showExportToast('任务已删除'); }
+    }
+
+    document.getElementById('exportWizard').addEventListener('click', function(e) { if (e.target === this) closeExportWizard(); });
+    document.getElementById('taskDetailModal').addEventListener('click', function(e) { if (e.target === this) closeTaskDetail(); });
+    document.addEventListener('click', function(e) { if (!e.target.closest('.action-menu') && !e.target.closest('[onclick^="toggleActionMenu"]')) closeActionMenu(); });
+    Array.from(document.querySelectorAll('#newExportTableBody tr')).forEach(function(row, i) {
+      row.dataset.origIdx = String(i);
+      ensureExportCreatedAt(row);
+    });
+    updateSortCreatedAtBtn();
+    updateSummaryCounts();
+
+    function openExportModal(type) {
+      closeAllModals();
+      const modal = document.getElementById('modal-' + type);
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+    }
+
+    function toggleTree(node) {
+      const arrow = node.querySelector('.tree-arrow');
+      const children = node.nextElementSibling;
+      if (children && children.classList.contains('tree-children')) {
+        children.classList.toggle('open');
+        arrow.classList.toggle('open');
+      }
+    }
+
+    function submitExport(target) {
+      const tbody = document.getElementById('exportTableBody');
+      const now = new Date();
+      const timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-'
+        + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0')
+        + ':' + String(now.getMinutes()).padStart(2,'0');
+
+      if (tbody.querySelector('.empty-state')) tbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>导出任务_${tbody.children.length + 1}</td>
+        <td>产品文档.pdf</td>
+        <td>${target}</td>
+        <td><span class="status-badge running">⟳ 运行中</span></td>
+        <td>${timeStr}</td>
+        <td>-</td>
+        <td><div class="action-btns"><button class="action-btn-sm" onclick="ObjPerm.open('导出任务', this.closest('tr').cells[0].textContent.trim())">权限</button><button class="action-btn-sm" onclick="location.href='../monitor/job.html?type=exp&q=' + encodeURIComponent(this.closest('tr').cells[0].textContent.trim())">作业</button><button class="action-btn-sm">详情</button><button class="action-btn-sm danger">删除</button></div></td>
+      `;
+      tbody.appendChild(tr);
+      OPS.iconify(tr);
+      closeAllModals();
+    }
+
+    // 列表操作按钮统一图标化（静态行）
+    OPS.iconify(document.body);
+  </script>
+  </div>
+</body>
+</html>
