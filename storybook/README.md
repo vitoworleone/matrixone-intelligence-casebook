@@ -41,6 +41,7 @@ Case 内容状态：`draft`、`ready`、`deprecated`。
 - [case-template.md](case-template.md)：可复制的 Case 合同模板与填写口径。
 - [coverage-map.md](coverage-map.md)：产品承诺、风险与 Storybook Case 的覆盖规划矩阵。
 - [execution-and-evidence.md](execution-and-evidence.md)：统一的运行阶段、JSON 报告、证据脱敏、失败分类和清理协议。
+- [scripts/validate-case-contracts.mjs](scripts/validate-case-contracts.mjs)：检查每条公开 Case 是否具备完整的执行合同和隐私边界。
 
 按产品域组织的完整导航见 [INDEX.md](INDEX.md)。
 
@@ -52,6 +53,16 @@ Case 内容状态：`draft`、`ready`、`deprecated`。
 | [agent/](agent/) | 智能体、工具协作、结构化交付与安全边界。 |
 | [evaluation/](evaluation/) | 评测数据、基准执行、结果审计与质量门槛。 |
 | [operations/](operations/) | 发布、运行、诊断、模型服务与运营治理。 |
+
+## 提交前校验
+
+在仓库根目录运行：
+
+```bash
+node storybook/scripts/validate-case-contracts.mjs
+```
+
+该检查会拒绝缺少十段式合同、夹具管理、负向路径、资源生命周期、`required` 门禁或 `not run` 初始状态的 Case，并阻止常见的公开链接、内部任务编号和敏感配置模式进入 Case 文档。
 
 ## 公开边界
 
