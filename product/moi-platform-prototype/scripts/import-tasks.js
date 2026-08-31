@@ -5,16 +5,16 @@
 (function(){
 window.IMPORT_TASKS_DISPLAY = {
       // ====================================================================
-      // 【NESR-湖仓项目】实际生产载入任务（7 个：1 Intelie MongoDB + 6 Fiix CMMS REST API）
+      // 【示例制造数据项目】实际生产载入任务（7 个：1 示例工业物联 MongoDB + 6 Fiix CMMS REST API）
       // 传感器在载入任务里配 MongoDB 源端聚合（秒→分钟，不同步明细）；供工作流 wf7a（全载入版）使用
-      // 目标：客户的 nesr_raw 数据库（在 MOI 中对应 NESR / Bronze 层）
+      // 目标：客户的 demo_mfg_raw 数据库（在 MOI 中对应 示例制造集团 / Bronze 层）
       // ====================================================================
-      't_nesr_intelie_sensor': { name: '【NESR-湖仓项目】Intelie 传感器数据同步', connector: 'Intelie 现场传感器 · MongoDB', connType: 'MongoDB（数据库）', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / intelie_sensor_readings', status: '载入中', created: '2026-04-10 09:30', lastRun: '2026-04-28 14:32', schedule: '每 5 分钟', totalRuns: 4896, totalRows: '36,000', totalSize: '7.2 MB', syncStrategy: 'incremental', incremental: { field: 'datetime', lookback: '10 分钟' }, backfill: { enabled: true, progress: '100%（已完成）', startDate: '2026-03-01', batchSize: '1 天', batchInterval: '5 秒', window: '不限制' }, extra: [
-        { label: '源集合', value: 'intelie_prod.fleet_sensor_1s' },
+      't_demo_mfg_iot_demo_sensor': { name: '【示例制造数据项目】示例工业物联 传感器数据同步', connector: '示例工业物联 现场传感器 · MongoDB', connType: 'MongoDB（数据库）', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / iot_demo_sensor_readings', status: '载入中', created: '2026-04-10 09:30', lastRun: '2026-04-28 14:32', schedule: '每 5 分钟', totalRuns: 4896, totalRows: '36,000', totalSize: '7.2 MB', syncStrategy: 'incremental', incremental: { field: 'datetime', lookback: '10 分钟' }, backfill: { enabled: true, progress: '100%（已完成）', startDate: '2026-03-01', batchSize: '1 天', batchInterval: '5 秒', window: '不限制' }, extra: [
+        { label: '源集合', value: 'iot_demo_prod.fleet_sensor_1s' },
         { label: '源端聚合', value: 'MongoDB Aggregation Pipeline：$group by 分钟桶（秒级→分钟级，仅传结果）' },
         { label: '字段数', value: '12 个' }
       ]},
-      't_nesr_fiix_work_orders': { name: '【NESR-湖仓项目】Fiix 工单数据同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / fiix_work_orders', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 14:15', schedule: '每小时', totalRuns: 408, totalRows: '280', totalSize: '92 KB', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1 小时' }, backfill: { enabled: true, progress: '100%（已完成）', startDate: '2024-01-01', batchSize: '1 月', batchInterval: '5 秒', window: '不限制' }, schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
+      't_demo_mfg_fiix_work_orders': { name: '【示例制造数据项目】Fiix 工单数据同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / fiix_work_orders', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 14:15', schedule: '每小时', totalRuns: 408, totalRows: '280', totalSize: '92 KB', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1 小时' }, backfill: { enabled: true, progress: '100%（已完成）', startDate: '2024-01-01', batchSize: '1 月', batchInterval: '5 秒', window: '不限制' }, schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
         { srcName: 'id', srcType: 'Number', name: 'work_order_id', type: 'BIGINT', pk: true, nullable: false, desc: '工单 ID' },
         { srcName: 'strCode', srcType: 'String', name: 'code', type: 'VARCHAR(64)', desc: '工单编号' },
         { srcName: 'strDescription', srcType: 'String', name: 'description', type: 'TEXT', desc: '工单描述' },
@@ -29,7 +29,7 @@ window.IMPORT_TASKS_DISPLAY = {
         { label: 'Endpoint', value: '/api/v5/WorkOrder' },
         { label: '字段数', value: '10 个' }
       ]},
-      't_nesr_fiix_wo_tasks': { name: '【NESR-湖仓项目】Fiix 工单任务同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / fiix_wo_tasks', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 14:10', schedule: '每小时', totalRuns: 408, totalRows: '1,450', totalSize: '420 KB', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1 小时' }, backfill: { enabled: true, progress: '100%（已完成）', startDate: '2024-01-01', batchSize: '1 月', batchInterval: '5 秒', window: '不限制' }, schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
+      't_demo_mfg_fiix_wo_tasks': { name: '【示例制造数据项目】Fiix 工单任务同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / fiix_wo_tasks', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 14:10', schedule: '每小时', totalRuns: 408, totalRows: '1,450', totalSize: '420 KB', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1 小时' }, backfill: { enabled: true, progress: '100%（已完成）', startDate: '2024-01-01', batchSize: '1 月', batchInterval: '5 秒', window: '不限制' }, schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
         { srcName: 'id', srcType: 'Number', name: 'task_id', type: 'BIGINT', pk: true, nullable: false, desc: '任务 ID' },
         { srcName: 'intWorkOrderID', srcType: 'Number', name: 'work_order_id', type: 'BIGINT', nullable: false, desc: '所属工单 ID' },
         { srcName: 'strDescription', srcType: 'String', name: 'description', type: 'TEXT', desc: '任务描述' },
@@ -40,7 +40,7 @@ window.IMPORT_TASKS_DISPLAY = {
         { label: 'Endpoint', value: '/api/v5/WorkOrderTask' },
         { label: '字段数', value: '6 个' }
       ]},
-      't_nesr_fiix_assets': { name: '【NESR-湖仓项目】Fiix 资产层级同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / fiix_assets', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '24', totalSize: '8 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
+      't_demo_mfg_fiix_assets': { name: '【示例制造数据项目】Fiix 资产层级同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / fiix_assets', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '24', totalSize: '8 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
         { srcName: 'id', srcType: 'Number', name: 'asset_id', type: 'BIGINT', pk: true, nullable: false, desc: '资产 ID' },
         { srcName: 'strName', srcType: 'String', name: 'asset_name', type: 'VARCHAR(255)', desc: '资产名称' },
         { srcName: 'intParentID', srcType: 'Number', name: 'parent_id', type: 'BIGINT', desc: '父资产 ID（树结构）' },
@@ -51,7 +51,7 @@ window.IMPORT_TASKS_DISPLAY = {
         { label: '字段数', value: '5 个' },
         { label: '说明', value: '父子树结构，HP Pump 关键类别用递归 CTE 展开' }
       ]},
-      't_nesr_fiix_priorities': { name: '【NESR-湖仓项目】Fiix 优先级字典同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / fiix_priorities', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '5', totalSize: '1 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
+      't_demo_mfg_fiix_priorities': { name: '【示例制造数据项目】Fiix 优先级字典同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / fiix_priorities', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '5', totalSize: '1 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
         { srcName: 'id', srcType: 'Number', name: 'priority_id', type: 'INT', pk: true, nullable: false, desc: '优先级 ID' },
         { srcName: 'strName', srcType: 'String', name: 'priority_name', type: 'VARCHAR(64)', desc: '优先级名称' },
         { srcName: 'intOrder', srcType: 'Number', name: 'sort_order', type: 'INT', desc: '排序序号' }
@@ -59,7 +59,7 @@ window.IMPORT_TASKS_DISPLAY = {
         { label: 'Endpoint', value: '/api/v5/Priority' },
         { label: '字段数', value: '3 个' }
       ]},
-      't_nesr_fiix_wo_statuses': { name: '【NESR-湖仓项目】Fiix 状态字典同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / fiix_wo_statuses', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '6', totalSize: '1 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
+      't_demo_mfg_fiix_wo_statuses': { name: '【示例制造数据项目】Fiix 状态字典同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / fiix_wo_statuses', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '6', totalSize: '1 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
         { srcName: 'id', srcType: 'Number', name: 'status_id', type: 'INT', pk: true, nullable: false, desc: '状态 ID' },
         { srcName: 'strName', srcType: 'String', name: 'status_name', type: 'VARCHAR(64)', desc: '状态名称' },
         { srcName: 'intControlID', srcType: 'Number', name: 'control_id', type: 'INT', desc: '控制组 ID（开放 / 进行中 / 关闭）' }
@@ -67,7 +67,7 @@ window.IMPORT_TASKS_DISPLAY = {
         { label: 'Endpoint', value: '/api/v5/WorkOrderStatus' },
         { label: '字段数', value: '3 个' }
       ]},
-      't_nesr_fiix_maintenance_types': { name: '【NESR-湖仓项目】Fiix 维修类型字典同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: 'NESR / Bronze / fiix_maintenance_types', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '8', totalSize: '1 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
+      't_demo_mfg_fiix_maintenance_types': { name: '【示例制造数据项目】Fiix 维修类型字典同步', connector: 'Fiix CMMS 维修系统 · REST API', connType: 'REST API', dataType: '结构化', mode: '周期性', target: '示例制造集团 / Bronze / fiix_maintenance_types', status: '等待中', created: '2026-04-11 04:15', lastRun: '2026-04-28 04:00', schedule: '每天 04:00', totalRuns: 18, totalRows: '8', totalSize: '1 KB', syncStrategy: 'full', schemaMeta: '源 Fiix API 驼峰字段 → Bronze 下划线列', schema: [
         { srcName: 'id', srcType: 'Number', name: 'maintenance_type_id', type: 'INT', pk: true, nullable: false, desc: '维修类型 ID' },
         { srcName: 'strName', srcType: 'String', name: 'type_name', type: 'VARCHAR(64)', desc: '类型名称' },
         { srcName: 'intIsPlanned', srcType: 'Number', name: 'is_planned', type: 'TINYINT', desc: '是否计划内维修（PM 合规计算用）' },
@@ -93,11 +93,11 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'roadshow-photoset-shanghai.zip',    size: '1.2 GB', mtime: '2026-05-23 18:50', status: '已载入' },
           { name: 'social-cards-template-2026.psd',    size: '64 MB',  mtime: '2026-05-23 09:12', status: '已载入' }
         ]},
-      't_demo_s3': { name: '【示例】AWS S3 数据归档（双向）', connector: 'NESR 备份桶 · AWS S3', connType: '标准 S3 / MinIO（对象存储）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / NESR 备份卷', status: '等待中', created: '2026-05-25 13:10', lastRun: '2026-05-25 12:00', schedule: '每天 02:00 UTC', totalRuns: 30, totalRows: '60 个归档', totalSize: '180 GB', syncStrategy: 'incremental', incremental: { field: 'S3 LastModified', lookback: '1 天' }, extra: [{ label: 'Bucket', value: 'nesr-fleet-backup' },{ label: 'Region', value: 'me-south-1（巴林）' },{ label: '保留策略', value: '90 天后转 Glacier' }], fileMeta: '每日全量快照 + 增量备份；命名规范 <env>-<date>.tar.gz.enc',
+      't_demo_s3': { name: '【示例】AWS S3 数据归档（双向）', connector: '示例制造集团 备份桶 · AWS S3', connType: '标准 S3 / MinIO（对象存储）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / 示例制造集团 备份卷', status: '等待中', created: '2026-05-25 13:10', lastRun: '2026-05-25 12:00', schedule: '每天 02:00 UTC', totalRuns: 30, totalRows: '60 个归档', totalSize: '180 GB', syncStrategy: 'incremental', incremental: { field: 'S3 LastModified', lookback: '1 天' }, extra: [{ label: 'Bucket', value: 'demo_mfg-fleet-backup' },{ label: 'Region', value: 'me-south-1（巴林）' },{ label: '保留策略', value: '90 天后转 Glacier' }], fileMeta: '每日全量快照 + 增量备份；命名规范 <env>-<date>.tar.gz.enc',
         files: [
-          { name: 'nesr-prod-2026-05-25.tar.gz.enc',     size: '6.4 GB', mtime: '2026-05-25 02:18', status: '已载入' },
-          { name: 'nesr-prod-2026-05-24.tar.gz.enc',     size: '6.3 GB', mtime: '2026-05-24 02:15', status: '已载入' },
-          { name: 'nesr-staging-2026-05-25.tar.gz.enc',  size: '2.1 GB', mtime: '2026-05-25 02:30', status: '已载入' },
+          { name: 'demo_mfg-prod-2026-05-25.tar.gz.enc',     size: '6.4 GB', mtime: '2026-05-25 02:18', status: '已载入' },
+          { name: 'demo_mfg-prod-2026-05-24.tar.gz.enc',     size: '6.3 GB', mtime: '2026-05-24 02:15', status: '已载入' },
+          { name: 'demo_mfg-staging-2026-05-25.tar.gz.enc',  size: '2.1 GB', mtime: '2026-05-25 02:30', status: '已载入' },
           { name: 'metabase-export-2026-05-25.parquet',  size: '380 MB', mtime: '2026-05-25 03:45', status: '已载入' }
         ]},
       't_demo_cos': { name: '【示例】腾讯云 COS 课程视频载入', connector: '视频内容库 · 腾讯云 COS', connType: '腾讯云 COS（对象存储）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / 视频素材卷', status: '等待中', created: '2026-05-25 13:15', lastRun: '2026-05-25 06:00', schedule: '每天 06:00', totalRuns: 30, totalRows: '420 个视频', totalSize: '86 GB', syncStrategy: 'incremental', incremental: { field: '对象 LastModified', lookback: '1 天' }, extra: [{ label: 'Bucket', value: 'media-library-1250000000' },{ label: '路径', value: 'videos/raw/' },{ label: '后续处理', value: '转码 + 抽帧 → 知识库切片' }], fileMeta: 'videos/raw/ 下按 course_id/episode_id 分层',
@@ -155,7 +155,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'gross_margin', type: 'NUMERIC(5,4)',  pk: false, desc: '毛利率' },
           { name: 'currency',     type: 'CHAR(3)',   pk: false, desc: 'ISO 货币码' }
         ]},
-      't_demo_mongodb': { name: '【示例】MongoDB 商品目录同步', connector: 'Intelie 传感器数据', connType: 'MongoDB（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / products', status: '等待中', created: '2026-05-25 13:45', lastRun: '2026-05-25 14:00', schedule: '每小时', totalRuns: 96, totalRows: '156,000', totalSize: '62 MB', syncStrategy: 'incremental', incremental: { field: 'updatedAt', lookback: '1 小时' }, schemaMeta: 'Collection products · JSON 文档展平 + 嵌套字段保留为 JSON',
+      't_demo_mongodb': { name: '【示例】MongoDB 商品目录同步', connector: '示例工业物联 传感器数据', connType: 'MongoDB（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / products', status: '等待中', created: '2026-05-25 13:45', lastRun: '2026-05-25 14:00', schedule: '每小时', totalRuns: 96, totalRows: '156,000', totalSize: '62 MB', syncStrategy: 'incremental', incremental: { field: 'updatedAt', lookback: '1 小时' }, schemaMeta: 'Collection products · JSON 文档展平 + 嵌套字段保留为 JSON',
         schema: [
           { name: '_id',          type: 'VARCHAR(24)', pk: true,  nullable: false, desc: 'MongoDB ObjectId' },
           { name: 'sku',          type: 'VARCHAR(32)', pk: false, nullable: false, desc: '商品编码' },
@@ -165,7 +165,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'attributes',   type: 'JSON',      pk: false, desc: '嵌套属性（颜色/尺寸/规格...）' },
           { name: 'updatedAt',    type: 'TIMESTAMP', pk: false, nullable: false, desc: '最后更新（增量字段）' }
         ]},
-      't_demo_hive': { name: '【示例】Hive DWD 周报加工', connector: 'NESR 数据仓库 Hive', connType: 'Hive（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / dwd_weekly_kpi', status: '等待中', created: '2026-05-25 13:50', lastRun: '2026-05-25 04:00', schedule: '每周一 04:00', totalRuns: 12, totalRows: '8,400', totalSize: '12 MB', syncStrategy: 'incremental', incremental: { field: 'partition stat_week', lookback: '0' }, schemaMeta: '源表 dw_dwd.dwd_well_kpi_weekly · 按分区 stat_week 拉取',
+      't_demo_hive': { name: '【示例】Hive DWD 周报加工', connector: '示例制造集团 数据仓库 Hive', connType: 'Hive（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / dwd_weekly_kpi', status: '等待中', created: '2026-05-25 13:50', lastRun: '2026-05-25 04:00', schedule: '每周一 04:00', totalRuns: 12, totalRows: '8,400', totalSize: '12 MB', syncStrategy: 'incremental', incremental: { field: 'partition stat_week', lookback: '0' }, schemaMeta: '源表 dw_dwd.dwd_well_kpi_weekly · 按分区 stat_week 拉取',
         schema: [
           { name: 'well_id',          type: 'VARCHAR(32)', pk: true, nullable: false, desc: '井号' },
           { name: 'stat_week',        type: 'VARCHAR(10)', pk: true, nullable: false, desc: '统计周（2026-W21，分区键）' },
@@ -175,7 +175,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'alarm_count',      type: 'INT',       pk: false, desc: '告警次数' },
           { name: 'dwh_etl_time',     type: 'TIMESTAMP', pk: false, desc: 'DWH 加工时间' }
         ]},
-      't_demo_sqlserver': { name: '【示例】SQL Server 报价单同步', connector: '汉得 Topcast · SQL Server', connType: 'SQL Server（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / quote_orders', status: '载入中', created: '2026-05-25 13:55', lastRun: '2026-05-25 14:00', schedule: '每 30 分钟', totalRuns: 280, totalRows: '38,200', totalSize: '14 MB', syncStrategy: 'incremental', incremental: { field: 'LastModified', lookback: '30 分钟' }, schemaMeta: '源表 TopcastQuote.dbo.QUOTE_HDR · 报价单主表',
+      't_demo_sqlserver': { name: '【示例】SQL Server 报价单同步', connector: '示例企业服务集团 示例业务协作 · SQL Server', connType: 'SQL Server（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / quote_orders', status: '载入中', created: '2026-05-25 13:55', lastRun: '2026-05-25 14:00', schedule: '每 30 分钟', totalRuns: 280, totalRows: '38,200', totalSize: '14 MB', syncStrategy: 'incremental', incremental: { field: 'LastModified', lookback: '30 分钟' }, schemaMeta: '源表 示例业务协作Quote.dbo.QUOTE_HDR · 报价单主表',
         schema: [
           { name: 'QUOTE_ID',     type: 'BIGINT',     pk: true,  nullable: false, desc: '报价单 ID' },
           { name: 'CUSTOMER_EMAIL', type: 'NVARCHAR(128)', pk: false, desc: '客户邮箱' },
@@ -186,7 +186,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'CREATED_AT',   type: 'DATETIME2',  pk: false, nullable: false, desc: '创建时间' },
           { name: 'LAST_MODIFIED',type: 'DATETIME2',  pk: false, nullable: false, desc: '增量字段' }
         ]},
-      't_demo_oracle': { name: '【示例】Oracle ERP 总账分录同步', connector: '武汉新芯 · Oracle ERP DB', connType: 'Oracle（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / gl_je_lines', status: '等待中', created: '2026-05-25 14:00', lastRun: '2026-05-25 05:00', schedule: '每天 05:00', totalRuns: 30, totalRows: '480,000', totalSize: '156 MB', syncStrategy: 'incremental', incremental: { field: 'LAST_UPDATE_DATE', lookback: '1 天' }, schemaMeta: '源表 GL.JE_LINES · 总账分录明细',
+      't_demo_oracle': { name: '【示例】Oracle ERP 总账分录同步', connector: '示例半导体企业 · Oracle ERP DB', connType: 'Oracle（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / gl_je_lines', status: '等待中', created: '2026-05-25 14:00', lastRun: '2026-05-25 05:00', schedule: '每天 05:00', totalRuns: 30, totalRows: '480,000', totalSize: '156 MB', syncStrategy: 'incremental', incremental: { field: 'LAST_UPDATE_DATE', lookback: '1 天' }, schemaMeta: '源表 GL.JE_LINES · 总账分录明细',
         schema: [
           { name: 'JE_LINE_ID',       type: 'NUMBER(15)', pk: true,  nullable: false, desc: '分录行 ID' },
           { name: 'JE_HEADER_ID',     type: 'NUMBER(15)', pk: false, nullable: false, desc: '所属分录头' },
@@ -196,7 +196,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'PERIOD_NAME',      type: 'VARCHAR2(15)', pk: false, desc: '会计期间' },
           { name: 'LAST_UPDATE_DATE', type: 'DATE',       pk: false, nullable: false, desc: '增量字段' }
         ]},
-      't_demo_clickhouse': { name: '【示例】ClickHouse 港股 Tick 同步', connector: '芯联汉得 · ClickHouse 行情库', connType: 'ClickHouse（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / hkex_tick', status: '回填中', created: '2026-05-25 14:05', lastRun: '2026-05-25 14:00', schedule: '每分钟', totalRuns: 7200, totalRows: '1,260,000,000', totalSize: '38 GB', syncStrategy: 'incremental', incremental: { field: 'tick_time', lookback: '5 分钟' }, backfill: { enabled: true, progress: '88%', startDate: '2024-01-01', batchSize: '1 天', batchInterval: '3 秒', window: '不限制' }, schemaMeta: '源表 hkex_market.tick · 港股逐笔成交（每秒 50K+ 行）',
+      't_demo_clickhouse': { name: '【示例】ClickHouse 港股 Tick 同步', connector: '示例集成电路企业示例企业服务集团 · ClickHouse 行情库', connType: 'ClickHouse（数据库）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / hkex_tick', status: '回填中', created: '2026-05-25 14:05', lastRun: '2026-05-25 14:00', schedule: '每分钟', totalRuns: 7200, totalRows: '1,260,000,000', totalSize: '38 GB', syncStrategy: 'incremental', incremental: { field: 'tick_time', lookback: '5 分钟' }, backfill: { enabled: true, progress: '88%', startDate: '2024-01-01', batchSize: '1 天', batchInterval: '3 秒', window: '不限制' }, schemaMeta: '源表 hkex_market.tick · 港股逐笔成交（每秒 50K+ 行）',
         schema: [
           { name: 'tick_time',    type: 'DateTime64(3)', pk: true,  nullable: false, desc: '毫秒级时间戳' },
           { name: 'symbol',       type: 'String',     pk: true,  nullable: false, desc: '股票代码' },
@@ -304,7 +304,7 @@ window.IMPORT_TASKS_DISPLAY = {
         ]},
 
       // ---------- 文件协议 ----------
-      't_demo_ftp': { name: '【示例】FTP 现场日报载入', connector: 'NESR 现场文件服务器 · FTP', connType: 'FTP（文件协议）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / 现场日报卷', status: '等待中', created: '2026-05-25 15:00', lastRun: '2026-05-25 06:30', schedule: '每天 06:30', totalRuns: 30, totalRows: '180 个报告', totalSize: '320 MB', syncStrategy: 'incremental', incremental: { field: '文件 mtime', lookback: '1 天' }, extra: [{ label: 'FTP 路径', value: '/data/well-reports/' },{ label: '模式', value: '被动 (PASV)' }], fileMeta: '现场工程师每日上传，CSV + 扫描件 PDF',
+      't_demo_ftp': { name: '【示例】FTP 现场日报载入', connector: '示例制造集团 现场文件服务器 · FTP', connType: 'FTP（文件协议）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / 现场日报卷', status: '等待中', created: '2026-05-25 15:00', lastRun: '2026-05-25 06:30', schedule: '每天 06:30', totalRuns: 30, totalRows: '180 个报告', totalSize: '320 MB', syncStrategy: 'incremental', incremental: { field: '文件 mtime', lookback: '1 天' }, extra: [{ label: 'FTP 路径', value: '/data/well-reports/' },{ label: '模式', value: '被动 (PASV)' }], fileMeta: '现场工程师每日上传，CSV + 扫描件 PDF',
         files: [
           { name: 'well-W001-daily-2026-05-25.csv',  size: '128 KB', mtime: '2026-05-25 06:15', status: '已载入' },
           { name: 'well-W002-daily-2026-05-25.csv',  size: '142 KB', mtime: '2026-05-25 06:20', status: '已载入' },
@@ -318,7 +318,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'NDA-CT-2026-0522-soylent.pdf',     size: '280 KB', mtime: '2026-05-22 21:30', status: '已载入' },
           { name: 'amend-CT-2025-0418-initech.pdf',   size: '156 KB', mtime: '2026-05-22 09:18', status: '已载入' }
         ]},
-      't_demo_sharepoint': { name: '【示例】SharePoint 问卷文档载入', connector: '有临医药 · SharePoint 站点', connType: 'SharePoint（文件协议）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / 问卷文档卷', status: '等待中', created: '2026-05-25 15:10', lastRun: '2026-05-25 12:00', schedule: '每 6 小时', totalRuns: 120, totalRows: '420 份问卷', totalSize: '186 MB', syncStrategy: 'incremental', incremental: { field: 'Modified', lookback: '6 小时' }, extra: [{ label: '站点', value: 'youlin.sharepoint.com/sites/cro-agent' },{ label: '文档库', value: 'Documents / 问卷/2026' }], fileMeta: '中心研究员上传 PDF/Word 问卷',
+      't_demo_sharepoint': { name: '【示例】SharePoint 问卷文档载入', connector: '示例医药企业 · SharePoint 站点', connType: 'SharePoint（文件协议）', dataType: '非结构化', mode: '周期性', target: '默认目录 / 示例库 / 问卷文档卷', status: '等待中', created: '2026-05-25 15:10', lastRun: '2026-05-25 12:00', schedule: '每 6 小时', totalRuns: 120, totalRows: '420 份问卷', totalSize: '186 MB', syncStrategy: 'incremental', incremental: { field: 'Modified', lookback: '6 小时' }, extra: [{ label: '站点', value: 'demo_pharma.sharepoint.com/sites/cro-agent' },{ label: '文档库', value: 'Documents / 问卷/2026' }], fileMeta: '中心研究员上传 PDF/Word 问卷',
         files: [
           { name: '中心问卷-中医药大学附属医院-2026Q2.docx',         size: '128 KB', mtime: '2026-05-25 11:42', status: '已载入' },
           { name: '中心问卷-协和-肿瘤中心-填报版.pdf',                size: '420 KB', mtime: '2026-05-24 17:08', status: '已载入' },
@@ -334,7 +334,7 @@ window.IMPORT_TASKS_DISPLAY = {
         ]},
 
       // ---------- 消息队列 ----------
-      't_demo_kafka': { name: '【示例】Kafka GPS 流实时摄取', connector: 'CDG GPS 流 · Kafka', connType: 'Apache Kafka（消息队列）', dataType: '结构化', mode: '实时', target: '默认目录 / 示例库 / gps_events', status: '载入中', created: '2026-05-25 15:20', lastRun: '实时', schedule: '常驻消费', totalRuns: '—', totalRows: '8,640,000', totalSize: '2.8 GB', syncStrategy: 'incremental', incremental: { field: 'Kafka offset', lookback: '5 分钟' }, schemaMeta: 'topic: taxi.gps.* · consumer group moi-gps-ingest · 微批 5s 写入',
+      't_demo_kafka': { name: '【示例】Kafka GPS 流实时摄取', connector: '示例动态定价项目 GPS 流 · Kafka', connType: 'Apache Kafka（消息队列）', dataType: '结构化', mode: '实时', target: '默认目录 / 示例库 / gps_events', status: '载入中', created: '2026-05-25 15:20', lastRun: '实时', schedule: '常驻消费', totalRuns: '—', totalRows: '8,640,000', totalSize: '2.8 GB', syncStrategy: 'incremental', incremental: { field: 'Kafka offset', lookback: '5 分钟' }, schemaMeta: 'topic: taxi.gps.* · consumer group moi-gps-ingest · 微批 5s 写入',
         schema: [
           { name: 'event_time',  type: 'TIMESTAMP(3)', pk: false, nullable: false, desc: '事件时间' },
           { name: 'taxi_id',     type: 'VARCHAR(32)',  pk: false, nullable: false, desc: '出租车 ID' },
@@ -365,7 +365,7 @@ window.IMPORT_TASKS_DISPLAY = {
         ]},
 
       // ---------- 企业应用 ----------
-      't_demo_sap': { name: '【示例】SAP S/4HANA 销售订单同步', connector: '武汉新芯 · SAP S/4HANA', connType: 'SAP S/4HANA（企业应用）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / sap_sales_orders', status: '等待中', created: '2026-05-25 15:35', lastRun: '2026-05-25 04:30', schedule: '每天 04:30', totalRuns: 30, totalRows: '184,000', totalSize: '68 MB', syncStrategy: 'incremental', incremental: { field: 'LAST_CHANGE_DATE', lookback: '1 天' }, schemaMeta: 'OData 服务 /sap/opu/odata/sap/API_SALES_ORDER_SRV/A_SalesOrder',
+      't_demo_sap': { name: '【示例】SAP S/4HANA 销售订单同步', connector: '示例半导体企业 · SAP S/4HANA', connType: 'SAP S/4HANA（企业应用）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / sap_sales_orders', status: '等待中', created: '2026-05-25 15:35', lastRun: '2026-05-25 04:30', schedule: '每天 04:30', totalRuns: 30, totalRows: '184,000', totalSize: '68 MB', syncStrategy: 'incremental', incremental: { field: 'LAST_CHANGE_DATE', lookback: '1 天' }, schemaMeta: 'OData 服务 /sap/opu/odata/sap/API_SALES_ORDER_SRV/A_SalesOrder',
         schema: [
           { name: 'SalesOrder',          type: 'VARCHAR(10)', pk: true,  nullable: false, desc: '销售订单号' },
           { name: 'SalesOrderType',      type: 'VARCHAR(4)',  pk: false, desc: '订单类型' },
@@ -385,7 +385,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'PeriodNetActivityCr', type: 'NUMBER', pk: false, desc: '本期贷方发生额' },
           { name: 'LastUpdateDate', type: 'TIMESTAMP',  pk: false, nullable: false, desc: '增量字段' }
         ]},
-      't_demo_u8': { name: '【示例】用友 U8 销售订单同步', connector: '芯导科技 · 用友 U8', connType: '用友 U8（企业应用）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / u8_sale_orders', status: '等待中', created: '2026-05-25 15:45', lastRun: '2026-05-25 01:00', schedule: '每天 01:00', totalRuns: 30, totalRows: '4,200', totalSize: '2.8 MB', syncStrategy: 'incremental', incremental: { field: 'cmodifytime', lookback: '1 天' }, schemaMeta: '账套 001 / 2026 年度 · 通过 U8 OpenAPI 拉取销售订单主表 SO_SOMain',
+      't_demo_u8': { name: '【示例】用友 U8 销售订单同步', connector: '示例电子制造企业 · 用友 U8', connType: '用友 U8（企业应用）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / u8_sale_orders', status: '等待中', created: '2026-05-25 15:45', lastRun: '2026-05-25 01:00', schedule: '每天 01:00', totalRuns: 30, totalRows: '4,200', totalSize: '2.8 MB', syncStrategy: 'incremental', incremental: { field: 'cmodifytime', lookback: '1 天' }, schemaMeta: '账套 001 / 2026 年度 · 通过 U8 OpenAPI 拉取销售订单主表 SO_SOMain',
         schema: [
           { name: 'cSOCode',     type: 'VARCHAR(30)', pk: true,  nullable: false, desc: '销售订单号' },
           { name: 'cCusCode',    type: 'VARCHAR(20)', pk: false, nullable: false, desc: '客户编码' },
@@ -455,7 +455,7 @@ window.IMPORT_TASKS_DISPLAY = {
           { name: 'has_files',   type: 'BOOLEAN',  pk: false, desc: '是否含附件' },
           { name: 'reactions',   type: 'JSON',     pk: false, desc: '表情反馈列表' }
         ]},
-      't_demo_github': { name: '【示例】GitHub Issue 同步（matrixflow）', connector: 'matrixflow · GitHub', connType: 'GitHub（协作平台）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / github_issues', status: '等待中', created: '2026-05-25 16:20', lastRun: '2026-05-25 14:00', schedule: '每小时', totalRuns: 720, totalRows: '12,600', totalSize: '32 MB', syncStrategy: 'incremental', incremental: { field: 'updated_at', lookback: '2 小时' }, schemaMeta: 'GET /repos/matrixorigin/matrixflow/issues?since=$watermark',
+      't_demo_github': { name: '【示例】GitHub Issue 同步（MOI 协作空间）', connector: 'MOI 协作空间 · GitHub', connType: 'GitHub（协作平台）', dataType: '结构化', mode: '周期性', target: '默认目录 / 示例库 / github_issues', status: '等待中', created: '2026-05-25 16:20', lastRun: '2026-05-25 14:00', schedule: '每小时', totalRuns: 720, totalRows: '12,600', totalSize: '32 MB', syncStrategy: 'incremental', incremental: { field: 'updated_at', lookback: '2 小时' }, schemaMeta: 'GET /repos/moi-demo/MOI 协作空间/issues?since=$watermark',
         schema: [
           { name: 'issue_id',    type: 'BIGINT',  pk: true, nullable: false, desc: 'GitHub Issue 全局 ID' },
           { name: 'number',      type: 'INT',     pk: false, nullable: false, desc: '仓库内 issue 号' },
@@ -481,21 +481,21 @@ window.IMPORT_TASKS_DISPLAY = {
     };
 
 window.IMPORT_TASKS_EDIT = {
-      // ---- NESR-湖仓项目 实际生产载入任务（7 个：1 Intelie MongoDB + 6 Fiix CMMS REST API） ----
-      // Intelie MongoDB（源端聚合：秒→分钟，仅传结果）
-      't_nesr_intelie_sensor':   { name: '【NESR-湖仓项目】Intelie 传感器数据同步', dataType: 'structured', sourceType: 'connector', connectorValue: 'mongodb', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '5m', dbName: 'intelie_prod', dbTable: 'fleet_sensor_1s', sourcePreprocess: 'aggregation', target: { dir: 'NESR', db: 'Bronze', table: 'intelie_sensor_readings' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'datetime', lookback: '10m' }, backfill: true },
+      // ---- 示例制造数据项目 实际生产载入任务（7 个：1 示例工业物联 MongoDB + 6 Fiix CMMS REST API） ----
+      // 示例工业物联 MongoDB（源端聚合：秒→分钟，仅传结果）
+      't_demo_mfg_iot_demo_sensor':   { name: '【示例制造数据项目】示例工业物联 传感器数据同步', dataType: 'structured', sourceType: 'connector', connectorValue: 'mongodb', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '5m', dbName: 'iot_demo_prod', dbTable: 'fleet_sensor_1s', sourcePreprocess: 'aggregation', target: { dir: '示例制造集团', db: 'Bronze', table: 'iot_demo_sensor_readings' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'datetime', lookback: '10m' }, backfill: true },
       // Fiix CMMS REST API（变化型业务表 → 增量；字典 → 全量）
-      't_nesr_fiix_work_orders': { name: '【NESR-湖仓项目】Fiix 工单数据同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/api/v5/WorkOrder',        target: { dir: 'NESR', db: 'Bronze', table: 'fiix_work_orders' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1h' }, backfill: true },
-      't_nesr_fiix_wo_tasks':    { name: '【NESR-湖仓项目】Fiix 工单任务同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/api/v5/WorkOrderTask',    target: { dir: 'NESR', db: 'Bronze', table: 'fiix_wo_tasks' },    targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1h' }, backfill: true },
-      't_nesr_fiix_assets':      { name: '【NESR-湖仓项目】Fiix 资产层级同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/Asset',            target: { dir: 'NESR', db: 'Bronze', table: 'fiix_assets' },      targetMode: 'existing', syncStrategy: 'full' },
-      't_nesr_fiix_priorities':  { name: '【NESR-湖仓项目】Fiix 优先级字典同步',    dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/Priority',         target: { dir: 'NESR', db: 'Bronze', table: 'fiix_priorities' },  targetMode: 'existing', syncStrategy: 'full' },
-      't_nesr_fiix_wo_statuses':    { name: '【NESR-湖仓项目】Fiix 状态字典同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/WorkOrderStatus',  target: { dir: 'NESR', db: 'Bronze', table: 'fiix_wo_statuses' },    targetMode: 'existing', syncStrategy: 'full' },
-      't_nesr_fiix_maintenance_types': { name: '【NESR-湖仓项目】Fiix 维修类型字典同步',  dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/MaintenanceType',  target: { dir: 'NESR', db: 'Bronze', table: 'fiix_maintenance_types' }, targetMode: 'existing', syncStrategy: 'full' },
+      't_demo_mfg_fiix_work_orders': { name: '【示例制造数据项目】Fiix 工单数据同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/api/v5/WorkOrder',        target: { dir: '示例制造集团', db: 'Bronze', table: 'fiix_work_orders' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1h' }, backfill: true },
+      't_demo_mfg_fiix_wo_tasks':    { name: '【示例制造数据项目】Fiix 工单任务同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/api/v5/WorkOrderTask',    target: { dir: '示例制造集团', db: 'Bronze', table: 'fiix_wo_tasks' },    targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'dtm_date_last_modified', lookback: '1h' }, backfill: true },
+      't_demo_mfg_fiix_assets':      { name: '【示例制造数据项目】Fiix 资产层级同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/Asset',            target: { dir: '示例制造集团', db: 'Bronze', table: 'fiix_assets' },      targetMode: 'existing', syncStrategy: 'full' },
+      't_demo_mfg_fiix_priorities':  { name: '【示例制造数据项目】Fiix 优先级字典同步',    dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/Priority',         target: { dir: '示例制造集团', db: 'Bronze', table: 'fiix_priorities' },  targetMode: 'existing', syncStrategy: 'full' },
+      't_demo_mfg_fiix_wo_statuses':    { name: '【示例制造数据项目】Fiix 状态字典同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/WorkOrderStatus',  target: { dir: '示例制造集团', db: 'Bronze', table: 'fiix_wo_statuses' },    targetMode: 'existing', syncStrategy: 'full' },
+      't_demo_mfg_fiix_maintenance_types': { name: '【示例制造数据项目】Fiix 维修类型字典同步',  dataType: 'structured', sourceType: 'connector', connectorValue: 'rest-api', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/api/v5/MaintenanceType',  target: { dir: '示例制造集团', db: 'Bronze', table: 'fiix_maintenance_types' }, targetMode: 'existing', syncStrategy: 'full' },
 
       // ============ 【示例】每种连接器类型一个示例载入任务 ============
       // 对象存储 / 分布式文件系统：non-structured
       't_demo_aliyun_oss':  { name: '【示例】阿里云 OSS 营销素材同步', dataType: 'unstructured', sourceType: 'connector', connectorValue: 'aliyun-oss',  loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', target: { dir: '默认目录', db: '示例库', volume: '营销素材卷' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: '对象 LastModified', lookback: '1h' } },
-      't_demo_s3':          { name: '【示例】AWS S3 数据归档（双向）',  dataType: 'unstructured', sourceType: 'connector', connectorValue: 's3',          loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  target: { dir: '默认目录', db: '示例库', volume: 'NESR 备份卷' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'S3 LastModified', lookback: '1d' } },
+      't_demo_s3':          { name: '【示例】AWS S3 数据归档（双向）',  dataType: 'unstructured', sourceType: 'connector', connectorValue: 's3',          loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  target: { dir: '默认目录', db: '示例库', volume: '示例制造集团 备份卷' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: 'S3 LastModified', lookback: '1d' } },
       't_demo_cos':         { name: '【示例】腾讯云 COS 课程视频载入', dataType: 'unstructured', sourceType: 'connector', connectorValue: 'tencent-cos', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  target: { dir: '默认目录', db: '示例库', volume: '视频素材卷' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: '对象 LastModified', lookback: '1d' } },
       't_demo_obs':         { name: '【示例】华为云 OBS 合规报告归档', dataType: 'unstructured', sourceType: 'connector', connectorValue: 'huawei-obs',  loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '7d',     target: { dir: '默认目录', db: '示例库', volume: '合规归档卷' }, targetMode: 'existing', syncStrategy: 'full' },
       't_demo_hdfs':        { name: '【示例】HDFS 行为日志载入',       dataType: 'unstructured', sourceType: 'connector', connectorValue: 'hdfs',        loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', target: { dir: '默认目录', db: '示例库', volume: '行为日志卷' }, targetMode: 'existing', syncStrategy: 'incremental', incremental: { field: '分区 dt/hr', lookback: '2h' }, backfill: true },
@@ -505,8 +505,8 @@ window.IMPORT_TASKS_EDIT = {
       't_demo_mysql':       { name: '【示例】MySQL 用户中心同步',          dataType: 'structured', sourceType: 'connector', connectorValue: 'mysql',      loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', dbName: 'user_center',   dbTable: 'users',                target: { dir: '默认目录', db: '示例库', table: 'users' },              targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'updated_at', lookback: '1h' } },
       't_demo_pg':          { name: '【示例】PostgreSQL 财务汇总同步',     dataType: 'structured', sourceType: 'connector', connectorValue: 'postgresql', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  dbName: 'finance_dw',    dbTable: 'daily_financial_summary', target: { dir: '默认目录', db: '示例库', table: 'financial_summary' }, targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'report_date', lookback: '7d' } },
       't_demo_mongodb':     { name: '【示例】MongoDB 商品目录同步',       dataType: 'structured', sourceType: 'connector', connectorValue: 'mongodb',    loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', dbName: 'shop_prod',     dbTable: 'products',             target: { dir: '默认目录', db: '示例库', table: 'products' },           targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'updatedAt', lookback: '1h' } },
-      't_demo_hive':        { name: '【示例】Hive DWD 周报加工',         dataType: 'structured', sourceType: 'connector', connectorValue: 'hive',       loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '7d',     dbName: 'nesr_dw_dwd',   dbTable: 'dwd_well_kpi_hourly',  target: { dir: '默认目录', db: '示例库', table: 'dwd_weekly_kpi' },     targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'partition stat_week', lookback: '0' } },
-      't_demo_sqlserver':   { name: '【示例】SQL Server 报价单同步',     dataType: 'structured', sourceType: 'connector', connectorValue: 'sqlserver',  loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '30m',    dbName: 'TopcastQuote',  dbTable: 'QUOTE_HDR',            target: { dir: '默认目录', db: '示例库', table: 'quote_orders' },       targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'LastModified', lookback: '30m' } },
+      't_demo_hive':        { name: '【示例】Hive DWD 周报加工',         dataType: 'structured', sourceType: 'connector', connectorValue: 'hive',       loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '7d',     dbName: 'demo_mfg_dw_dwd',   dbTable: 'dwd_well_kpi_hourly',  target: { dir: '默认目录', db: '示例库', table: 'dwd_weekly_kpi' },     targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'partition stat_week', lookback: '0' } },
+      't_demo_sqlserver':   { name: '【示例】SQL Server 报价单同步',     dataType: 'structured', sourceType: 'connector', connectorValue: 'sqlserver',  loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '30m',    dbName: '示例业务协作Quote',  dbTable: 'QUOTE_HDR',            target: { dir: '默认目录', db: '示例库', table: 'quote_orders' },       targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'LastModified', lookback: '30m' } },
       't_demo_oracle':      { name: '【示例】Oracle ERP 总账分录同步',   dataType: 'structured', sourceType: 'connector', connectorValue: 'oracle',     loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  dbName: 'ERPPDB1',       dbTable: 'GL_JE_LINES',          target: { dir: '默认目录', db: '示例库', table: 'gl_je_lines' },        targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'LAST_UPDATE_DATE', lookback: '1d' } },
       't_demo_clickhouse':  { name: '【示例】ClickHouse 港股 Tick 同步', dataType: 'structured', sourceType: 'connector', connectorValue: 'clickhouse', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '1m',     dbName: 'hkex_market',   dbTable: 'tick',                 target: { dir: '默认目录', db: '示例库', table: 'hkex_tick' },          targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'tick_time', lookback: '5m' }, backfill: true },
       't_demo_doris':       { name: '【示例】Doris 实时指标同步',         dataType: 'structured', sourceType: 'connector', connectorValue: 'doris',      loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '5m',     dbName: 'rt_analytics',  dbTable: 'minute_metrics',       target: { dir: '默认目录', db: '示例库', table: 'rt_metrics' },         targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'stat_time', lookback: '15m' } },
@@ -547,7 +547,7 @@ window.IMPORT_TASKS_EDIT = {
       't_demo_dingtalk':    { name: '【示例】钉钉审批数据同步',      dataType: 'structured', sourceType: 'connector', connectorValue: 'dingtalk', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/processinstance',    target: { dir: '默认目录', db: '示例库', table: 'ding_approvals' }, targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'finish_time', lookback: '2h' } },
       't_demo_wecom_api':   { name: '【示例】企业微信通讯录同步',    dataType: 'structured', sourceType: 'connector', connectorValue: 'wecom-api',loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'daily',  apiEndpoint: '/cgi-bin/user/list',  target: { dir: '默认目录', db: '示例库', table: 'wecom_users' },    targetMode: 'new', syncStrategy: 'full' },
       't_demo_slack':       { name: '【示例】Slack 频道消息载入',    dataType: 'structured', sourceType: 'connector', connectorValue: 'slack',    loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '10m',   apiEndpoint: 'conversations.history', target: { dir: '默认目录', db: '示例库', table: 'slack_messages' }, targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'ts', lookback: '30m' } },
-      't_demo_github':      { name: '【示例】GitHub Issue 同步（matrixflow）', dataType: 'structured', sourceType: 'connector', connectorValue: 'github', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/repos/matrixorigin/matrixflow/issues', target: { dir: '默认目录', db: '示例库', table: 'github_issues' }, targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'updated_at', lookback: '2h' } },
+      't_demo_github':      { name: '【示例】GitHub Issue 同步（MOI 协作空间）', dataType: 'structured', sourceType: 'connector', connectorValue: 'github', loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: 'hourly', apiEndpoint: '/repos/moi-demo/MOI 协作空间/issues', target: { dir: '默认目录', db: '示例库', table: 'github_issues' }, targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'updated_at', lookback: '2h' } },
       't_demo_yuque':       { name: '【示例】语雀文档元数据同步',    dataType: 'structured', sourceType: 'connector', connectorValue: 'yuque',    loadMode: 'periodic', stLoadMode: 'periodic', stPeriodicInterval: '6h',    apiEndpoint: '/api/v2/repos/:ns/docs', target: { dir: '默认目录', db: '示例库', table: 'yuque_docs' },   targetMode: 'new', syncStrategy: 'incremental', incremental: { field: 'updated_at', lookback: '12h' } }
     };
 })();

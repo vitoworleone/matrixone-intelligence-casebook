@@ -8,10 +8,10 @@
  * 启动：  node html/scripts/momo-proxy.js          （默认端口 8788，仅监听 127.0.0.1）
  *        端口可改：  MOMO_PROXY_PORT=9000 node html/scripts/momo-proxy.js
  *        可选白名单（只允许转发到这些 host，更安全）：
- *                  MOMO_PROXY_ALLOW=api-taas.moi.matrixorigin.cn node html/scripts/momo-proxy.js
+ *                  MOMO_PROXY_ALLOW=api-taas.moi.moi-demo.cn node html/scripts/momo-proxy.js
  *
  * 在 MOMO「模型设置 · API 地址」里填（把真实上游 URL 直接拼在代理地址后面）：
- *        http://localhost:8788/https://api-taas.moi.matrixorigin.cn/v1
+ *        http://localhost:8788/https://api-taas.moi.moi-demo.cn/v1
  *
  * 关于密钥：本代理不读、不存任何 Key。Key 由浏览器在每次请求时通过 Authorization 头带上，代理只原样转发。
  *          因此本文件可以安全提交 Git，里面没有任何机密。
@@ -45,7 +45,7 @@ function handler(req, res) {
 
   if (!/^https?:\/\//i.test(target)) {
     res.writeHead(400, Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, cors));
-    res.end(JSON.stringify({ error: '地址格式应为 http://localhost:' + PORT + '/<完整上游URL>，例如 http://localhost:' + PORT + '/https://api-taas.moi.matrixorigin.cn/v1/chat/completions' }));
+    res.end(JSON.stringify({ error: '地址格式应为 http://localhost:' + PORT + '/<完整上游URL>，例如 http://localhost:' + PORT + '/https://api-taas.moi.moi-demo.cn/v1/chat/completions' }));
     return;
   }
 
@@ -91,5 +91,5 @@ console.log('MOMO 代理启动中（端口 ' + PORT + '）…');
 boot('127.0.0.1', 'IPv4 127.0.0.1:' + PORT);
 boot('::1', 'IPv6 [::1]:' + PORT);
 console.log('在 MOMO「API 地址」里填：http://localhost:' + PORT + '/<完整上游URL>');
-console.log('例如：http://localhost:' + PORT + '/https://api-taas.moi.matrixorigin.cn/v1');
+console.log('例如：http://localhost:' + PORT + '/https://api-taas.moi.moi-demo.cn/v1');
 if (ALLOW.length) console.log('仅允许转发到：' + ALLOW.join(', '));

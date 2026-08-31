@@ -528,7 +528,7 @@ function getDefaultShares() {
         objPath: '默认 / 原始数据库 / 样例卷',
         targets: ['数据分析项目', 'IBS'],
         permission: '只读', remark: '即尽文档比对、IBS',
-        createdAt: '2025-12-16 17:12', updatedAt: '2025-12-19 20:42', createdBy: '张三'
+        createdAt: '2025-12-16 17:12', updatedAt: '2025-12-19 20:42', createdBy: '演示用户壬'
       },
       {
         id: 'pub2', name: '产品数据共享', objId: 16, objName: '产品信息表', objType: 'table',
@@ -542,20 +542,20 @@ function getDefaultShares() {
         objPath: '默认 / 处理数据库',
         targets: ['测试工作区'],
         permission: '只读', remark: '',
-        createdAt: '2026-02-20 14:00', updatedAt: '2026-03-01 10:15', createdBy: '张三'
+        createdAt: '2026-02-20 14:00', updatedAt: '2026-03-01 10:15', createdBy: '演示用户壬'
       }
     ],
     subscriptions: [
       {
         id: 'sub1', pubName: '外部客户数据', objName: '客户画像表', objType: 'table',
         objPath: '客户画像表',
-        sourceWs: '测试工作区', publisher: '陈 jeff', publishedAt: '2025-11-20 10:00',
+        sourceWs: '测试工作区', publisher: '演示成员 A', publishedAt: '2025-11-20 10:00',
         status: 'subscribed', subName: '外部客户画像', subLocation: '默认 / 原始数据库'
       },
       {
         id: 'sub2', pubName: '模型训练数据集', objName: '训练卷', objType: 'volume',
         objPath: '训练卷',
-        sourceWs: 'Project test1', publisher: '许 跃蓬', publishedAt: '2026-01-05 16:30',
+        sourceWs: 'Project test1', publisher: '演示成员 C', publishedAt: '2026-01-05 16:30',
         status: 'unsubscribed', subName: '', subLocation: ''
       },
       {

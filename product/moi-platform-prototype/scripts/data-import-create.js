@@ -8,9 +8,9 @@
     var editTaskData = null;
 
     // Mock task data for edit mode (mirrors importTasks from data-import.html)
-    // 配置依据：customers/NESR-湖仓项目/nesr_lakehouse_v2.docx 4.8 节增量策略表
+    // 配置依据：customers/示例制造数据项目/demo_mfg_lakehouse_v2.docx 4.8 节增量策略表
     //   doc 明确规则：
-    //   - Intelie MongoDB:    timestamp range, daily 拉取，1h overlap
+    //   - 示例工业物联 MongoDB:    timestamp range, daily 拉取，1h overlap
     //   - Fiix work_orders:   dtmDateLastModified > last_watermark
     //   - Fiix wo_tasks:      Parent WO modified date filter（mock 简化为 dtmDateLastModified）
     //   - Fiix lookup tables: Full refresh (TRUNCATE + INSERT)
@@ -516,10 +516,10 @@
     const stMockDatabases = {
       'matrixone':  ['analytics_db', 'warehouse', 'user_center', 'moi_warehouse'],
       'mysql':      ['crm_production', 'erp_data', 'bi_reports', 'hr_system', 'user_center'],
-      'mongodb':    ['intelie_prod', 'intelie_staging', 'shop_prod'],
-      'hive':       ['nesr_dw_ods', 'nesr_dw_dwd', 'nesr_dw_ads'],
+      'mongodb':    ['iot_demo_prod', 'iot_demo_staging', 'shop_prod'],
+      'hive':       ['demo_mfg_dw_ods', 'demo_mfg_dw_dwd', 'demo_mfg_dw_ads'],
       'postgresql': ['finance_dw', 'analytics_pg', 'crm_pg'],
-      'sqlserver':  ['TopcastQuote', 'analytics_mssql', 'erp_mssql'],
+      'sqlserver':  ['示例业务协作Quote', 'analytics_mssql', 'erp_mssql'],
       'oracle':     ['ERPPDB1', 'ods_oracle', 'erp_dw'],
       'clickhouse': ['hkex_market', 'rt_olap', 'logs_ck'],
       'doris':      ['rt_analytics', 'realtime_metrics', 'rt_dwd']
@@ -542,25 +542,25 @@
         { name: 'inventory', rows: '67K' }, { name: 'purchase_orders', rows: '34K' },
         { name: 'suppliers', rows: '2.1K' }, { name: 'warehouses', rows: '48' }
       ],
-      'nesr_dw_ods': [
+      'demo_mfg_dw_ods': [
         { name: 'ods_well_production_daily',  rows: '4.2M' },
         { name: 'ods_pump_failure_history',   rows: '186K' },
         { name: 'ods_drilling_logs',          rows: '12.8M' },
         { name: 'ods_field_inspection_notes', rows: '95K' }
       ],
-      'nesr_dw_dwd': [
+      'demo_mfg_dw_dwd': [
         { name: 'dwd_well_kpi_hourly',        rows: '8.4M' },
         { name: 'dwd_equipment_event',        rows: '320K' }
       ],
-      'nesr_dw_ads': [
+      'demo_mfg_dw_ads': [
         { name: 'ads_field_oee_monthly',      rows: '1.2K' },
         { name: 'ads_failure_pareto_quarter', rows: '480' }
       ],
-      'intelie_prod': [
+      'iot_demo_prod': [
         { name: 'sensor_readings', rows: '~90M/月' }, { name: 'pump_metadata', rows: '2.1K' },
         { name: 'crew_config', rows: '48' }, { name: 'alert_events', rows: '156K' }
       ],
-      'intelie_staging': [
+      'iot_demo_staging': [
         { name: 'sensor_readings_test', rows: '1.2M' }, { name: 'pump_metadata', rows: '2.1K' }
       ],
       'shop_prod': [
@@ -578,7 +578,7 @@
       'crm_pg':      [
         { name: 'leads', rows: '48K' }, { name: 'accounts', rows: '12K' }, { name: 'activities', rows: '320K' }
       ],
-      'TopcastQuote':[
+      '示例业务协作Quote':[
         { name: 'QUOTE_HDR', rows: '38.2K' }, { name: 'QUOTE_LINE', rows: '186K' }, { name: 'CONTACTS', rows: '8.6K' }, { name: 'USERLIST', rows: '120' }
       ],
       'analytics_mssql':[
@@ -742,7 +742,7 @@
         '原始数据库': [],
         '处理数据库': []
       },
-      'NESR': {
+      '示例制造集团': {
         'Bronze': ['work_orders', 'wo_tasks', 'assets', 'meter_readings', 'priorities', 'statuses', 'maintenance_types', 'scheduled_maintenances', 'sites', 'users', 'parts', 'purchase_orders', 'categories', 'failure_codes', 'crews'],
         'Silver': ['sensor_readings_1min'],
         'Gold': []
@@ -974,7 +974,7 @@
       { idx: 'E', name: '优先级', type: 'INT', len: 32, pk: false, desc: '', def: '', preview: ['P0', 'P1', 'P0', 'P2', 'P1'] },
     ];
 
-    // MongoDB collection schemas (real NESR data)
+    // MongoDB collection schemas (real 示例制造集团 data)
     const mongoColSchemas = {
       'sensor_readings': [
         { idx: '1', name: '_id', type: 'VARCHAR', len: 64, pk: true, desc: 'MongoDB ObjectId', def: '', preview: ['66a1b2c3d4e5...', '66a1b2c3d4e6...'] },
@@ -1015,7 +1015,7 @@
         { idx: '1', name: '_id', type: 'VARCHAR', len: 64, pk: true, desc: 'MongoDB ObjectId', def: '', preview: ['66d4e5f6a7b8...'] },
         { idx: '2', name: 'crew_code', type: 'VARCHAR', len: 16, pk: false, desc: '作业队编号', def: '', preview: ['Crew-A', 'Crew-B'] },
         { idx: '3', name: 'location', type: 'JSON', len: 0, pk: false, desc: '作业位置（嵌套：lat/lng/site/region）', def: '', preview: ['{"lat":25.3,"lng":49.5,"site":{"name":"Rig-7","field":"Ghawar"},"region":"Eastern"}'] },
-        { idx: '4', name: 'equipment', type: 'JSON', len: 0, pk: false, desc: '设备配置（嵌套数组+对象）', def: '', preview: ['{"pumps":["HP-101","HP-102"],"sensors":{"count":12,"types":["pressure","temp","rpm"]},"maintenance":{"schedule":"weekly","last_date":"2026-04-01","provider":{"name":"NESR","contract":"C-2026-001"}}}'] },
+        { idx: '4', name: 'equipment', type: 'JSON', len: 0, pk: false, desc: '设备配置（嵌套数组+对象）', def: '', preview: ['{"pumps":["HP-101","HP-102"],"sensors":{"count":12,"types":["pressure","temp","rpm"]},"maintenance":{"schedule":"weekly","last_date":"2026-04-01","provider":{"name":"示例制造集团","contract":"C-2026-001"}}}'] },
         { idx: '5', name: 'thresholds', type: 'JSON', len: 0, pk: false, desc: '告警阈值配置（多层嵌套）', def: '', preview: ['{"pressure":{"high":{"value":12000,"action":"alert"},"critical":{"value":15000,"action":"shutdown"}},"temperature":{"high":{"value":95,"action":"alert"},"critical":{"value":105,"action":"shutdown"}},"oil_pressure":{"low":{"value":20,"action":"alert"}}}'] },
         { idx: '6', name: 'shifts', type: 'JSON', len: 0, pk: false, desc: '班次配置（嵌套数组）', def: '', preview: ['[{"name":"day","start":"06:00","end":"18:00","supervisor":{"name":"Ahmed","id":"E-101"}},{"name":"night","start":"18:00","end":"06:00","supervisor":{"name":"Khalid","id":"E-205"}}]'] },
         { idx: '7', name: 'active', type: 'BOOLEAN', len: 0, pk: false, desc: '是否活跃', def: 'true', preview: ['true', 'true'] },
@@ -1023,7 +1023,7 @@
       ]
     };
 
-    // Hive table schemas (NESR 数据仓库) — 含推荐增量字段（partition_date / event_time / etl_load_time）
+    // Hive table schemas (示例制造集团 数据仓库) — 含推荐增量字段（partition_date / event_time / etl_load_time）
     const hiveColSchemas = {
       'ods_well_production_daily': [
         { idx: '1', name: 'well_id',         type: 'VARCHAR',   len: 32, pk: true,  desc: '井号',           def: '', preview: ['W-001', 'W-002'] },
@@ -1064,7 +1064,7 @@
         { idx: '4', name: 'site_code',       type: 'VARCHAR',   len: 32,  pk: false, desc: '站点编码',       def: '', preview: ['SITE-A', 'SITE-B'] },
         { idx: '5', name: 'note_text',       type: 'TEXT',      len: 0,   pk: false, desc: '巡检描述',       def: '', preview: ['Visible corrosion on flange'] },
         { idx: '6', name: 'severity',        type: 'VARCHAR',   len: 16,  pk: false, desc: '严重等级',       def: '', preview: ['LOW', 'HIGH'] },
-        { idx: '7', name: 'photo_url',       type: 'VARCHAR',   len: 255, pk: false, desc: '照片 URL',       def: '', preview: ['s3://nesr/insp/95001.jpg'] },
+        { idx: '7', name: 'photo_url',       type: 'VARCHAR',   len: 255, pk: false, desc: '照片 URL',       def: '', preview: ['s3://demo_mfg/insp/95001.jpg'] },
         { idx: '8', name: 'etl_load_time',   type: 'TIMESTAMP', len: 0,   pk: false, desc: 'ETL 入库时间',   def: '', preview: ['2026-05-25 03:15:00'] }
       ],
       'dwd_well_kpi_hourly': [
@@ -2079,16 +2079,16 @@
           { name: '已发送', type: 'folder' }
         ],
         '/收件箱': [
-          { name: '客户 A：合同条款确认', type: 'mail', sender: 'alice@customer.com', date: '2026-05-24 09:18' },
-          { name: '客户 B：接口授权问题', type: 'mail', sender: 'ops@customer.com', date: '2026-05-23 16:42' },
-          { name: '供应商报价单补充说明', type: 'mail', sender: 'vendor@example.com', date: '2026-05-22 11:05' }
+          { name: '客户 A：合同条款确认', type: 'mail', sender: '公开演示环境', date: '2026-05-24 09:18' },
+          { name: '客户 B：接口授权问题', type: 'mail', sender: '公开演示环境', date: '2026-05-23 16:42' },
+          { name: '供应商报价单补充说明', type: 'mail', sender: '公开演示环境', date: '2026-05-22 11:05' }
         ],
         '/客户反馈': [
-          { name: '知识库回答不完整的反馈', type: 'mail', sender: 'support@example.com', date: '2026-05-21 14:30' },
-          { name: '多附件上传失败记录', type: 'mail', sender: 'support@example.com', date: '2026-05-20 18:16' }
+          { name: '知识库回答不完整的反馈', type: 'mail', sender: '公开演示环境', date: '2026-05-21 14:30' },
+          { name: '多附件上传失败记录', type: 'mail', sender: '公开演示环境', date: '2026-05-20 18:16' }
         ],
         '/已发送': [
-          { name: 'Re: 客户 A：合同条款确认', type: 'mail', sender: 'support@example.com', date: '2026-05-24 10:02' }
+          { name: 'Re: 客户 A：合同条款确认', type: 'mail', sender: '公开演示环境', date: '2026-05-24 10:02' }
         ]
       },
       'outlook-mail': {
@@ -2098,15 +2098,15 @@
           { name: '已发送', type: 'folder' }
         ],
         '/收件箱': [
-          { name: 'NDA 审批：甲方合同文本', type: 'mail', sender: 'legal@partner.com', date: '2026-05-24 13:12' },
-          { name: '采购协议变更说明', type: 'mail', sender: 'procurement@example.com', date: '2026-05-23 15:47' }
+          { name: 'NDA 审批：甲方合同文本', type: 'mail', sender: '公开演示环境', date: '2026-05-24 13:12' },
+          { name: '采购协议变更说明', type: 'mail', sender: '公开演示环境', date: '2026-05-23 15:47' }
         ],
         '/法务审阅': [
-          { name: '服务协议 v3.1 红线版', type: 'mail', sender: 'counsel@example.com', date: '2026-05-22 19:20' },
-          { name: '数据处理附录 DPA 确认', type: 'mail', sender: 'privacy@example.com', date: '2026-05-21 08:56' }
+          { name: '服务协议 v3.1 红线版', type: 'mail', sender: '公开演示环境', date: '2026-05-22 19:20' },
+          { name: '数据处理附录 DPA 确认', type: 'mail', sender: '公开演示环境', date: '2026-05-21 08:56' }
         ],
         '/已发送': [
-          { name: 'Re: NDA 审批：甲方合同文本', type: 'mail', sender: 'legal@example.com', date: '2026-05-24 14:05' }
+          { name: 'Re: NDA 审批：甲方合同文本', type: 'mail', sender: '公开演示环境', date: '2026-05-24 14:05' }
         ]
       },
       'wecom-mail': {
@@ -2116,15 +2116,15 @@
           { name: '已发送', type: 'folder' }
         ],
         '/收件箱': [
-          { name: '上勘院信息提取需求补充', type: 'mail', sender: 'pm@partner.cn', date: '2026-05-24 08:35' },
-          { name: 'POC 数据口径确认', type: 'mail', sender: 'data@partner.cn', date: '2026-05-23 17:12' }
+          { name: '上勘院信息提取需求补充', type: 'mail', sender: '公开演示环境', date: '2026-05-24 08:35' },
+          { name: 'POC 数据口径确认', type: 'mail', sender: '公开演示环境', date: '2026-05-23 17:12' }
         ],
         '/项目往来': [
-          { name: '会议纪要：邮件解析与回写边界', type: 'mail', sender: 'project@company.com', date: '2026-05-22 20:10' },
-          { name: '客户原始邮件样本交付', type: 'mail', sender: 'delivery@partner.cn', date: '2026-05-21 11:40' }
+          { name: '会议纪要：邮件解析与回写边界', type: 'mail', sender: '公开演示环境', date: '2026-05-22 20:10' },
+          { name: '客户原始邮件样本交付', type: 'mail', sender: '公开演示环境', date: '2026-05-21 11:40' }
         ],
         '/已发送': [
-          { name: 'Re: POC 数据口径确认', type: 'mail', sender: 'project@company.com', date: '2026-05-23 18:03' }
+          { name: 'Re: POC 数据口径确认', type: 'mail', sender: '公开演示环境', date: '2026-05-23 18:03' }
         ]
       },
       'qq-mail': {
@@ -2134,15 +2134,15 @@
           { name: '已发送', type: 'folder' }
         ],
         '/收件箱': [
-          { name: '活动报名名单汇总', type: 'mail', sender: 'events@qq.com', date: '2026-05-24 12:20' },
-          { name: '渠道合作资料', type: 'mail', sender: 'partner@qq.com', date: '2026-05-23 09:44' }
+          { name: '活动报名名单汇总', type: 'mail', sender: '公开演示环境', date: '2026-05-24 12:20' },
+          { name: '渠道合作资料', type: 'mail', sender: '公开演示环境', date: '2026-05-23 09:44' }
         ],
         '/运营通知': [
-          { name: '5 月用户反馈周报', type: 'mail', sender: 'ops@qq.com', date: '2026-05-22 17:30' },
-          { name: '线上活动素材确认', type: 'mail', sender: 'brand@qq.com', date: '2026-05-21 10:12' }
+          { name: '5 月用户反馈周报', type: 'mail', sender: '公开演示环境', date: '2026-05-22 17:30' },
+          { name: '线上活动素材确认', type: 'mail', sender: '公开演示环境', date: '2026-05-21 10:12' }
         ],
         '/已发送': [
-          { name: 'Re: 线上活动素材确认', type: 'mail', sender: 'ops@qq.com', date: '2026-05-21 10:50' }
+          { name: 'Re: 线上活动素材确认', type: 'mail', sender: '公开演示环境', date: '2026-05-21 10:50' }
         ]
       }
     };

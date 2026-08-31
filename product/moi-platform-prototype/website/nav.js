@@ -24,22 +24,26 @@
     return 'login.html' + (from ? '?from=' + from : '');
   }
 
-  // ===== 主导航菜单（中部）· 完全对齐 matrixorigin.cn 二级菜单结构 =====
-  var MO = 'https://www.matrixorigin.cn';
+  // ===== 主导航菜单（中部）· 公开演示版不跳转到外部站点 =====
+  var MO = '#';
   var ARROW_R = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
   var ARROW_TR = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-left:3px;vertical-align:-1px"><path d="M7 17L17 7M9 7h8v8"/></svg>';
 
   function _capItem(href, name, desc, target){
-    var t = target ? ' target="_blank" rel="noopener"' : '';
-    return '<a class="dd-cap-item" href="' + href + '"' + t + '>'
+    var blocked = /^(?:https?:|mailto:|#)/i.test(href);
+    var t = target && !blocked ? ' target="_blank" rel="noopener"' : '';
+    var action = blocked ? ' onclick="return false;" aria-disabled="true"' : '';
+    return '<a class="dd-cap-item" href="' + (blocked ? '#' : href) + '"' + t + action + '>'
       + '<div class="dd-cap-name">' + name + '</div>'
       + '<div class="dd-cap-desc">' + desc + '</div>'
       + '</a>';
   }
   function _sideItem(icon, name, desc, href, target){
-    var t = target ? ' target="_blank" rel="noopener"' : '';
-    var arrow = target ? ARROW_TR : '';
-    return '<a class="dd-side-item" href="' + href + '"' + t + '>'
+    var blocked = /^(?:https?:|mailto:|#)/i.test(href);
+    var t = target && !blocked ? ' target="_blank" rel="noopener"' : '';
+    var arrow = target && !blocked ? ARROW_TR : '';
+    var action = blocked ? ' onclick="return false;" aria-disabled="true"' : '';
+    return '<a class="dd-side-item" href="' + (blocked ? '#' : href) + '"' + t + action + '>'
       + '<div class="dd-side-icon">' + icon + '</div>'
       + '<div class="dd-side-text">'
       +   '<div class="dd-side-name">' + name + arrow + '</div>'
@@ -66,15 +70,13 @@
     +     _capItem('#', 'Data Pipeline', '50+ 连接器，可视化 ETL 编排')
     +     _capItem('#', 'Document Intelligence', '智能文档解析、抽取与知识库构建')
     +     _capItem('#', 'AI Agent Builder', '构建生产级 AI Agent，集成 RAG 与工具调用')
-    +     _capItem('taas-product.html', 'Enterprise Data Agent', '自然语言驱动的跨源数据分析智能体')
+    +     _capItem('#', 'Enterprise Data Agent', '自然语言驱动的跨源数据分析智能体')
     +     '</div>'
     +   '</div>'
     +   '<div class="dd-product-side">'
     +     '<div class="dd-side-title">基础设施</div>'
-    +     _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>', 'MatrixOne', '云原生超融合数据库', MO + '/matrixone', true)
     +   _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>', 'Astra', '工程化的 Agent Harness', MO + '/astra', true)
     +   _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2z"/></svg>', 'Memoria', 'AI Agent 持久记忆', 'https://thememoria.ai', true)
-    + '<a class="dd-side-item" href="taas-product.html"><div class="dd-side-icon"><svg width="22" height="22" viewBox="0 0 48 48" fill="none" stroke="currentColor"><ellipse cx="24" cy="24" rx="17" ry="8" stroke-width="2.6" transform="rotate(-45 24 24)"/><path d="M15 33 L15 15 L33 33 L33 15" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="15" r="3.6" fill="currentColor" stroke="none"/><circle cx="33" cy="33" r="3.6" fill="currentColor" stroke="none"/></svg></div><div class="dd-side-text"><div class="dd-side-name">Genesis <span class="new-tag">NEW</span></div><div class="dd-side-desc">统一模型网关 · 一个 API 接入所有大模型</div></div></a>'
     +   '</div>'
     + '</div>';
 
@@ -134,10 +136,10 @@
     +       '<div class="dd-feat-arrow">' + ARROW_R + '</div>'
     +     '</a>'
     +     '<div class="dd-case-grid">'
-    +       '<a class="dd-case-item" href="' + MO + '/case/health-supplement-ai-platform" target="_blank" rel="noopener">安利 — 企业 AI 基座 <span class="dd-case-tag" style="background:#fff7e6;color:#fa8c16">零售</span></a>'
-    +     '<a class="dd-case-item" href="' + MO + '/case/extreme-vision-feature-platform" target="_blank" rel="noopener">极视角 — AI 特征平台 <span class="dd-case-tag" style="background:#f9f0ff;color:#722ed1">AI</span></a>'
-    +     '<a class="dd-case-item" href="' + MO + '/case/stone-castle-investment" target="_blank" rel="noopener">Stone Castle — 投研智能 <span class="dd-case-tag" style="background:#f0f5ff;color:#1677ff">金融</span></a>'
-    +     '<a class="dd-case-item" href="' + MO + '/case/smart-city-traffic-platform" target="_blank" rel="noopener">深智城 — 政务语料治理 <span class="dd-case-tag" style="background:#f6ffed;color:#52c41a">政务</span></a>'
+    +       '<a class="dd-case-item" href="' + MO + '/case/health-supplement-ai-platform" target="_blank" rel="noopener">示例零售集团 — 企业 AI 基座 <span class="dd-case-tag" style="background:#fff7e6;color:#fa8c16">零售</span></a>'
+    +     '<a class="dd-case-item" href="' + MO + '/case/extreme-vision-feature-platform" target="_blank" rel="noopener">示例视觉智能企业 — AI 特征平台 <span class="dd-case-tag" style="background:#f9f0ff;color:#722ed1">AI</span></a>'
+    +     '<a class="dd-case-item" href="' + MO + '/case/stone-castle-investment" target="_blank" rel="noopener">示例投资机构 — 投研智能 <span class="dd-case-tag" style="background:#f0f5ff;color:#1677ff">金融</span></a>'
+    +     '<a class="dd-case-item" href="' + MO + '/case/smart-city-traffic-platform" target="_blank" rel="noopener">示例智慧城市平台 — 政务语料治理 <span class="dd-case-tag" style="background:#f6ffed;color:#52c41a">政务</span></a>'
     +     '</div>'
     +   '</div>'
     + '</div>';
@@ -147,7 +149,7 @@
     + '<div class="nav-dropdown dd-resource">'
     +   '<div>'
     +     '<div class="dd-group-title">学习</div>'
-    +     _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>', '文档中心', '产品文档与 API 参考', 'https://docs.matrixorigin.cn', true)
+    +     _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>', '文档中心', '产品文档与 API 参考', 'https://docs.moi-demo.cn', true)
     +   '</div>'
     +   '<div>'
     +     '<div class="dd-group-title">内容</div>'
@@ -157,14 +159,14 @@
     +   '</div>'
     +   '<div>'
     +     '<div class="dd-group-title">社区</div>'
-    +     _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>', 'GitHub', '开源项目与代码贡献', 'https://github.com/matrixorigin/matrixone', true)
+    +     _sideItem('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>', 'GitHub', '开源项目与代码贡献', 'https://github.com/moi-demo/matrixone', true)
     +   '</div>'
     + '</div>';
 
   // ---- 公司 dropdown：3 项横排 ----
   var COMPANY_HTML = ''
     + '<div class="nav-dropdown dd-company">'
-    +   _sideItem('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>', '关于我们', '了解 MatrixOrigin 的愿景与使命', MO, true)
+    +   _sideItem('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>', '关于我们', '了解 MOI 的愿景与使命', MO, true)
     + _sideItem('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12l-7-3-7 3z"/></svg>', '生态合作', '携手共建 AI 数据生态', MO + '/partnership', true)
     + _sideItem('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>', '加入我们', '探索职业机会，共创未来', 'https://www.zhipin.com/gongsi/job/59a68fecfe392c0d1nd93N-4EVU~.html', true)
     + '</div>';
@@ -182,7 +184,7 @@
   function rightHtml(){
     if (isLoggedIn()){
       var user = getUser();
-      var email = user.email || (user.username ? user.username + '@matrixorigin.cn' : (user.phone || '') + '@matrixorigin.cn');
+      var email = user.email || (user.username ? user.username + '@moi-demo.cn' : (user.phone || '') + '@moi-demo.cn');
       var first = (user.name || 'U').charAt(0).toUpperCase();
       return ''
         + '<button class="nav-globe-btn" title="切换语言">'+GLOBE_SVG+'</button>'
@@ -229,12 +231,16 @@
     if (!mount) return;
     mount.innerHTML = ''
       + '<nav class="nav">'
-      +   '<a class="nav-logo" href="index.html">'
-      +     '<img src="../images/logo-matrixorigin.svg" alt="MatrixOrigin 矩阵起源" onerror="this.outerHTML=\'<span style=&quot;font-size:18px;font-weight:700;color:#0ea5e9;letter-spacing:0.5px&quot;>MatrixOrigin</span>\'">'
-      +   '</a>'
+      +   '<div class="nav-logo" role="img" aria-label="MatrixOne Intelligence">'
+      +     '<img src="../images/logo-moi.svg" alt="MatrixOne Intelligence">'
+      +   '</div>'
       +   '<div class="nav-menu">' + MENU_HTML + '</div>'
       +   '<div class="nav-right" id="navRight">' + rightHtml() + '</div>'
       + '</nav>';
+    mount.onclick = function(e) {
+      var link = e.target.closest('a[href^="#/"]');
+      if (link) e.preventDefault();
+    };
     bindPopover();
   }
 

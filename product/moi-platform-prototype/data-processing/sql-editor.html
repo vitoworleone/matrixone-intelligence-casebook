@@ -1689,8 +1689,8 @@ FROM public.accounts
 WHERE name ILIKE '%收入%'
 ORDER BY code;` },
 
-        { id: 'wb_ext_oracle', name: '总账 ERP · Oracle', mode: 'external', extCatalog: '武汉新芯 Oracle ERP（外部）', createdAt: now,
-          sql: `-- 武汉新芯 Oracle ERP · Oracle 语法 · 直发该外部库
+        { id: 'wb_ext_oracle', name: '总账 ERP · Oracle', mode: 'external', extCatalog: '示例半导体企业 Oracle ERP（外部）', createdAt: now,
+          sql: `-- 示例半导体企业 Oracle ERP · Oracle 语法 · 直发该外部库
 -- Oracle 的 schema = user，无独立 database；引用用 SCHEMA.TABLE
 
 -- 1) 近一年总账分录借贷汇总（FETCH FIRST，不用 LIMIT）
@@ -1724,8 +1724,8 @@ FETCH FIRST 50 ROWS ONLY;
 -- 4) 系统时间（Oracle 必须 FROM dual）
 SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') AS now_ts FROM dual;` },
 
-        { id: 'wb_ext_ck', name: '行情 Tick · ClickHouse', mode: 'external', extCatalog: '芯联汉得 ClickHouse（外部）', createdAt: now,
-          sql: `-- 芯联汉得 ClickHouse · ClickHouse 语法 · 直发该外部库
+        { id: 'wb_ext_ck', name: '行情 Tick · ClickHouse', mode: 'external', extCatalog: '示例集成电路企业示例企业服务集团 ClickHouse（外部）', createdAt: now,
+          sql: `-- 示例集成电路企业示例企业服务集团 ClickHouse · ClickHouse 语法 · 直发该外部库
 -- 列式 OLAP，库.表 两层；善用 ClickHouse 专有聚合函数
 
 -- 1) 每只股票当日 VWAP 与成交量
@@ -1767,9 +1767,9 @@ FROM market.daily_ohlc
 ORDER BY symbol, trade_date DESC
 LIMIT 200;` },
 
-        { id: 'wb_ext_mssql', name: '报价单 · SQL Server', mode: 'external', extCatalog: '汉得 Topcast SQL Server（外部）', createdAt: now,
-          sql: `-- 汉得 Topcast · SQL Server (T-SQL) · 直发该外部库
--- 三层 TopcastDB(库) → dbo/sales(schema) → table；T-SQL 用 TOP，不用 LIMIT
+        { id: 'wb_ext_mssql', name: '报价单 · SQL Server', mode: 'external', extCatalog: '示例企业服务集团 示例业务协作 SQL Server（外部）', createdAt: now,
+          sql: `-- 示例企业服务集团 示例业务协作 · SQL Server (T-SQL) · 直发该外部库
+-- 三层 示例业务协作DB(库) → dbo/sales(schema) → table；T-SQL 用 TOP，不用 LIMIT
 
 -- 1) 近 90 天各状态报价单（TOP + DATEADD/GETDATE）
 SELECT TOP 100
@@ -1830,8 +1830,8 @@ WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 GROUP BY channel
 ORDER BY channel_gmv DESC;` },
 
-        { id: 'wb_ext_hive', name: '油井 KPI · Hive', mode: 'external', extCatalog: 'NESR 数据仓库 Hive（外部）', createdAt: now,
-          sql: `-- NESR 数据仓库 Hive · HiveQL · 直发该外部库
+        { id: 'wb_ext_hive', name: '油井 KPI · Hive', mode: 'external', extCatalog: '示例制造集团 数据仓库 Hive（外部）', createdAt: now,
+          sql: `-- 示例制造集团 数据仓库 Hive · HiveQL · 直发该外部库
 -- HDFS 列存，务必带分区列过滤，避免全表扫描
 
 -- 1) 指定统计周的油井 KPI（命中 stat_week 分区）

@@ -1117,7 +1117,7 @@
       <div class="form-group">
         <label class="form-label">认证方式</label>
         <select class="form-select" id="papiAuth">
-          <option value="apikey">API Key（复用 Genesis 密钥）</option>
+          <option value="apikey">API Key（MOI 服务密钥）</option>
           <option value="oauth">OAuth 2.0</option>
           <option value="public">公开访问（无认证）</option>
         </select>
@@ -1190,12 +1190,12 @@
             <option value="">请选择数据库连接器</option>
             <option value="mysql">用户中心 MySQL</option>
             <option value="postgresql">财务报表库 PostgreSQL</option>
-            <option value="matrixone">MatrixOne 生产集群</option>
-            <option value="mongodb">Intelie 传感器 MongoDB</option>
-            <option value="hive">NESR 数据仓库 Hive</option>
-            <option value="sqlserver">汉得 Topcast SQL Server</option>
-            <option value="oracle">武汉新芯 Oracle ERP</option>
-            <option value="clickhouse">芯联汉得 ClickHouse</option>
+            <option value="matrixone">示例分析集群</option>
+            <option value="mongodb">示例工业物联 传感器 MongoDB</option>
+            <option value="hive">示例制造集团 数据仓库 Hive</option>
+            <option value="sqlserver">示例企业服务集团 示例业务协作 SQL Server</option>
+            <option value="oracle">示例半导体企业 Oracle ERP</option>
+            <option value="clickhouse">示例集成电路企业示例企业服务集团 ClickHouse</option>
             <option value="doris">业务实时 Doris</option>
           </select>
           <div style="font-size:11px;color:rgba(0,0,0,0.4);margin-top:4px">创建后 MOI 自动读取该数据库的库 / 表 / schema 层次结构（数据留在源库，SQL 下推执行）</div>
@@ -1340,7 +1340,7 @@
             <input class="form-input" id="modelNameInput" type="text" placeholder="输入模型名称，如：生产环境 Qwen-Max">
           </div>
           <div class="form-group" style="flex:1">
-            <label class="form-label">模型类别 <span style="color:#ff4d4f">*</span> <span style="color:rgba(0,0,0,0.3);cursor:help" title="与 Genesis 模型类型对齐，全平台统一 10 类">ⓘ</span></label>
+            <label class="form-label">模型类别 <span style="color:#ff4d4f">*</span> <span style="color:rgba(0,0,0,0.3);cursor:help" title="与 MOI 模型类型对齐，全平台统一 10 类">ⓘ</span></label>
             <select class="form-select" id="modelCategorySelect">
               <option value="">请选择模型类别</option>
               <option value="对话（文本）">对话（文本）</option>
@@ -1415,7 +1415,8 @@
 
     // ===== Catalog Data Model =====
     var STORAGE_KEY = 'moi_catalog_data';
-    var DATA_VERSION = 31; // 分享数据目录替换旧的样例数据，并以 + 标识订阅来源
+    // 升级版本以清除浏览器中此前保存的旧客户目录数据。
+    var DATA_VERSION = 32;
     var nextId = 400;
 
     function getDefaultData() {
@@ -1450,7 +1451,7 @@
               ]
             },
             {
-              id: 130, name: 'mo_catalog', type: 'db', locked: true, createdAt: '2025-01-01 00:00', createdBy: '系统', updatedAt: '2025-01-01 00:00', updatedBy: '系统', description: 'MatrixOne 内部元数据库（22 张表）',
+              id: 130, name: 'mo_catalog', type: 'db', locked: true, createdAt: '2025-01-01 00:00', createdBy: '系统', updatedAt: '2025-01-01 00:00', updatedBy: '系统', description: 'MOI 内部元数据库（22 张表）',
               children: [
                 { id: 131, name: 'mo_database', type: 'table', locked: true, createdAt: '2025-01-01 00:00', createdBy: '系统', rowCount: 0, description: '数据库注册表', children: [] },
                 { id: 132, name: 'mo_tables', type: 'table', locked: true, createdAt: '2025-01-01 00:00', createdBy: '系统', rowCount: 0, description: '表注册表', children: [] },
@@ -1552,7 +1553,7 @@
               id: 340, name: '共享文档集', type: 'db', locked: true, createdAt: '2025-01-01 00:00', createdBy: '数据提供方', updatedAt: '2025-01-01 00:00', updatedBy: '系统', description: '已订阅的非结构化文档数据（PPT / PDF / Word），可用于文档解析、分段、嵌入与知识库问答',
               children: [
                 { id: 341, name: '文档卷', type: 'volume', locked: true, createdAt: '2025-01-01 00:00', createdBy: '数据提供方', updatedAt: '2026-06-08 10:30', updatedBy: '系统', fileCount: 6, size: '27.4 MB', description: '已订阅的共享文档文件', files: [
-                  { name: '矩阵起源产品介绍2026.pptx', fileType: 'PPT', size: '9.2 MB', createdBy: '系统', createdAt: '2026-06-08 10:30' },
+                  { name: 'MOI产品介绍2026.pptx', fileType: 'PPT', size: '9.2 MB', createdBy: '系统', createdAt: '2026-06-08 10:30' },
                   { name: 'sample_report.pdf', fileType: 'PDF', size: '4.2 MB', createdBy: '系统', createdAt: '2025-01-01 00:00' },
                   { name: 'product_manual.docx', fileType: 'Word', size: '2.8 MB', createdBy: '系统', createdAt: '2025-01-01 00:00' },
                   { name: 'meeting_notes.md', fileType: 'Markdown', size: '156 KB', createdBy: '系统', createdAt: '2025-01-01 00:00' },
@@ -1599,14 +1600,14 @@
           ]
         },
         {
-          id: 200, name: 'NESR-湖仓项目', type: 'catalog', locked: false, createdAt: '2026-04-10 09:00', createdBy: '系统', updatedAt: '2026-04-28 14:15', updatedBy: '系统', description: 'NESR 油田设备维护数据湖：客户在 OmniFabric 上的实际部署，三层 Medallion 架构',
+          id: 200, name: '示例制造数据项目', type: 'catalog', locked: false, createdAt: '2026-04-10 09:00', createdBy: '系统', updatedAt: '2026-04-28 14:15', updatedBy: '系统', description: '示例制造集团 油田设备维护数据湖：客户在 OmniFabric 上的实际部署，三层 Medallion 架构',
           children: [
-            // ====== Bronze 层：客户的 nesr_raw 数据库 ======
+            // ====== Bronze 层：客户的 demo_mfg_raw 数据库 ======
             // 由外部 Python ETL 脚本 + Fiix REST API 直拉，所有传感器秒级→分钟级聚合都在入库前完成
             {
-              id: 201, name: 'Bronze', type: 'db', locked: false, createdAt: '2026-04-10 09:00', createdBy: '用户', updatedAt: '2026-04-28 14:15', updatedBy: '系统', description: 'Bronze 层（对应客户的 nesr_raw 数据库）：从外部源直拉的原始数据 + 载入元数据表',
+              id: 201, name: 'Bronze', type: 'db', locked: false, createdAt: '2026-04-10 09:00', createdBy: '用户', updatedAt: '2026-04-28 14:15', updatedBy: '系统', description: 'Bronze 层（对应客户的 demo_mfg_raw 数据库）：从外部源直拉的原始数据 + 载入元数据表',
               children: [
-                { id: 202, name: 'intelie_sensor_readings', type: 'table', locked: false, createdAt: '2026-04-10 10:30', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 36000, size: '7.2 MB', description: 'Intelie 传感器数据（1 分钟级，由 Python ETL 从 MongoDB 拉取并聚合后写入；原始 1 秒数据不入 MOI）', schema: [
+                { id: 202, name: 'iot_demo_sensor_readings', type: 'table', locked: false, createdAt: '2026-04-10 10:30', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 36000, size: '7.2 MB', description: '示例工业物联 传感器数据（1 分钟级，由 Python ETL 从 MongoDB 拉取并聚合后写入；原始 1 秒数据不入 MOI）', schema: [
                   { name: 'pump', dataType: 'VARCHAR', precision: '20', pk: true, defaultVal: '', desc: '' },
                   { name: 'crew', dataType: 'VARCHAR', precision: '10', pk: false, defaultVal: '', desc: '' },
                   { name: 'datetime', dataType: 'TIMESTAMP', precision: '', pk: true, defaultVal: '', desc: '' },
@@ -1692,11 +1693,11 @@
                 ], children: [] },
                               ]
             },
-            // ====== Silver 层：客户的 nesr_analytics 数据库（silver_* 表）======
+            // ====== Silver 层：客户的 demo_mfg_analytics 数据库（silver_* 表）======
             {
-              id: 250, name: 'Silver', type: 'db', locked: false, createdAt: '2026-04-10 09:00', createdBy: '用户', updatedAt: '2026-04-28 14:32', updatedBy: '系统', description: 'Silver 层（对应客户 nesr_analytics 数据库的 silver_* 表）：清洗 / 分类 / 告警 / 会话 / 字典 / 资产层级 / 工单展开 / 工单丰富化 / 停机追踪',
+              id: 250, name: 'Silver', type: 'db', locked: false, createdAt: '2026-04-10 09:00', createdBy: '用户', updatedAt: '2026-04-28 14:32', updatedBy: '系统', description: 'Silver 层（对应客户 demo_mfg_analytics 数据库的 silver_* 表）：清洗 / 分类 / 告警 / 会话 / 字典 / 资产层级 / 工单展开 / 工单丰富化 / 停机追踪',
               children: [
-                { id: 251, name: 'silver_intelie_readings_cleaned', type: 'table', locked: false, createdAt: '2026-04-10 10:30', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 35840, size: '7.1 MB', description: '清洗后传感器数据（过滤读数 < 3 的噪声泵 + COALESCE 填充 disch_pressure NULL）', schema: [
+                { id: 251, name: 'silver_iot_demo_readings_cleaned', type: 'table', locked: false, createdAt: '2026-04-10 10:30', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 35840, size: '7.1 MB', description: '清洗后传感器数据（过滤读数 < 3 的噪声泵 + COALESCE 填充 disch_pressure NULL）', schema: [
                   { name: 'pump', dataType: 'VARCHAR', precision: '20', pk: true, defaultVal: '', desc: '' },
                   { name: 'crew', dataType: 'VARCHAR', precision: '10', pk: false, defaultVal: '', desc: '' },
                   { name: 'datetime', dataType: 'TIMESTAMP', precision: '', pk: true, defaultVal: '', desc: '' },
@@ -1712,7 +1713,7 @@
 
 
                 ], children: [] },
-                { id: 252, name: 'silver_intelie_readings_classified', type: 'table', locked: false, createdAt: '2026-04-10 10:35', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 35840, size: '6.8 MB', description: '4 状态分类：PUMPING（RPM≥800 且 pump_rate>0）/ IDLE / OFF / UNKNOWN', schema: [
+                { id: 252, name: 'silver_iot_demo_readings_classified', type: 'table', locked: false, createdAt: '2026-04-10 10:35', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 35840, size: '6.8 MB', description: '4 状态分类：PUMPING（RPM≥800 且 pump_rate>0）/ IDLE / OFF / UNKNOWN', schema: [
                   { name: 'pump', dataType: 'VARCHAR', precision: '20', pk: true, defaultVal: '', desc: '' },
                   { name: 'crew', dataType: 'VARCHAR', precision: '10', pk: false, defaultVal: '', desc: '' },
                   { name: 'datetime', dataType: 'TIMESTAMP', precision: '', pk: true, defaultVal: '', desc: '' },
@@ -1722,7 +1723,7 @@
 
 
                 ], children: [] },
-                { id: 253, name: 'silver_intelie_readings_flagged', type: 'table', locked: false, createdAt: '2026-04-10 10:40', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 35840, size: '5.2 MB', description: '4 类临界告警：低油压 / 高冷却液温度 / 低润滑油压 / 高 RPM', schema: [
+                { id: 253, name: 'silver_iot_demo_readings_flagged', type: 'table', locked: false, createdAt: '2026-04-10 10:40', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 35840, size: '5.2 MB', description: '4 类临界告警：低油压 / 高冷却液温度 / 低润滑油压 / 高 RPM', schema: [
                   { name: 'pump', dataType: 'VARCHAR', precision: '20', pk: true, defaultVal: '', desc: '' },
                   { name: 'datetime', dataType: 'TIMESTAMP', precision: '', pk: true, defaultVal: '', desc: '' },
                   { name: 'state', dataType: 'VARCHAR', precision: '10', pk: false, defaultVal: '', desc: '' },
@@ -1734,7 +1735,7 @@
 
 
                 ], children: [] },
-                { id: 254, name: 'silver_intelie_sessions', type: 'table', locked: false, createdAt: '2026-04-10 10:45', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 320, size: '88 KB', description: '会话检测：通过 LAG + SUM OVER 找状态变化边界，按 pump + session_id 聚合', schema: [
+                { id: 254, name: 'silver_iot_demo_sessions', type: 'table', locked: false, createdAt: '2026-04-10 10:45', createdBy: '系统', updatedAt: '2026-04-28 14:32', updatedBy: '系统', rowCount: 320, size: '88 KB', description: '会话检测：通过 LAG + SUM OVER 找状态变化边界，按 pump + session_id 聚合', schema: [
                   { name: 'pump', dataType: 'VARCHAR', precision: '20', pk: true, defaultVal: '', desc: '' },
                   { name: 'crew', dataType: 'VARCHAR', precision: '10', pk: false, defaultVal: '', desc: '' },
                   { name: 'session_id', dataType: 'INT', precision: '', pk: true, defaultVal: '', desc: '' },
@@ -1807,9 +1808,9 @@
                 ], children: [] },
               ]
             },
-            // ====== Gold 层：客户的 nesr_analytics 数据库（gold_* 表 + 调度日志）======
+            // ====== Gold 层：客户的 demo_mfg_analytics 数据库（gold_* 表 + 调度日志）======
             {
-              id: 280, name: 'Gold', type: 'db', locked: false, createdAt: '2026-04-15 09:00', createdBy: '用户', updatedAt: '2026-04-28 14:25', updatedBy: '系统', description: 'Gold 层（对应客户 nesr_analytics 数据库的 gold_* 业务表）：双 pass 匹配 + 泵 KPI 汇总 + 月度泵 KPI。注：原同库的过程控制 / 记录表（水位线 / 调度日志 / 校验门）已挪至「运维元数据」库',
+              id: 280, name: 'Gold', type: 'db', locked: false, createdAt: '2026-04-15 09:00', createdBy: '用户', updatedAt: '2026-04-28 14:25', updatedBy: '系统', description: 'Gold 层（对应客户 demo_mfg_analytics 数据库的 gold_* 业务表）：双 pass 匹配 + 泵 KPI 汇总 + 月度泵 KPI。注：原同库的过程控制 / 记录表（水位线 / 调度日志 / 校验门）已挪至「运维元数据」库',
               children: [
                 { id: 281, name: 'gold_off_session_wo_match', type: 'table', locked: false, createdAt: '2026-04-15 09:00', createdBy: '系统', updatedAt: '2026-04-28 14:25', updatedBy: '系统', rowCount: 96, size: '18 KB', description: '双 pass 匹配：① overlap（WO 时段重叠 OFF 会话）② proximity（WO 创建时间在 4 小时窗内）③ unmatched 兜底', schema: [
                   { name: 'pump', dataType: 'VARCHAR', precision: '20', pk: true, defaultVal: '', desc: '' },
@@ -1953,11 +1954,11 @@
           ]
         },
         {
-          id: 616, name: 'MatrixOne 生产集群（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
-          connectorValue: 'matrixone', connectorLabel: 'MatrixOne（database → table）', hierarchy: 'database → table',
-          description: '外部 MatrixOne：用户行为数仓，database → table 两层结构',
+          id: 616, name: '示例分析集群（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
+          connectorValue: 'matrixone', connectorLabel: '兼容分析数据库（database → table）', hierarchy: 'database → table',
+          description: '外部兼容分析数据库：示例行为数仓，database → table 两层结构',
           children: [
-            { id: 615, name: 'moi_warehouse', type: 'db', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: 'MatrixOne database：行为数仓', children: [
+            { id: 615, name: 'demo_warehouse', type: 'db', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: '兼容分析数据库：示例行为数仓', children: [
                 { id: 613, name: 'user_events', type: 'table', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', rowCount: 8420000, size: '1.6 GB', description: '用户行为事件表', schema: [
                     { name: 'event_id', dataType: 'BIGINT', precision: '', pk: true, defaultVal: '', desc: '事件 ID' },
                     { name: 'user_id', dataType: 'BIGINT', precision: '', pk: false, defaultVal: '', desc: '用户 ID' },
@@ -1976,11 +1977,11 @@
           ]
         },
         {
-          id: 620, name: 'Intelie 传感器 MongoDB（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
+          id: 620, name: '示例工业物联 传感器 MongoDB（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
           connectorValue: 'mongodb', connectorLabel: 'MongoDB（database → collection）', hierarchy: 'database → collection',
           description: '外部 MongoDB：database → collection 两层（表叫 collection，文档型）',
           children: [
-            { id: 619, name: 'intelie_prod', type: 'db', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: 'MongoDB database：传感器生产库', children: [
+            { id: 619, name: 'iot_demo_prod', type: 'db', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: 'MongoDB database：传感器生产库', children: [
                 { id: 617, name: 'fleet_sensor_1s', type: 'table', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', rowCount: 90000000, size: '42 GB', description: 'MongoDB collection：秒级传感器读数（文档型）', schema: [
                     { name: '_id', dataType: 'ObjectId', precision: '', pk: true, defaultVal: '', desc: '文档 ID' },
                     { name: 'pump', dataType: 'String', precision: '', pk: false, defaultVal: '', desc: '泵编号' },
@@ -2000,7 +2001,7 @@
           ]
         },
         {
-          id: 624, name: 'NESR 数据仓库 Hive（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
+          id: 624, name: '示例制造集团 数据仓库 Hive（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
           connectorValue: 'hive', connectorLabel: 'Hive（database → table）', hierarchy: 'database → table',
           description: '外部 Hive：metastore database → table 两层，HDFS 上的列式存储',
           children: [
@@ -2022,11 +2023,11 @@
           ]
         },
         {
-          id: 630, name: '汉得 Topcast SQL Server（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
+          id: 630, name: '示例企业服务集团 示例业务协作 SQL Server（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
           connectorValue: 'sqlserver', connectorLabel: 'SQL Server（database → schema → table）', hierarchy: 'database → schema → table',
           description: '外部 SQL Server：database → schema → table 三层（含 dbo/sales 等 schema）',
           children: [
-            { id: 629, name: 'TopcastDB', type: 'db', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: 'SQL Server database：报价系统', children: [
+            { id: 629, name: '示例业务协作DB', type: 'db', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: 'SQL Server database：报价系统', children: [
                 { id: 626, name: 'dbo', type: 'schema', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', description: 'SQL Server schema：dbo（默认）', children: [
                 { id: 625, name: 'Customers', type: 'table', locked: true, createdAt: '2026-05-30 10:00', createdBy: '外部', updatedAt: '2026-05-30 10:00', updatedBy: '外部', rowCount: 3200, size: '1.4 MB', description: '客户表', schema: [
                     { name: 'CustomerID', dataType: 'INT', precision: '', pk: true, defaultVal: '', desc: '客户 ID' },
@@ -2047,7 +2048,7 @@
           ]
         },
         {
-          id: 634, name: '武汉新芯 Oracle ERP（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
+          id: 634, name: '示例半导体企业 Oracle ERP（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
           connectorValue: 'oracle', connectorLabel: 'Oracle（schema/user → table）', hierarchy: 'schema(user) → table',
           description: '外部 Oracle：schema(=user) → table 两层（Oracle 的 schema 等同 user，无独立 database 概念）',
           children: [
@@ -2070,7 +2071,7 @@
           ]
         },
         {
-          id: 638, name: '芯联汉得 ClickHouse（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
+          id: 638, name: '示例集成电路企业示例企业服务集团 ClickHouse（外部）', type: 'extcatalog', locked: false, createdAt: '2026-05-30 10:00', createdBy: '用户', updatedAt: '2026-05-30 10:00', updatedBy: '用户',
           connectorValue: 'clickhouse', connectorLabel: 'ClickHouse（database → table）', hierarchy: 'database → table',
           description: '外部 ClickHouse：database → table 两层，列式 OLAP，适合行情/明细高速查询',
           children: [
@@ -2725,7 +2726,7 @@
     // ===== 创建算子的参数配置 =====
     function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 
-    // ===== 安利 CA AI 小助手 数据源（ca_ai_ft2_fake 库，来自 ca-schema.js）非破坏性注入 =====
+    // ===== 示例零售集团 CA AI 小助手 数据源（ca_ai_ft2_fake 库，来自 ca-schema.js）非破坏性注入 =====
     function caSplitType(t) {
       var m = String(t || '').match(/^([a-zA-Z0-9_]+(?:\s+unsigned)?)(?:\((.*)\))?$/);
       if (!m) return { dataType: String(t || '').toUpperCase(), precision: '' };
@@ -2752,7 +2753,7 @@
       nodes.push({
         id: 90000, name: DB.dir, type: 'catalog', locked: false,
         createdAt: ts, createdBy: '客户接入', updatedAt: ts, updatedBy: '客户接入',
-        description: '安利 CA AI 小助手 召回数据源',
+        description: '示例零售集团 CA AI 小助手 召回数据源',
         children: [{
           id: 90001, name: DB.db, type: 'db', locked: false,
           createdAt: ts, createdBy: '客户接入', updatedAt: ts, updatedBy: '客户接入',
@@ -3404,72 +3405,72 @@
     }
 
     // ============================================================
-    // 数据血缘（结构化）：表级图谱 + 列级映射，按 NESR Medallion 链路自动推导
+    // 数据血缘（结构化）：表级图谱 + 列级映射，按 示例制造集团 Medallion 链路自动推导
     // ============================================================
-    var NESR_LINEAGE = {
+    var 示例制造集团_LINEAGE = {
       // ---------- Bronze：从外部连接器接入 ----------
-      'intelie_sensor_readings': {
-        src: { connector: 'Intelie 传感器 MongoDB（外部）', object: 'intelie_prod / fleet_sensor_1s', logo: 'mongodb', via: 'Python ETL · 秒级 → 分钟级聚合' },
-        node: { wf: 'NESR 数据接入', name: 'Intelie 秒级聚合', type: 'Python' }
+      'iot_demo_sensor_readings': {
+        src: { connector: '示例工业物联 传感器 MongoDB（外部）', object: 'iot_demo_prod / fleet_sensor_1s', logo: 'mongodb', via: 'Python ETL · 秒级 → 分钟级聚合' },
+        node: { wf: '示例制造集团 数据接入', name: '示例工业物联 秒级聚合', type: 'Python' }
       },
-      'fiix_work_orders':    { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'work_orders',      logo: '', via: 'REST API 增量拉取' }, node: { wf: 'NESR 数据接入', name: 'Fiix 工单载入', type: '载入' } },
-      'fiix_wo_tasks':       { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'wo_tasks',         logo: '', via: 'REST API 增量拉取' }, node: { wf: 'NESR 数据接入', name: 'Fiix 工单任务载入', type: '载入' } },
-      'fiix_assets':         { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'assets',           logo: '', via: 'REST API 全量' },     node: { wf: 'NESR 数据接入', name: 'Fiix 资产载入', type: '载入' } },
-      'fiix_priorities':     { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'priorities',       logo: '', via: 'REST API 全量' },     node: { wf: 'NESR 数据接入', name: 'Fiix 优先级载入', type: '载入' } },
-      'fiix_wo_statuses':    { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'wo_statuses',      logo: '', via: 'REST API 全量' },     node: { wf: 'NESR 数据接入', name: 'Fiix 状态载入', type: '载入' } },
-      'fiix_maintenance_types': { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'maintenance_types', logo: '', via: 'REST API 全量' }, node: { wf: 'NESR 数据接入', name: 'Fiix 维修类型载入', type: '载入' } },
+      'fiix_work_orders':    { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'work_orders',      logo: '', via: 'REST API 增量拉取' }, node: { wf: '示例制造集团 数据接入', name: 'Fiix 工单载入', type: '载入' } },
+      'fiix_wo_tasks':       { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'wo_tasks',         logo: '', via: 'REST API 增量拉取' }, node: { wf: '示例制造集团 数据接入', name: 'Fiix 工单任务载入', type: '载入' } },
+      'fiix_assets':         { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'assets',           logo: '', via: 'REST API 全量' },     node: { wf: '示例制造集团 数据接入', name: 'Fiix 资产载入', type: '载入' } },
+      'fiix_priorities':     { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'priorities',       logo: '', via: 'REST API 全量' },     node: { wf: '示例制造集团 数据接入', name: 'Fiix 优先级载入', type: '载入' } },
+      'fiix_wo_statuses':    { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'wo_statuses',      logo: '', via: 'REST API 全量' },     node: { wf: '示例制造集团 数据接入', name: 'Fiix 状态载入', type: '载入' } },
+      'fiix_maintenance_types': { src: { connector: 'Fiix CMMS（外部 REST API）', object: 'maintenance_types', logo: '', via: 'REST API 全量' }, node: { wf: '示例制造集团 数据接入', name: 'Fiix 维修类型载入', type: '载入' } },
 
       // ---------- Silver：从 Bronze 清洗 / 分类 / 关联 ----------
-      'silver_intelie_readings_cleaned': {
-        node: { wf: 'NESR Silver 构建', name: '传感器清洗', type: 'SQL' },
-        inputs: ['intelie_sensor_readings'],
+      'silver_iot_demo_readings_cleaned': {
+        node: { wf: '示例制造集团 Silver 构建', name: '传感器清洗', type: 'SQL' },
+        inputs: ['iot_demo_sensor_readings'],
         filter: "WHERE readings_in_minute >= 3   -- 过滤读数<3的噪声泵",
         cols: [
-          { n: 'pump', k: '直传', from: [['intelie_sensor_readings', 'pump']], logic: '直接透传' },
-          { n: 'datetime', k: '直传', from: [['intelie_sensor_readings', 'datetime']], logic: '直接透传' },
-          { n: 'disch_pressure', k: '填充', from: [['intelie_sensor_readings', 'disch_pressure']], logic: 'COALESCE(disch_pressure, 同泵滑动窗口均值) 填补 NULL' },
-          { n: 'engine_rpm', k: '直传', from: [['intelie_sensor_readings', 'engine_rpm']], logic: '直接透传' },
-          { n: 'pump_rate', k: '直传', from: [['intelie_sensor_readings', 'pump_rate']], logic: '直接透传' }
+          { n: 'pump', k: '直传', from: [['iot_demo_sensor_readings', 'pump']], logic: '直接透传' },
+          { n: 'datetime', k: '直传', from: [['iot_demo_sensor_readings', 'datetime']], logic: '直接透传' },
+          { n: 'disch_pressure', k: '填充', from: [['iot_demo_sensor_readings', 'disch_pressure']], logic: 'COALESCE(disch_pressure, 同泵滑动窗口均值) 填补 NULL' },
+          { n: 'engine_rpm', k: '直传', from: [['iot_demo_sensor_readings', 'engine_rpm']], logic: '直接透传' },
+          { n: 'pump_rate', k: '直传', from: [['iot_demo_sensor_readings', 'pump_rate']], logic: '直接透传' }
         ]
       },
-      'silver_intelie_readings_classified': {
-        node: { wf: 'NESR Silver 构建', name: '状态分类', type: 'SQL' },
-        inputs: ['silver_intelie_readings_cleaned'],
+      'silver_iot_demo_readings_classified': {
+        node: { wf: '示例制造集团 Silver 构建', name: '状态分类', type: 'SQL' },
+        inputs: ['silver_iot_demo_readings_cleaned'],
         cols: [
-          { n: 'pump', k: '直传', from: [['silver_intelie_readings_cleaned', 'pump']], logic: '直接透传' },
-          { n: 'datetime', k: '直传', from: [['silver_intelie_readings_cleaned', 'datetime']], logic: '直接透传' },
-          { n: 'engine_rpm', k: '直传', from: [['silver_intelie_readings_cleaned', 'engine_rpm']], logic: '直接透传' },
-          { n: 'pump_rate', k: '直传', from: [['silver_intelie_readings_cleaned', 'pump_rate']], logic: '直接透传' },
-          { n: 'state', k: '表达式', from: [['silver_intelie_readings_cleaned', 'engine_rpm'], ['silver_intelie_readings_cleaned', 'pump_rate']], logic: "CASE WHEN engine_rpm>=800 AND pump_rate>0 THEN 'PUMPING' WHEN engine_rpm>0 THEN 'IDLE' WHEN engine_rpm=0 THEN 'OFF' ELSE 'UNKNOWN' END" }
+          { n: 'pump', k: '直传', from: [['silver_iot_demo_readings_cleaned', 'pump']], logic: '直接透传' },
+          { n: 'datetime', k: '直传', from: [['silver_iot_demo_readings_cleaned', 'datetime']], logic: '直接透传' },
+          { n: 'engine_rpm', k: '直传', from: [['silver_iot_demo_readings_cleaned', 'engine_rpm']], logic: '直接透传' },
+          { n: 'pump_rate', k: '直传', from: [['silver_iot_demo_readings_cleaned', 'pump_rate']], logic: '直接透传' },
+          { n: 'state', k: '表达式', from: [['silver_iot_demo_readings_cleaned', 'engine_rpm'], ['silver_iot_demo_readings_cleaned', 'pump_rate']], logic: "CASE WHEN engine_rpm>=800 AND pump_rate>0 THEN 'PUMPING' WHEN engine_rpm>0 THEN 'IDLE' WHEN engine_rpm=0 THEN 'OFF' ELSE 'UNKNOWN' END" }
         ]
       },
-      'silver_intelie_readings_flagged': {
-        node: { wf: 'NESR Silver 构建', name: '临界告警', type: 'SQL' },
-        inputs: ['silver_intelie_readings_cleaned', 'silver_intelie_readings_classified'],
+      'silver_iot_demo_readings_flagged': {
+        node: { wf: '示例制造集团 Silver 构建', name: '临界告警', type: 'SQL' },
+        inputs: ['silver_iot_demo_readings_cleaned', 'silver_iot_demo_readings_classified'],
         cols: [
-          { n: 'pump', k: '关联键', from: [['silver_intelie_readings_cleaned', 'pump'], ['silver_intelie_readings_classified', 'pump']], logic: '两表按 (pump, datetime) JOIN 的关联键' },
-          { n: 'datetime', k: '关联键', from: [['silver_intelie_readings_cleaned', 'datetime'], ['silver_intelie_readings_classified', 'datetime']], logic: '两表按 (pump, datetime) JOIN 的关联键' },
-          { n: 'state', k: '直传', from: [['silver_intelie_readings_classified', 'state']], logic: '取自分类表' },
-          { n: 'flag_low_oil_pressure', k: '表达式', from: [['silver_intelie_readings_cleaned', 'engine_oil_pressure']], logic: 'CASE WHEN engine_oil_pressure < 40 THEN 1 ELSE 0' },
-          { n: 'flag_high_coolant_temp', k: '表达式', from: [['silver_intelie_readings_cleaned', 'engine_coolant_temp']], logic: 'CASE WHEN engine_coolant_temp > 95 THEN 1 ELSE 0' },
-          { n: 'flag_high_rpm', k: '表达式', from: [['silver_intelie_readings_cleaned', 'engine_rpm']], logic: 'CASE WHEN engine_rpm > 1800 THEN 1 ELSE 0' },
-          { n: 'any_critical_flag', k: '表达式', from: [['silver_intelie_readings_cleaned', 'engine_oil_pressure'], ['silver_intelie_readings_cleaned', 'engine_coolant_temp'], ['silver_intelie_readings_cleaned', 'lube_oil_pressure'], ['silver_intelie_readings_cleaned', 'engine_rpm']], logic: '四个 flag 的 OR（GREATEST）' }
+          { n: 'pump', k: '关联键', from: [['silver_iot_demo_readings_cleaned', 'pump'], ['silver_iot_demo_readings_classified', 'pump']], logic: '两表按 (pump, datetime) JOIN 的关联键' },
+          { n: 'datetime', k: '关联键', from: [['silver_iot_demo_readings_cleaned', 'datetime'], ['silver_iot_demo_readings_classified', 'datetime']], logic: '两表按 (pump, datetime) JOIN 的关联键' },
+          { n: 'state', k: '直传', from: [['silver_iot_demo_readings_classified', 'state']], logic: '取自分类表' },
+          { n: 'flag_low_oil_pressure', k: '表达式', from: [['silver_iot_demo_readings_cleaned', 'engine_oil_pressure']], logic: 'CASE WHEN engine_oil_pressure < 40 THEN 1 ELSE 0' },
+          { n: 'flag_high_coolant_temp', k: '表达式', from: [['silver_iot_demo_readings_cleaned', 'engine_coolant_temp']], logic: 'CASE WHEN engine_coolant_temp > 95 THEN 1 ELSE 0' },
+          { n: 'flag_high_rpm', k: '表达式', from: [['silver_iot_demo_readings_cleaned', 'engine_rpm']], logic: 'CASE WHEN engine_rpm > 1800 THEN 1 ELSE 0' },
+          { n: 'any_critical_flag', k: '表达式', from: [['silver_iot_demo_readings_cleaned', 'engine_oil_pressure'], ['silver_iot_demo_readings_cleaned', 'engine_coolant_temp'], ['silver_iot_demo_readings_cleaned', 'lube_oil_pressure'], ['silver_iot_demo_readings_cleaned', 'engine_rpm']], logic: '四个 flag 的 OR（GREATEST）' }
         ]
       },
-      'silver_intelie_sessions': {
-        node: { wf: 'NESR Silver 构建', name: '会话检测', type: 'SQL' },
-        inputs: ['silver_intelie_readings_classified'],
+      'silver_iot_demo_sessions': {
+        node: { wf: '示例制造集团 Silver 构建', name: '会话检测', type: 'SQL' },
+        inputs: ['silver_iot_demo_readings_classified'],
         cols: [
-          { n: 'pump', k: '聚合', from: [['silver_intelie_readings_classified', 'pump']], logic: '分组键（GROUP BY pump, session_id）' },
-          { n: 'session_id', k: '窗口', from: [['silver_intelie_readings_classified', 'state'], ['silver_intelie_readings_classified', 'datetime']], logic: 'SUM(状态变化标记) OVER (PARTITION BY pump ORDER BY datetime) 累计成会话号' },
-          { n: 'resolved_state', k: '窗口', from: [['silver_intelie_readings_classified', 'state']], logic: 'LAG/前向填充把 UNKNOWN 解析为前一个有效状态' },
-          { n: 'session_start', k: '聚合', from: [['silver_intelie_readings_classified', 'datetime']], logic: 'MIN(datetime)' },
-          { n: 'session_end', k: '聚合', from: [['silver_intelie_readings_classified', 'datetime']], logic: 'MAX(datetime)' },
-          { n: 'duration_minutes', k: '聚合', from: [['silver_intelie_readings_classified', 'datetime']], logic: 'COUNT(*) 或 TIMESTAMPDIFF(MINUTE, start, end)' }
+          { n: 'pump', k: '聚合', from: [['silver_iot_demo_readings_classified', 'pump']], logic: '分组键（GROUP BY pump, session_id）' },
+          { n: 'session_id', k: '窗口', from: [['silver_iot_demo_readings_classified', 'state'], ['silver_iot_demo_readings_classified', 'datetime']], logic: 'SUM(状态变化标记) OVER (PARTITION BY pump ORDER BY datetime) 累计成会话号' },
+          { n: 'resolved_state', k: '窗口', from: [['silver_iot_demo_readings_classified', 'state']], logic: 'LAG/前向填充把 UNKNOWN 解析为前一个有效状态' },
+          { n: 'session_start', k: '聚合', from: [['silver_iot_demo_readings_classified', 'datetime']], logic: 'MIN(datetime)' },
+          { n: 'session_end', k: '聚合', from: [['silver_iot_demo_readings_classified', 'datetime']], logic: 'MAX(datetime)' },
+          { n: 'duration_minutes', k: '聚合', from: [['silver_iot_demo_readings_classified', 'datetime']], logic: 'COUNT(*) 或 TIMESTAMPDIFF(MINUTE, start, end)' }
         ]
       },
       'silver_fiix_priorities': {
-        node: { wf: 'NESR Silver 构建', name: '字典-优先级', type: 'SQL' }, inputs: ['fiix_priorities'],
+        node: { wf: '示例制造集团 Silver 构建', name: '字典-优先级', type: 'SQL' }, inputs: ['fiix_priorities'],
         cols: [
           { n: 'id', k: '字典', from: [['fiix_priorities', 'id']], logic: '字典副本（Silver 持久化以避免跨库 join）' },
           { n: 'str_name', k: '字典', from: [['fiix_priorities', 'str_name']], logic: '透传' },
@@ -3477,7 +3478,7 @@
         ]
       },
       'silver_fiix_statuses': {
-        node: { wf: 'NESR Silver 构建', name: '字典-状态', type: 'SQL' }, inputs: ['fiix_wo_statuses'],
+        node: { wf: '示例制造集团 Silver 构建', name: '字典-状态', type: 'SQL' }, inputs: ['fiix_wo_statuses'],
         cols: [
           { n: 'id', k: '字典', from: [['fiix_wo_statuses', 'id']], logic: '透传' },
           { n: 'str_name', k: '字典', from: [['fiix_wo_statuses', 'str_name']], logic: '透传' },
@@ -3485,7 +3486,7 @@
         ]
       },
       'silver_fiix_maint_types': {
-        node: { wf: 'NESR Silver 构建', name: '字典-维修类型', type: 'SQL' }, inputs: ['fiix_maintenance_types'],
+        node: { wf: '示例制造集团 Silver 构建', name: '字典-维修类型', type: 'SQL' }, inputs: ['fiix_maintenance_types'],
         cols: [
           { n: 'id', k: '字典', from: [['fiix_maintenance_types', 'id']], logic: '透传' },
           { n: 'str_name', k: '字典', from: [['fiix_maintenance_types', 'str_name']], logic: '透传' },
@@ -3494,7 +3495,7 @@
         ]
       },
       'silver_fiix_asset_hierarchy': {
-        node: { wf: 'NESR Silver 构建', name: '资产层级展开', type: 'SQL' }, inputs: ['fiix_assets'],
+        node: { wf: '示例制造集团 Silver 构建', name: '资产层级展开', type: 'SQL' }, inputs: ['fiix_assets'],
         cols: [
           { n: 'id', k: '直传', from: [['fiix_assets', 'id']], logic: '透传' },
           { n: 'str_code', k: '直传', from: [['fiix_assets', 'str_code']], logic: '透传' },
@@ -3505,7 +3506,7 @@
         ]
       },
       'silver_fiix_wo_assets': {
-        node: { wf: 'NESR Silver 构建', name: '工单-资产关联', type: 'SQL' }, inputs: ['fiix_work_orders', 'silver_fiix_asset_hierarchy'],
+        node: { wf: '示例制造集团 Silver 构建', name: '工单-资产关联', type: 'SQL' }, inputs: ['fiix_work_orders', 'silver_fiix_asset_hierarchy'],
         cols: [
           { n: 'work_order_id', k: '直传', from: [['fiix_work_orders', 'id']], logic: '透传工单 ID' },
           { n: 'asset_id', k: '拆分', from: [['fiix_work_orders', 'str_asset_ids']], logic: "str_asset_ids 空格分隔字符串 → 拆成多行（一工单多资产）" },
@@ -3513,7 +3514,7 @@
         ]
       },
       'silver_fiix_work_orders_enriched': {
-        node: { wf: 'NESR Silver 构建', name: '工单丰富化', type: 'SQL' },
+        node: { wf: '示例制造集团 Silver 构建', name: '工单丰富化', type: 'SQL' },
         inputs: ['fiix_work_orders', 'silver_fiix_priorities', 'silver_fiix_statuses', 'silver_fiix_maint_types', 'fiix_wo_tasks'],
         cols: [
           { n: 'id', k: '直传', from: [['fiix_work_orders', 'id']], logic: '透传' },
@@ -3529,7 +3530,7 @@
         ]
       },
       'silver_fiix_offline_tracker': {
-        node: { wf: 'NESR Silver 构建', name: '停机追踪', type: 'SQL' }, inputs: ['silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets'],
+        node: { wf: '示例制造集团 Silver 构建', name: '停机追踪', type: 'SQL' }, inputs: ['silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets'],
         cols: [
           { n: 'work_order_id', k: '直传', from: [['silver_fiix_work_orders_enriched', 'id']], logic: '透传' },
           { n: 'hp_pump_code', k: '关联键', from: [['silver_fiix_wo_assets', 'hp_pump_code']], logic: 'JOIN 工单-资产关联，落到具体 HP 泵' },
@@ -3541,59 +3542,59 @@
 
       // ---------- Gold：业务消费层 ----------
       'gold_off_session_wo_match': {
-        node: { wf: 'NESR Gold 构建', name: 'OFF会话-工单匹配', type: 'SQL' },
-        inputs: ['silver_intelie_sessions', 'silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets'],
-        consumers: [{ kind: 'kb', name: 'NESR 设备健康知识库' }],
+        node: { wf: '示例制造集团 Gold 构建', name: 'OFF会话-工单匹配', type: 'SQL' },
+        inputs: ['silver_iot_demo_sessions', 'silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets'],
+        consumers: [{ kind: 'kb', name: '示例制造集团 设备健康知识库' }],
         cols: [
-          { n: 'pump', k: '关联键', from: [['silver_intelie_sessions', 'pump'], ['silver_fiix_wo_assets', 'hp_pump_code']], logic: '会话泵号 = 工单资产 HP 泵（匹配关联键）' },
-          { n: 'session_id', k: '直传', from: [['silver_intelie_sessions', 'session_id']], logic: '取自会话表（仅 resolved_state=OFF）' },
-          { n: 'off_duration_minutes', k: '直传', from: [['silver_intelie_sessions', 'duration_minutes']], logic: 'OFF 会话时长' },
-          { n: 'matched_wo_id', k: '表达式', from: [['silver_intelie_sessions', 'session_start'], ['silver_fiix_work_orders_enriched', 'dtm_date_created']], logic: '双 pass：① 时段重叠 overlap 优先 ② 4h 邻近 proximity 兜底' },
-          { n: 'match_type', k: '表达式', from: [['silver_intelie_sessions', 'session_start'], ['silver_fiix_work_orders_enriched', 'dtm_date_created']], logic: "CASE → 'overlap' / 'proximity' / 'unmatched'" },
+          { n: 'pump', k: '关联键', from: [['silver_iot_demo_sessions', 'pump'], ['silver_fiix_wo_assets', 'hp_pump_code']], logic: '会话泵号 = 工单资产 HP 泵（匹配关联键）' },
+          { n: 'session_id', k: '直传', from: [['silver_iot_demo_sessions', 'session_id']], logic: '取自会话表（仅 resolved_state=OFF）' },
+          { n: 'off_duration_minutes', k: '直传', from: [['silver_iot_demo_sessions', 'duration_minutes']], logic: 'OFF 会话时长' },
+          { n: 'matched_wo_id', k: '表达式', from: [['silver_iot_demo_sessions', 'session_start'], ['silver_fiix_work_orders_enriched', 'dtm_date_created']], logic: '双 pass：① 时段重叠 overlap 优先 ② 4h 邻近 proximity 兜底' },
+          { n: 'match_type', k: '表达式', from: [['silver_iot_demo_sessions', 'session_start'], ['silver_fiix_work_orders_enriched', 'dtm_date_created']], logic: "CASE → 'overlap' / 'proximity' / 'unmatched'" },
           { n: 'wo_maintenance_type', k: '关联键', from: [['silver_fiix_work_orders_enriched', 'maintenance_type']], logic: '匹配上的工单的维修类型' }
         ]
       },
       'gold_pump_kpis': {
-        node: { wf: 'NESR Gold 构建', name: '泵 KPI 汇总', type: 'SQL' },
-        inputs: ['silver_intelie_sessions', 'silver_intelie_readings_flagged', 'silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets', 'silver_fiix_offline_tracker'],
-        consumers: [{ kind: 'kb', name: 'NESR 设备健康知识库' }, { kind: 'export', name: '出仓 · 下游数据平台' }],
+        node: { wf: '示例制造集团 Gold 构建', name: '泵 KPI 汇总', type: 'SQL' },
+        inputs: ['silver_iot_demo_sessions', 'silver_iot_demo_readings_flagged', 'silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets', 'silver_fiix_offline_tracker'],
+        consumers: [{ kind: 'kb', name: '示例制造集团 设备健康知识库' }, { kind: 'export', name: '出仓 · 下游数据平台' }],
         cols: [
-          { n: 'pump', k: '聚合', from: [['silver_intelie_sessions', 'pump']], logic: '分组键（GROUP BY pump）' },
-          { n: 'pumping_minutes', k: '聚合', from: [['silver_intelie_sessions', 'duration_minutes'], ['silver_intelie_sessions', 'resolved_state']], logic: "SUM(duration) WHERE resolved_state='PUMPING'" },
-          { n: 'idle_minutes', k: '聚合', from: [['silver_intelie_sessions', 'duration_minutes'], ['silver_intelie_sessions', 'resolved_state']], logic: "SUM(duration) WHERE resolved_state='IDLE'" },
-          { n: 'off_minutes', k: '聚合', from: [['silver_intelie_sessions', 'duration_minutes'], ['silver_intelie_sessions', 'resolved_state']], logic: "SUM(duration) WHERE resolved_state='OFF'" },
-          { n: 'engine_availability_pct', k: '表达式', from: [['silver_intelie_sessions', 'duration_minutes']], logic: '(pumping+idle)/(pumping+idle+off)*100' },
-          { n: 'engine_utilization_pct', k: '表达式', from: [['silver_intelie_sessions', 'duration_minutes']], logic: 'pumping/(pumping+idle)*100' },
+          { n: 'pump', k: '聚合', from: [['silver_iot_demo_sessions', 'pump']], logic: '分组键（GROUP BY pump）' },
+          { n: 'pumping_minutes', k: '聚合', from: [['silver_iot_demo_sessions', 'duration_minutes'], ['silver_iot_demo_sessions', 'resolved_state']], logic: "SUM(duration) WHERE resolved_state='PUMPING'" },
+          { n: 'idle_minutes', k: '聚合', from: [['silver_iot_demo_sessions', 'duration_minutes'], ['silver_iot_demo_sessions', 'resolved_state']], logic: "SUM(duration) WHERE resolved_state='IDLE'" },
+          { n: 'off_minutes', k: '聚合', from: [['silver_iot_demo_sessions', 'duration_minutes'], ['silver_iot_demo_sessions', 'resolved_state']], logic: "SUM(duration) WHERE resolved_state='OFF'" },
+          { n: 'engine_availability_pct', k: '表达式', from: [['silver_iot_demo_sessions', 'duration_minutes']], logic: '(pumping+idle)/(pumping+idle+off)*100' },
+          { n: 'engine_utilization_pct', k: '表达式', from: [['silver_iot_demo_sessions', 'duration_minutes']], logic: 'pumping/(pumping+idle)*100' },
           { n: 'mttr_minutes', k: '聚合', from: [['silver_fiix_offline_tracker', 'downtime_hours']], logic: 'AVG 停机时长（平均修复时间）' },
           { n: 'total_work_orders', k: '聚合', from: [['silver_fiix_work_orders_enriched', 'id'], ['silver_fiix_wo_assets', 'hp_pump_code']], logic: 'COUNT(DISTINCT 工单) 按泵' },
           { n: 'planned_wo_count', k: '聚合', from: [['silver_fiix_work_orders_enriched', 'is_planned']], logic: 'SUM(is_planned)' },
           { n: 'total_downtime_hours', k: '聚合', from: [['silver_fiix_offline_tracker', 'downtime_hours']], logic: 'SUM(downtime_hours) 按泵' },
-          { n: 'critical_flag_count', k: '聚合', from: [['silver_intelie_readings_flagged', 'any_critical_flag']], logic: 'SUM(any_critical_flag) 按泵' }
+          { n: 'critical_flag_count', k: '聚合', from: [['silver_iot_demo_readings_flagged', 'any_critical_flag']], logic: 'SUM(any_critical_flag) 按泵' }
         ]
       },
       'gold_monthly_pump_kpis': {
-        node: { wf: 'NESR Gold 构建', name: '月度泵 KPI', type: 'SQL' },
-        inputs: ['silver_intelie_sessions', 'silver_intelie_readings_flagged', 'silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets', 'silver_fiix_offline_tracker'],
+        node: { wf: '示例制造集团 Gold 构建', name: '月度泵 KPI', type: 'SQL' },
+        inputs: ['silver_iot_demo_sessions', 'silver_iot_demo_readings_flagged', 'silver_fiix_work_orders_enriched', 'silver_fiix_wo_assets', 'silver_fiix_offline_tracker'],
         consumers: [{ kind: 'export', name: '出仓 · 下游数据平台' }],
         cols: [
-          { n: 'pump', k: '聚合', from: [['silver_intelie_sessions', 'pump']], logic: '分组键（GROUP BY pump, kpi_month）' },
-          { n: 'kpi_month', k: '表达式', from: [['silver_intelie_sessions', 'session_start']], logic: "DATE_TRUNC(session_start, 'month')；跨月时段按月边界切分" },
-          { n: 'pumping_minutes', k: '聚合', from: [['silver_intelie_sessions', 'duration_minutes'], ['silver_intelie_sessions', 'resolved_state']], logic: "SUM(duration) WHERE state='PUMPING'，再按月" },
-          { n: 'engine_availability_pct', k: '表达式', from: [['silver_intelie_sessions', 'duration_minutes']], logic: '(pumping+idle)/(pumping+idle+off)*100，按月' },
+          { n: 'pump', k: '聚合', from: [['silver_iot_demo_sessions', 'pump']], logic: '分组键（GROUP BY pump, kpi_month）' },
+          { n: 'kpi_month', k: '表达式', from: [['silver_iot_demo_sessions', 'session_start']], logic: "DATE_TRUNC(session_start, 'month')；跨月时段按月边界切分" },
+          { n: 'pumping_minutes', k: '聚合', from: [['silver_iot_demo_sessions', 'duration_minutes'], ['silver_iot_demo_sessions', 'resolved_state']], logic: "SUM(duration) WHERE state='PUMPING'，再按月" },
+          { n: 'engine_availability_pct', k: '表达式', from: [['silver_iot_demo_sessions', 'duration_minutes']], logic: '(pumping+idle)/(pumping+idle+off)*100，按月' },
           { n: 'wo_count', k: '聚合', from: [['silver_fiix_work_orders_enriched', 'id']], logic: 'COUNT(工单) 按泵×月' },
           { n: 'downtime_hours', k: '聚合', from: [['silver_fiix_offline_tracker', 'downtime_hours']], logic: 'SUM(downtime_hours) 按泵×月' },
-          { n: 'critical_flags', k: '聚合', from: [['silver_intelie_readings_flagged', 'any_critical_flag']], logic: 'SUM(any_critical_flag) 按泵×月' }
+          { n: 'critical_flags', k: '聚合', from: [['silver_iot_demo_readings_flagged', 'any_critical_flag']], logic: 'SUM(any_critical_flag) 按泵×月' }
         ]
       }
     };
 
     // 各加工节点的真实代码（SQL / Python），按产出表名索引；载入节点无代码、走参数
-    var NESR_NODE_CODE = {
-      'intelie_sensor_readings': `# NESR 数据接入 · Intelie 秒级聚合（Python 沙箱）
+    var 示例制造集团_NODE_CODE = {
+      'iot_demo_sensor_readings': `# 示例制造集团 数据接入 · 示例工业物联 秒级聚合（Python 沙箱）
 import pandas as pd
 
 # 从外部 MongoDB 拉秒级原始读数（增量按 datetime）
-df = mo.read_external('mongodb', 'intelie_prod.fleet_sensor_1s',
+df = mo.read_external('mongodb', 'iot_demo_prod.fleet_sensor_1s',
                       incremental_field='datetime')
 
 # 秒级 → 分钟级：截断到分钟后按 (pump, crew, datetime) 聚合
@@ -3605,9 +3606,9 @@ agg = (df.groupby(['pump', 'crew', 'datetime'])
               readings_in_minute=('datetime', 'size'))   # 质量指标：每分钟读数条数
          .reset_index())
 
-mo.write_table(agg, 'intelie_sensor_readings')           # 落 Bronze（分钟级）`,
+mo.write_table(agg, 'iot_demo_sensor_readings')           # 落 Bronze（分钟级）`,
 
-      'silver_intelie_readings_cleaned': `INSERT INTO silver_intelie_readings_cleaned
+      'silver_iot_demo_readings_cleaned': `INSERT INTO silver_iot_demo_readings_cleaned
 SELECT
   pump, crew, datetime, engine_rpm, pump_rate,
   COALESCE(
@@ -3617,10 +3618,10 @@ SELECT
   ) AS disch_pressure,                       -- NULL 用同泵滑动窗口均值填充
   engine_oil_pressure, engine_coolant_temp, lube_oil_pressure,
   engine_hours, pumping_hours, readings_in_minute
-FROM intelie_sensor_readings
+FROM iot_demo_sensor_readings
 WHERE readings_in_minute >= 3;               -- 过滤读数<3的噪声泵`,
 
-      'silver_intelie_readings_classified': `INSERT INTO silver_intelie_readings_classified
+      'silver_iot_demo_readings_classified': `INSERT INTO silver_iot_demo_readings_classified
 SELECT
   pump, crew, datetime, engine_rpm, pump_rate,
   CASE
@@ -3629,9 +3630,9 @@ SELECT
     WHEN engine_rpm =  0                      THEN 'OFF'
     ELSE 'UNKNOWN'
   END AS state
-FROM silver_intelie_readings_cleaned;`,
+FROM silver_iot_demo_readings_cleaned;`,
 
-      'silver_intelie_readings_flagged': `INSERT INTO silver_intelie_readings_flagged
+      'silver_iot_demo_readings_flagged': `INSERT INTO silver_iot_demo_readings_flagged
 SELECT
   c.pump, c.datetime, k.state,
   CASE WHEN c.engine_oil_pressure < 40   THEN 1 ELSE 0 END AS flag_low_oil_pressure,
@@ -3644,16 +3645,16 @@ SELECT
     CASE WHEN c.lube_oil_pressure   < 25   THEN 1 ELSE 0 END,
     CASE WHEN c.engine_rpm          > 1800 THEN 1 ELSE 0 END
   ) AS any_critical_flag
-FROM silver_intelie_readings_cleaned   c
-JOIN silver_intelie_readings_classified k
+FROM silver_iot_demo_readings_cleaned   c
+JOIN silver_iot_demo_readings_classified k
   ON c.pump = k.pump AND c.datetime = k.datetime;`,
 
-      'silver_intelie_sessions': `INSERT INTO silver_intelie_sessions
+      'silver_iot_demo_sessions': `INSERT INTO silver_iot_demo_sessions
 WITH marked AS (
   SELECT pump, crew, datetime, state,
     SUM(CASE WHEN state <> LAG(state) OVER w THEN 1 ELSE 0 END)
         OVER w AS session_id            -- 状态变化处 +1，累计成会话号
-  FROM silver_intelie_readings_classified
+  FROM silver_iot_demo_readings_classified
   WINDOW w AS (PARTITION BY pump ORDER BY datetime)
 )
 SELECT pump, crew, session_id,
@@ -3731,7 +3732,7 @@ WHERE e.dtm_date_completed IS NOT NULL;`,
 
       'gold_off_session_wo_match': `INSERT INTO gold_off_session_wo_match
 WITH off_sessions AS (
-  SELECT * FROM silver_intelie_sessions WHERE resolved_state = 'OFF'
+  SELECT * FROM silver_iot_demo_sessions WHERE resolved_state = 'OFF'
 )
 SELECT s.pump, s.session_id, s.session_start, s.session_end,
        s.duration_minutes AS off_duration_minutes,
@@ -3760,11 +3761,11 @@ SELECT s.pump, s.crew,
   SUM(e.is_planned)         AS planned_wo_count,
   SUM(ot.downtime_hours)    AS total_downtime_hours,
   SUM(fl.any_critical_flag) AS critical_flag_count
-FROM silver_intelie_sessions s
+FROM silver_iot_demo_sessions s
 LEFT JOIN silver_fiix_wo_assets            wa ON wa.hp_pump_code = s.pump
 LEFT JOIN silver_fiix_work_orders_enriched e  ON e.id = wa.work_order_id
 LEFT JOIN silver_fiix_offline_tracker      ot ON ot.hp_pump_code = s.pump
-LEFT JOIN silver_intelie_readings_flagged  fl ON fl.pump = s.pump
+LEFT JOIN silver_iot_demo_readings_flagged  fl ON fl.pump = s.pump
 GROUP BY s.pump, s.crew;`,
 
       'gold_monthly_pump_kpis': `INSERT INTO gold_monthly_pump_kpis
@@ -3779,11 +3780,11 @@ SELECT s.pump,
   SUM(e.is_planned)         AS planned_wo_count,
   SUM(ot.downtime_hours)    AS downtime_hours,
   SUM(fl.any_critical_flag) AS critical_flags
-FROM silver_intelie_sessions s
+FROM silver_iot_demo_sessions s
 LEFT JOIN silver_fiix_wo_assets            wa ON wa.hp_pump_code = s.pump
 LEFT JOIN silver_fiix_work_orders_enriched e  ON e.id = wa.work_order_id
 LEFT JOIN silver_fiix_offline_tracker      ot ON ot.hp_pump_code = s.pump
-LEFT JOIN silver_intelie_readings_flagged  fl ON fl.pump = s.pump
+LEFT JOIN silver_iot_demo_readings_flagged  fl ON fl.pump = s.pump
 GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
     };
 
@@ -3800,7 +3801,7 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
     }
 
     function renderLineageTab(node) {
-      if (!NESR_LINEAGE[node.name]) {
+      if (!示例制造集团_LINEAGE[node.name]) {
         return '<div style="text-align:center;padding:44px 20px;color:rgba(0,0,0,0.32)">'
           + '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" style="opacity:.5"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="12" r="2.4"/><circle cx="6" cy="18" r="2.4"/><path d="M8.4 6.6 15.6 11M8.2 17.2 15.6 13"/></svg>'
           + '<div style="font-size:13px;margin-top:10px">暂无血缘信息</div>'
@@ -3844,7 +3845,7 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
       function up(name, vis) {
         var tid = tnode(name);
         if (vis[name]) return tid; vis[name] = 1;
-        var e = NESR_LINEAGE[name]; if (!e) return tid;
+        var e = 示例制造集团_LINEAGE[name]; if (!e) return tid;
         if (e.src) {
           var sid = 's:' + name; nodes[sid] = { id: sid, type: 'source', name: e.src.object, connector: e.src.connector, logo: e.src.logo, via: e.src.via, forT: name };
           var nid = 'n:' + name; nodes[nid] = { id: nid, type: 'proc', name: e.node.name, wf: e.node.wf, ntype: e.node.type, forT: name };
@@ -3859,15 +3860,15 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
       function down(name, vis) {
         var tid = tnode(name);
         if (vis[name]) return tid; vis[name] = 1;
-        Object.keys(NESR_LINEAGE).forEach(function (cn) {
-          var ce = NESR_LINEAGE[cn];
+        Object.keys(示例制造集团_LINEAGE).forEach(function (cn) {
+          var ce = 示例制造集团_LINEAGE[cn];
           if (ce.inputs && ce.inputs.indexOf(name) >= 0) {
             var nid = 'n:' + cn; nodes[nid] = { id: nid, type: 'proc', name: ce.node.name, wf: ce.node.wf, ntype: ce.node.type, forT: cn };
             edges.push({ f: tid, t: nid });
             var cid = down(cn, vis); edges.push({ f: nid, t: cid });
           }
         });
-        var e = NESR_LINEAGE[name];
+        var e = 示例制造集团_LINEAGE[name];
         if (e && e.consumers) { e.consumers.forEach(function (c, i) { var cid = 'c:' + name + ':' + i; nodes[cid] = { id: cid, type: c.kind, name: c.name }; edges.push({ f: tid, t: cid }); }); }
         return tid;
       }
@@ -3974,8 +3975,8 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
     }
     // 点表节点：这张表每一列怎么来的
     function renderLinTablePanel(name) {
-      if (!NESR_LINEAGE[name]) return '';
-      var e = NESR_LINEAGE[name], tn = linFindTable(name);
+      if (!示例制造集团_LINEAGE[name]) return '';
+      var e = 示例制造集团_LINEAGE[name], tn = linFindTable(name);
       var rowsTxt = (tn && tn.rowCount != null) ? (' <span style="font-size:12px;color:rgba(0,0,0,0.35);font-weight:400">· ' + tn.rowCount.toLocaleString() + ' 行</span>') : '';
       var html = '<div class="lin-panel"><div class="lin-phead"><div class="pt">' + escHtml(name) + rowsTxt + '</div>';
       if (e.src) {
@@ -4005,8 +4006,8 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
     }
     // 点加工节点：这个节点做了什么处理（工作流 + 处理逻辑）
     function renderLinProcPanel(name) {
-      var e = NESR_LINEAGE[name]; if (!e) return '';
-      var nd = e.node, code = NESR_NODE_CODE[name];
+      var e = 示例制造集团_LINEAGE[name]; if (!e) return '';
+      var nd = e.node, code = 示例制造集团_NODE_CODE[name];
       var html = '<div class="lin-panel"><div class="lin-phead"><div class="pt">' + escHtml(nd.name) + ' <span class="lin-kbadge" style="background:#eef0f4;color:rgba(0,0,0,0.5)">' + escHtml(nd.type) + '</span> <span style="font-size:12px;color:rgba(0,0,0,0.3);font-weight:400">加工节点</span></div>';
       var ioFrom;
       if (e.src) { ioFrom = '<code>' + escHtml(e.src.connector) + ' / ' + escHtml(e.src.object) + '</code> <span style="color:rgba(0,0,0,0.4)">（外部源）</span>'; }
@@ -4032,7 +4033,7 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
     }
     // 点源节点：链路源头
     function renderLinSourcePanel(name) {
-      var e = NESR_LINEAGE[name]; if (!e || !e.src) return renderLinTablePanel(name);
+      var e = 示例制造集团_LINEAGE[name]; if (!e || !e.src) return renderLinTablePanel(name);
       var s = e.src;
       var html = '<div class="lin-panel"><div class="lin-phead"><div class="pt">' + escHtml(s.object) + ' <span class="lin-kbadge" style="background:#eef0f4;color:rgba(0,0,0,0.5)">外部源</span></div>';
       html += '<div class="pm">连接器 <code>' + escHtml(s.connector) + '</code>' + (s.via ? (' · 接入方式：' + escHtml(s.via)) : '')
@@ -4043,7 +4044,7 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
     // 点消费端：知识库 / 出仓
     function renderLinConsumerPanel(rest) {
       var p = rest.split(':'), tname = p[0], idx = +p[1];
-      var e = NESR_LINEAGE[tname]; if (!e || !e.consumers || !e.consumers[idx]) return '';
+      var e = 示例制造集团_LINEAGE[tname]; if (!e || !e.consumers || !e.consumers[idx]) return '';
       var c = e.consumers[idx];
       var html = '<div class="lin-panel"><div class="lin-phead"><div class="pt">' + escHtml(c.name) + ' <span class="lin-kbadge" style="background:#eef0f4;color:rgba(0,0,0,0.5)">' + (c.kind === 'kb' ? '知识库' : '出仓 / 下游') + '</span></div>';
       html += '<div class="pm">消费 <code>' + escHtml(tname) + '</code> 的数据' + (c.kind === 'kb' ? '（封装为知识库供智能体检索）' : '（导出到下游数据平台）') + '</div></div></div>';
@@ -4117,7 +4118,7 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
       var pg = _dlPage(docLinPage), sel = _dlChunk(docLinChunk), hlset = {};
       if (sel) sel.from.forEach(function (b) { hlset[b] = 1; });
       var noiseSel = (typeof docLinChunk === 'string' && docLinChunk.indexOf('noise:') === 0) ? docLinChunk.slice(6) : null;
-      h += '<div class="doclin-pagewrap"><div class="doclin-page"><div class="doclin-pagehd">矩阵起源产品介绍2026.pptx — 第 ' + docLinPage + ' / 33 页</div>';
+      h += '<div class="doclin-pagewrap"><div class="doclin-page"><div class="doclin-pagehd">MOI产品介绍2026.pptx — 第 ' + docLinPage + ' / 33 页</div>';
       pg.blocks.forEach(function (b) {
         var cls = 'doclin-block k-' + b.kind + ((hlset[b.id] || b.id === noiseSel) ? ' hl' : '') + (b.noise ? ' noise' : '');
         h += '<div class="' + cls + '" onclick="dlSelBlock(\'' + b.id + '\')"><span class="bk-kind">' + escHtml(b.kind) + (b.noise ? ' · 噪声' : '') + '</span><span class="bk-text">' + escHtml(b.text) + '</span></div>';
@@ -4277,7 +4278,7 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
       { id: 'cr-gpu', label: 'GPU 推理型', desc: 'GPU · 弹性 1~2 节点 · 空闲 10 分钟自动暂停' },
       { id: 'cr-resident', label: '常驻服务资源', desc: 'CPU · 固定 1 节点 · 不自动暂停、零冷启动' }
     ];
-    var PAPI_RESULT_STORES = ['原始数据库.api_results（表）', 'SILVER_INTELIE.processed（表）', 'docs（卷）'];
+    var PAPI_RESULT_STORES = ['原始数据库.api_results（表）', 'SILVER_IOT_DEMO.processed（表）', 'docs（卷）'];
     var opDetailTab = 'api', apiDocTab = 'example', _opDetailNodeId = null;
     function switchOpTab(tab, id) { opDetailTab = tab; renderDetail(id); }
     function switchApiDocTab(tab, id) { apiDocTab = tab; renderDetail(id); }
@@ -4304,9 +4305,9 @@ GROUP BY s.pump, DATE_TRUNC('month', s.session_start);`
       return '<div class="info-item"' + (full ? ' style="grid-column:1/-1"' : '') + '><span class="info-label">' + label + '</span><span class="info-value">' + escHtml(val == null ? '-' : String(val)) + '</span></div>';
     }
     function papiKey() { return 'sk-op-' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 8); }
-    function papiEndpoint(id) { return 'https://api.matrixorigin.cn/v1/operators/op_' + id + ':invoke'; }
+    function papiEndpoint(id) { return 'https://api.moi-demo.cn/v1/operators/op_' + id + ':invoke'; }
     function papiToday() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return ''; } }
-    var PAPI_AUTH_LABEL = { apikey: 'API Key（Genesis 密钥）', oauth: 'OAuth 2.0', public: '公开访问（无认证）' };
+    var PAPI_AUTH_LABEL = { apikey: 'API Key（MOI 服务密钥）', oauth: 'OAuth 2.0', public: '公开访问（无认证）' };
     function papiCurl(node, s) {
       var auth = (s.auth === 'public') ? ''
         : (s.auth === 'oauth') ? '  -H "Authorization: Bearer $OAUTH_ACCESS_TOKEN" \\\n'

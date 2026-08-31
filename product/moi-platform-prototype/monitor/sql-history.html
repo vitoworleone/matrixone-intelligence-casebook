@@ -420,8 +420,8 @@
         { sql:"prepare __mo_stmt_id_3 from SELECT * FROM `system`.`statement_info`", db:'system', us:725, rows:0, bytes:0, result:0, cu:0 },
         { sql:"use `mo_sample_data_tpch_sf1`", db:'', us:232200, rows:0, bytes:0, result:0, cu:0 },
         { sql:"CREATE DATABASE mo_sample_data_tpch_sf1 FROM sys PUBLICATION mo_sample_pub", db:'', us:133500, rows:0, bytes:0, result:0, cu:6, type:'DDL' },
-        { sql:"use `lisong_tpch_sf1`", db:'', us:63100, rows:0, bytes:0, result:0, cu:0 },
-        { sql:"INSERT INTO orders SELECT * FROM staging_orders WHERE o_orderdate >= '2026-01-01'", db:'lisong_tpch_sf1', us:1240000, rows:150000, bytes:42000000, result:0, cu:42, type:'DML' },
+        { sql:"use `demo_user_01_tpch_sf1`", db:'', us:63100, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"INSERT INTO orders SELECT * FROM staging_orders WHERE o_orderdate >= '2026-01-01'", db:'demo_user_01_tpch_sf1', us:1240000, rows:150000, bytes:42000000, result:0, cu:42, type:'DML' },
         { sql:"SELECT l_returnflag, l_linestatus, sum(l_quantity) AS sum_qty, avg(l_discount)\nFROM lineitem\nWHERE l_shipdate <= date '1998-12-01'\nGROUP BY l_returnflag, l_linestatus\nORDER BY l_returnflag, l_linestatus", db:'tpch_sf10', us:8420000, rows:59986052, bytes:1610000000, result:4, cu:512, plan:TPCH_PLAN, result_data:SAMPLE_RESULT }
       ];
       function statusFor(i){ if (i===3) return 'failed'; if (i===17) return 'running'; return 'success'; }

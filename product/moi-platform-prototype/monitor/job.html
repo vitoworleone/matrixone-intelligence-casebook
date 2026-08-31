@@ -323,7 +323,7 @@
         src: { brand: 'postgresql', text: 'user_center（5 张表）' }, dst: { kind: 'catalog', text: '默认目录/原始数据库' },
         status: 'success', done: 5, total: 5, unit: '表', trigger: '手动', start: '2026-07-13 11:40:08', durSec: 312 },
       { id: '0199a2b0-90dd', type: 'exp',  name: '销售日汇总导出', branch: null,
-        src: { kind: 'catalog', text: 'NESR-湖仓项目/Gold/销售日汇总' }, dst: { brand: 'amazons3', text: 's3://bi-report/sales/daily/' },
+        src: { kind: 'catalog', text: '示例制造数据项目/Gold/销售日汇总' }, dst: { brand: 'amazons3', text: 's3://bi-report/sales/daily/' },
         status: 'success', done: 1, total: 1, unit: '表', trigger: '定时', start: '2026-07-13 06:00:00', durSec: 95 },
       { id: '0199a1f6-3c07', type: 'wf',   name: '产品手册知识加工', branch: '主要',
         src: { kind: 'volume', text: '默认目录/原始数据库/产品手册卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/manual_chunks' },
@@ -347,13 +347,13 @@
         src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' },
         status: 'success', done: 152000, total: 152000, unit: '行', trigger: '增量同步', start: '2026-07-12 15:00:09', durSec: 210 },
       { id: '01999cf0-77b2', type: 'exp',  name: '客户标签导出 OSS', branch: null,
-        src: { kind: 'catalog', text: 'NESR-湖仓项目/Gold/客户标签' }, dst: { brand: 'alibabacloud', text: 'oss://crm-sync/tags/' },
+        src: { kind: 'catalog', text: '示例制造数据项目/Gold/客户标签' }, dst: { brand: 'alibabacloud', text: 'oss://crm-sync/tags/' },
         status: 'success', done: 1, total: 1, unit: '表', trigger: '定时', start: '2026-07-10 06:00:00', durSec: 88 },
       { id: '01999cd8-31e6', type: 'wf',   name: '合同信息提取', branch: '主要',
         src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' },
         status: 'success', done: 12, total: 12, unit: '文件', trigger: '手动', start: '2026-07-08 14:48:13', durSec: 428 },
       { id: '01999b02-c4d8', type: 'load', name: '设备台账载入', branch: null,
-        src: { brand: 'mongodb', text: 'asset_db.devices' }, dst: { kind: 'catalog', text: 'NESR-湖仓项目/Bronze/devices' },
+        src: { brand: 'mongodb', text: 'asset_db.devices' }, dst: { kind: 'catalog', text: '示例制造数据项目/Bronze/devices' },
         status: 'canceled', done: 0, total: 1, unit: '表', trigger: '手动', start: '2026-07-08 10:15:00', durSec: 12 }
     ];
 

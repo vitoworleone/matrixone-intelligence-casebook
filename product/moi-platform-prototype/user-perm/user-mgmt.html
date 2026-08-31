@@ -220,7 +220,7 @@
       if (!roles.length) { alert('请至少选择一个预设角色'); return; }
       var days = document.getElementById('cuLinkExpire').value;
       var token = 'inv_' + Math.random().toString(36).slice(2, 10);
-      document.getElementById('cuLinkUrl').value = 'https://moi.matrixorigin.cn/invite/default-ws?token=' + token;
+      document.getElementById('cuLinkUrl').value = 'https://moi.moi-demo.cn/invite/default-ws?token=' + token;
       document.getElementById('cuLinkMeta').textContent = '预设角色：' + roles.join('、') + ' · ' + (days === '0' ? '永久有效' : days + ' 天内有效') + ' · 可随时在成员管理中作废';
       document.getElementById('cuLinkResult').style.display = '';
     }
@@ -290,11 +290,11 @@
     }
 
     var users = [
-      {id:1, name:'lisong', account:'lisong@matrixorigin.cn', status:'normal', roles:['超级管理员'], defaultRole:'超级管理员', created:'2025-01-15 10:00:00', remark:'系统管理员'},
-      {id:2, name:'chenwei', account:'chenwei@matrixorigin.cn', status:'normal', roles:['工作区管理员','数据开发者'], defaultRole:'工作区管理员', created:'2025-02-20 14:30:00', remark:'技术负责人'},
-      {id:3, name:'wangwu', account:'138****5678', status:'normal', roles:['数据开发者','只读成员'], defaultRole:'数据开发者', created:'2025-03-05 09:15:00', remark:'数据工程师'},
-      {id:4, name:'zhangsan', account:'zhangsan', status:'normal', roles:['智能体开发者','数据开发者','只读成员'], defaultRole:'智能体开发者', created:'2025-03-10 16:45:00', remark:'AI 应用开发'},
-      {id:5, name:'lisi', account:'lisi@example.com', status:'disabled', roles:['只读成员'], defaultRole:'只读成员', created:'2025-03-18 11:00:00', remark:'实习生（已离职）'}
+      {id:1, name:'demo_user_01', account:'公开演示环境', status:'normal', roles:['超级管理员'], defaultRole:'超级管理员', created:'2025-01-15 10:00:00', remark:'系统管理员'},
+      {id:2, name:'demo_user_02', account:'公开演示环境', status:'normal', roles:['工作区管理员','数据开发者'], defaultRole:'工作区管理员', created:'2025-02-20 14:30:00', remark:'技术负责人'},
+      {id:3, name:'demo_user_03', account:'138****5678', status:'normal', roles:['数据开发者','只读成员'], defaultRole:'数据开发者', created:'2025-03-05 09:15:00', remark:'数据工程师'},
+      {id:4, name:'demo_user_04', account:'demo_user_04', status:'normal', roles:['智能体开发者','数据开发者','只读成员'], defaultRole:'智能体开发者', created:'2025-03-10 16:45:00', remark:'AI 应用开发'},
+      {id:5, name:'demo_user_05', account:'公开演示环境', status:'disabled', roles:['只读成员'], defaultRole:'只读成员', created:'2025-03-18 11:00:00', remark:'实习生（已离职）'}
     ];
     var allRoles = ['超级管理员','工作区管理员','数据开发者','智能体开发者','只读成员'];
 

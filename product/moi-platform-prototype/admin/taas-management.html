@@ -146,11 +146,11 @@
           <div style="background:#fff;border-radius:8px;border:1px solid #f0f0f0;padding:18px 20px">
             <div style="font-size:14px;font-weight:600;margin-bottom:14px">用户请求 Top 5</div>
             <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
-              <div style="display:flex;justify-content:space-between"><span>陈工</span><span style="font-weight:600">4,280</span></div>
-              <div style="display:flex;justify-content:space-between"><span>刘运营</span><span style="font-weight:600">3,150</span></div>
-              <div style="display:flex;justify-content:space-between"><span>林渠道</span><span style="font-weight:600">2,680</span></div>
-              <div style="display:flex;justify-content:space-between"><span>David Chen</span><span style="font-weight:600">1,520</span></div>
-              <div style="display:flex;justify-content:space-between"><span>黄财务</span><span style="font-weight:600">1,217</span></div>
+              <div style="display:flex;justify-content:space-between"><span>演示管理员 A</span><span style="font-weight:600">4,280</span></div>
+              <div style="display:flex;justify-content:space-between"><span>演示用户乙</span><span style="font-weight:600">3,150</span></div>
+              <div style="display:flex;justify-content:space-between"><span>演示用户己</span><span style="font-weight:600">2,680</span></div>
+              <div style="display:flex;justify-content:space-between"><span>Demo User D</span><span style="font-weight:600">1,520</span></div>
+              <div style="display:flex;justify-content:space-between"><span>演示运营 A</span><span style="font-weight:600">1,217</span></div>
             </div>
           </div>
         </div>
@@ -164,9 +164,9 @@
           <table class="admin-table" style="border:none;border-radius:0;font-size:13px">
             <thead><tr><th>时间</th><th>用户</th><th>模型</th><th>渠道</th><th>耗时</th><th>状态</th><th>错误摘要</th></tr></thead>
             <tbody>
-              <tr><td style="color:rgba(0,0,0,0.55)">09:40:48</td><td>陈工</td><td><strong>gpt-4o</strong></td><td>OpenAI</td><td>5.0s</td><td style="color:#faad14">超时</td><td style="font-size:12px;color:rgba(0,0,0,0.45)">Gateway Timeout</td></tr>
-              <tr><td style="color:rgba(0,0,0,0.55)">09:37:10</td><td>林渠道</td><td><strong>qwen-plus</strong></td><td>阿里云</td><td>1.1s</td><td style="color:#ff4d4f">失败</td><td style="font-size:12px;color:rgba(0,0,0,0.45)">Input exceeds maximum token limit</td></tr>
-              <tr><td style="color:rgba(0,0,0,0.55)">09:25:00</td><td>陈工</td><td><strong>qwen-max</strong></td><td>阿里云</td><td>2.5s</td><td style="color:#ff4d4f">失败</td><td style="font-size:12px;color:rgba(0,0,0,0.45)">Rate limit exceeded (RPM: 102/100)</td></tr>
+              <tr><td style="color:rgba(0,0,0,0.55)">09:40:48</td><td>演示管理员 A</td><td><strong>gpt-4o</strong></td><td>OpenAI</td><td>5.0s</td><td style="color:#faad14">超时</td><td style="font-size:12px;color:rgba(0,0,0,0.45)">Gateway Timeout</td></tr>
+              <tr><td style="color:rgba(0,0,0,0.55)">09:37:10</td><td>演示用户己</td><td><strong>qwen-plus</strong></td><td>阿里云</td><td>1.1s</td><td style="color:#ff4d4f">失败</td><td style="font-size:12px;color:rgba(0,0,0,0.45)">Input exceeds maximum token limit</td></tr>
+              <tr><td style="color:rgba(0,0,0,0.55)">09:25:00</td><td>演示管理员 A</td><td><strong>qwen-max</strong></td><td>阿里云</td><td>2.5s</td><td style="color:#ff4d4f">失败</td><td style="font-size:12px;color:rgba(0,0,0,0.45)">Rate limit exceeded (RPM: 102/100)</td></tr>
             </tbody>
           </table>
         </div>
@@ -317,11 +317,11 @@
           </select>
           <select id="tkUserFilter" onchange="renderTokens()" style="padding:6px 10px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-size:13px;outline:none;background:#fff">
             <option value="all">全部用户</option>
-            <option value="陈工">陈工</option>
-            <option value="刘运营">刘运营</option>
-            <option value="林渠道">林渠道</option>
-            <option value="吴测试">吴测试</option>
-            <option value="David Chen">David Chen</option>
+            <option value="演示管理员 A">演示管理员 A</option>
+            <option value="演示用户乙">演示用户乙</option>
+            <option value="演示用户己">演示用户己</option>
+            <option value="演示测试 A">演示测试 A</option>
+            <option value="Demo User D">Demo User D</option>
           </select>
           <span style="font-size:12px;color:rgba(0,0,0,0.3);margin-left:auto;align-self:center" id="tkCount"></span>
         </div>
@@ -3295,27 +3295,27 @@
     // 其余类型（ocr/image/video/tts/asr）按各自单位（页/张/秒/万字符/分钟）记录在 otherUsage
     // Credit / ¥ 比例：10 Credit = ¥1
     var usageByUser = [
-      {name:'陈工',     req:42100,token:'29.1M',tInRegular:'8.8M', tCacheCreate:'2.5M', tCacheHit:'8.2M', tOut:'9.6M', cacheRate:42, credit:2050,upstream:'30.2M',
+      {name:'演示管理员 A',     req:42100,token:'29.1M',tInRegular:'8.8M', tCacheCreate:'2.5M', tCacheHit:'8.2M', tOut:'9.6M', cacheRate:42, credit:2050,upstream:'30.2M',
         otherUsage:{ ocr:'128 页', image:'42 张', video:'85 秒', tts:'1.85 万字符', asr:'12 分钟' }},
-      {name:'刘运营',   req:21500,token:'12.5M',tInRegular:'4.0M', tCacheCreate:'1.1M', tCacheHit:'3.1M', tOut:'4.3M', cacheRate:38, credit:785, upstream:'13.0M',
+      {name:'演示用户乙',   req:21500,token:'12.5M',tInRegular:'4.0M', tCacheCreate:'1.1M', tCacheHit:'3.1M', tOut:'4.3M', cacheRate:38, credit:785, upstream:'13.0M',
         otherUsage:{ image:'18 张', tts:'0.62 万字符' }},
-      {name:'林渠道',   req:15800,token:'6.7M', tInRegular:'1.9M', tCacheCreate:'0.6M', tCacheHit:'2.0M', tOut:'2.2M', cacheRate:45, credit:530, upstream:'7.0M',
+      {name:'演示用户己',   req:15800,token:'6.7M', tInRegular:'1.9M', tCacheCreate:'0.6M', tCacheHit:'2.0M', tOut:'2.2M', cacheRate:45, credit:530, upstream:'7.0M',
         otherUsage:{ ocr:'56 页' }},
-      {name:'David Chen',req:7200,token:'2.8M', tInRegular:'1.05M',tCacheCreate:'0.25M',tCacheHit:'0.6M', tOut:'0.9M', cacheRate:32, credit:192, upstream:'2.9M',
+      {name:'Demo User D',req:7200,token:'2.8M', tInRegular:'1.05M',tCacheCreate:'0.25M',tCacheHit:'0.6M', tOut:'0.9M', cacheRate:32, credit:192, upstream:'2.9M',
         otherUsage:{ asr:'45 分钟' }},
-      {name:'黄财务',   req:2600, token:'0.7M', tInRegular:'0.25M',tCacheCreate:'0.07M',tCacheHit:'0.18M',tOut:'0.2M', cacheRate:36, credit:77,  upstream:'0.7M',
+      {name:'演示运营 A',   req:2600, token:'0.7M', tInRegular:'0.25M',tCacheCreate:'0.07M',tCacheHit:'0.18M',tOut:'0.2M', cacheRate:36, credit:77,  upstream:'0.7M',
         otherUsage:{ ocr:'320 页' }},
-      {name:'吴测试',   req:1200, token:'0.3M', tInRegular:'0.12M',tCacheCreate:'0.03M',tCacheHit:'0.05M',tOut:'0.1M', cacheRate:25, credit:32,  upstream:'0.3M',
+      {name:'演示测试 A',   req:1200, token:'0.3M', tInRegular:'0.12M',tCacheCreate:'0.03M',tCacheHit:'0.05M',tOut:'0.1M', cacheRate:25, credit:32,  upstream:'0.3M',
         otherUsage:{ image:'5 张', video:'8 秒' }},
-      {name:'周八',     req:800,  token:'0.2M', tInRegular:'0.08M',tCacheCreate:'0.02M',tCacheHit:'0.04M',tOut:'0.06M',cacheRate:29, credit:23,  upstream:'0.2M',
+      {name:'演示用户戊',     req:800,  token:'0.2M', tInRegular:'0.08M',tCacheCreate:'0.02M',tCacheHit:'0.04M',tOut:'0.06M',cacheRate:29, credit:23,  upstream:'0.2M',
         otherUsage:{}},
-      {name:'赵六',     req:450,  token:'0.1M', tInRegular:'0.04M',tCacheCreate:'0.01M',tCacheHit:'0.02M',tOut:'0.03M',cacheRate:28, credit:12,  upstream:'0.1M',
+      {name:'演示用户己',     req:450,  token:'0.1M', tInRegular:'0.04M',tCacheCreate:'0.01M',tCacheHit:'0.02M',tOut:'0.03M',cacheRate:28, credit:12,  upstream:'0.1M',
         otherUsage:{}},
-      {name:'孙七',     req:320,  token:'0.08M',tInRegular:'0.037M',tCacheCreate:'0.008M',tCacheHit:'0.015M',tOut:'0.02M',cacheRate:25,credit:8,   upstream:'0.08M',
+      {name:'演示用户庚',     req:320,  token:'0.08M',tInRegular:'0.037M',tCacheCreate:'0.008M',tCacheHit:'0.015M',tOut:'0.02M',cacheRate:25,credit:8,   upstream:'0.08M',
         otherUsage:{}},
-      {name:'王五',     req:180,  token:'0.04M',tInRegular:'0.022M',tCacheCreate:'0.003M',tCacheHit:'0.005M',tOut:'0.01M',cacheRate:17,credit:5,   upstream:'0.04M',
+      {name:'演示用户辛',     req:180,  token:'0.04M',tInRegular:'0.022M',tCacheCreate:'0.003M',tCacheHit:'0.005M',tOut:'0.01M',cacheRate:17,credit:5,   upstream:'0.04M',
         otherUsage:{ tts:'0.15 万字符' }},
-      {name:'张三',     req:50,   token:'0.01M',tInRegular:'0.008M',tCacheCreate:'0',   tCacheHit:'0',   tOut:'0.002M',cacheRate:0,  credit:2,   upstream:'0.01M',
+      {name:'演示用户壬',     req:50,   token:'0.01M',tInRegular:'0.008M',tCacheCreate:'0',   tCacheHit:'0',   tOut:'0.002M',cacheRate:0,  credit:2,   upstream:'0.01M',
         otherUsage:{}}
     ];
     var usageByChannel = [
@@ -3523,54 +3523,54 @@
     // Data: upstream changed to upstreams[] array — one user request can trigger multiple upstream calls
     // Some entries have multiple upstreams (e.g. fallback, parallel embedding+chat)
     var adminLogsData = [
-      {id:'AL01',time:'2026-04-25 09:42:18',user:'陈工',model:'qwen-max',channel:'阿里云',key:'默认密钥',tIn:1245,tOut:386,tCache:120,latency:2.1,status:'成功',source:'10.0.1.52',
+      {id:'AL01',time:'2026-04-25 09:42:18',user:'演示管理员 A',model:'qwen-max',channel:'阿里云',key:'默认密钥',tIn:1245,tOut:386,tCache:120,latency:2.1,status:'成功',source:'10.0.1.52',
         upstreams:[
           {id:'UP01-1',channel:'阿里云',model:'qwen-max',tIn:1245,tOut:386,tCache:120,latency:1.8,status:200,reqBody:'{"model":"qwen-max","messages":[{"role":"user","content":"帮我总结报告"}],"temperature":0.7}',resBody:'{"choices":[{"message":{"content":"根据报告内容……"}}],"usage":{"prompt_tokens":1245,"completion_tokens":386}}'}
         ],
         userReq:{tIn:1245,tOut:386,tCache:120,latency:2.1,status:200,reqBody:'{"model":"qwen-max","messages":[{"role":"user","content":"帮我总结报告"}],"temperature":0.7}',resBody:'{"choices":[{"message":{"content":"根据报告内容……"}}],"usage":{"prompt_tokens":1245,"completion_tokens":386}}'}},
-      {id:'AL02',time:'2026-04-25 09:41:55',user:'刘运营',model:'deepseek-chat',channel:'DeepSeek',key:'数据分析',tIn:892,tOut:1024,tCache:0,latency:3.4,status:'成功',source:'10.0.1.52',
+      {id:'AL02',time:'2026-04-25 09:41:55',user:'演示用户乙',model:'deepseek-chat',channel:'DeepSeek',key:'数据分析',tIn:892,tOut:1024,tCache:0,latency:3.4,status:'成功',source:'10.0.1.52',
         upstreams:[
           {id:'UP02-1',channel:'DeepSeek',model:'deepseek-chat',tIn:892,tOut:1024,tCache:0,latency:3.1,status:200,reqBody:'{"model":"deepseek-chat","messages":[{"role":"user","content":"写一个快排"}]}',resBody:'{"choices":[{"message":{"content":"def quicksort..."}}],"usage":{"prompt_tokens":892,"completion_tokens":1024}}'}
         ],
         userReq:{tIn:892,tOut:1024,tCache:0,latency:3.4,status:200,reqBody:'{"model":"deepseek-chat","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}},
-      {id:'AL03',time:'2026-04-25 09:40:48',user:'陈工',model:'gpt-4o',channel:'OpenAI',key:'默认密钥',tIn:3200,tOut:0,tCache:0,latency:5.0,status:'超时',source:'10.0.1.52',
+      {id:'AL03',time:'2026-04-25 09:40:48',user:'演示管理员 A',model:'gpt-4o',channel:'OpenAI',key:'默认密钥',tIn:3200,tOut:0,tCache:0,latency:5.0,status:'超时',source:'10.0.1.52',
         upstreams:[
           {id:'UP03-1',channel:'OpenAI',model:'gpt-4o',tIn:3200,tOut:0,tCache:0,latency:5.0,status:504,reqBody:'{"model":"gpt-4o","messages":[{"role":"user","content":"分析图片"}]}',resBody:'Gateway Timeout'}
         ],
         userReq:{tIn:3200,tOut:0,tCache:0,latency:5.0,status:504,reqBody:'{"model":"gpt-4o","messages":[...]}',resBody:'{"error":{"message":"Request timeout after 5000ms"}}'}},
-      {id:'AL04',time:'2026-04-25 09:40:12',user:'林渠道',model:'qwen-max',channel:'阿里云',key:'NESR 专用',tIn:1800,tOut:645,tCache:210,latency:1.8,status:'成功',source:'10.0.2.18',
+      {id:'AL04',time:'2026-04-25 09:40:12',user:'演示用户己',model:'qwen-max',channel:'阿里云',key:'示例制造集团 专用',tIn:1800,tOut:645,tCache:210,latency:1.8,status:'成功',source:'10.0.2.18',
         upstreams:[
           {id:'UP04-1',channel:'阿里云',model:'qwen-max',tIn:1800,tOut:645,tCache:210,latency:1.5,status:200,reqBody:'{"model":"qwen-max","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}
         ],
         userReq:{tIn:1800,tOut:645,tCache:210,latency:1.8,status:200,reqBody:'{"model":"qwen-max","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}},
-      {id:'AL05',time:'2026-04-25 09:37:10',user:'林渠道',model:'qwen-plus',channel:'阿里云',key:'NESR 专用',tIn:4200,tOut:0,tCache:0,latency:1.1,status:'失败',source:'10.0.2.18',
+      {id:'AL05',time:'2026-04-25 09:37:10',user:'演示用户己',model:'qwen-plus',channel:'阿里云',key:'示例制造集团 专用',tIn:4200,tOut:0,tCache:0,latency:1.1,status:'失败',source:'10.0.2.18',
         upstreams:[
           {id:'UP05-1',channel:'阿里云',model:'qwen-plus',tIn:4200,tOut:0,tCache:0,latency:0.8,status:400,reqBody:'{"model":"qwen-plus","messages":[...50条……]}',resBody:'{"error":{"message":"Input exceeds maximum token limit","code":"invalid_request_error"}}'}
         ],
         userReq:{tIn:4200,tOut:0,tCache:0,latency:1.1,status:400,reqBody:'{"model":"qwen-plus","messages":[...]}',resBody:'{"error":{"message":"Error 400: Input exceeds maximum token limit"}}'}},
-      {id:'AL06',time:'2026-04-25 09:36:05',user:'陈工',model:'bge-large-zh',channel:'阿里云',key:'默认密钥',tIn:256,tOut:0,tCache:0,latency:0.3,status:'成功',source:'10.0.1.52',
+      {id:'AL06',time:'2026-04-25 09:36:05',user:'演示管理员 A',model:'bge-large-zh',channel:'阿里云',key:'默认密钥',tIn:256,tOut:0,tCache:0,latency:0.3,status:'成功',source:'10.0.1.52',
         upstreams:[
           {id:'UP06-1',channel:'阿里云',model:'bge-large-zh',tIn:256,tOut:0,tCache:0,latency:0.2,status:200,reqBody:'{"model":"bge-large-zh","input":"设备可靠性分析"}',resBody:'{"data":[{"embedding":[0.012,...]}],"usage":{"prompt_tokens":256}}'}
         ],
         userReq:{tIn:256,tOut:0,tCache:0,latency:0.3,status:200,reqBody:'{"model":"bge-large-zh","input":"设备可靠性分析"}',resBody:'{"data":[{"embedding":[...]}],"usage":{...}}'}},
-      {id:'AL07',time:'2026-04-25 09:35:40',user:'David Chen',model:'qwen-max',channel:'阿里云',key:'外部合作',tIn:2400,tOut:780,tCache:180,latency:2.4,status:'成功',source:'10.0.3.7',
+      {id:'AL07',time:'2026-04-25 09:35:40',user:'Demo User D',model:'qwen-max',channel:'阿里云',key:'外部合作',tIn:2400,tOut:780,tCache:180,latency:2.4,status:'成功',source:'10.0.3.7',
         upstreams:[
           {id:'UP07-1',channel:'阿里云',model:'qwen-max',tIn:2400,tOut:780,tCache:180,latency:2.0,status:200,reqBody:'{"model":"qwen-max","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}
         ],
         userReq:{tIn:2400,tOut:780,tCache:180,latency:2.4,status:200,reqBody:'{"model":"qwen-max","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}},
-      {id:'AL08',time:'2026-04-25 09:34:18',user:'刘运营',model:'deepseek-chat',channel:'DeepSeek',key:'数据分析',tIn:1100,tOut:650,tCache:0,latency:2.2,status:'成功',source:'10.0.1.52',
+      {id:'AL08',time:'2026-04-25 09:34:18',user:'演示用户乙',model:'deepseek-chat',channel:'DeepSeek',key:'数据分析',tIn:1100,tOut:650,tCache:0,latency:2.2,status:'成功',source:'10.0.1.52',
         upstreams:[
           {id:'UP08-1',channel:'DeepSeek',model:'deepseek-chat',tIn:1100,tOut:650,tCache:0,latency:1.9,status:200,reqBody:'{"model":"deepseek-chat","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}
         ],
         userReq:{tIn:1100,tOut:650,tCache:0,latency:2.2,status:200,reqBody:'{"model":"deepseek-chat","messages":[...]}',resBody:'{"choices":[...],"usage":{...}}'}},
       // Multi-upstream examples: one user request triggers multiple upstream calls
-      {id:'AL09',time:'2026-04-25 09:33:02',user:'陈工',model:'qwen-max',channel:'阿里云',key:'默认密钥',tIn:1800,tOut:920,tCache:0,latency:4.8,status:'成功',source:'10.0.1.52',
+      {id:'AL09',time:'2026-04-25 09:33:02',user:'演示管理员 A',model:'qwen-max',channel:'阿里云',key:'默认密钥',tIn:1800,tOut:920,tCache:0,latency:4.8,status:'成功',source:'10.0.1.52',
         upstreams:[
           {id:'UP09-1',channel:'阿里云',model:'bge-large-zh',tIn:128,tOut:0,tCache:0,latency:0.3,status:200,reqBody:'{"model":"bge-large-zh","input":"知识库检索: 设备维护手册"}',resBody:'{"data":[{"embedding":[0.023,...]}],"usage":{"prompt_tokens":128}}'},
           {id:'UP09-2',channel:'阿里云',model:'qwen-max',tIn:1800,tOut:920,tCache:0,latency:3.2,status:200,reqBody:'{"model":"qwen-max","messages":[{"role":"system","content":"基于以下知识库内容回答……"},{"role":"user","content":"设备维护周期是多少？"}]}',resBody:'{"choices":[{"message":{"content":"根据维护手册，设备维护周期为……"}}],"usage":{"prompt_tokens":1800,"completion_tokens":920}}'}
         ],
         userReq:{tIn:1800,tOut:920,tCache:0,latency:4.8,status:200,reqBody:'{"model":"qwen-max","messages":[{"role":"user","content":"设备维护周期是多少？"}]}',resBody:'{"choices":[{"message":{"content":"根据维护手册，设备维护周期为……"}}],"usage":{"prompt_tokens":1800,"completion_tokens":920}}'}},
-      {id:'AL10',time:'2026-04-25 09:31:15',user:'林渠道',model:'qwen-max',channel:'阿里云',key:'NESR 专用',tIn:2200,tOut:1100,tCache:0,latency:6.2,status:'成功',source:'10.0.2.18',
+      {id:'AL10',time:'2026-04-25 09:31:15',user:'演示用户己',model:'qwen-max',channel:'阿里云',key:'示例制造集团 专用',tIn:2200,tOut:1100,tCache:0,latency:6.2,status:'成功',source:'10.0.2.18',
         upstreams:[
           {id:'UP10-1',channel:'阿里云',model:'qwen-max',tIn:2200,tOut:580,tCache:0,latency:2.8,status:200,reqBody:'{"model":"qwen-max","messages":[...],"tools":[{"type":"function","function":{"name":"query_database"}}]}',resBody:'{"choices":[{"message":{"tool_calls":[{"function":{"name":"query_database","arguments":"..."}}]}}]}'},
           {id:'UP10-2',channel:'阿里云',model:'qwen-max',tIn:2800,tOut:1100,tCache:0,latency:2.5,status:200,reqBody:'{"model":"qwen-max","messages":[...包含tool_call结果……]}',resBody:'{"choices":[{"message":{"content":"查询结果显示……"}}],"usage":{"prompt_tokens":2800,"completion_tokens":1100}}'}
@@ -3643,7 +3643,7 @@
         box.innerHTML = '<div style="position:relative">'+searchIcon
           +'<input type="text" placeholder="搜索用户 / 模型 / 密钥……" id="adminLogSearch" oninput="renderAdminLogs()" style="padding:6px 10px 6px 30px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-size:13px;width:220px;outline:none"></div>'
           +'<select id="adminLogUser" onchange="renderAdminLogs()" style="padding:6px 10px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-size:13px;outline:none;background:#fff">'
-          +'<option value="all">全部用户</option><option>陈工</option><option>刘运营</option><option>林渠道</option><option>David Chen</option><option>黄财务</option></select>'
+          +'<option value="all">全部用户</option><option>演示管理员 A</option><option>演示用户乙</option><option>演示用户己</option><option>Demo User D</option><option>演示运营 A</option></select>'
           +typeSelect
           +'<select id="adminLogStatus" onchange="renderAdminLogs()" style="padding:6px 10px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-size:13px;outline:none;background:#fff">'
           +'<option value="all">全部状态</option><option value="成功">成功</option><option value="失败">失败</option><option value="超时">超时</option></select>'
@@ -3993,12 +3993,12 @@
 
     // === Tokens (Keys) ===
     var tokensData = [
-      {id:'tk1',name:'默认密钥',user:'陈工',key:'sk-moi-a3f8b2c1d4e5f6a7b8c9d0e1f2a3b4c5',models:'all',used:128000,total:1000000,daily:50000,rpm:0,concurrency:10,tpm:500000,expires:'永不过期',enabled:true,created:'2026-04-01',lastCall:'2026-04-25 09:42'},
-      {id:'tk2',name:'NESR 项目专用',user:'林渠道',key:'sk-moi-x9y8z7w6v5u4t3s2r1q0p9o8n7m6l5k4',models:'qwen-max, qwen-plus',used:45200,total:500000,daily:20000,rpm:100,concurrency:5,tpm:200000,expires:'2026-12-31',enabled:true,created:'2026-04-10',lastCall:'2026-04-25 09:40'},
-      {id:'tk3',name:'测试环境',user:'吴测试',key:'sk-moi-t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6',models:'all',used:12000,total:100000,daily:5000,rpm:50,concurrency:3,tpm:100000,expires:'2026-06-30',enabled:false,created:'2026-04-15',lastCall:'2026-04-10 09:00'},
-      {id:'tk4',name:'数据分析',user:'刘运营',key:'sk-moi-j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2',models:'deepseek-chat, gpt-4o',used:89000,total:200000,daily:10000,rpm:60,concurrency:8,tpm:300000,expires:'永不过期',enabled:true,created:'2026-03-20',lastCall:'2026-04-25 08:15'},
-      {id:'tk5',name:'外部合作',user:'David Chen',key:'sk-moi-z3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8',models:'qwen-max',used:5600,total:50000,daily:2000,rpm:30,concurrency:2,tpm:80000,expires:'2026-05-01',enabled:true,created:'2026-04-12',lastCall:'2026-04-24 22:10'},
-      {id:'tk6',name:'财务报表',user:'黄财务',key:'sk-moi-p9q0r1s2t3u4v5w6x7y8z9a0b1c2d3e4',models:'qwen-plus',used:3200,total:30000,daily:1000,rpm:20,concurrency:2,tpm:50000,expires:'2026-04-20',enabled:true,created:'2026-04-05',lastCall:'2026-04-19 16:30'}
+      {id:'tk1',name:'默认密钥',user:'演示管理员 A',key:'sk-moi-a3f8b2c1d4e5f6a7b8c9d0e1f2a3b4c5',models:'all',used:128000,total:1000000,daily:50000,rpm:0,concurrency:10,tpm:500000,expires:'永不过期',enabled:true,created:'2026-04-01',lastCall:'2026-04-25 09:42'},
+      {id:'tk2',name:'示例制造集团 项目专用',user:'演示用户己',key:'sk-moi-x9y8z7w6v5u4t3s2r1q0p9o8n7m6l5k4',models:'qwen-max, qwen-plus',used:45200,total:500000,daily:20000,rpm:100,concurrency:5,tpm:200000,expires:'2026-12-31',enabled:true,created:'2026-04-10',lastCall:'2026-04-25 09:40'},
+      {id:'tk3',name:'测试环境',user:'演示测试 A',key:'sk-moi-t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6',models:'all',used:12000,total:100000,daily:5000,rpm:50,concurrency:3,tpm:100000,expires:'2026-06-30',enabled:false,created:'2026-04-15',lastCall:'2026-04-10 09:00'},
+      {id:'tk4',name:'数据分析',user:'演示用户乙',key:'sk-moi-j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2',models:'deepseek-chat, gpt-4o',used:89000,total:200000,daily:10000,rpm:60,concurrency:8,tpm:300000,expires:'永不过期',enabled:true,created:'2026-03-20',lastCall:'2026-04-25 08:15'},
+      {id:'tk5',name:'外部合作',user:'Demo User D',key:'sk-moi-z3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8',models:'qwen-max',used:5600,total:50000,daily:2000,rpm:30,concurrency:2,tpm:80000,expires:'2026-05-01',enabled:true,created:'2026-04-12',lastCall:'2026-04-24 22:10'},
+      {id:'tk6',name:'财务报表',user:'演示运营 A',key:'sk-moi-p9q0r1s2t3u4v5w6x7y8z9a0b1c2d3e4',models:'qwen-plus',used:3200,total:30000,daily:1000,rpm:20,concurrency:2,tpm:50000,expires:'2026-04-20',enabled:true,created:'2026-04-05',lastCall:'2026-04-19 16:30'}
     ];
 
     function getTokenStatus(tk) {
@@ -5276,19 +5276,19 @@
     var auditLogsData = [
       {id:'A100',time:'2026-05-06 14:22:18',operator:'admin',targetType:'model',target:'qwen-max',action:'update',summary:'修改路由策略：加权随机 → 成本优先',before:{routing:{strategy:'weighted'}},after:{routing:{strategy:'cost'}}},
       {id:'A099',time:'2026-05-06 11:08:42',operator:'admin',targetType:'channel',target:'阿里云',action:'update',summary:'更新 API Key',before:{key:'sk-aliyun-***old'},after:{key:'sk-aliyun-***new'}},
-      {id:'A098',time:'2026-05-06 09:55:10',operator:'李运维',targetType:'key',target:'NESR 专用',action:'update',summary:'调整额度上限：1000 → 2000 Credit',before:{quota:1000},after:{quota:2000}},
+      {id:'A098',time:'2026-05-06 09:55:10',operator:'演示运维 B',targetType:'key',target:'示例制造集团 专用',action:'update',summary:'调整额度上限：1000 → 2000 Credit',before:{quota:1000},after:{quota:2000}},
       {id:'A097',time:'2026-05-05 18:30:55',operator:'admin',targetType:'budget',target:'全局月度预算',action:'update',summary:'调高月度预算：5000 → 8000 Credit',before:{monthlyLimit:5000,warnAt:80},after:{monthlyLimit:8000,warnAt:80}},
       {id:'A096',time:'2026-05-05 16:10:33',operator:'admin',targetType:'model',target:'gpt-4o',action:'create',summary:'新增模型 gpt-4o（type: chat）',before:null,after:{id:'gpt-4o',type:'chat',ctx:128,maxOut:16}},
       {id:'A095',time:'2026-05-05 15:42:19',operator:'admin',targetType:'channel',target:'OpenAI',action:'create',summary:'新增渠道 OpenAI',before:null,after:{name:'OpenAI',type:'OpenAI 原生',baseUrl:'https://api.openai.com/v1'}},
-      {id:'A094',time:'2026-05-05 11:25:08',operator:'李运维',targetType:'key',target:'测试密钥',action:'delete',summary:'删除密钥 测试密钥',before:{name:'测试密钥',quota:100},after:null},
+      {id:'A094',time:'2026-05-05 11:25:08',operator:'演示运维 B',targetType:'key',target:'测试密钥',action:'delete',summary:'删除密钥 测试密钥',before:{name:'测试密钥',quota:100},after:null},
       {id:'A093',time:'2026-05-04 17:08:45',operator:'admin',targetType:'model',target:'deepseek-chat',action:'update',summary:'修改定价：input 8 Credit/M → 10 Credit/M',before:{pricing:{input:8,output:20}},after:{pricing:{input:10,output:20}}},
       {id:'A092',time:'2026-05-04 14:33:12',operator:'admin',targetType:'channel',target:'OpenAI',action:'disable',summary:'禁用渠道 OpenAI（健康检查持续异常）',before:{status:true},after:{status:false}},
       {id:'A091',time:'2026-05-04 14:30:20',operator:'system',targetType:'channel',target:'OpenAI',action:'circuit',summary:'熔断触发：5 分钟内错误率 >50%，自动禁用',before:{status:true},after:{status:false}},
       {id:'A090',time:'2026-05-03 16:19:22',operator:'admin',targetType:'alert',target:'运维告警群',action:'create',summary:'新增告警通道 运维告警群（Webhook）',before:null,after:{type:'webhook',name:'运维告警群',url:'https://oapi.dingtalk.com/robot/send?***'}},
       {id:'A089',time:'2026-05-03 10:05:14',operator:'admin',targetType:'model',target:'qwen-vl-max',action:'update',summary:'调整渠道映射权重：阿里云 5→10',before:{channels:[{channel:'阿里云',weight:5}]},after:{channels:[{channel:'阿里云',weight:10}]}},
-      {id:'A088',time:'2026-05-02 19:48:30',operator:'李运维',targetType:'user',target:'刘运营',action:'enable',summary:'启用用户 刘运营',before:{status:false},after:{status:true}},
-      {id:'A087',time:'2026-05-02 14:22:55',operator:'admin',targetType:'key',target:'NESR 专用',action:'create',summary:'新增密钥 NESR 专用（绑定用户：林渠道）',before:null,after:{name:'NESR 专用',user:'林渠道',quota:1000}},
-      {id:'A086',time:'2026-05-01 20:15:42',operator:'admin',targetType:'budget',target:'用户预算-陈工',action:'create',summary:'为用户 陈工 设置月度预算 500 Credit',before:null,after:{user:'陈工',monthlyLimit:500,warnAt:80}}
+      {id:'A088',time:'2026-05-02 19:48:30',operator:'演示运维 B',targetType:'user',target:'演示用户乙',action:'enable',summary:'启用用户 演示用户乙',before:{status:false},after:{status:true}},
+      {id:'A087',time:'2026-05-02 14:22:55',operator:'admin',targetType:'key',target:'示例制造集团 专用',action:'create',summary:'新增密钥 示例制造集团 专用（绑定用户：演示用户己）',before:null,after:{name:'示例制造集团 专用',user:'演示用户己',quota:1000}},
+      {id:'A086',time:'2026-05-01 20:15:42',operator:'admin',targetType:'budget',target:'用户预算-演示管理员 A',action:'create',summary:'为用户 演示管理员 A 设置月度预算 500 Credit',before:null,after:{user:'演示管理员 A',monthlyLimit:500,warnAt:80}}
     ];
     var auditActionLabels = {create:'新增',update:'修改',delete:'删除',enable:'启用',disable:'禁用',circuit:'熔断'};
     var auditActionColors = {create:'#52c41a',update:'#1677ff',delete:'#ff4d4f',enable:'#52c41a',disable:'#faad14',circuit:'#ff4d4f'};
@@ -6343,7 +6343,7 @@
     var _adminPriLabels = { severe:'严重', important:'重要', normal:'普通' };
 
     // 推送渠道
-    var adminNotifEmail = { enabled:true, address:'ops@matrixorigin.cn', priorities:['severe','important'] };
+    var adminNotifEmail = { enabled:true, address:'公开演示环境', priorities:['severe','important'] };
     var adminNotifWebhooks = [
       { id:'awh1', name:'运维告警群（钉钉）',  type:'dingtalk', url:'https://oapi.dingtalk.com/robot/send?access_token=***ops', secret:'', enabled:true, priorities:['severe','important'] },
       { id:'awh2', name:'SRE 值班企微',         type:'wecom',    url:'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=***sre', secret:'', enabled:true, priorities:['severe'] }
@@ -6571,7 +6571,7 @@
       box.innerHTML = '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap'+dim+'">'
         +'<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;background:#fff7e6;color:#fa8c16;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg></span>'
         +'<div style="flex:1;min-width:240px"><div style="font-size:13px;font-weight:500">邮件</div><div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:2px">推送到运维 / SRE 邮件组</div></div>'
-        +'<input id="adminEmailAddrInput" type="email" value="'+(adminNotifEmail.address||'')+'" placeholder="ops@example.com"'+(adminNotifEmail.enabled?'':' disabled')+' onchange="adminNotifEmail.address=this.value" style="width:240px;height:30px;font-size:13px;border:1px solid #d9d9d9;border-radius:6px;padding:0 10px;outline:none">'
+        +'<input id="adminEmailAddrInput" type="email" value="'+(adminNotifEmail.address||'')+'" placeholder="公开演示环境"'+(adminNotifEmail.enabled?'':' disabled')+' onchange="adminNotifEmail.address=this.value" style="width:240px;height:30px;font-size:13px;border:1px solid #d9d9d9;border-radius:6px;padding:0 10px;outline:none">'
         +'<button class="btn-sm" onclick="testAdminEmailSend()" '+(adminNotifEmail.enabled?'':'disabled style="opacity:0.4;cursor:not-allowed"')+'>发送测试</button>'
         +'<label class="admin-toggle" style="margin:0"><input type="checkbox"'+(adminNotifEmail.enabled?' checked':'')+' onchange="adminNotifEmail.enabled=this.checked;renderAdminEmailRow()"><span class="admin-toggle-slider"></span></label>'
         +'</div>'
@@ -6747,30 +6747,30 @@
     // 无论方案状态如何（正常/过期/超额/禁用）都不可访问通用模型管理里的模型
     var enterprisePlans = [
       {
-        id:'ep01', name:'外研社 PoC 方案', contract:'CT-2026-0312', disabled:false,
+        id:'ep01', name:'示例教育集团 PoC 方案', contract:'CT-2026-0312', disabled:false,
         startDate:'2026-03-01', endDate:'2026-08-31',
         userId:'U10000003',
         quotas: { dailyCredit:5000, monthlyCredit:80000, totalCredit:400000, rpm:300, tpm:200000, concurrency:20 },
         usage:  { dailyCreditUsed:1820, monthlyCreditUsed:42500, totalCreditUsed:128000, currentRpm:85, currentTpm:48000, currentConcurrency:6 },
-        note:'外研社 AI 中台 PoC 期合同，固定 6 个月，到期续签',
+        note:'示例教育集团 AI 中台 PoC 期合同，固定 6 个月，到期续签',
         models:[
           { modelId:'kimi-k2.5',  channels:['MagikCloud','硅基科技'], pricing:{input:40, output:160} },
           { modelId:'qwen-max',   channels:['阿里云'],                pricing:{input:30, output:90} }
         ],
-        createdAt:'2026-03-01', createdBy:'刘运营'
+        createdAt:'2026-03-01', createdBy:'演示用户乙'
       },
       {
-        id:'ep02', name:'有临医药 SLA 合规版', contract:'CT-2026-0410', disabled:false,
+        id:'ep02', name:'示例医药企业 SLA 合规版', contract:'CT-2026-0410', disabled:false,
         startDate:'2026-04-15', endDate:'2027-04-14',
         userId:'U10000004',
         quotas: { dailyCredit:8000, monthlyCredit:150000, totalCredit:1800000, rpm:600, tpm:400000, concurrency:50 },
         usage:  { dailyCreditUsed:8050, monthlyCreditUsed:96000, totalCreditUsed:485000, currentRpm:420, currentTpm:285000, currentConcurrency:32 }, // 日 credit 已超
-        note:'有临医药 CRO Agent 项目；合规要求所有调用走国内渠道',
+        note:'示例医药企业 CRO Agent 项目；合规要求所有调用走国内渠道',
         models:[
           { modelId:'qwen-max',     channels:['阿里云'],   pricing:{input:28, output:84} },
           { modelId:'qwen-plus',    channels:['阿里云'],   pricing:{input:2.0, output:6.0} }
         ],
-        createdAt:'2026-04-15', createdBy:'黄财务'
+        createdAt:'2026-04-15', createdBy:'演示运营 A'
       },
       {
         id:'ep03', name:'内部测试团队', contract:'内部', disabled:true,
@@ -6778,7 +6778,7 @@
         userId:'U10000001',
         quotas: { dailyCredit:1000, monthlyCredit:20000, totalCredit:0, rpm:100, tpm:50000, concurrency:5 },
         usage:  { dailyCreditUsed:0, monthlyCreditUsed:0, totalCreditUsed:0, currentRpm:0, currentTpm:0, currentConcurrency:0 },
-        note:'矩阵起源内部员工试用方案，重新规划中',
+        note:'MOI内部员工试用方案，重新规划中',
         models:[
           { modelId:'kimi-k2.5', channels:['MagikCloud'], pricing:{input:0, output:0} }
         ],
@@ -7094,7 +7094,7 @@
           + '<span style="font-size:11px;color:rgba(0,0,0,0.4);font-weight:400">(由日期 / 额度 / 禁用标志自动判定，不可手动选)</span>'
         + '</div>'
           + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 12px">'
-            + '<div><div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:4px">方案名 <span style="color:#ff4d4f">*</span></div><input type="text" id="epDName" value="'+(d.name||'')+'" oninput="_epDraft.name=this.value" placeholder="如「外研社 SLA 方案」" style="width:100%;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none"></div>'
+            + '<div><div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:4px">方案名 <span style="color:#ff4d4f">*</span></div><input type="text" id="epDName" value="'+(d.name||'')+'" oninput="_epDraft.name=this.value" placeholder="如「示例教育集团 SLA 方案」" style="width:100%;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none"></div>'
             + '<div><div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:4px">合同号</div><input type="text" value="'+(d.contract||'')+'" oninput="_epDraft.contract=this.value" placeholder="如 CT-2026-0312" style="width:100%;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;font-family:monospace"></div>'
             + '<div><div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:4px">开始日期</div><input type="date" value="'+(d.startDate||'')+'" oninput="_epDraft.startDate=this.value;renderEnterprisePlanDrawer()" style="width:100%;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none"></div>'
             + '<div><div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:4px">结束日期 <span style="font-weight:400;color:rgba(0,0,0,0.35)">（留空=长期）</span></div><input type="date" value="'+(d.endDate||'')+'" oninput="_epDraft.endDate=this.value;renderEnterprisePlanDrawer()" style="width:100%;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none"></div>'

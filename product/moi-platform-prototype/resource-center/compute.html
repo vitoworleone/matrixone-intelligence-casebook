@@ -562,7 +562,7 @@ function getDefaultData() {
       id: 'crq1', name: 'BI 专用资源', desc: '供 BI 直连与联邦查询使用的 SQL 算力',
       kind: 'query', specId: 'Q4', minNodes: 1, maxNodes: 2, currentNodes: 0,
       autoSuspend: 30, status: 'suspended', isDefault: false,
-      createdAt: '2026-03-08 10:00', createdBy: '张三', createdRole: '数据工程师',
+      createdAt: '2026-03-08 10:00', createdBy: '演示用户壬', createdRole: '数据工程师',
       nodes: [],
       history: [ { name: 'BI 报表直连', type: 'sql', startAt: '昨天 18:30', duration: '1 分', result: '成功' } ]
     },
@@ -585,7 +585,7 @@ function getDefaultData() {
       id: 'cr2', name: 'GPU 推理资源', desc: '用于模型推理和嵌入计算',
       specId: 'GI1', minNodes: 1, maxNodes: 2, currentNodes: 1,
       autoSuspend: 30, status: 'running', isDefault: false,
-      createdAt: '2026-03-01 14:30', createdBy: '张三', createdRole: '数据工程师',
+      createdAt: '2026-03-01 14:30', createdBy: '演示用户壬', createdRole: '数据工程师',
       nodes: [
         { name: '节点 1', cpu: 30, mem: 55, gpu: 48, tasks: [ { name: '文本嵌入批处理', type: 'workflow', elapsed: '6 分', progress: '嵌入 8.2K/12K' } ] }
       ],
@@ -603,7 +603,7 @@ function getDefaultData() {
       id: 'cr4', name: '开发测试资源', desc: '轻量级资源，用于 Notebook 开发调试',
       specId: 'CG1', minNodes: 1, maxNodes: 1, currentNodes: 1,
       autoSuspend: 5, status: 'running', isDefault: false,
-      createdAt: '2026-03-10 16:00', createdBy: '王五', createdRole: '开发者',
+      createdAt: '2026-03-10 16:00', createdBy: '演示用户辛', createdRole: '开发者',
       nodes: [
         { name: '节点 1', cpu: 12, mem: 28, tasks: [] }
       ],
@@ -613,7 +613,7 @@ function getDefaultData() {
       id: 'cr5', name: 'GPU 训练集群', desc: '大规模 GPU 集群，用于模型微调训练',
       specId: 'GT4', minNodes: 1, maxNodes: 2, currentNodes: 0,
       autoSuspend: 60, status: 'suspended', isDefault: false,
-      createdAt: '2026-03-12 11:00', createdBy: '张三', createdRole: '数据工程师',
+      createdAt: '2026-03-12 11:00', createdBy: '演示用户壬', createdRole: '数据工程师',
       nodes: [],
       history: []
     }

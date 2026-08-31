@@ -8,19 +8,19 @@ var MOI_I18N = {
   '请输入 HiveServer2 主机地址':{en:'Enter HiveServer2 host address'},'请输入端口号（默认：10000）':{en:'Enter port (default: 10000)'},'请输入 Hive 用户名':{en:'Enter Hive username'},'请输入 Hive 密码':{en:'Enter Hive password'},'请输入 MongoDB 主机地址':{en:'Enter MongoDB host address'},'用户名密码':{en:'Username & Password'},'无认证':{en:'No Auth'},'认证库':{en:'Auth Database'},'读取偏好':{en:'Read Preference'},'primary（主节点）':{en:'primary (Primary)'},'secondary（从节点）':{en:'secondary (Secondary)'},'secondaryPreferred（推荐）':{en:'secondaryPreferred (Recommended)'},'nearest（最近节点）':{en:'nearest (Nearest)'},
   'Key 名称':{en:'Key Name'},'Key 值':{en:'Key Value'},'放置位置':{en:'Location'},'Header（请求头）':{en:'Header'},'Query（URL 参数）':{en:'Query (URL Param)'},'请输入 API Key':{en:'Enter API Key'},'请输入 Bearer Token':{en:'Enter Bearer Token'},'请输入 Client ID':{en:'Enter Client ID'},'请输入 Client Secret':{en:'Enter Client Secret'},'超时时间':{en:'Timeout'},'默认请求头':{en:'Default Headers'},
   '+ 添加主机端口':{en:'+ Add Host & Port'},'Keytab 文件':{en:'Keytab File'},'Krb5 配置文件':{en:'Krb5 Config File'},'添加 Keytab 文件':{en:'Add Keytab file'},'添加 Krb5 文件':{en:'Add Krb5 file'},'选择文件':{en:'Select file'},
-  'Intelie 传感器数据':{en:'Intelie Sensor Data'},'Fiix CMMS 维修系统':{en:'Fiix CMMS Maintenance'},
+  '示例工业物联 传感器数据':{en:'示例工业物联 Sensor Data'},'Fiix CMMS 维修系统':{en:'Fiix CMMS Maintenance'},
   '请输入连接器名称':{en:'Enter connector name'},'确定删除连接器「':{en:'Are you sure you want to delete connector "'},'」？\n\n删除后，使用该连接器的载入/导出任务将无法执行。':{en:'"?\n\nAfter deletion, import/export tasks using this connector will not work.'},'连接器「':{en:'Connector "'},'」已保存（模拟）':{en:'" saved (simulated)'},'」已删除（模拟）':{en:'" deleted (simulated)'},'连接测试中...\n\n（模拟）连接成功 ✅':{en:'Testing connection...\n\n(Simulated) Connection successful ✅'},'刷新':{en:'Refresh'},
   '载入数据':{en:'Import Data'},'新建载入任务':{en:'New Import Task'},'搜索任务名称/创建人':{en:'Search tasks...'},'任务':{en:'Task'},'任务名称':{en:'Task Name'},'载入类型':{en:'Import Type'},'载入模式':{en:'Import Mode'},'目标位置':{en:'Target'},'状态':{en:'Status'},'非结构化':{en:'Unstructured'},'结构化':{en:'Structured'},'一次性':{en:'One-time'},'周期性':{en:'Periodic'},'完成':{en:'Completed'},'运行中':{en:'Running'},'失败':{en:'Failed'},'详情':{en:'Details'},'重试':{en:'Retry'},
   '非结构化数据':{en:'Unstructured Data'},'结构化数据':{en:'Structured Data'},'连接器载入':{en:'Connector Import'},'本地上传':{en:'Local Upload'},'网页采集':{en:'Web Scraping'},'一次载入':{en:'One-time'},'周期载入':{en:'Periodic'},'实时更新':{en:'Real-time'},'载入位置':{en:'Target Location'},'选择已有表':{en:'Existing Table'},'新建表':{en:'New Table'},'表定义':{en:'Table Definition'},'表映射':{en:'Column Mapping'},'数据回填':{en:'Data Backfill'},'载入前预处理':{en:'Pre-processing'},'增量同步配置':{en:'Incremental Sync'},'增量字段':{en:'Incremental Field'},'回溯窗口':{en:'Lookback Window'},'初次载入规则':{en:'Initial Load Rule'},'在已有数据后追加':{en:'Append to existing'},'清空已有数据后追加':{en:'Truncate then append'},
   '工作流名称':{en:'Workflow Name'},'分支':{en:'Branches'},'优先级':{en:'Priority'},'最近运行':{en:'Last Run'},'已完成':{en:'Completed'},'待运行':{en:'Pending'},'已停止':{en:'Stopped'},'新建工作流':{en:'New Workflow'},
   '数据检查':{en:'Data Check'},'重命名':{en:'Rename'},'校验规则':{en:'Validation Rules'},'添加规则':{en:'Add Rule'},'校验结果':{en:'Results'},'运行检查':{en:'Run Check'},'非空':{en:'Not Null'},'唯一':{en:'Unique'},'范围':{en:'Range'},'枚举值':{en:'Enum'},'外键关系':{en:'Foreign Key'},'空值率':{en:'Null Rate'},'新鲜度':{en:'Freshness'},'自定义 SQL':{en:'Custom SQL'},'仅记录':{en:'Log Only'},'标记':{en:'Flag'},'分流':{en:'Split'},
   '载入任务详情':{en:'Import Task Details'},'连接器':{en:'Connector'},'连接器类型':{en:'Connector Type'},'数据类型':{en:'Data Type'},'调度周期':{en:'Schedule'},'累计运行':{en:'Total Runs'},'累计行数':{en:'Total Rows'},'累计大小':{en:'Total Size'},'文件类型':{en:'File Types'},'连接详情':{en:'Connection Details'},'错误信息':{en:'Error Info'},'次':{en:' runs'},'最近运行':{en:'Last Run'},
-  '【NESR-湖仓项目】Intelie 传感器数据同步':{en:'[NESR-Lakehouse] Intelie Sensor Data Sync'},'【NESR-湖仓项目】Fiix 工单数据同步':{en:'[NESR-Lakehouse] Fiix Work Order Sync'},'【NESR-湖仓项目】Fiix 资产数据同步':{en:'[NESR-Lakehouse] Fiix Asset Data Sync'},
+  '【示例制造数据项目】示例工业物联 传感器数据同步':{en:'[示例制造集团-Lakehouse] 示例工业物联 Sensor Data Sync'},'【示例制造数据项目】Fiix 工单数据同步':{en:'[示例制造集团-Lakehouse] Fiix Work Order Sync'},'【示例制造数据项目】Fiix 资产数据同步':{en:'[示例制造集团-Lakehouse] Fiix Asset Data Sync'},
   '本地文件':{en:'Local File'},'S3（对象存储）':{en:'S3 (Object Storage)'},'OSS（对象存储）':{en:'OSS (Object Storage)'},'MySQL（数据库）':{en:'MySQL (Database)'},'Hive（数据仓库）':{en:'Hive (Data Warehouse)'},'MongoDB（数据库）':{en:'MongoDB (Database)'},
-  'NESR / Silver / sensor_readings_1min':{en:'NESR / Silver / sensor_readings_1min'},'NESR / Bronze / work_orders':{en:'NESR / Bronze / work_orders'},'NESR / Bronze / assets':{en:'NESR / Bronze / assets'},
+  '示例制造集团 / Silver / sensor_readings_1min':{en:'示例制造集团 / Silver / sensor_readings_1min'},'示例制造集团 / Bronze / work_orders':{en:'示例制造集团 / Bronze / work_orders'},'示例制造集团 / Bronze / assets':{en:'示例制造集团 / Bronze / assets'},
   '每天 04:00 AST':{en:'Daily 04:00 AST'},'每天 04:30 AST':{en:'Daily 04:30 AST'},
   '1 小时':{en:'1 hour'},'24 小时':{en:'24 hours'},'任务详情加载中...':{en:'Loading task details...'},
-  'MongoDB 数据库':{en:'MongoDB Database'},'主键冲突处理':{en:'Primary Key Conflict'},'替换冲突行':{en:'Replace conflicting rows'},'日均新增':{en:'Daily New Rows'},'分页策略':{en:'Pagination Strategy'},'偏移量分页（offset + limit）':{en:'Offset pagination (offset + limit)'},'数据路径':{en:'Data Path'},'字段数':{en:'Field Count'},'Intelie 传感器数据 (MongoDB)':{en:'Intelie Sensor Data (MongoDB)'},'Fiix CMMS 维修系统 (REST API)':{en:'Fiix CMMS Maintenance (REST API)'},'增量字段：':{en:'Incremental Field: '},'回溯窗口：':{en:'Lookback Window: '},
+  'MongoDB 数据库':{en:'MongoDB Database'},'主键冲突处理':{en:'Primary Key Conflict'},'替换冲突行':{en:'Replace conflicting rows'},'日均新增':{en:'Daily New Rows'},'分页策略':{en:'Pagination Strategy'},'偏移量分页（offset + limit）':{en:'Offset pagination (offset + limit)'},'数据路径':{en:'Data Path'},'字段数':{en:'Field Count'},'示例工业物联 传感器数据 (MongoDB)':{en:'示例工业物联 Sensor Data (MongoDB)'},'Fiix CMMS 维修系统 (REST API)':{en:'Fiix CMMS Maintenance (REST API)'},'增量字段：':{en:'Incremental Field: '},'回溯窗口：':{en:'Lookback Window: '},
   // Workflow
   '搜索工作流名称':{en:'Search workflows...'},'计算资源':{en:'Compute'},'调度方式':{en:'Schedule Type'},'手动触发':{en:'Manual'},'周期调度':{en:'Scheduled'},'数据触发':{en:'Data Trigger'},'高':{en:'High'},'中':{en:'Medium'},'低':{en:'Low'},'基础模式':{en:'Basic'},'专业模式':{en:'Advanced'},
   // Workflow edit
@@ -67,7 +67,7 @@ var MOI_I18N = {
   '全屏编辑器功能开发中':{en:'Fullscreen editor is under development'},
   '变更说明：':{en:'Changelog: '},'建议在新分支中测试后再应用到主分支。':{en:'Recommend testing in a new branch before applying to main.'},'将恢复到该版本的处理逻辑。':{en:'Will restore to this version\'s processing logic.'},
   '开始':{en:'Start'},'结束':{en:'End'},'数据读取':{en:'Data Read'},'数据保存':{en:'Data Save'},'文档解析':{en:'Doc Parse'},'图片解析':{en:'Image Parse'},'音频解析':{en:'Audio Parse'},'视频解析':{en:'Video Parse'},'分段':{en:'Chunking'},'文本嵌入':{en:'Embedding'},'清洗':{en:'Cleaning'},'信息提取':{en:'Extraction'},'训练数据生成':{en:'Training Data Gen'},'SQL 处理':{en:'SQL Process'},'Python 处理':{en:'Python Process'},'条件分支':{en:'Condition'},'智能分段':{en:'Smart Chunking'},'情感分类':{en:'Sentiment'},
-  '读取传感器数据':{en:'Read Sensor Data'},'读取 Intelie 传感器数据':{en:'Read Intelie Sensor Data'},'读取 Intelie 1分钟级数据':{en:'Read Intelie 1-min Data'},'读取 Fiix 维修数据':{en:'Read Fiix Maintenance Data'},'读取 Fiix 工单数据':{en:'Read Fiix Work Orders'},'读取 Fiix 资产数据':{en:'Read Fiix Assets'},'1秒→1分钟聚合':{en:'1s→1min Aggregation'},'状态分类':{en:'State Classification'},'会话检测':{en:'Session Detection'},'KPI 计算':{en:'KPI Calculation'},'设备可靠性 KPI':{en:'Equipment Reliability KPI'},'保存 KPI 结果':{en:'Save KPI Results'},'字典去重 + 清洗':{en:'Dict Dedup + Clean'},'资产层级解析':{en:'Asset Hierarchy'},'工单资产展开':{en:'WO Asset Expand'},'工时汇总':{en:'Labor Summary'},'保存处理结果':{en:'Save Results'},
+  '读取传感器数据':{en:'Read Sensor Data'},'读取 示例工业物联 传感器数据':{en:'Read 示例工业物联 Sensor Data'},'读取 示例工业物联 1分钟级数据':{en:'Read 示例工业物联 1-min Data'},'读取 Fiix 维修数据':{en:'Read Fiix Maintenance Data'},'读取 Fiix 工单数据':{en:'Read Fiix Work Orders'},'读取 Fiix 资产数据':{en:'Read Fiix Assets'},'1秒→1分钟聚合':{en:'1s→1min Aggregation'},'状态分类':{en:'State Classification'},'会话检测':{en:'Session Detection'},'KPI 计算':{en:'KPI Calculation'},'设备可靠性 KPI':{en:'Equipment Reliability KPI'},'保存 KPI 结果':{en:'Save KPI Results'},'字典去重 + 清洗':{en:'Dict Dedup + Clean'},'资产层级解析':{en:'Asset Hierarchy'},'工单资产展开':{en:'WO Asset Expand'},'工时汇总':{en:'Labor Summary'},'保存处理结果':{en:'Save Results'},
   '读取产品文档':{en:'Read Product Docs'},'保存向量数据':{en:'Save Vector Data'},'读取合同文件':{en:'Read Contracts'},'保存提取结果':{en:'Save Extraction'},'读取销售数据':{en:'Read Sales Data'},'数据清洗':{en:'Data Cleaning'},'保存清洗结果':{en:'Save Cleaned Data'},'读取用户反馈':{en:'Read User Feedback'},'保存分类结果':{en:'Save Classification'},'读取技术文档':{en:'Read Tech Docs'},'读取音频文件':{en:'Read Audio Files'},'保存转写结果':{en:'Save Transcription'},
   // Catalog
   '目录':{en:'Directory'},'库':{en:'Database'},'表':{en:'Table'},'卷':{en:'Volume'},'算子':{en:'Operator'},'模型':{en:'Model'},'系统默认':{en:'System Default'},'新建库':{en:'New Database'},'新建目录':{en:'New Directory'},'上传文件':{en:'Upload Files'},'使用':{en:'Use'},'基本信息':{en:'Basic Info'},'列定义':{en:'Column Definition'},'数据预览':{en:'Data Preview'},'创建人':{en:'Created By'},'更新人':{en:'Updated By'},'更新时间':{en:'Updated'},'描述':{en:'Description'},'行数':{en:'Rows'},'大小':{en:'Size'},'路径':{en:'Path'},'锁定':{en:'Locked'},'搜索节点':{en:'Search nodes'},
@@ -125,10 +125,10 @@ var MOI_I18N = {
   // SQL Editor (dynamic)
   '当前语句':{en:'Current Statement'},'请先在编辑器中输入 SQL 语句':{en:'Please enter a SQL statement in the editor'},'当前语句为空':{en:'Current statement is empty'},'执行成功':{en:'Execution Successful'},'返回':{en:'Returned'},'耗时':{en:'Duration'},'行':{en:'rows'},'暂无包含表的数据库':{en:'No databases with tables'},'柱状图':{en:'Bar'},'折线图':{en:'Line'},'散点图':{en:'Scatter'},'面积图':{en:'Area'},'图表类型':{en:'Chart Type'},'X 轴':{en:'X Axis'},'Y 轴':{en:'Y Axis'},'+ 添加 Y 轴':{en:'+ Add Y Axis'},'无可用数据生成图表':{en:'No data available for chart'},'请先执行查询以生成图表':{en:'Run a query first to generate chart'},'恢复':{en:'Restore'},'最小化':{en:'Minimize'},'最大化':{en:'Maximize'},'工作簿':{en:'Workbook'},'确定删除该工作簿？':{en:'Delete this workbook?'},'处理数据库':{en:'Processing DB'},'用户行为表':{en:'User Behavior Table'},'执行':{en:'Execute'},'点击"执行"运行 SQL 查看结果':{en:'Click "Execute" to run SQL and view results'},'数据库':{en:'Database'},
   // Workflow (dynamic)
-  '【NESR-湖仓项目】设备可靠性数据处理':{en:'[NESR-Lakehouse] Equipment Reliability Processing'},'默认计算资源':{en:'Default Compute'},'GPU 计算集群':{en:'GPU Compute Cluster'},'高性能计算集群':{en:'High-perf Compute Cluster'},'暂无工作流':{en:'No workflows'},'确定删除该工作流？':{en:'Delete this workflow?'},'已恢复，下次新建工作流时将显示模板选择':{en:'Restored. Template selection will show next time.'},'停止':{en:'Stop'},
+  '【示例制造数据项目】设备可靠性数据处理':{en:'[示例制造集团-Lakehouse] Equipment Reliability Processing'},'默认计算资源':{en:'Default Compute'},'GPU 计算集群':{en:'GPU Compute Cluster'},'高性能计算集群':{en:'High-perf Compute Cluster'},'暂无工作流':{en:'No workflows'},'确定删除该工作流？':{en:'Delete this workflow?'},'已恢复，下次新建工作流时将显示模板选择':{en:'Restored. Template selection will show next time.'},'停止':{en:'Stop'},
   // Compute (dynamic)
-  '标准型':{en:'Standard'},'内存型':{en:'Memory'},'工作区默认计算资源，适用于常规数据处理任务':{en:'Default workspace compute for general data processing'},'用于 AI 推理和嵌入计算':{en:'For AI inference and embedding'},'高内存配置，用于大文件解析和数据增强':{en:'High memory for large file parsing and augmentation'},'轻量级资源，用于 Notebook 开发调试':{en:'Lightweight for Notebook development'},'【NESR-湖仓项目】设备可靠性数据处理':{en:'[NESR-Lakehouse] Equipment Reliability Processing'},'数据质量分析':{en:'Data Quality Analysis'},'文本嵌入批处理':{en:'Text Embedding Batch'},'自定义去敏处理':{en:'Custom Desensitization'},'合同关键信息提取':{en:'Contract Key Info Extraction'},'空闲':{en:'Idle'},'暂停计算资源':{en:'Suspend Compute'},'暂停后计算资源将停止运行，不再产生 Credit 消耗。':{en:'After suspension, the compute resource will stop and no longer consume Credits.'},'关联的工作负载将被中断。确定暂停？':{en:'Associated workloads will be interrupted. Confirm suspend?'},'删除计算资源':{en:'Delete Compute'},'该资源正在运行中，删除后关联工作负载将被中断。':{en:'This resource is running. Deletion will interrupt associated workloads.'},'确定删除计算资源「':{en:'Delete compute resource "'},'」？此操作不可恢复。':{en:'"? This cannot be undone.'},'不自动暂停':{en:'No auto-suspend'},'分钟无活动':{en:'min inactive'},'默认':{en:'Default'},'节点数':{en:'Nodes'},'资源使用率':{en:'Resource Usage'},'内存':{en:'Memory'},'当前 Credit 消耗':{en:'Current Credit Usage'},'关联工作负载':{en:'Associated Workloads'},'暂无关联工作负载':{en:'No associated workloads'},'规格详情':{en:'Spec Details'},'规格 ID':{en:'Spec ID'},'系列':{en:'Family'},'核':{en:'cores'},'块':{en:'units'},'Credit 单价':{en:'Credit Price'},'暂无计算资源':{en:'No compute resources'},'新建计算资源':{en:'New Compute Resource'},
-  '已暂停':{en:'Suspended'},'启动中':{en:'Starting'},'扩缩容中':{en:'Scaling'},'异常':{en:'Error'},'暂停':{en:'Suspend'},'小时':{en:'hour'},'节点':{en:'node'},'分钟':{en:'min'},'个':{en:''},'张三':{en:'Zhang San'},'李四':{en:'Li Si'},'王五':{en:'Wang Wu'},'系统':{en:'System'},'用户':{en:'User'},
+  '标准型':{en:'Standard'},'内存型':{en:'Memory'},'工作区默认计算资源，适用于常规数据处理任务':{en:'Default workspace compute for general data processing'},'用于 AI 推理和嵌入计算':{en:'For AI inference and embedding'},'高内存配置，用于大文件解析和数据增强':{en:'High memory for large file parsing and augmentation'},'轻量级资源，用于 Notebook 开发调试':{en:'Lightweight for Notebook development'},'【示例制造数据项目】设备可靠性数据处理':{en:'[示例制造集团-Lakehouse] Equipment Reliability Processing'},'数据质量分析':{en:'Data Quality Analysis'},'文本嵌入批处理':{en:'Text Embedding Batch'},'自定义去敏处理':{en:'Custom Desensitization'},'合同关键信息提取':{en:'Contract Key Info Extraction'},'空闲':{en:'Idle'},'暂停计算资源':{en:'Suspend Compute'},'暂停后计算资源将停止运行，不再产生 Credit 消耗。':{en:'After suspension, the compute resource will stop and no longer consume Credits.'},'关联的工作负载将被中断。确定暂停？':{en:'Associated workloads will be interrupted. Confirm suspend?'},'删除计算资源':{en:'Delete Compute'},'该资源正在运行中，删除后关联工作负载将被中断。':{en:'This resource is running. Deletion will interrupt associated workloads.'},'确定删除计算资源「':{en:'Delete compute resource "'},'」？此操作不可恢复。':{en:'"? This cannot be undone.'},'不自动暂停':{en:'No auto-suspend'},'分钟无活动':{en:'min inactive'},'默认':{en:'Default'},'节点数':{en:'Nodes'},'资源使用率':{en:'Resource Usage'},'内存':{en:'Memory'},'当前 Credit 消耗':{en:'Current Credit Usage'},'关联工作负载':{en:'Associated Workloads'},'暂无关联工作负载':{en:'No associated workloads'},'规格详情':{en:'Spec Details'},'规格 ID':{en:'Spec ID'},'系列':{en:'Family'},'核':{en:'cores'},'块':{en:'units'},'Credit 单价':{en:'Credit Price'},'暂无计算资源':{en:'No compute resources'},'新建计算资源':{en:'New Compute Resource'},
+  '已暂停':{en:'Suspended'},'启动中':{en:'Starting'},'扩缩容中':{en:'Scaling'},'异常':{en:'Error'},'暂停':{en:'Suspend'},'小时':{en:'hour'},'节点':{en:'node'},'分钟':{en:'min'},'个':{en:''},'演示用户壬':{en:'Zhang San'},'李四':{en:'Li Si'},'演示用户辛':{en:'Wang Wu'},'系统':{en:'System'},'用户':{en:'User'},
   // Data Share (dynamic)
   '默认目录':{en:'Default Directory'},'原始数据库':{en:'Raw Database'},'样例卷':{en:'Sample Data Volume'},'客户卷':{en:'Customer Data Volume'},'产品信息表':{en:'Product Info Table'},'解析结果':{en:'Parse Results'},'文档分段结果表':{en:'Doc Chunking Results Table'},'订单汇总表':{en:'Order Summary Table'},'开发目录':{en:'Dev Directory'},'测试数据库':{en:'Test Database'},'测试卷':{en:'Test Data Volume'},'产品数据共享':{en:'Product Data Share'},'处理结果分享':{en:'Processing Results Share'},'默认 / 原始数据库 / 样例卷':{en:'Default / Raw DB / Sample Data Volume'},'默认 / 原始数据库 / 产品信息表':{en:'Default / Raw DB / Product Info Table'},'默认 / 处理数据库':{en:'Default / Processing DB'},'数据分析项目':{en:'Data Analysis Project'},'只读':{en:'Read Only'},'外部客户数据':{en:'External Customer Data'},'客户画像表':{en:'Customer Profile Table'},'测试工作区':{en:'Test Workspace'},'外部客户画像':{en:'External Customer Profile'},'默认 / 原始数据库':{en:'Default / Raw DB'},'模型训练数据集':{en:'Model Training Dataset'},'训练卷':{en:'Training Data Volume'},'行业知识库':{en:'Industry Knowledge Base'},'行业文档目录':{en:'Industry Doc Directory'},'已订阅':{en:'Subscribed'},'未订阅':{en:'Unsubscribed'},'取消订阅':{en:'Unsubscribe'},'订阅':{en:'Subscribe'},'请选择工作区':{en:'Select workspace'},'外部工作区':{en:'External Workspace'},'添加发布':{en:'Add Publication'},'编辑发布':{en:'Edit Publication'},'删除发布':{en:'Delete Publication'},'请选择发布对象':{en:'Please select a publish object'},'请选择发布目标工作区':{en:'Please select target workspace'},'确定删除该发布？删除后目标工作区将无法再访问此数据。':{en:'Delete this publication? Target workspaces will lose access.'},'确定取消订阅？取消后将无法在本工作区访问该数据。':{en:'Unsubscribe? You will lose access to this data.'},'该对象为目录级别，将订阅到工作区根级别':{en:'This is a directory-level object, will subscribe at workspace root'},'请选择一个目录作为订阅位置':{en:'Select a directory as subscription location'},'请选择一个库作为订阅位置':{en:'Select a database as subscription location'},'目录级别对象将直接订阅到工作区根级别':{en:'Directory-level objects subscribe at workspace root'},'工作区根级别':{en:'Workspace Root'},'请选择订阅位置':{en:'Please select subscription location'},'暂无发布数据':{en:'No publications'},'暂无可订阅的数据':{en:'No data available to subscribe'},
   // Catalog (dynamic)
@@ -459,28 +459,27 @@ function buildTopBar() {
   var isMatrixOnePage = path.indexOf('/matrixone/') !== -1;
   // Admin pages skip workspace selector, mode switch, and Genesis button
   var isAdminPage = path.indexOf('/admin/') !== -1;
-  // Detect if current page is agent mode (app-dev) or apps mode
+  // “智能体”直接进入构建页；不再提供单独的“应用”模式。
   var isAppMode = path.indexOf('/app-dev/index.html') !== -1;
   var isAppsMode = path.indexOf('/app-dev/apps.html') !== -1;
+  var isAgentMode = isAppMode || isAppsMode;
 
-  // Mode switch: three modes — apps, agent, data
-  var appsActiveClass = isAppsMode ? ' active' : '';
-  var agentActiveClass = isAppMode ? ' active' : '';
-  var dataActiveClass = (!isAppMode && !isAppsMode) ? ' active' : '';
-  var appsOnclick = isAppsMode ? '' : ' onclick="switchToAppsMode(\'' + basePath + '\')"';
-  var agentOnclick = isAppMode ? '' : ' onclick="switchToAgentMode(\'' + basePath + '\')"';
-  var dataOnclick = (isAppMode || isAppsMode) ? ' onclick="switchToDataMode(\'' + basePath + '\')"' : '';
+  // Mode switch: agent and data only.
+  var agentActiveClass = isAgentMode ? ' active' : '';
+  var dataActiveClass = isAgentMode ? '' : ' active';
+  var agentOnclick = isAgentMode ? '' : ' onclick="switchToAgentMode(\'' + basePath + '\')"';
+  var dataOnclick = isAgentMode ? ' onclick="switchToDataMode(\'' + basePath + '\')"' : '';
 
   // Admin pages get a minimal top bar
   if (isAdminPage) {
     topBar.innerHTML = ''
-      + '<a class="logo" href="' + basePath + 'website/index.html" style="text-decoration:none;color:inherit"><img src="' + basePath + 'images/logo-blue.svg" alt="MOI"></a>'
+      + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi.svg" alt="MatrixOne Intelligence"></div>'
       + '<div class="spacer"></div>'
       + '<div class="right-actions">'
       +   '<div class="user-avatar-wrap" id="consoleAvatarWrap">'
       +     '<div class="user-avatar" id="consoleAvatarBtn" title="账户">A</div>'
       +     '<div class="user-popover" id="consolePopover">'
-      +       '<div class="popover-header"><div class="popover-avatar">A</div><div class="popover-info"><div class="popover-name">admin</div><div class="popover-email">admin@matrixorigin.cn</div></div></div>'
+      +       '<div class="popover-header"><div class="popover-avatar">A</div><div class="popover-info"><div class="popover-name">admin</div><div class="popover-email">公开演示环境</div></div></div>'
       +       '<div class="popover-menu"><button class="popover-item danger" onclick="consoleLogout()">退出登录</button></div>'
       +     '</div>'
       +   '</div>'
@@ -488,36 +487,8 @@ function buildTopBar() {
     return;
   }
 
-  // 九宫格 app launcher（跨产品切换）
-  var curProduct = isTaasPage ? 'genesis' : (isMatrixOnePage ? 'matrixone' : 'workspace');
-  function appTile(key, logo, name, sub, onclick, disabled, mode) {
-    var isCur = key === curProduct;
-    // mode='wordmark'：方框里放完整官方字标（如 MatrixOne 的 logo-matrixone.svg），下面仍有名称 + 介绍
-    var ico = mode === 'wordmark'
-      ? '<span class="applauncher-ico"><img class="al-wm" src="' + basePath + 'images/' + logo + '" alt="' + name + '"></span>'
-      : '<span class="applauncher-ico"><img src="' + basePath + 'images/' + logo + '" alt="' + name + '"></span>';
-    return '<div class="applauncher-tile' + (isCur ? ' current' : '') + (disabled ? ' disabled' : '') + '"'
-      + (!isCur && onclick ? ' onclick="' + onclick + '"' : '') + '>'
-      + ico
-      + '<span class="applauncher-name">' + name + '</span>'
-      + '<span class="applauncher-sub">' + sub + '</span>'
-      + '</div>';
-  }
-  var gridIcon = '<svg class="al-grid" width="21" height="21" viewBox="0 0 24 24"><defs><linearGradient id="alGrad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stop-color="#004af0"/><stop offset="1" stop-color="#00d4aa"/></linearGradient></defs><circle cx="5" cy="5" r="1.9"/><circle cx="12" cy="5" r="1.9"/><circle cx="19" cy="5" r="1.9"/><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/><circle cx="5" cy="19" r="1.9"/><circle cx="12" cy="19" r="1.9"/><circle cx="19" cy="19" r="1.9"/></svg>';
-  var appLauncherHtml = ''
-    + '<div class="dropdown" id="appLauncherWrap">'
-    +   '<div class="action-btn applauncher-btn" onclick="toggleDropdown(\'appLauncherDD\')" title="切换产品 · 工作区 / Genesis / MatrixOne">' + gridIcon + '</div>'
-    +   '<div class="dropdown-content right" id="appLauncherDD" style="min-width:348px;padding:12px;background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid #ebedf2;box-shadow:0 12px 34px rgba(20,33,64,0.15)">'
-    +     '<div class="applauncher-grid">'
-    +       appTile('workspace', 'logo-workspace.svg', 'AI Studio', '从数据到 AI 应用的端到端生成', 'gotoWorkspace(\'' + basePath + '\')', false)
-    +       appTile('genesis', 'logo-genesis.svg', 'Genesis', 'TaaS 模型服务', 'gotoGenesis()', false)
-    +       appTile('matrixone', 'logo-matrixone.svg', 'MatrixOne', '超融合数据库', 'gotoMatrixOne()', false, 'wordmark')
-    +     '</div>'
-    +   '</div>'
-    + '</div>';
-
   topBar.innerHTML = ''
-    + '<a class="logo" href="' + basePath + 'website/index.html" style="text-decoration:none;color:inherit"><img src="' + basePath + 'images/logo-blue.svg" alt="MOI"></a>'
+    + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi.svg" alt="MatrixOne Intelligence"></div>'
     + (isAccountPage || isTaasPage || isMatrixOnePage ? '' : '<div class="ws-mode-group">'
     +   '<div class="ws-selector">'
     +     '<div class="ws-trigger" onclick="toggleWsPanel()">'
@@ -529,14 +500,12 @@ function buildTopBar() {
     +   '</div>'
     +   '<span class="ws-mode-sep"></span>'
     +   '<div class="mode-switch" id="modeSwitch">'
-    +     '<div class="mode-btn' + appsActiveClass + '" data-mode="apps"' + appsOnclick + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="3"/><path d="M2 9h20"/><circle cx="6" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="9.5" cy="6" r="1" fill="currentColor" stroke="none"/><path d="M7 14h10M7 17.5h6"/></svg>' + t('应用') + '</div>'
     +     '<div class="mode-btn' + agentActiveClass + '" data-mode="agent"' + agentOnclick + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="M8 15c1 1.5 3 2 4 2s3-.5 4-2"/></svg>' + t('智能体') + '</div>'
     +     '<div class="mode-btn' + dataActiveClass + '" data-mode="data"' + dataOnclick + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>' + t('数据') + '</div>'
     +   '</div>'
     + '</div>')
     + '<div class="spacer"></div>'
     + '<div class="right-actions">'
-    +   appLauncherHtml
     +   '<div class="user-avatar-wrap" id="consoleAvatarWrap">'
     +     '<div class="user-avatar" id="consoleAvatarBtn" title="账户">U</div>'
     +     '<div class="user-popover" id="consolePopover">'
@@ -603,19 +572,7 @@ function saveDataPageAndSwitch(basePath, target) {
   location.href = basePath + (target === 'apps' ? 'app-dev/apps.html' : 'app-dev/index.html');
 }
 
-// Switch to apps mode
-function switchToAppsMode(basePath) {
-  var path = window.location.pathname;
-  // Save data page if coming from data mode
-  if (path.indexOf('/app-dev/') === -1) {
-    var match = path.match(/(dashboard|data-connection|data-processing|resource-center|user-perm)\/[^?#]+/);
-    if (match) localStorage.setItem('moi_last_data_page', match[0]);
-  }
-  localStorage.setItem('moi_mode', 'apps');
-  location.href = basePath + 'app-dev/apps.html';
-}
-
-// Switch to agent mode
+// Switch to the agent workspace.
 function switchToAgentMode(basePath) {
   var path = window.location.pathname;
   // Save data page if coming from data mode
@@ -623,8 +580,8 @@ function switchToAgentMode(basePath) {
     var match = path.match(/(dashboard|data-connection|data-processing|resource-center|user-perm)\/[^?#]+/);
     if (match) localStorage.setItem('moi_last_data_page', match[0]);
   }
-  localStorage.setItem('moi_mode', 'app');
-  location.href = basePath + 'app-dev/index.html';
+  localStorage.setItem('moi_mode', 'agent');
+  location.href = basePath + 'app-dev/apps.html';
 }
 
 // Switch from app/agent mode back to data mode (restore last data page)
@@ -765,9 +722,9 @@ function initMomo() {
     +   '<button class="momo-send" id="momoSendBtn" onclick="momoSendOrStop()" title="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>'
     + '</div>'
     + '<div class="momo-foot">'
-    +   '<a class="momo-foot-link" href="https://docs.matrixorigin.cn/zh/m1intelligence/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>使用文档</a>'
+    +   '<a class="momo-foot-link" href="#" onclick="return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>使用文档（演示）</a>'
     +   '<span class="momo-foot-dot"></span>'
-    +   '<a class="momo-foot-link" href="mailto:contact@matrixorigin.cn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6L12 13 2 6"/></svg>联系我们</a>'
+    +   '<a class="momo-foot-link" href="#" onclick="return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6L12 13 2 6"/></svg>联系我们</a>'
     + '</div>';
   document.body.appendChild(panel);
   momoLoad();
@@ -1678,7 +1635,7 @@ function toggleSubMenu(id, el) {
     try {
       var user = JSON.parse(raw);
       var initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
-      var email = user.email || (user.username ? user.username + '@matrixorigin.cn' : (user.phone || '') + '@matrixorigin.cn');
+      var email = user.email || (user.username ? user.username + '@moi-demo.cn' : (user.phone || '') + '@moi-demo.cn');
 
       var avatarBtn = document.getElementById('consoleAvatarBtn');
       var popAvatar = document.querySelector('#consolePopover .popover-avatar');
@@ -1783,31 +1740,6 @@ function consoleLogout() {
 
     updateBadge();
 
-    // Add Genesis button before credit badge (skip on Genesis pages)
-    var _isTaas = window.location.pathname.indexOf('/taas/') !== -1;
-    var _isAdmin = window.location.pathname.indexOf('/admin/') !== -1;
-    if (false) {  // Genesis 入口已移入左上角产品切换器，不再单独占右上角
-      if (!document.getElementById('taasBtnStyle')) {
-        var taasStyle = document.createElement('style');
-        taasStyle.id = 'taasBtnStyle';
-        taasStyle.textContent = '.taas-btn{position:relative;display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:16px;background:rgba(99,102,241,0.08);color:#5b5fc7;cursor:pointer;margin-right:6px;transition:all .2s;font-size:12px;font-weight:600;line-height:1;letter-spacing:0.3px;border:1px solid rgba(99,102,241,0.15);text-decoration:none;white-space:nowrap;}'
-          + '.taas-btn svg{display:block;flex-shrink:0;}'
-          + '.taas-btn:hover{background:rgba(99,102,241,0.14);border-color:rgba(99,102,241,0.25);transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,0.12);}'
-          + '.taas-btn[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 11px);right:0;width:262px;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);color:rgba(20,33,64,0.78);font-size:12px;font-weight:400;line-height:1.7;letter-spacing:0;text-align:left;white-space:normal;padding:12px 14px;border:1px solid rgba(0,74,240,0.12);border-radius:12px;box-shadow:0 10px 30px rgba(20,33,64,0.16),0 2px 8px rgba(20,33,64,0.06);z-index:9999;pointer-events:none;opacity:0;transform:translateY(-6px) scale(0.97);transform-origin:top right;transition:opacity .2s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1);}'
-          + '.taas-btn[data-tip]::before{content:\'\';position:absolute;top:calc(100% + 6px);right:18px;width:11px;height:11px;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-left:1px solid rgba(0,74,240,0.12);border-top:1px solid rgba(0,74,240,0.12);transform:rotate(45deg);z-index:10000;pointer-events:none;opacity:0;transition:opacity .2s cubic-bezier(.16,1,.3,1);}'
-          + '.taas-btn[data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1);}'
-          + '.taas-btn[data-tip]:hover::before{opacity:1;}';
-        document.head.appendChild(taasStyle);
-      }
-      var taasBtn = document.createElement('a');
-      taasBtn.className = 'taas-btn';
-      taasBtn.href = (function(){ var p=window.location.pathname; if(p.indexOf('/dashboard/')!==-1||p.indexOf('/data-connection/')!==-1||p.indexOf('/data-processing/')!==-1||p.indexOf('/resource-center/')!==-1||p.indexOf('/user-perm/')!==-1||p.indexOf('/account/')!==-1||p.indexOf('/app-dev/')!==-1) return '../taas/taas.html'; return 'taas/taas.html'; })();
-      taasBtn.target = '_blank';
-      taasBtn.setAttribute('data-tip', 'Genesis 是 MOI 的统一模型网关：一个 API 接入对话 / 嵌入 / OCR / 文生图等所有主流大模型，自动路由与计量计费。点击进入控制台。');
-      taasBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" fill="none" stroke="currentColor"><ellipse cx="24" cy="24" rx="17" ry="8" stroke-width="2.6" transform="rotate(-45 24 24)"/><path d="M15 33 L15 15 L33 33 L33 15" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="15" r="3.6" fill="currentColor" stroke="none"/><circle cx="33" cy="33" r="3.6" fill="currentColor" stroke="none"/></svg>Genesis';
-      rightActions.insertBefore(taasBtn, badge);
-    }
-
     // 刷新按钮已移除（与浏览器刷新重复）；顶栏右侧只留：MOMO · 点点点 · 头像
 
     // Listen for credit changes from other tabs
@@ -1827,10 +1759,10 @@ function consoleLogout() {
 // === Workspace Manager (shared across all pages) ===
 (function() {
   var ver = localStorage.getItem('moi_ws_ver');
-  if (ver !== '2') {
+  if (ver !== '3') {
     localStorage.removeItem('moi_workspaces');
     localStorage.removeItem('moi_current_ws');
-    localStorage.setItem('moi_ws_ver', '2');
+    localStorage.setItem('moi_ws_ver', '3');
   }
 })();
 
@@ -1839,11 +1771,11 @@ function getWorkspaces() {
   if (!ws) {
     var defaults = [
       { id: 'ws1', name: '默认工作区', owner: 'me', region: '华东-1' },
-      { id: 'ws2', name: '数据分析项目', owner: 'me', region: '华东-1' },
-      { id: 'ws3', name: '0818 演示', owner: 'me', region: '华北-1' },
-      { id: 'ws4', name: '测试工作区', ownerName: '陈 jeff', owner: 'shared', region: '华东-1' },
-      { id: 'ws5', name: 'MOI 2602 的工作区', ownerName: 'MOI 2602', owner: 'shared', region: '华南-1' },
-      { id: 'ws6', name: 'Project test1', ownerName: '许 跃蓬', owner: 'shared', region: '华东-1' }
+      { id: 'ws2', name: '数据分析工作区', owner: 'me', region: '华东-1' },
+      { id: 'ws3', name: '公开演示工作区', owner: 'me', region: '华北-1' },
+      { id: 'ws4', name: '共享工作区 A', ownerName: '演示成员 A', owner: 'shared', region: '华东-1' },
+      { id: 'ws5', name: '共享工作区 B', ownerName: '演示成员 B', owner: 'shared', region: '华南-1' },
+      { id: 'ws6', name: '项目示例工作区', ownerName: '演示成员 C', owner: 'shared', region: '华东-1' }
     ];
     localStorage.setItem('moi_workspaces', JSON.stringify(defaults));
     localStorage.setItem('moi_current_ws', 'ws1');
@@ -1907,19 +1839,7 @@ function selectWs(id) {
   if (p) p.classList.remove('show');
   renderWsPanel();
 }
-function gotoGenesis() {
-  var p = window.location.pathname, base = '';
-  if (p.indexOf('/dashboard/') !== -1 || p.indexOf('/data-connection/') !== -1 || p.indexOf('/data-processing/') !== -1 || p.indexOf('/resource-center/') !== -1 || p.indexOf('/user-perm/') !== -1 || p.indexOf('/account/') !== -1 || p.indexOf('/app-dev/') !== -1 || p.indexOf('/monitor/') !== -1) base = '../';
-  window.location.href = base + 'taas/taas.html';
-}
-function gotoMatrixOne() {
-  var path = window.location.pathname;
-  var dirs = ['/dashboard/','/data-connection/','/data-processing/','/resource-center/','/user-perm/','/monitor/','/account/','/app-dev/','/taas/','/matrixone/','/admin/'];
-  var base = '';
-  for (var i = 0; i < dirs.length; i++) { if (path.indexOf(dirs[i]) !== -1) { base = '../'; break; } }
-  window.location.href = base + 'matrixone/matrixone.html';
-}
-// 从 Genesis / 其他产品切回工作区（落到上次数据页或仪表盘）
+// 返回工作区（落到上次数据页或仪表盘）
 function gotoWorkspace(basePath) {
   basePath = basePath || '';
   var last = localStorage.getItem('moi_last_data_page');
@@ -2032,7 +1952,7 @@ function refreshData(btn) {
 var MOI_NOTEBOOKS = [
   { id: 'nb1', name: '产品文档处理脚本', lang: 'python', langName: 'Python',
     desc: '产品文档全流程处理，包含解析、分段、清洗和嵌入',
-    updated: '2026-03-14 10:30', author: '张三',
+    updated: '2026-03-14 10:30', author: '演示用户壬',
     operators: [{name:'解析',type:'system'},{name:'分段',type:'system'},{name:'清洗',type:'system'},{name:'嵌入',type:'system'}] },
   { id: 'nb2', name: '合同关键信息提取', lang: 'python', langName: 'Python',
     desc: '从合同 PDF 中提取甲乙方、金额、日期等关键字段',
@@ -2040,11 +1960,11 @@ var MOI_NOTEBOOKS = [
     operators: [{name:'解析',type:'system'},{name:'提取',type:'system'},{name:'合同字段映射',type:'custom'}] },
   { id: 'nb3', name: 'Catalog 数据质量分析', lang: 'sql', langName: 'SQL',
     desc: '对 Catalog 中的处理数据进行质量统计和异常检测',
-    updated: '2026-03-12 09:00', author: '张三',
+    updated: '2026-03-12 09:00', author: '演示用户壬',
     operators: [] },
   { id: 'nb4', name: '自定义去敏处理', lang: 'python', langName: 'Python',
     desc: '对文档中的手机号、身份证号等敏感信息进行脱敏处理',
-    updated: '2026-03-11 14:45', author: '王五',
+    updated: '2026-03-11 14:45', author: '演示用户辛',
     operators: [{name:'解析',type:'system'},{name:'清洗',type:'system'},{name:'PII 脱敏',type:'custom'},{name:'正则替换',type:'custom'}] },
   { id: 'nb5', name: '多模态数据处理流水线', lang: 'mixed', langName: '混合',
     desc: '图文混合文档的端到端处理，含 Python 处理逻辑和 SQL 分析',

@@ -1516,7 +1516,7 @@
           </button>
           <div class="kb-card-icon" style="width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;background:#d4380d15;color:#d4380d">安</div>
           <div>
-            <div class="kb-detail-title">安利 CA AI 小助手<span class="ca-builtin-badge">定制</span></div>
+            <div class="kb-detail-title">示例零售集团 CA AI 小助手<span class="ca-builtin-badge">定制</span></div>
             <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px">CA Explore 召回知识库 · 数据源固定，语义配置支持版本化</div>
           </div>
           <div style="flex:1"></div>
@@ -1549,7 +1549,7 @@
         <div class="kb-tab-body" id="caTabData">
           <div class="ca-data-note">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            <span>本知识库的数据源由系统固定配置，绑定 <code style="background:#fff;padding:1px 5px;border-radius:4px;color:#004af0">ca_ai_ft2_fake</code> 库（位于 Catalog「安利-CA AI 小助手」目录），不支持在此增删改。点「查看结构」查看字段。</span>
+            <span>本知识库的数据源由系统固定配置，绑定 <code style="background:#fff;padding:1px 5px;border-radius:4px;color:#004af0">ca_ai_ft2_fake</code> 库（位于 Catalog「示例零售集团-CA AI 小助手」目录），不支持在此增删改。点「查看结构」查看字段。</span>
           </div>
           <table class="file-table">
             <thead><tr><th style="width:22%">表名</th><th>类型</th><th>行数</th><th>Catalog 路径</th><th>说明</th><th style="width:96px">操作</th></tr></thead>
@@ -2148,8 +2148,8 @@
       { id: 4, name: '技术规范文档', desc: 'API 接口文档、系统架构设计和开发规范', color: '#722ed1', icon: '⚙️', files: 45, tables: 1, volumes: 3, status: 'ready', agentCount: 1, tags: ['技术文档', 'API'], statusStats: { done: 44, running: 0, failed: 1 } },
       { id: 5, name: '客户反馈数据', desc: '客户工单、NPS 调查和产品反馈数据', color: '#eb2f96', icon: '💬', files: 234, tables: 4, volumes: 1, status: 'ready', agentCount: 2, tags: ['客户反馈', '客服'], statusStats: { done: 220, running: 8, failed: 6 } },
       { id: 6, name: '多模态素材库', desc: '产品图片、演示视频和音频培训材料', color: '#13c2c2', icon: '🎨', files: 67, tables: 0, volumes: 4, status: 'failed', agentCount: 0, tags: ['多模态', '素材'], statusStats: { done: 30, running: 0, failed: 37 } },
-      { id: 7, name: 'NESR Fleet Monitoring', desc: 'NESR 油田设备车队监控知识库，绑定 Gold 层 KPI 表，配置字段语义、同义词和业务事件字典，支持自然语言查询设备可靠性指标', color: '#d48806', icon: '🛢️', files: 3, tables: 4, volumes: 0, status: 'ready', agentCount: 1, tags: ['客户项目', '油气'], statusStats: { done: 3, running: 0, failed: 0 } },
-      { id: 8, name: '安利 CA AI 小助手', desc: 'CA Explore 召回知识库 · 定制，数据源固定、语义配置可版本化', color: '#d4380d', icon: '安', files: 0, tables: 5, volumes: 0, status: 'ready', agentCount: 1, tags: ['客户专属', 'CA Explore'], statusStats: { done: 5, running: 0, failed: 0 }, special: 'ca', deletable: false, builtin: true },
+      { id: 7, name: '示例制造集团 Fleet Monitoring', desc: '示例制造集团 油田设备车队监控知识库，绑定 Gold 层 KPI 表，配置字段语义、同义词和业务事件字典，支持自然语言查询设备可靠性指标', color: '#d48806', icon: '🛢️', files: 3, tables: 4, volumes: 0, status: 'ready', agentCount: 1, tags: ['客户项目', '油气'], statusStats: { done: 3, running: 0, failed: 0 } },
+      { id: 8, name: '示例零售集团 CA AI 小助手', desc: 'CA Explore 召回知识库 · 定制，数据源固定、语义配置可版本化', color: '#d4380d', icon: '安', files: 0, tables: 5, volumes: 0, status: 'ready', agentCount: 1, tags: ['客户专属', 'CA Explore'], statusStats: { done: 5, running: 0, failed: 0 }, special: 'ca', deletable: false, builtin: true },
     ];
 
     let nextDataSourceId = 11;
@@ -2179,7 +2179,7 @@
           { name: 'name', type: 'VARCHAR(64)', pk: '否', def: '-', desc: '姓名' },
           { name: 'email', type: 'VARCHAR(128)', pk: '否', def: '-', desc: '邮箱' },
         ],
-        tableSample: { headers: ['user_id', 'name', 'email'], rows: [['10001', '张三', 'zhang@example.com'], ['10002', '李四', 'li@example.com']] },
+        tableSample: { headers: ['user_id', 'name', 'email'], rows: [['10001', '演示用户壬', '公开演示环境'], ['10002', '李四', '公开演示环境']] },
       },
       { id: 5, name: '订单表', kind: 'table', size: '45,230 行', type: '结构化表', catalog: '默认/产品数据库/订单表', status: 'done', time: '2024-03-14 18:20', enabled: true },
       { id: 6, name: '产品表', kind: 'table', size: '3,120 行', type: '结构化表', catalog: '默认/产品数据库/产品表', status: 'done', time: '2024-03-14 18:20', enabled: true },
@@ -4664,7 +4664,7 @@
       renderConvKBChips();
     }
 
-    // ===== CA Explore 专属知识库（安利 CA AI 小助手）=====
+    // ===== CA Explore 专属知识库（示例零售集团 CA AI 小助手）=====
     const CA_SEM_CATS = [
       { key:'understand', title:'问题理解', desc:'澄清用户真实意图，改写口语化、省略式表达，结合历史对话补全上下文，输出一个完整、明确、可检索的问题。', field:'提示词模板' },
       { key:'entity', title:'实体与约束', desc:'术语表：产品名、营养素等关键术语的定义与同义词，帮助识别问题中的实体与约束。', field:'术语定义' },
@@ -4675,11 +4675,11 @@
 
     let caSem = (window.CA_SEMANTIC && window.CA_SEMANTIC.caSem) || {
       understand: [
-        { id:'u1', title:'改写用户的口语化问题', enabled:true, desc:'把口语、省略、指代补全成完整问题', prompt:'## 当前日期 {current_date}\n## 历史对话 {history}\n## 用户当前问题 {raw_query}\n\n## 角色\n你是「安利大A」的问题理解助手。请在不改变用户真实意图的前提下，把上面的问题改写为一句完整、明确、可用于知识检索的问题：\n1. 补全代词、省略的主语与时间；\n2. 保留用户的关键限定词；\n3. 只输出改写后的问题，不要解释。' },
+        { id:'u1', title:'改写用户的口语化问题', enabled:true, desc:'把口语、省略、指代补全成完整问题', prompt:'## 当前日期 {current_date}\n## 历史对话 {history}\n## 用户当前问题 {raw_query}\n\n## 角色\n你是「示例零售集团大A」的问题理解助手。请在不改变用户真实意图的前提下，把上面的问题改写为一句完整、明确、可用于知识检索的问题：\n1. 补全代词、省略的主语与时间；\n2. 保留用户的关键限定词；\n3. 只输出改写后的问题，不要解释。' },
         { id:'u2', title:'判断是否需要追问澄清', enabled:true, desc:'信息不足时决定是否向用户追问', prompt:'## 用户问题 {rewritten_query}\n## 可用知识范围 {kb_scope}\n\n## 角色\n判断该问题是否信息充分。若缺少回答所必需的关键信息（如具体产品、人群、时间），输出 need_clarify=true 并给出一句追问；否则输出 need_clarify=false。仅输出 JSON。' },
       ],
       entity: [
-        { id:'e1', title:'抽取问题里的主体和条件', enabled:true, desc:'识别产品名、人群、场景、时间等实体与约束', prompt:'## 当前日期 {current_date}\n## 完整意图推测 {rewritten_query}\n## 用户当前问题 {replaced_text}\n## 历史意图 {intent_history}\n\n## 角色\n你是「安利大A」的实体抽取助手。从用户问题中抽取以下字段并输出 JSON：\n- product：产品名（无则 null）\n- audience：人群（如孕妇、老人、健身人群）\n- scene：场景\n- time_range：时间范围\n- format：用户对回答格式的要求（如表格、要点）\n不得臆造未出现的实体。' },
+        { id:'e1', title:'抽取问题里的主体和条件', enabled:true, desc:'识别产品名、人群、场景、时间等实体与约束', prompt:'## 当前日期 {current_date}\n## 完整意图推测 {rewritten_query}\n## 用户当前问题 {replaced_text}\n## 历史意图 {intent_history}\n\n## 角色\n你是「示例零售集团大A」的实体抽取助手。从用户问题中抽取以下字段并输出 JSON：\n- product：产品名（无则 null）\n- audience：人群（如孕妇、老人、健身人群）\n- scene：场景\n- time_range：时间范围\n- format：用户对回答格式的要求（如表格、要点）\n不得臆造未出现的实体。' },
         { id:'e2', title:'识别用户是否指定了回答范围', enabled:true, desc:'判断候选问题与用户问题是否语义等价', prompt:'## 角色\n你是一个专业的语义等价性裁判，你的职责不是回答问题，也不是生成内容，而是严格判断候选问题是否与用户问题语义等价，或能在没有遗漏和矛盾的前提下覆盖用户问题。\n\n## 用户问题 {user_query}\n## 候选问题 {candidate_query}\n\n输出 equivalent=true/false 及简短理由，仅输出 JSON。' },
       ],
       route: [
@@ -4693,7 +4693,7 @@
           style:'用词严谨、口径统一；直接引用制度条款要点；不臆测、不延伸；提示以官方最新文件为准。' },
       ],
       generate: [
-        { id:'g1', title:'基于召回片段生成回答', enabled:true, desc:'严格依据召回内容作答，统一口径', prompt:'## 用户问题 {rewritten_query}\n## 召回片段 {retrieved_chunks}\n## 回答风格 {style}\n\n## 角色\n你是「安利大A」客户助手。请仅依据召回片段回答用户问题：\n1. 有据可依，不臆造；召回片段不足以回答时，明确说明并建议联系人工；\n2. 涉及功效、宣称时使用合规口径，不做绝对化、医疗化表述；\n3. 按 {style} 指定的风格组织语言。' },
+        { id:'g1', title:'基于召回片段生成回答', enabled:true, desc:'严格依据召回内容作答，统一口径', prompt:'## 用户问题 {rewritten_query}\n## 召回片段 {retrieved_chunks}\n## 回答风格 {style}\n\n## 角色\n你是「示例零售集团大A」客户助手。请仅依据召回片段回答用户问题：\n1. 有据可依，不臆造；召回片段不足以回答时，明确说明并建议联系人工；\n2. 涉及功效、宣称时使用合规口径，不做绝对化、医疗化表述；\n3. 按 {style} 指定的风格组织语言。' },
       ],
       postprocess: [
         { id:'p1', title:'合规与敏感表述校验', enabled:true, desc:'过滤违规宣称、绝对化与医疗化用语', prompt:'## 待发送回答 {draft_answer}\n\n## 角色\n检查回答是否含有违规医疗宣称、绝对化用语（如"根治""100% 有效"）或敏感表述。若有，改写为合规表述并保持原意；输出处理后的最终回答。' },
@@ -4702,7 +4702,7 @@
     };
 
     // 数据源来自 ca_ai_ft2_fake 库（ca-schema.js，由客户 SQL 生成），固定只读
-    var CA_DB = window.CA_DB_SCHEMA || { db:'ca_ai_ft2_fake', dir:'安利-CA AI 小助手', tables:[] };
+    var CA_DB = window.CA_DB_SCHEMA || { db:'ca_ai_ft2_fake', dir:'示例零售集团-CA AI 小助手', tables:[] };
     let caDataSources = CA_DB.tables.map(function(t){
       return { name:t.name, type:'结构化表', rows:t.rows, path:CA_DB.dir+'/'+CA_DB.db+'/'+t.name, note:t.note, cols:t.cols };
     });
@@ -5112,8 +5112,8 @@
     var caVerMode = 'list';
     // ===== 语义推送对象（目标环境连接配置，免每次手填）=====
     var caPushTargets = [
-      { id:'t1', name:'生产环境', addr:'https://moi.prod.example.com', ws:'默认工作区', kb:'安利 CA AI 小助手', key:'moi_sk_p8q2****4h7k', lastUsed:'2026-06-20 15:42' },
-      { id:'t2', name:'预发环境', addr:'https://moi.staging.example.com', ws:'默认工作区', kb:'安利 CA AI 小助手', key:'moi_sk_s3w9****k2m5', lastUsed:'' }
+      { id:'t1', name:'生产环境', addr:'https://moi.prod.example.com', ws:'默认工作区', kb:'示例零售集团 CA AI 小助手', key:'moi_sk_p8q2****4h7k', lastUsed:'2026-06-20 15:42' },
+      { id:'t2', name:'预发环境', addr:'https://moi.staging.example.com', ws:'默认工作区', kb:'示例零售集团 CA AI 小助手', key:'moi_sk_s3w9****k2m5', lastUsed:'' }
     ];
     var caEditTargetId = null; // targetEdit 模式：null=新建，否则为编辑的对象 id
     var caCmpLeft = '__current__';   // 版本对比左侧（默认 当前未保存）
@@ -5375,7 +5375,7 @@
           '<div class="kb-form-group"><label class="kb-form-label"><span style="color:#ff4d4f">*</span> 名称</label><input class="kb-form-input" id="caTgName" placeholder="如：生产环境" value="'+(et?caEscHtml(et.name):'')+'"></div>'+
           '<div class="kb-form-group"><label class="kb-form-label"><span style="color:#ff4d4f">*</span> 服务地址</label><input class="kb-form-input" id="caTgAddr" placeholder="如 https://moi.prod.example.com" value="'+(et?caEscHtml(et.addr):'')+'"></div>'+
           '<div class="kb-form-group"><label class="kb-form-label"><span style="color:#ff4d4f">*</span> 工作区</label><input class="kb-form-input" id="caTgWs" placeholder="目标工作区名称 / ID" value="'+(et?caEscHtml(et.ws):'')+'"></div>'+
-          '<div class="kb-form-group"><label class="kb-form-label"><span style="color:#ff4d4f">*</span> 目标知识库名</label><input class="kb-form-input" id="caTgKb" value="'+(et?caEscHtml(et.kb):'安利 CA AI 小助手')+'"></div>'+
+          '<div class="kb-form-group"><label class="kb-form-label"><span style="color:#ff4d4f">*</span> 目标知识库名</label><input class="kb-form-input" id="caTgKb" value="'+(et?caEscHtml(et.kb):'示例零售集团 CA AI 小助手')+'"></div>'+
           '<div class="kb-form-group"><label class="kb-form-label">'+(et?'':'<span style="color:#ff4d4f">*</span> ')+'API Key</label><input class="kb-form-input" id="caTgKey" type="password" placeholder="'+(et?'已保存（'+caEscHtml(et.key)+'），留空则不修改':'对端 MOI 的访问凭据')+'">'+
             '<div style="font-size:12px;color:rgba(0,0,0,0.4);margin-top:6px">建议使用对端 MOI 的服务账号 API Key（账号管理 › 访问凭据），保存后脱敏展示。</div></div>'+
           '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="ca-btn ca-btn-ghost" onclick="caTgPanelMode=\'list\';renderCaTargetPanel()">取消</button><button class="ca-btn ca-btn-primary" onclick="caSaveTarget()">保存</button></div>';

@@ -367,8 +367,8 @@
                   <div id="bgUserDrop" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e6eb;border-radius:6px;margin-top:4px;max-height:240px;overflow-y:auto;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div>
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('外研社')">+ 外研社全部</button>
-                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('矩阵起源')">+ 矩阵起源员工</button>
+                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('示例教育集团')">+ 示例教育集团全部</button>
+                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('MOI')">+ MOI员工</button>
                   <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('个人开发者')">+ 个人开发者</button>
                 </div>
               </div>
@@ -554,7 +554,7 @@
             </div>
           </div>
           <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:11px;color:rgba(0,0,0,0.45)">最近修改：<span id="rateLastModified">2026-04-01 10:00 by admin@matrixorigin.cn</span></div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.45)">最近修改：<span id="rateLastModified">2026-04-01 10:00 by 公开演示环境</span></div>
             <div style="display:flex;gap:8px">
               <button class="btn-sm" onclick="resetRate()">还原</button>
               <button class="btn-primary" style="padding:6px 18px" onclick="saveRate()">保存兑换比</button>
@@ -647,7 +647,7 @@
 
     // Mock 跨租户流水（覆盖 3 类 × 多用户 × 多渠道）
     var ADMIN_TXNS = [
-      // 今天的密集消费（陈思远 4-09）
+      // 今天的密集消费（演示用户甲 4-09）
       { id: 'T20260409154000001', uid: 'U10000001', time: '2026-04-09 15:40:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -3.82, period: '2026-04', status: '成功', note: '15:30~15:40 用量' },
       { id: 'T20260409153000002', uid: 'U10000001', time: '2026-04-09 15:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -2.94, period: '2026-04', status: '成功', note: '15:20~15:30 用量' },
       { id: 'T20260409143000003', uid: 'U10000003', time: '2026-04-09 14:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -28.40, period: '2026-04', status: '成功', note: '14:20~14:30 用量' },
@@ -660,8 +660,8 @@
       { id: 'T20260407163400009', uid: 'U10000009', time: '2026-04-07 16:34:00', ioType: '收入', txType: '充值', channel: 'PayPal', amount: '$ 200.00', credit: 15556, period: '2026-04', status: '成功', invoice: true },
       { id: 'T20260405100000010', uid: 'U10000001', time: '2026-04-05 10:00:00', ioType: '收入', txType: '充值', channel: '支付宝', amount: '¥ 400.00', credit: 4000, period: '2026-04', status: '成功', invoice: true },
       // 赠送（覆盖 4 个细分渠道）
-      { id: 'T20260403163400011', uid: 'U10000001', time: '2026-04-03 16:34:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 500, period: '2026-04', status: '成功', note: '春季回归活动 · admin@matrixorigin.cn 发放', operator: 'admin@matrixorigin.cn' },
-      { id: 'T20260402100000012', uid: 'U10000002', time: '2026-04-02 10:00:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 5000, period: '2026-04', status: '成功', note: '内部测试额度', operator: 'admin@matrixorigin.cn' },
+      { id: 'T20260403163400011', uid: 'U10000001', time: '2026-04-03 16:34:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 500, period: '2026-04', status: '成功', note: '春季回归活动 · 公开演示环境 发放', operator: '公开演示环境' },
+      { id: 'T20260402100000012', uid: 'U10000002', time: '2026-04-02 10:00:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 5000, period: '2026-04', status: '成功', note: '内部测试额度', operator: '公开演示环境' },
       // 月费扣费
       { id: 'T20260401000000013', uid: 'U10000001', time: '2026-04-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-04', status: '成功', note: 'Pro 订阅 · 4 月月费' },
       { id: 'T20260401000000014', uid: 'U10000003', time: '2026-04-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-04', status: '成功', note: 'Pro 订阅 · 4 月月费' },
@@ -669,7 +669,7 @@
       // 历史月份
       { id: 'T20260321140800016', uid: 'U10000001', time: '2026-03-21 14:08:00', ioType: '收入', txType: '充值', channel: '微信支付', amount: '¥ 1,000.00', credit: 11765, period: '2026-03', status: '成功', invoice: true },
       { id: 'T20260315093400017', uid: 'U10000007', time: '2026-03-15 09:34:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 200, period: '2026-03', status: '成功', note: '邀请新用户 zhang@xxx 注册', operator: '系统' },
-      { id: 'T20260308103400018', uid: 'U10000004', time: '2026-03-08 10:34:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 1000, period: '2026-03', status: '成功', note: 'PoC 阶段补偿额度', operator: 'liu.yunying@matrixorigin.cn' },
+      { id: 'T20260308103400018', uid: 'U10000004', time: '2026-03-08 10:34:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 1000, period: '2026-03', status: '成功', note: 'PoC 阶段补偿额度', operator: '公开演示环境' },
       { id: 'T20260301000000019', uid: 'U10000002', time: '2026-03-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -892.30, period: '2026-03', status: '成功', note: '3 月用量月度结算' },
       { id: 'T20260218113200020', uid: 'U10000006', time: '2026-02-18 11:32:00', ioType: '收入', txType: '充值', channel: 'Apple/Google Pay', amount: '$ 50.00', credit: 3684, period: '2026-02', status: '成功', invoice: false },
       { id: 'T20260214090000021', uid: 'U10000010', time: '2026-02-14 09:00:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 300, period: '2026-02', status: '成功', note: '情人节扫码赠送', operator: '系统' },
@@ -886,7 +886,7 @@
     var ADMIN_BILL_STATUS = ['待结算','已结算'];
     // 跨用户的用量计费记录（模拟，覆盖各计费项）
     var ADMIN_BILLS = [
-      // 陈思远 (U10000001) — 4-09 当天
+      // 演示用户甲 (U10000001) — 4-09 当天
       { id: 'B20260409-001', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: '计算资源', price: 'CG2 · 30 Credit/h', usage: '2.5 h', credit: 75.00, status: 'pending' },
       { id: 'B20260409-002', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '57.6K tok', credit: 28.80, status: 'pending' },
       { id: 'B20260409-003', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '13:00:00', type: '计算资源', price: 'SQL 算力档 Q1 · 30 Credit/h', usage: '0.08 h', credit: 2.40, status: 'settled' },
@@ -894,12 +894,12 @@
       { id: 'B20260409-005', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '10:00:00', type: '公网流量', price: '24 Credit/GB', usage: '2.3 GB', credit: 55.20, status: 'settled' },
       { id: 'B20260409-007', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '10:00:00', type: '数据 I/O', price: '3 Credit/万次', usage: '读 3.2 + 写 0.9 万次', credit: 12.30, status: 'settled' },
       { id: 'B20260409-006', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '09:00:00', type: 'Genesis', credit: 9.78, status: 'settled' },
-      // 王立华 (U10000003 · 外研社·AI 中台)
+      // 演示用户丙 (U10000003 · 示例教育集团·AI 中台)
       { id: 'B20260409-101', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '14:30:00', type: 'Genesis', credit: 28.40, status: 'pending' },
       { id: 'B20260409-102', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '11:00:00', type: '计算资源', price: 'CG4 · 60 Credit/h', usage: '3.2 h', credit: 192.00, status: 'pending' },
       { id: 'B20260409-103', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '10:30:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '128.5K tok', credit: 64.25, status: 'pending' },
       { id: 'B20260408-101', uid: 'U10000003', period: '2026-04', date: '2026-04-08', hour: '16:00:00', type: '数据存储', price: '3 Credit/GB·月', usage: '850 GB·月', credit: 2550.00, status: 'settled' },
-      // 李雪 (U10000005 · 有临医药)
+      // 演示用户戊 (U10000005 · 示例医药企业)
       { id: 'B20260409-201', uid: 'U10000005', period: '2026-04', date: '2026-04-09', hour: '10:30:00', type: 'Genesis', credit: 16.22, status: 'pending' },
       { id: 'B20260409-202', uid: 'U10000005', period: '2026-04', date: '2026-04-09', hour: '09:00:00', type: '计算资源', price: 'CG2 · 30 Credit/h', usage: '1.8 h', credit: 54.00, status: 'pending' },
       { id: 'B20260408-201', uid: 'U10000005', period: '2026-04', date: '2026-04-08', hour: '15:00:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '64.0K tok', credit: 32.00, status: 'settled' },
@@ -1069,12 +1069,12 @@
           var hEnd = (parseInt(hStart) + 1).toString().padStart(2, '0') + ':00:00';
           timeCol = '<td style="font-size:12px">' + b.date + ' ' + hStart + ' ~ ' + hEnd + '</td>';
         }
-        // Genesis 行：单价 — / 用量 = "查看详情"按钮（带用户上下文）
+        // 独立模型服务页已移除，公开演示中不提供跳转入口。
         var priceCol, usageCol;
         if (b.type === 'Genesis') {
           priceCol = '<td style="font-size:12px;color:rgba(0,0,0,0.25)">—</td>';
           var range = periodToDateRange(b.period);
-          usageCol = '<td><a href="../taas/taas.html?tab=usage&from=' + range.from + '&to=' + range.to + '&uid=' + b.uid + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #1677ff;color:#1677ff;border-radius:4px;font-size:12px;text-decoration:none;background:#fff;transition:all 0.15s" onmouseover="this.style.background=\'#e6f4ff\'" onmouseout="this.style.background=\'#fff\'">查看详情<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M9 7h8v8"/></svg></a></td>';
+          usageCol = '<td><span aria-disabled="true" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #d9d9d9;color:rgba(0,0,0,0.35);border-radius:4px;font-size:12px;background:#fafafa;cursor:default">公开演示不提供详情</span></td>';
         } else {
           priceCol = '<td style="font-size:12px">' + (b.price || '—') + '</td>';
           usageCol = '<td style="font-size:12px">' + (b.usage || '—') + '</td>';
@@ -1286,7 +1286,7 @@
         period: period,
         status: '成功',
         note: note,
-        operator: 'admin@matrixorigin.cn'
+        operator: '公开演示环境'
       });
       // 同时更新用户余额
       pickedUser.balance += cr;
@@ -1628,7 +1628,7 @@
           ioType: '收入', txType: '赠送', channel: channel, amount: '',
           credit: cr, period: period, status: '成功',
           note: '[' + batchTag + '] ' + note + (cycle === 'monthly' ? ' · 月度循环首期' : ''),
-          operator: 'admin@matrixorigin.cn'
+          operator: '公开演示环境'
         });
         u.balance += cr;
       });
@@ -2017,7 +2017,7 @@
       var now = new Date();
       var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
       var ts = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-      document.getElementById('rateLastModified').textContent = ts + ' by admin@matrixorigin.cn';
+      document.getElementById('rateLastModified').textContent = ts + ' by 公开演示环境';
       renderTiers();
       alert('Credit 兑换比已保存\n1 ¥ = ' + cnyRate + ' Credit · 1 $ = ' + usdRate + ' Credit');
     }

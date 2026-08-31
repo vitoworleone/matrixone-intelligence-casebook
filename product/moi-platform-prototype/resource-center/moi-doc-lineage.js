@@ -1,7 +1,7 @@
-// 非结构化数据血缘 demo 数据：矩阵起源产品介绍2026.pptx → 解析 → 清洗 → 分段 → 嵌入 → 知识库
+// 非结构化数据血缘 demo 数据：MOI产品介绍2026.pptx → 解析 → 清洗 → 分段 → 嵌入 → 知识库
 // 取 5 页代表性内容，构造 页 → 版面块 → chunk → 向量 的完整链路
 window.MOI_DOC_LINEAGE = {
-  file: '矩阵起源产品介绍2026.pptx',
+  file: 'MOI产品介绍2026.pptx',
   fileType: 'PPTX',
   pages: 33,
   size: '9.2 MB',
@@ -9,7 +9,7 @@ window.MOI_DOC_LINEAGE = {
   chunkTable: 'moi_doc_chunks',
   // 资产级处理管线（每一步是一个算子，可看参数）
   pipeline: [
-    { key: 'file', kind: 'file', name: '矩阵起源产品介绍2026.pptx', sub: 'PPTX · 33 页 · 9.2 MB' },
+    { key: 'file', kind: 'file', name: 'MOI产品介绍2026.pptx', sub: 'PPTX · 33 页 · 9.2 MB' },
     { key: 'parse', kind: 'op', name: '文档解析', badge: '抽取', out: '版面块 187',
       params: [['版面分析模型', 'PP-StructureV2'], ['OCR 模型', 'PaddleOCR-zh'], ['解析范围', '全部 33 页'], ['抽取内容', '标题 / 正文 / 表格 / 图片']] },
     { key: 'clean', kind: 'op', name: '清洗', badge: '清洗', out: '清洗后块 160（去 27 噪声）',
@@ -23,12 +23,12 @@ window.MOI_DOC_LINEAGE = {
   // 选入 demo 的页（版面块）
   pages_data: [
     { page: 4, label: '公司概览', blocks: [
-      { id: 'p4-t', kind: '标题', text: '矩阵起源公司介绍' },
+      { id: 'p4-t', kind: '标题', text: 'MOI公司介绍' },
       { id: 'p4-stat', kind: '数据卡', text: '2021 年成立　·　~70 人团队　·　>70% 研发占比　·　20+ 发明专利　·　100+ 付费企业客户' },
       { id: 'p4-mission', kind: '正文', text: '使命：为数字世界提供简捷强大的数据智能操作系统。' },
       { id: 'p4-vision', kind: '正文', text: '愿景：成为行业领先的数据智能基础软件公司，帮助所有企业和用户简单、敏捷、高效地拥抱数据价值。' },
       { id: 'p4-team', kind: '正文', text: '团队与积淀：成员来自 清华 / 北大 / MIT / 威斯康星，以及 亚马逊 / Meta / 腾讯 / 华为 等头部企业，平均 10 年以上产品商业化经验。办公地点：深圳（总部）· 上海 · 北京 · 硅谷。' },
-      { id: 'p4-foot', kind: '页脚', noise: true, text: '矩阵起源 · MatrixOne Intelligence　04' }
+      { id: 'p4-foot', kind: '页脚', noise: true, text: 'MOI · MatrixOne Intelligence　04' }
     ] },
     { page: 8, label: '症结一 · 数据整合', blocks: [
       { id: 'p8-t', kind: '标题', text: '企业数据与知识，从未被真正整合' },
@@ -39,7 +39,7 @@ window.MOI_DOC_LINEAGE = {
       { id: 'p8-c2b', kind: '正文', text: '80% 的企业价值沉淀在文档、合同、图像、音视频里，并以每年 60% 的速度增长，传统数据栈根本处理不了。' },
       { id: 'p8-c3t', kind: '小标题', text: '新型数据工程' },
       { id: 'p8-c3b', kind: '正文', text: 'AI 需要全新的流水线：解析、分段、向量化、治理。传统 ETL 从未为此设计，却吃掉每个 AI 项目 60–80% 的成本。' },
-      { id: 'p8-foot', kind: '页脚', noise: true, text: '矩阵起源 · MatrixOne Intelligence　07' }
+      { id: 'p8-foot', kind: '页脚', noise: true, text: 'MOI · MatrixOne Intelligence　07' }
     ] },
     { page: 16, label: '数据工程层', blocks: [
       { id: 'p16-t', kind: '标题', text: '数据工程层 —— AI 原生数据工程' },
@@ -50,7 +50,7 @@ window.MOI_DOC_LINEAGE = {
       { id: 'p16-c2b', kind: '正文', text: '流水线自动运行，数据集可版本化、可订阅分发；行业数据集一次准备，N 个场景复用。' },
       { id: 'p16-c3t', kind: '小标题', text: '把复杂度交给平台' },
       { id: 'p16-c3b', kind: '正文', text: '不再为每种模态维护多套 ETL / Pipeline，工程复杂度由平台统一承担，交付周期大幅缩短。' },
-      { id: 'p16-foot', kind: '页脚', noise: true, text: '矩阵起源 · MatrixOne Intelligence　15' }
+      { id: 'p16-foot', kind: '页脚', noise: true, text: 'MOI · MatrixOne Intelligence　15' }
     ] },
     { page: 22, label: '场景一 · 文档智能', blocks: [
       { id: 'p22-t', kind: '标题', text: '文档智能场景' },
@@ -60,7 +60,7 @@ window.MOI_DOC_LINEAGE = {
       { id: 'p22-val', kind: '正文', text: '价值：人工数天 → 分钟级；标准统一、每一处检查都可审计。' },
       { id: 'p22-case1', kind: '案例', text: '合同审查：对照标准模板识别风险与非标条款，生成结构化审查报告 —— 数天→分钟。' },
       { id: 'p22-case2', kind: '案例', text: '投标助手：解析百页招标文件，自动抽取要求、生成框架、做合规校验与敏感信息脱敏。' },
-      { id: 'p22-foot', kind: '页脚', noise: true, text: '矩阵起源 · MatrixOne Intelligence　19' }
+      { id: 'p22-foot', kind: '页脚', noise: true, text: 'MOI · MatrixOne Intelligence　19' }
     ] },
     { page: 23, label: '场景二 · 智能检索', blocks: [
       { id: 'p23-t', kind: '标题', text: '智能数据检索场景' },
@@ -70,14 +70,14 @@ window.MOI_DOC_LINEAGE = {
       { id: 'p23-val', kind: '正文', text: '价值：让 Agent 真正读懂企业知识，结果可溯源、可解释。' },
       { id: 'p23-case1', kind: '案例', text: '销售赋能：面向一线代表的多模态 RAG 助手，在万页健康科学文档中秒级给出循证建议。' },
       { id: 'p23-case2', kind: '案例', text: '深度研究：融合内部数据与外部文献，自动拆解问题、生成带引用的多源报告，数周→数小时。' },
-      { id: 'p23-foot', kind: '页脚', noise: true, text: '矩阵起源 · MatrixOne Intelligence　20' }
+      { id: 'p23-foot', kind: '页脚', noise: true, text: 'MOI · MatrixOne Intelligence　20' }
     ] }
   ],
   // chunk：每条带来源版面块 + 清洗说明 + 最终文本 + 向量预览
   chunks: [
     { id: 'mc-001', page: 4, title: '公司概览 · 关键数字', from: ['p4-t', 'p4-stat'],
-      cleanNote: '移除页脚「矩阵起源 · MatrixOne Intelligence 04」；全角空格归一',
-      text: '矩阵起源公司介绍。2021 年成立，约 70 人团队，研发占比超 70%，20+ 发明专利，100+ 付费企业客户。',
+      cleanNote: '移除页脚「MOI · MatrixOne Intelligence 04」；全角空格归一',
+      text: 'MOI公司介绍。2021 年成立，约 70 人团队，研发占比超 70%，20+ 发明专利，100+ 付费企业客户。',
       vec: [0.0182, -0.0431, 0.0967, 0.0114, -0.0623, 0.0388, -0.0152, 0.0741] },
     { id: 'mc-002', page: 4, title: '使命与愿景', from: ['p4-mission', 'p4-vision'],
       cleanNote: '合并两段；去重首尾空白',
