@@ -541,13 +541,11 @@ function kindTag(kind) {
 }
 
 // ===== Default Data =====
-var STORAGE_KEY = 'moi_compute_resources_v5';
-// 默认通用 / 默认 SQL 两个资源是 MOI 提供给公有云用户的共享、免费计算资源（目的是快速上手）：
-// 由平台统一运维，规格 / 节点 / 自动暂停 / 负载等不对用户展示（列表显示 -），无权限配置，详情只有基本信息。
+var STORAGE_KEY = 'moi_compute_resources_v4';
 function getDefaultData() {
   return [
     {
-      id: 'crq0', name: '默认 SQL 资源', desc: 'MOI 提供的共享免费 SQL 计算资源，供 SQL 编辑器、SQL 节点、结构化载入 / 导出读写 MO 表，用于快速上手',
+      id: 'crq0', name: '默认 SQL 资源', desc: '工作区默认 SQL 计算资源，供 SQL 编辑器、SQL 节点、结构化载入/导出读写 MO 表',
       kind: 'query', specId: 'Q2', minNodes: 1, maxNodes: 3, currentNodes: 1,
       autoSuspend: 10, status: 'running', isDefault: true,
       createdAt: '2026-02-15 09:00', createdBy: '系统', createdRole: '系统',
@@ -564,12 +562,12 @@ function getDefaultData() {
       id: 'crq1', name: 'BI 专用资源', desc: '供 BI 直连与联邦查询使用的 SQL 算力',
       kind: 'query', specId: 'Q4', minNodes: 1, maxNodes: 2, currentNodes: 0,
       autoSuspend: 30, status: 'suspended', isDefault: false,
-      createdAt: '2026-03-08 10:00', createdBy: '张三', createdRole: '数据工程师',
+      createdAt: '2026-03-08 10:00', createdBy: '演示用户壬', createdRole: '数据工程师',
       nodes: [],
       history: [ { name: 'BI 报表直连', type: 'sql', startAt: '昨天 18:30', duration: '1 分', result: '成功' } ]
     },
     {
-      id: 'cr1', name: '默认通用资源', desc: 'MOI 提供的共享免费通用计算资源，供工作流非 SQL 节点、文档解析、载入 / 导出处理等，用于快速上手',
+      id: 'cr1', name: '默认通用资源', desc: '工作区默认通用计算资源，供工作流非 SQL 节点、文档解析、载入/导出处理等',
       kind: 'task', specId: 'CG2', minNodes: 1, maxNodes: 3, currentNodes: 2,
       autoSuspend: 10, status: 'running', isDefault: true,
       createdAt: '2026-02-15 09:00', createdBy: '系统', createdRole: '系统',
@@ -587,7 +585,7 @@ function getDefaultData() {
       id: 'cr2', name: 'GPU 推理资源', desc: '用于模型推理和嵌入计算',
       specId: 'GI1', minNodes: 1, maxNodes: 2, currentNodes: 1,
       autoSuspend: 30, status: 'running', isDefault: false,
-      createdAt: '2026-03-01 14:30', createdBy: '张三', createdRole: '数据工程师',
+      createdAt: '2026-03-01 14:30', createdBy: '演示用户壬', createdRole: '数据工程师',
       nodes: [
         { name: '节点 1', cpu: 30, mem: 55, gpu: 48, tasks: [ { name: '文本嵌入批处理', type: 'workflow', elapsed: '6 分', progress: '嵌入 8.2K/12K' } ] }
       ],
@@ -605,7 +603,7 @@ function getDefaultData() {
       id: 'cr4', name: '开发测试资源', desc: '轻量级资源，用于 Notebook 开发调试',
       specId: 'CG1', minNodes: 1, maxNodes: 1, currentNodes: 1,
       autoSuspend: 5, status: 'running', isDefault: false,
-      createdAt: '2026-03-10 16:00', createdBy: '王五', createdRole: '开发者',
+      createdAt: '2026-03-10 16:00', createdBy: '演示用户辛', createdRole: '开发者',
       nodes: [
         { name: '节点 1', cpu: 12, mem: 28, tasks: [] }
       ],
@@ -615,7 +613,7 @@ function getDefaultData() {
       id: 'cr5', name: 'GPU 训练集群', desc: '大规模 GPU 集群，用于模型微调训练',
       specId: 'GT4', minNodes: 1, maxNodes: 2, currentNodes: 0,
       autoSuspend: 60, status: 'suspended', isDefault: false,
-      createdAt: '2026-03-12 11:00', createdBy: '张三', createdRole: '数据工程师',
+      createdAt: '2026-03-12 11:00', createdBy: '演示用户壬', createdRole: '数据工程师',
       nodes: [],
       history: []
     }
@@ -753,23 +751,10 @@ function renderList() {
     var suspendLabel = r.autoSuspend === 0 ? '不自动暂停' : r.autoSuspend + ' 分钟';
     var linkCount = r.linked ? r.linked.length : 0;
 
-    var dash = '<span style="color:rgba(0,0,0,0.25)">-</span>';
-    if (r.isDefault) {
-      // 平台共享免费资源：只展示名称 / 类型 / 状态 / 创建时间，其余列 -，无权限与删除操作
-      html += '<tr>'
-        + '<td><span class="res-name" onclick="openDrawer(\'' + r.id + '\')">' + r.name + '</span>'
-        + ' <span style="font-size:11px;color:rgba(0,0,0,0.35);background:#f5f5f5;padding:1px 6px;border-radius:3px">默认</span></td>'
-        + '<td>' + kindTag(r.kind) + '</td>'
-        + '<td>' + dash + '</td><td>' + dash + '</td><td>' + dash + '</td>'
-        + '<td>' + statusBadge(r.status) + '</td>'
-        + '<td>' + dash + '</td>'
-        + '<td>' + r.createdAt + '</td>'
-        + '<td>' + dash + '</td>'
-        + '</tr>';
-      return;
-    }
     html += '<tr>'
-      + '<td><span class="res-name" onclick="openDrawer(\'' + r.id + '\')">' + r.name + '</span></td>'
+      + '<td><span class="res-name" onclick="openDrawer(\'' + r.id + '\')">' + r.name + '</span>'
+      + (r.isDefault ? ' <span style="font-size:11px;color:rgba(0,0,0,0.35);background:#f5f5f5;padding:1px 6px;border-radius:3px">默认</span>' : '')
+      + '</td>'
       + '<td>' + kindTag(r.kind) + '</td>'
       + '<td>' + specTag(r.specId) + '</td>'
       + '<td>' + r.currentNodes + ' <span style="color:rgba(0,0,0,0.4)">(' + r.minNodes + '-' + r.maxNodes + ')</span></td>'
@@ -777,7 +762,7 @@ function renderList() {
       + '<td>' + statusBadge(r.status) + '</td>'
       + '<td>' + (linkCount > 0 ? '<span style="color:#1677ff;cursor:pointer" onclick="openLinkedModal(\'' + r.id + '\')">' + linkCount + ' 个</span>' : '<span style="color:rgba(0,0,0,0.25)">无</span>') + '</td>'
       + '<td>' + r.createdAt + '</td>'
-      + '<td><button class="tbl-act-link" onclick="event.stopPropagation();ObjPerm.open(\'计算资源\', \'' + r.name + '\')">权限</button> <button class="tbl-act-link danger" onclick="doDelete(\'' + r.id + '\')">删除</button></td>'
+      + '<td><button class="tbl-act-link" onclick="event.stopPropagation();ObjPerm.open(\'计算资源\', \'' + r.name + '\')">权限</button> ' + (!r.isDefault ? '<button class="tbl-act-link danger" onclick="doDelete(\'' + r.id + '\')">删除</button>' : '<span style="color:rgba(0,0,0,0.25)">-</span>') + '</td>'
       + '</tr>';
   });
   tbody.innerHTML = html;
@@ -1015,26 +1000,6 @@ function openDrawer(id) {
   var acts = '';
   if (!r.isDefault) acts += '<button class="detail-act danger" onclick="doDelete(\'' + r.id + '\')">删除</button>';
   document.getElementById('detailPageActions').innerHTML = acts;
-
-  if (r.isDefault) {
-    // 平台共享免费资源：详情只有基本信息（类型 / 状态 / 创建时间 / 说明），不展示规格、价格、负载与历史
-    document.getElementById('detailPageBody').innerHTML =
-      '<div class="info-card"><h4>基本信息</h4>'
-      + '<div class="info-grid-4">'
-      + infoItem('类型', kindTag(r.kind))
-      + infoItem('状态', statusBadge(r.status))
-      + infoItem('创建时间', r.createdAt)
-      + infoItem('创建人', r.createdBy)
-      + '</div>'
-      + '<div style="margin-top:14px">' + infoItem('说明', r.desc || '—') + '</div></div>'
-      + '<div style="display:flex;align-items:flex-start;gap:8px;background:#e6f4ff;border:1px solid #91caff;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#0958d9;line-height:1.7;margin-top:14px">'
-      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px;flex-shrink:0;margin-top:3px"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></svg>'
-      + '<div>这是 MOI 提供给公有云用户的共享免费计算资源，由平台统一运维，规格、节点与负载不对用户展示。需要独占算力或稳定吞吐时，请<a href="javascript:void(0)" onclick="closeDrawer();openCreateModal()" style="color:#0958d9;font-weight:500">新建计算资源</a>。</div></div>';
-    document.getElementById('listPage').style.display = 'none';
-    document.getElementById('detailPage').style.display = '';
-    document.querySelector('.main').scrollTop = 0;
-    return;
-  }
 
   var suspendLabel = r.autoSuspend === 0 ? '不自动暂停' : r.autoSuspend + ' 分钟无活动';
   var specText = s ? (s.familyName + ' · ' + s.id + '（' + s.cpu + 'C/' + s.mem + 'G' + (s.gpu > 0 ? ' / ' + s.gpu + '卡×' + s.gpuMem + 'G' : '') + '）') : r.specId;

@@ -367,8 +367,8 @@
                   <div id="bgUserDrop" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e6eb;border-radius:6px;margin-top:4px;max-height:240px;overflow-y:auto;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div>
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('外研社')">+ 外研社全部</button>
-                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('矩阵起源')">+ 矩阵起源员工</button>
+                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('示例教育集团')">+ 示例教育集团全部</button>
+                  <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('MOI')">+ MOI员工</button>
                   <button style="padding:4px 10px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:4px;font-size:12px;cursor:pointer" onclick="bgPickByOrg('个人开发者')">+ 个人开发者</button>
                 </div>
               </div>
@@ -511,19 +511,9 @@
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <div>
             <div class="admin-page-title">价格设置</div>
-            <div class="admin-page-desc" style="margin-bottom:0">充值（Credit 兑换比 · 折扣阶梯）与各计费项单价——账单按用量发生时刻的价格结算，改价记入操作审计</div>
+            <div class="admin-page-desc" style="margin-bottom:0">Credit 兑换比 · 折扣阶梯 · 各类计费项单价（陆续开放）</div>
           </div>
         </div>
-
-        <!-- Tab：充值 / 计费项单价 -->
-        <div style="display:flex;gap:4px;border-bottom:1px solid #f0f0f0;margin-bottom:18px">
-          <button class="bm-pricing-tab active" id="bmPricingTabBtn-recharge" onclick="bmSwitchPricingTab('recharge')" style="padding:9px 16px 11px;font-size:13.5px;color:#1677ff;font-weight:600;cursor:pointer;border:none;background:none;position:relative;border-bottom:2px solid #1677ff;margin-bottom:-1px">充值</button>
-          <button class="bm-pricing-tab" id="bmPricingTabBtn-items" onclick="bmSwitchPricingTab('items')" style="padding:9px 16px 11px;font-size:13.5px;color:rgba(0,0,0,0.55);cursor:pointer;border:none;background:none;position:relative;border-bottom:2px solid transparent;margin-bottom:-1px">计费项单价</button>
-          <button class="bm-pricing-tab" id="bmPricingTabBtn-log" onclick="bmSwitchPricingTab('log')" style="padding:9px 16px 11px;font-size:13.5px;color:rgba(0,0,0,0.55);cursor:pointer;border:none;background:none;position:relative;border-bottom:2px solid transparent;margin-bottom:-1px">操作记录</button>
-        </div>
-
-        <!-- ========== Tab 1：充值 ========== -->
-        <div id="bmPricingTab-recharge">
 
         <!-- ======= Credit 兑换比 ======= -->
         <div class="bm-section">
@@ -564,7 +554,7 @@
             </div>
           </div>
           <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:11px;color:rgba(0,0,0,0.45)">最近修改：<span id="rateLastModified">2026-04-01 10:00 by admin@matrixorigin.cn</span></div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.45)">最近修改：<span id="rateLastModified">2026-04-01 10:00 by 公开演示环境</span></div>
             <div style="display:flex;gap:8px">
               <button class="btn-sm" onclick="resetRate()">还原</button>
               <button class="btn-primary" style="padding:6px 18px" onclick="saveRate()">保存兑换比</button>
@@ -615,139 +605,13 @@
           </div>
         </div>
 
-        </div><!-- /bmPricingTab-recharge -->
-
-        <!-- ========== Tab 2：计费项单价 ========== -->
-        <div id="bmPricingTab-items" style="display:none">
-
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-            <label style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">服务站点</label>
-            <select id="bmPriceSite" onchange="bmSwitchPriceSite(this.value)" style="height:34px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;background:#fff;outline:none;min-width:230px"></select>
-            <label style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">Region</label>
-            <select id="bmPriceRegion" onchange="bmSwitchPriceRegion(this.value)" style="height:34px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;background:#fff;outline:none;min-width:170px"></select>
-            <span style="font-size:12px;color:rgba(0,0,0,0.4)">价格按 站点 × Region 独立配置，账单按用量发生 Region 的价格结算</span>
+        <!-- ======= 其他单价（占位）======= -->
+        <div class="bm-section">
+          <div class="bm-section-title">
+            <span>③ 其他计费项单价</span>
+            <span style="font-size:11px;color:rgba(0,0,0,0.45);font-weight:400">计算资源 / SQL / 存储 / 流量 / 订阅档位 / Genesis 模型单价</span>
           </div>
-
-          <div style="display:flex;align-items:flex-start;gap:8px;background:#e6f4ff;border:1px solid #91caff;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#0958d9;line-height:1.7;margin-bottom:16px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:3px"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></svg>
-            <div>各计费项单价的<strong>统一事实源</strong>：用户前台定价表、账单计价、计费项统计均按此处配置生效。改价支持立即或定时生效，全部进入操作记录与操作审计；账单按<strong>用量发生时刻</strong>的价格结算，改价不影响已产生的用量。所有单价以 Credit 计，充值折扣只影响 Credit 购入价、不影响单价。</div>
-          </div>
-
-          <!-- 计算资源：规格清单拉取自管理后台的计算资源配置(规格 / 配置只读),此处仅配置单价 -->
-          <div class="bm-section">
-            <div class="bm-section-title">
-              <span>计算资源</span>
-              <span style="font-size:11px;color:rgba(0,0,0,0.45);font-weight:400">规格清单来自 <a href="aistudio-management.html#compute" style="color:#1677ff">管理后台 › AI Studio › 计算资源</a>（此处不增删规格、仅配单价）· Credit / 节点 · 小时 · 平台默认共享资源免费、不在表内</span>
-            </div>
-            <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">
-              <table class="bill-table" style="width:100%">
-                <thead><tr><th style="width:90px">类型</th><th>规格族</th><th style="width:90px">规格</th><th>配置</th><th style="width:220px">单价（Credit / 节点 · 小时）</th></tr></thead>
-                <tbody id="bmSpecPriceBody"></tbody>
-              </table>
-            </div>
-            <div id="bmSaveBar-compute"></div>
-          </div>
-
-          <!-- AI 服务：不可见模型服务(固定价) + 可选模型服务(Genesis 原价 × markup) -->
-          <div class="bm-section">
-            <div class="bm-section-title">
-              <span>AI 服务</span>
-              <span style="font-size:11px;color:rgba(0,0,0,0.45);font-weight:400">两类价格：不可见模型服务收固定价；可选模型服务按 Genesis 原价 × markup</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-              <div style="padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px">
-                <div style="font-size:13px;font-weight:600;margin-bottom:4px">不可见模型服务 · 固定价</div>
-                <div style="font-size:11px;color:rgba(0,0,0,0.55);margin-bottom:10px">文档解析、信息提取、图片 / 音频解析、AI 推理、文本 / 图片嵌入、重排序、智能工作流、NL2SQL 等——用户无模型概念，收统一固定价；不区分输入 / 输出 / 缓存，平台更换底层模型不影响价格</div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:14px">
-                  <input type="number" id="bmAiFixed" min="1" step="10" style="width:110px;height:34px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;font-weight:600;text-align:center;outline:none">
-                  <span>Credit / 百万 token</span>
-                </div>
-                <div style="font-size:11px;color:rgba(0,0,0,0.4);margin-top:12px;padding-top:12px;border-top:1px dashed #e8e8e8">图片等多模态输入的 token 折算由上游 Genesis 完成，此处按折算后的 token 计费，无需单独配置</div>
-              </div>
-              <div style="padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px">
-                <div style="font-size:13px;font-weight:600;margin-bottom:4px">可选模型服务 · Genesis 原价 × markup</div>
-                <div style="font-size:11px;color:rgba(0,0,0,0.55);margin-bottom:10px">智能体对话、知识库问答及 RAG 等开放模型选择的服务——按用户所选模型的 Genesis 原价 × markup 计费，自动继承 Genesis 的输入 / 输出 / 缓存区分；此处只配置 markup，模型价随 Genesis 调价联动</div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:14px">
-                  <span style="color:rgba(0,0,0,0.55);font-size:13px">markup</span>
-                  <input type="number" id="bmAiMarkup" min="1" max="10" step="0.1" style="width:90px;height:34px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;font-weight:600;text-align:center;outline:none" oninput="bmRenderMarkupPreview()">
-                  <span>×</span>
-                </div>
-                <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px">
-                  <thead><tr style="color:rgba(0,0,0,0.4);text-align:left"><th style="padding:4px 6px;font-weight:500;border-bottom:1px solid #f0f0f0">示例模型</th><th style="padding:4px 6px;font-weight:500;border-bottom:1px solid #f0f0f0">Genesis 原价（输入 / 输出）</th><th style="padding:4px 6px;font-weight:500;border-bottom:1px solid #f0f0f0">× markup 后</th></tr></thead>
-                  <tbody id="bmMarkupPreview"></tbody>
-                </table>
-              </div>
-            </div>
-            <div id="bmSaveBar-ai"></div>
-          </div>
-
-          <!-- 数据存储 / 数据 I/O / 公网流量 -->
-          <div class="bm-section">
-            <div class="bm-section-title">
-              <span>数据存储 · 数据 I/O · 公网流量</span>
-              <span style="font-size:11px;color:rgba(0,0,0,0.45);font-weight:400">存储含原始数据 + 处理结果 + 向量 · I/O 为数据的读取和写入费用 · 流量出站计费、入站免费</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
-              <div style="padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px">
-                <div style="font-size:13px;font-weight:600;margin-bottom:10px">数据存储</div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:14px">
-                  <input type="number" id="bmStorage" min="0.1" step="0.5" style="width:90px;height:34px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;font-weight:600;text-align:center;outline:none">
-                  <span style="font-size:13px">Credit / GB · 月</span>
-                </div>
-              </div>
-              <div style="padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px">
-                <div style="font-size:13px;font-weight:600;margin-bottom:10px">数据 I/O <span style="font-weight:400;font-size:11px;color:rgba(0,0,0,0.45)">读、写分别配置</span></div>
-                <div style="display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:8px">
-                  <span style="width:30px;color:rgba(0,0,0,0.55)">读取</span>
-                  <input type="number" id="bmIoRead" min="0.1" step="0.5" style="width:76px;height:32px;padding:0 8px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;font-weight:600;text-align:center;outline:none">
-                  <span>Credit / 万次</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:6px;font-size:13px">
-                  <span style="width:30px;color:rgba(0,0,0,0.55)">写入</span>
-                  <input type="number" id="bmIoWrite" min="0.1" step="0.5" style="width:76px;height:32px;padding:0 8px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;font-weight:600;text-align:center;outline:none">
-                  <span>Credit / 万次</span>
-                </div>
-              </div>
-              <div style="padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px">
-                <div style="font-size:13px;font-weight:600;margin-bottom:10px">公网流量</div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:14px">
-                  <input type="number" id="bmNet" min="1" step="1" style="width:90px;height:34px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;font-weight:600;text-align:center;outline:none">
-                  <span style="font-size:13px">Credit / GB</span>
-                </div>
-                <div style="font-size:11px;color:rgba(0,0,0,0.55);margin-top:8px">出站计费，入站免费</div>
-              </div>
-            </div>
-            <div id="bmSaveBar-data"></div>
-          </div>
-
-          <!-- Genesis：编辑入口在模型管理（定价与模型上架 / 渠道成本强耦合），此处只读汇总 -->
-          <div class="bm-section">
-            <div class="bm-section-title">
-              <span>Genesis 模型单价</span>
-              <span style="font-size:11px;color:rgba(0,0,0,0.45);font-weight:400">按模型定价（区分输入 / 输出 / 缓存）· 定价与模型上架、渠道成本强耦合，编辑入口在 Genesis › 模型管理</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:28px;padding:14px 16px;background:#fafbfc;border:1px solid #f0f0f0;border-radius:8px">
-              <div><div style="font-size:11px;color:rgba(0,0,0,0.45)">对外模型</div><div style="font-size:20px;font-weight:650">28</div></div>
-              <div><div style="font-size:11px;color:rgba(0,0,0,0.45)">已定价</div><div style="font-size:20px;font-weight:650;color:#52c41a">25</div></div>
-              <div><div style="font-size:11px;color:rgba(0,0,0,0.45)">未定价<span style="margin-left:4px" title="未定价模型无法对外启用">?</span></div><div style="font-size:20px;font-weight:650;color:#fa8c16">3</div></div>
-              <div><div style="font-size:11px;color:rgba(0,0,0,0.45)">最近调价</div><div style="font-size:13px;font-weight:500;margin-top:4px">2026-04-06 · gpt-4o 输出价</div></div>
-              <div style="flex:1"></div>
-              <a href="taas-management.html#models" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid #1677ff;color:#1677ff;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;background:#fff">去模型定价<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-            </div>
-            <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:10px">模型定价在 Genesis 模型管理中维护（批量定价 / 上游成本对比 / 竞品参考 / xlsx 导入导出），每次改价与本页各项一样写入统一价格事实与操作审计。</div>
-          </div>
-
-        </div><!-- /bmPricingTab-items -->
-
-        <!-- ========== Tab 3：操作记录 ========== -->
-        <div id="bmPricingTab-log" style="display:none">
-          <div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:10px">价格域的全部修改记录（含充值配置与各站点计费项单价、Genesis 模型调价），同时写入全局操作审计</div>
-          <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">
-            <table class="bill-table" style="width:100%">
-              <thead><tr><th style="width:140px">时间</th><th style="width:170px">操作人</th><th style="width:190px">站点 / Region</th><th style="width:110px">计费项</th><th>变更内容</th><th style="width:130px">生效方式</th></tr></thead>
-              <tbody id="bmPriceLogBody"></tbody>
-            </table>
-          </div>
+          <div class="bm-placeholder">下一阶段开发：与 Genesis「模型管理」联动，统一收口在此处</div>
         </div>
       </div>
 
@@ -756,7 +620,7 @@
 
   <script src="../scripts/common.js"></script>
   <script src="../scripts/admin-data.js"></script>
-  <script src="../scripts/admin-common.js?v=20260828"></script>
+  <script src="../scripts/admin-common.js"></script>
   <script>
     // === Tab switch by hash ===
     var BM_PANELS = ['overview', 'usage', 'transactions', 'pricing'];
@@ -783,7 +647,7 @@
 
     // Mock 跨租户流水（覆盖 3 类 × 多用户 × 多渠道）
     var ADMIN_TXNS = [
-      // 今天的密集消费（陈思远 4-09）
+      // 今天的密集消费（演示用户甲 4-09）
       { id: 'T20260409154000001', uid: 'U10000001', time: '2026-04-09 15:40:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -3.82, period: '2026-04', status: '成功', note: '15:30~15:40 用量' },
       { id: 'T20260409153000002', uid: 'U10000001', time: '2026-04-09 15:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -2.94, period: '2026-04', status: '成功', note: '15:20~15:30 用量' },
       { id: 'T20260409143000003', uid: 'U10000003', time: '2026-04-09 14:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -28.40, period: '2026-04', status: '成功', note: '14:20~14:30 用量' },
@@ -795,22 +659,17 @@
       { id: 'T20260408094000008', uid: 'U10000003', time: '2026-04-08 09:40:00', ioType: '收入', txType: '充值', channel: '对公汇款', amount: '¥ 50,000.00', credit: 833333, period: '2026-04', status: '待确认', note: '银行流水待财务核验' },
       { id: 'T20260407163400009', uid: 'U10000009', time: '2026-04-07 16:34:00', ioType: '收入', txType: '充值', channel: 'PayPal', amount: '$ 200.00', credit: 15556, period: '2026-04', status: '成功', invoice: true },
       { id: 'T20260405100000010', uid: 'U10000001', time: '2026-04-05 10:00:00', ioType: '收入', txType: '充值', channel: '支付宝', amount: '¥ 400.00', credit: 4000, period: '2026-04', status: '成功', invoice: true },
-      // 赠送（覆盖各细分渠道）
-      { id: 'T20260409160000024', uid: 'U10000001', time: '2026-04-09 16:00:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 500, period: '2026-04', status: '成功', note: '邀请新用户 138****6621 注册激活 · 手机注册（邀请人奖励）', operator: '系统' },
-      { id: 'T20260409160000025', uid: 'U10000010', time: '2026-04-09 16:00:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 200, period: '2026-04', status: '成功', note: '受邀注册激活 · 手机注册（被邀请人奖励）', operator: '系统' },
-      { id: 'T20260409113000028', uid: 'U10000007', time: '2026-04-09 11:30:00', ioType: '收入', txType: '赠送', channel: '反馈奖励', amount: '', credit: 100, period: '2026-04', status: '成功', note: '有效反馈奖励 · FB-20260815-003（产品运营确认）', operator: 'admin@matrixorigin.cn' },
-      { id: 'T20260409091200026', uid: 'U10000001', time: '2026-04-09 09:12:00', ioType: '收入', txType: '赠送', channel: '每日签到', amount: '', credit: 100, period: '2026-04', status: '成功', note: '每日签到 · 本轮第 4 次', operator: '系统' },
-      { id: 'T20260408090500027', uid: 'U10000001', time: '2026-04-08 09:05:00', ioType: '收入', txType: '赠送', channel: '每日签到', amount: '', credit: 300, period: '2026-04', status: '成功', note: '每日签到 · 本轮累计第 3 次（含里程碑额外 +200）', operator: '系统' },
-      { id: 'T20260403163400011', uid: 'U10000001', time: '2026-04-03 16:34:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 500, period: '2026-04', status: '成功', note: '春季回归活动 · admin@matrixorigin.cn 发放', operator: 'admin@matrixorigin.cn' },
-      { id: 'T20260402100000012', uid: 'U10000002', time: '2026-04-02 10:00:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 5000, period: '2026-04', status: '成功', note: '内部测试额度', operator: 'admin@matrixorigin.cn' },
+      // 赠送（覆盖 4 个细分渠道）
+      { id: 'T20260403163400011', uid: 'U10000001', time: '2026-04-03 16:34:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 500, period: '2026-04', status: '成功', note: '春季回归活动 · 公开演示环境 发放', operator: '公开演示环境' },
+      { id: 'T20260402100000012', uid: 'U10000002', time: '2026-04-02 10:00:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 5000, period: '2026-04', status: '成功', note: '内部测试额度', operator: '公开演示环境' },
       // 月费扣费
       { id: 'T20260401000000013', uid: 'U10000001', time: '2026-04-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-04', status: '成功', note: 'Pro 订阅 · 4 月月费' },
       { id: 'T20260401000000014', uid: 'U10000003', time: '2026-04-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-04', status: '成功', note: 'Pro 订阅 · 4 月月费' },
       { id: 'T20260401000000015', uid: 'U10000005', time: '2026-04-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -99.00, period: '2026-04', status: '成功', note: 'Starter 订阅 · 4 月月费' },
       // 历史月份
       { id: 'T20260321140800016', uid: 'U10000001', time: '2026-03-21 14:08:00', ioType: '收入', txType: '充值', channel: '微信支付', amount: '¥ 1,000.00', credit: 11765, period: '2026-03', status: '成功', invoice: true },
-      { id: 'T20260315093400017', uid: 'U10000007', time: '2026-03-15 09:34:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 500, period: '2026-03', status: '成功', note: '邀请新用户 oc***hub 注册激活 · GitHub 注册（邀请人奖励）', operator: '系统' },
-      { id: 'T20260308103400018', uid: 'U10000004', time: '2026-03-08 10:34:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 1000, period: '2026-03', status: '成功', note: 'PoC 阶段补偿额度', operator: 'liu.yunying@matrixorigin.cn' },
+      { id: 'T20260315093400017', uid: 'U10000007', time: '2026-03-15 09:34:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 200, period: '2026-03', status: '成功', note: '邀请新用户 zhang@xxx 注册', operator: '系统' },
+      { id: 'T20260308103400018', uid: 'U10000004', time: '2026-03-08 10:34:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 1000, period: '2026-03', status: '成功', note: 'PoC 阶段补偿额度', operator: '公开演示环境' },
       { id: 'T20260301000000019', uid: 'U10000002', time: '2026-03-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -892.30, period: '2026-03', status: '成功', note: '3 月用量月度结算' },
       { id: 'T20260218113200020', uid: 'U10000006', time: '2026-02-18 11:32:00', ioType: '收入', txType: '充值', channel: 'Apple/Google Pay', amount: '$ 50.00', credit: 3684, period: '2026-02', status: '成功', invoice: false },
       { id: 'T20260214090000021', uid: 'U10000010', time: '2026-02-14 09:00:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 300, period: '2026-02', status: '成功', note: '情人节扫码赠送', operator: '系统' },
@@ -824,7 +683,7 @@
 
     var TXN_TYPE_STYLES = { '充值':'background:#e6f4ff;color:#1677ff', '消费':'background:#fff1f0;color:#ff4d4f', '赠送':'background:#fff7e6;color:#fa8c16' };
     var TXN_STATUS_STYLES = { '成功':'background:#f6ffed;color:#52c41a', '待确认':'background:#fffbe6;color:#fa8c16', '失败':'background:#fff1f0;color:#ff4d4f' };
-    var ALL_CHANNELS = ['支付宝','微信支付','对公汇款','信用卡','PayPal','Apple/Google Pay','电汇','MOI 系统','运营活动','邀请奖励','每日签到','反馈奖励','管理员发放','新人礼包'];
+    var ALL_CHANNELS = ['支付宝','微信支付','对公汇款','信用卡','PayPal','Apple/Google Pay','电汇','MOI 系统','运营活动','邀请奖励','管理员发放','新人礼包'];
     var ALL_STATUSES = ['成功','待确认','失败'];
 
     function renderAdminTxnTable() {
@@ -1027,53 +886,26 @@
     var ADMIN_BILL_STATUS = ['待结算','已结算'];
     // 跨用户的用量计费记录（模拟，覆盖各计费项）
     var ADMIN_BILLS = [
-      // 陈思远 (U10000001) — 4-09 当天
-      { id: 'B20260409-001', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: '计算资源', credit: 75.00, status: 'pending', children: [
-        { name: 'CG2 (4vCPU 16GB)', price: '30 Credit/h', usage: '2.0 h', credit: 60.00 },
-        { name: 'CG1 (2vCPU 8GB)', price: '15 Credit/h', usage: '1.0 h', credit: 15.00 }
-      ] },
-      { id: 'B20260409-002', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: 'AI 服务', credit: 28.80, status: 'pending', children: [
-        { name: '智能体对话', price: '500 Credit/百万 tok', usage: '24.8K tok', credit: 12.40 },
-        { name: '知识库问答及 RAG', price: '500 Credit/百万 tok', usage: '18.0K tok', credit: 9.00 },
-        { name: '文档解析', price: '500 Credit/百万 tok', usage: '8.8K tok', credit: 4.40 },
-        { name: '文本嵌入', price: '500 Credit/百万 tok', usage: '6.0K tok', credit: 3.00 }
-      ] },
+      // 演示用户甲 (U10000001) — 4-09 当天
+      { id: 'B20260409-001', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: '计算资源', price: 'CG2 · 30 Credit/h', usage: '2.5 h', credit: 75.00, status: 'pending' },
+      { id: 'B20260409-002', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '57.6K tok', credit: 28.80, status: 'pending' },
       { id: 'B20260409-003', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '13:00:00', type: '计算资源', price: 'SQL 算力档 Q1 · 30 Credit/h', usage: '0.08 h', credit: 2.40, status: 'settled' },
       { id: 'B20260409-004', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '11:00:00', type: '数据存储', price: '3 Credit/GB·月', usage: '190 GB·月', credit: 570.00, status: 'settled' },
       { id: 'B20260409-005', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '10:00:00', type: '公网流量', price: '24 Credit/GB', usage: '2.3 GB', credit: 55.20, status: 'settled' },
-      { id: 'B20260409-007', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '10:00:00', type: '数据 I/O', credit: 12.30, status: 'settled', children: [
-        { name: '读取', price: '3 Credit/万次', usage: '3.2 万次', credit: 9.60 },
-        { name: '写入', price: '3 Credit/万次', usage: '0.9 万次', credit: 2.70 }
-      ] },
+      { id: 'B20260409-007', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '10:00:00', type: '数据 I/O', price: '3 Credit/万次', usage: '读 3.2 + 写 0.9 万次', credit: 12.30, status: 'settled' },
       { id: 'B20260409-006', uid: 'U10000001', period: '2026-04', date: '2026-04-09', hour: '09:00:00', type: 'Genesis', credit: 9.78, status: 'settled' },
-      // 王立华 (U10000003 · 外研社·AI 中台)
+      // 演示用户丙 (U10000003 · 示例教育集团·AI 中台)
       { id: 'B20260409-101', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '14:30:00', type: 'Genesis', credit: 28.40, status: 'pending' },
-      { id: 'B20260409-102', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '11:00:00', type: '计算资源', credit: 192.00, status: 'pending', children: [
-        { name: 'CG4 (8vCPU 32GB)', price: '60 Credit/h', usage: '2.5 h', credit: 150.00 },
-        { name: 'CG2 (4vCPU 16GB)', price: '30 Credit/h', usage: '1.4 h', credit: 42.00 }
-      ] },
-      { id: 'B20260409-103', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '10:30:00', type: 'AI 服务', credit: 64.25, status: 'pending', children: [
-        { name: '智能体对话', price: '500 Credit/百万 tok', usage: '60.5K tok', credit: 30.25 },
-        { name: '知识库问答及 RAG', price: '500 Credit/百万 tok', usage: '40.0K tok', credit: 20.00 },
-        { name: '文档解析', price: '500 Credit/百万 tok', usage: '16.0K tok', credit: 8.00 },
-        { name: 'NL2SQL', price: '500 Credit/百万 tok', usage: '12.0K tok', credit: 6.00 }
-      ] },
+      { id: 'B20260409-102', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '11:00:00', type: '计算资源', price: 'CG4 · 60 Credit/h', usage: '3.2 h', credit: 192.00, status: 'pending' },
+      { id: 'B20260409-103', uid: 'U10000003', period: '2026-04', date: '2026-04-09', hour: '10:30:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '128.5K tok', credit: 64.25, status: 'pending' },
       { id: 'B20260408-101', uid: 'U10000003', period: '2026-04', date: '2026-04-08', hour: '16:00:00', type: '数据存储', price: '3 Credit/GB·月', usage: '850 GB·月', credit: 2550.00, status: 'settled' },
-      // 李雪 (U10000005 · 有临医药)
+      // 演示用户戊 (U10000005 · 示例医药企业)
       { id: 'B20260409-201', uid: 'U10000005', period: '2026-04', date: '2026-04-09', hour: '10:30:00', type: 'Genesis', credit: 16.22, status: 'pending' },
       { id: 'B20260409-202', uid: 'U10000005', period: '2026-04', date: '2026-04-09', hour: '09:00:00', type: '计算资源', price: 'CG2 · 30 Credit/h', usage: '1.8 h', credit: 54.00, status: 'pending' },
-      { id: 'B20260408-201', uid: 'U10000005', period: '2026-04', date: '2026-04-08', hour: '15:00:00', type: 'AI 服务', credit: 32.00, status: 'settled', children: [
-        { name: '知识库问答及 RAG', price: '500 Credit/百万 tok', usage: '38.0K tok', credit: 19.00 },
-        { name: '文本嵌入', price: '500 Credit/百万 tok', usage: '14.0K tok', credit: 7.00 },
-        { name: '重排序', price: '500 Credit/百万 tok', usage: '12.0K tok', credit: 6.00 }
-      ] },
+      { id: 'B20260408-201', uid: 'U10000005', period: '2026-04', date: '2026-04-08', hour: '15:00:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '64.0K tok', credit: 32.00, status: 'settled' },
       // Sarah Johnson (U10000006 · Acme)
       { id: 'B20260409-301', uid: 'U10000006', period: '2026-04', date: '2026-04-09', hour: '09:30:00', type: 'Genesis', credit: 42.18, status: 'pending' },
-      { id: 'B20260409-302', uid: 'U10000006', period: '2026-04', date: '2026-04-09', hour: '08:00:00', type: 'AI 服务', credit: 109.25, status: 'pending', children: [
-        { name: '智能体对话', price: '500 Credit/百万 tok', usage: '120.5K tok', credit: 60.25 },
-        { name: '文档解析', price: '500 Credit/百万 tok', usage: '58.0K tok', credit: 29.00 },
-        { name: '知识库问答及 RAG', price: '500 Credit/百万 tok', usage: '40.0K tok', credit: 20.00 }
-      ] },
+      { id: 'B20260409-302', uid: 'U10000006', period: '2026-04', date: '2026-04-09', hour: '08:00:00', type: 'AI 服务', price: '500 Credit/百万 tok', usage: '218.5K tok', credit: 109.25, status: 'pending' },
       { id: 'B20260408-301', uid: 'U10000006', period: '2026-04', date: '2026-04-08', hour: '14:00:00', type: '公网流量', price: '24 Credit/GB', usage: '12.6 GB', credit: 302.40, status: 'settled' },
       // 月初订阅扣费（多用户）
       { id: 'B20260401-M01', uid: 'U10000001', period: '2026-04', date: '2026-04-01', hour: '00:00:00', type: '专属支持', price: '199 Credit/月', usage: '1 月', credit: 199.00, status: 'settled' },
@@ -1088,9 +920,6 @@
     var adminBillFilters = { type: [], status: [] };
     var adminBillPage = 1;
     var adminBillPeriod = 'month'; // 'month' | 'day' | 'hour'
-    // 可展开账单行（AI 服务按 AI 服务细分、计算资源按规格细分等）的展开状态——与用户前台用量明细同款交互
-    var expandedAdminBills = {};
-    function toggleAdminBillExpand(id) { expandedAdminBills[id] = !expandedAdminBills[id]; renderAdminBillTable(); }
 
     function setAdminBillPeriod(p, el) {
       adminBillPeriod = p;
@@ -1240,20 +1069,12 @@
           var hEnd = (parseInt(hStart) + 1).toString().padStart(2, '0') + ':00:00';
           timeCol = '<td style="font-size:12px">' + b.date + ' ' + hStart + ' ~ ' + hEnd + '</td>';
         }
-        // 可展开行（AI 服务等带 children 的计费项）：父行是汇总（单价 / 用量为 —），点击展开子行看细分——与用户前台用量明细同款交互
-        var hasChildren = b.children && b.children.length > 0;
-        var isExpanded = expandedAdminBills[b.id];
-        var expandIcon = hasChildren ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:' + (isExpanded ? '#e6f4ff' : '#f5f5f5') + ';cursor:pointer;margin-left:4px;color:' + (isExpanded ? '#1677ff' : 'rgba(0,0,0,0.3)') + ';font-size:11px;vertical-align:middle">' + (isExpanded ? '▾' : '▸') + '</span>' : '';
-        // Genesis 行：单价 — / 用量 = "查看详情"按钮（带用户上下文）
+        // 独立模型服务页已移除，公开演示中不提供跳转入口。
         var priceCol, usageCol;
-        if (hasChildren) {
-          priceCol = '<td style="font-size:12px;color:rgba(0,0,0,0.25)">—</td>';
-          usageCol = '<td style="color:rgba(0,0,0,0.25)">—</td>';
-        } else if (b.type === 'Genesis') {
+        if (b.type === 'Genesis') {
           priceCol = '<td style="font-size:12px;color:rgba(0,0,0,0.25)">—</td>';
           var range = periodToDateRange(b.period);
-          // 跳管理后台 Genesis › 请求日志(带用户与账期上下文,Genesis 侧自动填搜索与自定义时间范围)
-          usageCol = '<td><a href="taas-management.html#logs?user=' + encodeURIComponent(u.name) + '&from=' + range.from + '&to=' + range.to + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #1677ff;color:#1677ff;border-radius:4px;font-size:12px;text-decoration:none;background:#fff;transition:all 0.15s" onmouseover="this.style.background=\'#e6f4ff\'" onmouseout="this.style.background=\'#fff\'">查看详情<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M9 7h8v8"/></svg></a></td>';
+          usageCol = '<td><span aria-disabled="true" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #d9d9d9;color:rgba(0,0,0,0.35);border-radius:4px;font-size:12px;background:#fafafa;cursor:default">公开演示不提供详情</span></td>';
         } else {
           priceCol = '<td style="font-size:12px">' + (b.price || '—') + '</td>';
           usageCol = '<td style="font-size:12px">' + (b.usage || '—') + '</td>';
@@ -1261,28 +1082,16 @@
         var statusBadge = b.status === 'pending'
           ? '<span class="bill-status" style="background:#e6f4ff;color:#1677ff">待结算</span>'
           : '<span class="bill-status" style="background:#f6ffed;color:#52c41a">已结算</span>';
-        var row = '<tr style="cursor:' + (hasChildren ? 'pointer' : 'default') + '"' + (hasChildren ? ' onclick="toggleAdminBillExpand(\'' + b.id + '\')"' : '') + '>'
+        return '<tr>'
           + '<td><div style="font-weight:600;color:rgba(0,0,0,0.88);font-size:13px">' + u.name + '</div>'
             + '<div style="font-family:monospace;font-size:11px;color:rgba(0,0,0,0.45);margin-top:2px">' + u.id + ' · ' + (u.org || '—') + '</div></td>'
           + '<td style="font-family:monospace;font-size:12px;color:rgba(0,0,0,0.55)">' + b.id + '</td>'
           + timeCol
-          + '<td><span class="badge" style="' + typeStyle + '">' + b.type + '</span>' + expandIcon + '</td>'
+          + '<td><span class="badge" style="' + typeStyle + '">' + b.type + '</span></td>'
           + priceCol + usageCol
           + '<td style="font-weight:600">' + b.credit.toFixed(2) + '</td>'
           + '<td>' + statusBadge + '</td>'
           + '</tr>';
-        if (isExpanded && hasChildren) {
-          b.children.forEach(function(c) {
-            row += '<tr style="background:#fafafa">'
-              + '<td></td><td></td><td></td>'
-              + '<td style="padding-left:28px;font-size:12px;color:rgba(0,0,0,0.55)">' + c.name + '</td>'
-              + '<td style="font-size:12px">' + c.price + '</td>'
-              + '<td style="font-size:12px">' + c.usage + '</td>'
-              + '<td style="font-size:12px;font-weight:500">' + c.credit.toFixed(2) + '</td>'
-              + '<td></td></tr>';
-          });
-        }
-        return row;
       }).join('');
     }
 
@@ -1477,7 +1286,7 @@
         period: period,
         status: '成功',
         note: note,
-        operator: 'admin@matrixorigin.cn'
+        operator: '公开演示环境'
       });
       // 同时更新用户余额
       pickedUser.balance += cr;
@@ -1819,7 +1628,7 @@
           ioType: '收入', txType: '赠送', channel: channel, amount: '',
           credit: cr, period: period, status: '成功',
           note: '[' + batchTag + '] ' + note + (cycle === 'monthly' ? ' · 月度循环首期' : ''),
-          operator: 'admin@matrixorigin.cn'
+          operator: '公开演示环境'
         });
         u.balance += cr;
       });
@@ -2183,219 +1992,6 @@
       document.getElementById('rateUsd').value = PRICING.usd.rate;
       onRateChange();
       renderTiers();
-      renderItemPrices();
-    }
-
-    // ===== 计费项单价 Tab =====
-    function bmSwitchPricingTab(tab) {
-      ['recharge', 'items', 'log'].forEach(function(t) {
-        document.getElementById('bmPricingTab-' + t).style.display = t === tab ? '' : 'none';
-        var btn = document.getElementById('bmPricingTabBtn-' + t);
-        var on = t === tab;
-        btn.style.color = on ? '#1677ff' : 'rgba(0,0,0,0.55)';
-        btn.style.fontWeight = on ? '600' : '400';
-        btn.style.borderBottomColor = on ? '#1677ff' : 'transparent';
-      });
-      if (tab === 'log') bmRenderPriceLog();
-    }
-
-    // 服务站点 × Region 两级选择：先选站点、再选该站点下的 Region；价格按 站点 × Region 独立配置
-    var BM_SITES = [
-      { key: 'aliyun', label: '阿里云（中国 · 国内主站）', regions: [ { key: 'cn-hangzhou', label: '中国-杭州' }, { key: 'cn-beijing', label: '中国-北京' } ] },
-      { key: 'tencent', label: '腾讯云（中国）', regions: [ { key: 'cn-shanghai', label: '中国-上海' } ] },
-      { key: 'vv', label: 'Virtual Vision（沙特阿拉伯）', regions: [ { key: 'sa-riyadh', label: '沙特-利雅得' } ] },
-      { key: '1stack', label: '1Stack（马来西亚 · 新加坡）', regions: [ { key: 'my-kl', label: '马来西亚-吉隆坡' }, { key: 'sg', label: '新加坡' } ] }
-    ];
-    var bmCurSite = 'aliyun', bmCurRegion = 'cn-hangzhou';
-    function bmSiteOf(key) { return BM_SITES.filter(function(x) { return x.key === key; })[0]; }
-    function bmPriceKey() { return bmCurSite + '/' + bmCurRegion; }
-    function bmSiteLabel() {
-      var s = bmSiteOf(bmCurSite);
-      var r = s ? s.regions.filter(function(x) { return x.key === bmCurRegion; })[0] : null;
-      return (s ? s.label : bmCurSite) + ' · ' + (r ? r.label : bmCurRegion);
-    }
-
-    // 规格清单：逻辑上拉取自管理后台的计算资源配置(此处只读规格、只配单价);kind/family/conf 为拉取字段
-    var BM_SPEC_LIST = [
-      { kind: '通用', family: 'CPU 通用型', id: 'CG1', conf: '2 vCPU · 8 GB' },
-      { kind: '通用', family: 'CPU 通用型', id: 'CG2', conf: '4 vCPU · 16 GB' },
-      { kind: '通用', family: 'CPU 通用型', id: 'CG4', conf: '8 vCPU · 32 GB' },
-      { kind: '通用', family: 'CPU 内存型', id: 'CM2', conf: '4 vCPU · 32 GB' },
-      { kind: '通用', family: 'CPU 内存型', id: 'CM4', conf: '8 vCPU · 64 GB' },
-      { kind: '通用', family: 'GPU 推理型', id: 'GI1', conf: '8 vCPU · 32 GB · 1 卡 × 24G' },
-      { kind: '通用', family: 'GPU 推理型', id: 'GI4', conf: '32 vCPU · 128 GB · 4 卡 × 24G' },
-      { kind: '通用', family: 'GPU 训练型', id: 'GT1', conf: '12 vCPU · 96 GB · 1 卡 × 80G' },
-      { kind: '通用', family: 'GPU 训练型', id: 'GT4', conf: '48 vCPU · 384 GB · 4 卡 × 80G' },
-      { kind: '通用', family: 'GPU 训练型', id: 'GT8', conf: '96 vCPU · 768 GB · 8 卡 × 80G' },
-      { kind: 'SQL', family: 'SQL 算力档', id: 'Q1', conf: '4 vCPU · 16 GB' },
-      { kind: 'SQL', family: 'SQL 算力档', id: 'Q2', conf: '8 vCPU · 32 GB' },
-      { kind: 'SQL', family: 'SQL 算力档', id: 'Q4', conf: '16 vCPU · 64 GB' }
-    ];
-    // 各站点价格(mock:国内两站同价,海外站按 1.25x 上浮取整)
-    function bmDefaultPrices(mult) {
-      var base = { CG1: 15, CG2: 30, CG4: 60, CM2: 40, CM4: 80, GI1: 380, GI4: 1525, GT1: 1040, GT4: 4170, GT8: 8340, Q1: 30, Q2: 60, Q4: 120 };
-      var specs = {};
-      Object.keys(base).forEach(function(k) { specs[k] = Math.round(base[k] * mult); });
-      return { specs: specs, aiFixed: Math.round(500 * mult), aiMarkup: 1.5, storage: Math.round(3 * mult), ioRead: Math.round(3 * mult), ioWrite: Math.round(3 * mult), net: Math.round(24 * mult) };
-    }
-    var BM_PRICE_SITES = {
-      'aliyun/cn-hangzhou': bmDefaultPrices(1), 'aliyun/cn-beijing': bmDefaultPrices(1), 'tencent/cn-shanghai': bmDefaultPrices(1),
-      'vv/sa-riyadh': bmDefaultPrices(1.25), '1stack/my-kl': bmDefaultPrices(1.25), '1stack/sg': bmDefaultPrices(1.3)
-    };
-    var BM_PRICE_BACKUP = JSON.parse(JSON.stringify(BM_PRICE_SITES));
-    var BM_ITEM_MODIFIED = { compute: '2026-04-01 10:00', ai: '2026-04-01 10:00', data: '2026-04-01 10:00' };
-    // 可选模型服务的 markup 换算示例(Genesis 原价,cr / 百万 token;实际清单以 Genesis 模型管理为准)
-    var BM_GENESIS_SAMPLE = [
-      { model: 'deepseek-v4-flash', tin: 4, tout: 12 },
-      { model: 'glm-5.2', tin: 20, tout: 80 },
-      { model: 'qwen3.7-plus', tin: 16, tout: 64 }
-    ];
-    // 价格操作记录:谁在什么时间、在哪个站点、把什么价格从多少改到多少
-    var BM_PRICE_LOG = [
-      { time: '2026-04-06 15:22', who: 'admin@matrixorigin.cn', site: 'Genesis（全站点）', item: 'Genesis', change: 'gpt-4o 输出价 380 → 360 cr/百万 token（模型管理侧调价）', eff: '立即生效' },
-      { time: '2026-04-01 10:00', who: 'admin@matrixorigin.cn', site: 'Virtual Vision（沙特阿拉伯）· 沙特-利雅得', item: '计算资源', change: 'GI1 400 → 475 cr/节点·小时；GI4 1600 → 1906 cr/节点·小时', eff: '定时 2026-04-05 00:00' },
-      { time: '2026-03-28 11:40', who: 'ops-chen@matrixorigin.cn', item: 'AI 服务', site: '阿里云（中国 · 国内主站）· 中国-杭州', change: '可选模型服务 markup 1.4 → 1.5 ×', eff: '立即生效' },
-      { time: '2026-03-15 09:30', who: 'admin@matrixorigin.cn', site: '全局', item: '充值', change: '国内折扣阶梯 T4 起始金额 1500 → 2000 ¥', eff: '立即生效' }
-    ];
-
-    // 保存条:最近修改 + 生效方式(立即 / 定时) + 还原 / 保存 —— 三个分区共用同一套机制
-    function bmSaveBar(section) {
-      return '<div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">'
-        + '<div style="font-size:11px;color:rgba(0,0,0,0.45)">最近修改：' + BM_ITEM_MODIFIED[section] + ' by admin@matrixorigin.cn</div>'
-        + '<div style="display:flex;align-items:center;gap:8px">'
-        + '<span style="font-size:12px;color:rgba(0,0,0,0.45)">生效方式</span>'
-        + '<select id="bmEff-' + section + '" onchange="document.getElementById(\'bmEffAt-' + section + '\').style.display=this.value===\'at\'?\'\':\'none\'" style="height:30px;padding:0 8px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;background:#fff;outline:none">'
-        + '<option value="now">立即生效</option><option value="at">定时生效</option></select>'
-        + '<input type="datetime-local" id="bmEffAt-' + section + '" style="display:none;height:30px;padding:0 8px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;outline:none">'
-        + '<button class="btn-sm" onclick="bmResetItems(\'' + section + '\')">还原</button>'
-        + '<button class="btn-primary" style="padding:6px 18px" onclick="bmSaveItems(\'' + section + '\')">保存</button>'
-        + '</div></div>';
-    }
-
-    function bmCurPrices() { return BM_PRICE_SITES[bmPriceKey()]; }
-    function bmSwitchPriceSite(key) { bmCurSite = key; bmCurRegion = bmSiteOf(key).regions[0].key; renderItemPrices(); }
-    function bmSwitchPriceRegion(key) { bmCurRegion = key; renderItemPrices(); }
-    // 进入编辑前的快照(渲染时拍),保存时与当前值对比生成变更明细
-    var bmEditSnapshot = null;
-
-    function renderItemPrices() {
-      var body = document.getElementById('bmSpecPriceBody');
-      if (!body) return;
-      // 站点 → Region 两级级联下拉
-      var sel = document.getElementById('bmPriceSite');
-      if (sel && !sel.options.length) sel.innerHTML = BM_SITES.map(function(s) { return '<option value="' + s.key + '">' + s.label + '</option>'; }).join('');
-      if (sel) sel.value = bmCurSite;
-      var rsel = document.getElementById('bmPriceRegion');
-      if (rsel) {
-        rsel.innerHTML = bmSiteOf(bmCurSite).regions.map(function(r) { return '<option value="' + r.key + '">' + r.label + '</option>'; }).join('');
-        rsel.value = bmCurRegion;
-      }
-      var P = bmCurPrices();
-      // 计算资源规格表(规格清单只读,仅单价可编辑)
-      var lastFamily = null, html = '';
-      BM_SPEC_LIST.forEach(function(s, i) {
-        var famCell = s.family === lastFamily ? '' : s.family;
-        lastFamily = s.family;
-        var kindTag = s.kind === 'SQL'
-          ? '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#e6f7ff;color:#0958d9;border:1px solid #91caff">SQL</span>'
-          : '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f">通用</span>';
-        html += '<tr' + (famCell && i > 0 ? ' style="border-top:1px solid #f0f0f0"' : '') + '>'
-          + '<td>' + (famCell ? kindTag : '') + '</td>'
-          + '<td style="font-size:13px;' + (famCell ? 'font-weight:600' : 'color:rgba(0,0,0,0.35)') + '">' + (famCell || '〃') + '</td>'
-          + '<td style="font-family:monospace;font-weight:600">' + s.id + '</td>'
-          + '<td style="font-size:12px;color:rgba(0,0,0,0.65)">' + s.conf + '</td>'
-          + '<td><input type="number" min="1" step="1" value="' + P.specs[s.id] + '" oninput="bmCurPrices().specs[\'' + s.id + '\']=parseFloat(this.value)||0" style="width:110px;height:30px;padding:0 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;font-weight:600;outline:none;font-family:monospace;text-align:center"> <span style="font-size:11px;color:rgba(0,0,0,0.45)">cr / 节点·小时</span></td>'
-          + '</tr>';
-      });
-      body.innerHTML = html;
-      document.getElementById('bmAiFixed').value = P.aiFixed;
-      document.getElementById('bmAiMarkup').value = P.aiMarkup;
-      document.getElementById('bmStorage').value = P.storage;
-      document.getElementById('bmIoRead').value = P.ioRead;
-      document.getElementById('bmIoWrite').value = P.ioWrite;
-      document.getElementById('bmNet').value = P.net;
-      bmRenderMarkupPreview();
-      document.getElementById('bmSaveBar-compute').innerHTML = bmSaveBar('compute');
-      document.getElementById('bmSaveBar-ai').innerHTML = bmSaveBar('ai');
-      document.getElementById('bmSaveBar-data').innerHTML = bmSaveBar('data');
-      bmEditSnapshot = JSON.parse(JSON.stringify(P));
-    }
-    // 可选模型服务:Genesis 原价 × markup 联动预览
-    function bmRenderMarkupPreview() {
-      var m = parseFloat(document.getElementById('bmAiMarkup').value) || 0;
-      document.getElementById('bmMarkupPreview').innerHTML = BM_GENESIS_SAMPLE.map(function(s) {
-        return '<tr><td style="padding:4px 6px;font-family:monospace;border-bottom:1px solid #f5f5f5">' + s.model + '</td>'
-          + '<td style="padding:4px 6px;color:rgba(0,0,0,0.55);border-bottom:1px solid #f5f5f5">' + s.tin + ' / ' + s.tout + ' cr/百万</td>'
-          + '<td style="padding:4px 6px;font-weight:600;color:#1677ff;border-bottom:1px solid #f5f5f5">' + (s.tin * m).toFixed(1).replace(/\.0$/, '') + ' / ' + (s.tout * m).toFixed(1).replace(/\.0$/, '') + ' cr/百万</td></tr>';
-      }).join('');
-    }
-    function bmCollectItems(section) {
-      var P = bmCurPrices();
-      if (section === 'ai') {
-        P.aiFixed = parseFloat(document.getElementById('bmAiFixed').value) || 0;
-        P.aiMarkup = parseFloat(document.getElementById('bmAiMarkup').value) || 0;
-      }
-      if (section === 'data') {
-        P.storage = parseFloat(document.getElementById('bmStorage').value) || 0;
-        P.ioRead = parseFloat(document.getElementById('bmIoRead').value) || 0;
-        P.ioWrite = parseFloat(document.getElementById('bmIoWrite').value) || 0;
-        P.net = parseFloat(document.getElementById('bmNet').value) || 0;
-      }
-    }
-    // 变更明细:对比保存前后,生成"什么价格从多少到多少"
-    function bmDiffItems(section, before) {
-      var P = bmCurPrices(), out = [];
-      if (section === 'compute') {
-        BM_SPEC_LIST.forEach(function(s) { if (before.specs[s.id] !== P.specs[s.id]) out.push(s.id + ' ' + before.specs[s.id] + ' → ' + P.specs[s.id] + ' cr/节点·小时'); });
-      } else if (section === 'ai') {
-        if (before.aiFixed !== P.aiFixed) out.push('不可见模型服务固定价 ' + before.aiFixed + ' → ' + P.aiFixed + ' cr/百万 token');
-        if (before.aiMarkup !== P.aiMarkup) out.push('可选模型服务 markup ' + before.aiMarkup + ' → ' + P.aiMarkup + ' ×');
-      } else {
-        if (before.storage !== P.storage) out.push('数据存储 ' + before.storage + ' → ' + P.storage + ' cr/GB·月');
-        if (before.ioRead !== P.ioRead) out.push('数据 I/O 读取 ' + before.ioRead + ' → ' + P.ioRead + ' cr/万次');
-        if (before.ioWrite !== P.ioWrite) out.push('数据 I/O 写入 ' + before.ioWrite + ' → ' + P.ioWrite + ' cr/万次');
-        if (before.net !== P.net) out.push('公网流量 ' + before.net + ' → ' + P.net + ' cr/GB');
-      }
-      return out;
-    }
-    function bmSaveItems(section) {
-      var before = bmEditSnapshot || JSON.parse(JSON.stringify(bmCurPrices()));
-      bmCollectItems(section);
-      var P = bmCurPrices();
-      var bad = section === 'compute' ? BM_SPEC_LIST.some(function(s) { return !(P.specs[s.id] > 0); })
-        : section === 'ai' ? !(P.aiFixed > 0 && P.aiMarkup >= 1)
-        : !(P.storage > 0 && P.ioRead > 0 && P.ioWrite > 0 && P.net > 0);
-      if (bad) { alert(section === 'ai' ? '固定价须大于 0，markup 须 ≥ 1' : '单价必须大于 0'); return; }
-      var changes = bmDiffItems(section, before);
-      if (!changes.length) { alert('没有需要保存的变更'); return; }
-      var eff = document.getElementById('bmEff-' + section).value;
-      var effAt = document.getElementById('bmEffAt-' + section).value;
-      if (eff === 'at' && !effAt) { alert('请选择生效时间'); return; }
-      var now = new Date(), pad = function(n) { return n < 10 ? '0' + n : '' + n; };
-      var ts = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-      BM_ITEM_MODIFIED[section] = ts;
-      var label = { compute: '计算资源', ai: 'AI 服务', data: '数据存储 · 数据 I/O · 公网流量' }[section];
-      var effLabel = eff === 'at' ? '定时 ' + effAt.replace('T', ' ') : '立即生效';
-      BM_PRICE_LOG.unshift({ time: ts, who: 'admin@matrixorigin.cn', site: bmSiteLabel(), item: label, change: changes.join('；'), eff: effLabel });
-      renderItemPrices();
-      alert(label + ' 单价已保存（' + bmSiteLabel() + '）\n' + changes.join('\n') + '\n' + effLabel + '；已写入操作记录与操作审计');
-    }
-    function bmResetItems(section) {
-      var bak = BM_PRICE_BACKUP[bmPriceKey()], P = bmCurPrices();
-      if (section === 'compute') P.specs = JSON.parse(JSON.stringify(bak.specs));
-      if (section === 'ai') { P.aiFixed = bak.aiFixed; P.aiMarkup = bak.aiMarkup; }
-      if (section === 'data') { P.storage = bak.storage; P.ioRead = bak.ioRead; P.ioWrite = bak.ioWrite; P.net = bak.net; }
-      renderItemPrices();
-    }
-    function bmRenderPriceLog() {
-      document.getElementById('bmPriceLogBody').innerHTML = BM_PRICE_LOG.map(function(l) {
-        return '<tr><td style="font-size:12px;color:rgba(0,0,0,0.55);white-space:nowrap">' + l.time + '</td>'
-          + '<td style="font-size:12px">' + l.who + '</td>'
-          + '<td style="font-size:12px;color:rgba(0,0,0,0.65)">' + l.site + '</td>'
-          + '<td><span class="badge" style="' + (ADMIN_BILL_TYPE_STYLES[l.item] || 'background:#f5f5f5;color:#8c8c8c') + '">' + l.item + '</span></td>'
-          + '<td style="font-size:12.5px">' + l.change + '</td>'
-          + '<td style="font-size:12px;color:rgba(0,0,0,0.55)">' + l.eff + '</td></tr>';
-      }).join('');
     }
 
     function onRateChange() {
@@ -2421,7 +2017,7 @@
       var now = new Date();
       var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
       var ts = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-      document.getElementById('rateLastModified').textContent = ts + ' by admin@matrixorigin.cn';
+      document.getElementById('rateLastModified').textContent = ts + ' by 公开演示环境';
       renderTiers();
       alert('Credit 兑换比已保存\n1 ¥ = ' + cnyRate + ' Credit · 1 $ = ' + usdRate + ' Credit');
     }

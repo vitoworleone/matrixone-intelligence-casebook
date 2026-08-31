@@ -210,7 +210,7 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="menu-section">
-      <a class="menu-item" href="dashboard.html"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span></a>
+      <a class="menu-item" href="../dashboard/dashboard.html"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span></a>
       <div class="menu-item" onclick="toggleSubMenu('dataConn', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span></div>
       <div class="sub-menu" id="dataConn">
         <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/></svg></span>连接器</a>
@@ -219,8 +219,8 @@
       </div>
       <div class="menu-item" onclick="toggleSubMenu('dataProc', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span></div>
       <div class="sub-menu" id="dataProc">
-        <a class="sub-item" href="workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
-        <a class="sub-item" href="sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
       </div>
       <div class="menu-item" onclick="toggleSubMenu('resCenter', this)"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow">›</span></div>
       <div class="sub-menu" id="resCenter">
@@ -420,8 +420,8 @@
         { sql:"prepare __mo_stmt_id_3 from SELECT * FROM `system`.`statement_info`", db:'system', us:725, rows:0, bytes:0, result:0, cu:0 },
         { sql:"use `mo_sample_data_tpch_sf1`", db:'', us:232200, rows:0, bytes:0, result:0, cu:0 },
         { sql:"CREATE DATABASE mo_sample_data_tpch_sf1 FROM sys PUBLICATION mo_sample_pub", db:'', us:133500, rows:0, bytes:0, result:0, cu:6, type:'DDL' },
-        { sql:"use `lisong_tpch_sf1`", db:'', us:63100, rows:0, bytes:0, result:0, cu:0 },
-        { sql:"INSERT INTO orders SELECT * FROM staging_orders WHERE o_orderdate >= '2026-01-01'", db:'lisong_tpch_sf1', us:1240000, rows:150000, bytes:42000000, result:0, cu:42, type:'DML' },
+        { sql:"use `demo_user_01_tpch_sf1`", db:'', us:63100, rows:0, bytes:0, result:0, cu:0 },
+        { sql:"INSERT INTO orders SELECT * FROM staging_orders WHERE o_orderdate >= '2026-01-01'", db:'demo_user_01_tpch_sf1', us:1240000, rows:150000, bytes:42000000, result:0, cu:42, type:'DML' },
         { sql:"SELECT l_returnflag, l_linestatus, sum(l_quantity) AS sum_qty, avg(l_discount)\nFROM lineitem\nWHERE l_shipdate <= date '1998-12-01'\nGROUP BY l_returnflag, l_linestatus\nORDER BY l_returnflag, l_linestatus", db:'tpch_sf10', us:8420000, rows:59986052, bytes:1610000000, result:4, cu:512, plan:TPCH_PLAN, result_data:SAMPLE_RESULT }
       ];
       function statusFor(i){ if (i===3) return 'failed'; if (i===17) return 'running'; return 'success'; }
@@ -689,7 +689,7 @@
         + '</div>';
       var sqlCard = '<div class="sqlh-card"><div class="sqlh-card-title">SQL 文本<div class="sqlh-card-tool">'
         + '<button title="复制" onclick="copyText(decodeURIComponent(\''+encodeURIComponent(q.sql)+'\'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>'
-        + '<button title="在 SQL 编辑器打开" onclick="location.href=\'sql-editor.html\'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg></button>'
+        + '<button title="在 SQL 编辑器打开" onclick="location.href=\'../data-processing/sql-editor.html\'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg></button>'
         + '</div></div><pre class="sqlh-sql-pre">'+highlightSql(q.sql)+'</pre></div>';
       // results
       var resCard;

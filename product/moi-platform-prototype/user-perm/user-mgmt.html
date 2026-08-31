@@ -159,10 +159,10 @@
         <div style="display:flex;align-items:center;gap:8px;margin-left:16px;padding:4px 12px;background:rgba(0,74,240,0.04);border:1px solid rgba(0,74,240,0.12);border-radius:6px">
           <span style="font-size:12px;color:rgba(0,0,0,0.45)">当前角色</span>
           <select style="font-size:13px;font-weight:600;color:#004af0;border:none;background:none;outline:none;cursor:pointer" id="primaryRoleSelect" onchange="switchPrimaryRole(this.value)">
-            <option value="admin" selected>admin</option>
-            <option value="dev">data_developer</option>
-            <option value="agent_dev">agent_developer</option>
-            <option value="viewer">readonly_member</option>
+            <option value="admin" selected>工作区管理员</option>
+            <option value="dev">数据开发者</option>
+            <option value="agent_dev">智能体开发者</option>
+            <option value="viewer">只读成员</option>
           </select>
         </div>
         <div style="flex:1"></div>
@@ -220,7 +220,7 @@
       if (!roles.length) { alert('请至少选择一个预设角色'); return; }
       var days = document.getElementById('cuLinkExpire').value;
       var token = 'inv_' + Math.random().toString(36).slice(2, 10);
-      document.getElementById('cuLinkUrl').value = 'https://moi.matrixorigin.cn/invite/default-ws?token=' + token;
+      document.getElementById('cuLinkUrl').value = 'https://moi.moi-demo.cn/invite/default-ws?token=' + token;
       document.getElementById('cuLinkMeta').textContent = '预设角色：' + roles.join('、') + ' · ' + (days === '0' ? '永久有效' : days + ' 天内有效') + ' · 可随时在成员管理中作废';
       document.getElementById('cuLinkResult').style.display = '';
     }
@@ -290,13 +290,13 @@
     }
 
     var users = [
-      {id:1, name:'lisong', account:'lisong@matrixorigin.cn', status:'normal', roles:['superadmin'], defaultRole:'superadmin', created:'2025-01-15 10:00:00', remark:'系统管理员'},
-      {id:2, name:'chenwei', account:'chenwei@matrixorigin.cn', status:'normal', roles:['admin','data_developer'], defaultRole:'admin', created:'2025-02-20 14:30:00', remark:'技术负责人'},
-      {id:3, name:'wangwu', account:'138****5678', status:'normal', roles:['data_developer','readonly_member'], defaultRole:'data_developer', created:'2025-03-05 09:15:00', remark:'数据工程师'},
-      {id:4, name:'zhangsan', account:'zhangsan', status:'normal', roles:['agent_developer','data_developer','readonly_member'], defaultRole:'agent_developer', created:'2025-03-10 16:45:00', remark:'AI 应用开发'},
-      {id:5, name:'lisi', account:'lisi@example.com', status:'disabled', roles:['readonly_member'], defaultRole:'readonly_member', created:'2025-03-18 11:00:00', remark:'实习生（已离职）'}
+      {id:1, name:'demo_user_01', account:'公开演示环境', status:'normal', roles:['超级管理员'], defaultRole:'超级管理员', created:'2025-01-15 10:00:00', remark:'系统管理员'},
+      {id:2, name:'demo_user_02', account:'公开演示环境', status:'normal', roles:['工作区管理员','数据开发者'], defaultRole:'工作区管理员', created:'2025-02-20 14:30:00', remark:'技术负责人'},
+      {id:3, name:'demo_user_03', account:'138****5678', status:'normal', roles:['数据开发者','只读成员'], defaultRole:'数据开发者', created:'2025-03-05 09:15:00', remark:'数据工程师'},
+      {id:4, name:'demo_user_04', account:'demo_user_04', status:'normal', roles:['智能体开发者','数据开发者','只读成员'], defaultRole:'智能体开发者', created:'2025-03-10 16:45:00', remark:'AI 应用开发'},
+      {id:5, name:'demo_user_05', account:'公开演示环境', status:'disabled', roles:['只读成员'], defaultRole:'只读成员', created:'2025-03-18 11:00:00', remark:'实习生（已离职）'}
     ];
-    var allRoles = ['superadmin','admin','data_developer','agent_developer','readonly_member'];
+    var allRoles = ['超级管理员','工作区管理员','数据开发者','智能体开发者','只读成员'];
 
     function renderUserTable() {
       var tbody = document.getElementById('userTableBody');
@@ -333,7 +333,7 @@
     }
 
     function switchPrimaryRole(role) {
-      var labels = { admin: 'admin', dev: 'data_developer', agent_dev: 'agent_developer', viewer: 'readonly_member' };
+      var labels = { admin: '工作区管理员', dev: '数据开发者', agent_dev: '智能体开发者', viewer: '只读成员' };
       // Mock: just show a toast-like feedback
       var name = labels[role] || role;
       var el = document.getElementById('primaryRoleSelect');
@@ -357,8 +357,8 @@
       allRoles.forEach(function(r) {
         var checked = _mrState.roles.indexOf(r) !== -1;
         var isDef = _mrState.def === r;
-        var isSuper = r === 'superadmin';
-        // superadmin与工作区创建者绑死:不可授予、不可回收——复选框一律锁定(创建者呈勾选态,其他人呈不可勾态)
+        var isSuper = r === '超级管理员';
+        // 超级管理员与工作区创建者绑死:不可授予、不可回收——复选框一律锁定(创建者呈勾选态,其他人呈不可勾态)
         html += '<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid ' + (isDef ? '#1677ff' : '#f0f0f0') + ';border-radius:6px;cursor:' + (isSuper ? 'not-allowed' : 'pointer') + ';font-size:13px' + (isDef ? ';background:#f0f7ff' : (isSuper ? ';background:#fafafa' : '')) + '">';
         html += '<input type="checkbox" value="' + r + '"' + (checked ? ' checked' : '') + (isSuper ? ' disabled' : '') + ' onchange="mrToggleRole(this)" style="accent-color:#1677ff;width:15px;height:15px">';
         html += '<span style="flex:1;color:' + (isSuper ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.88)') + '">' + r + (isSuper ? ' <span style="font-size:11px;color:#d48806;background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:1px 6px;margin-left:6px">与工作区创建者绑定，不可授予 / 回收</span>' : '') + '</span>';
@@ -370,8 +370,8 @@
     }
     function mrToggleRole(cb) {
       var r = cb.value;
-      // superadmin与工作区创建者绑死,不参与授予 / 回收
-      if (r === 'superadmin') { cb.checked = _mrState.roles.indexOf(r) !== -1; return; }
+      // 超级管理员与工作区创建者绑死,不参与授予 / 回收
+      if (r === '超级管理员') { cb.checked = _mrState.roles.indexOf(r) !== -1; return; }
       if (cb.checked) {
         if (_mrState.roles.indexOf(r) === -1) _mrState.roles.push(r);
       } else {
@@ -647,11 +647,11 @@
               </div>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none"><path d="M6 9l6 6 6-6"/></svg>
               <div class="um-role-dropdown" id="roleDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;margin-top:4px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:10;max-height:200px;overflow-y:auto">
-                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="superadmin" disabled style="accent-color:#1677ff;width:15px;height:15px"> <span style="color:rgba(0,0,0,0.45)">superadmin</span> <span style="font-size:11px;color:#d48806;background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:1px 6px;margin-left:4px">与工作区创建者绑定，不可授予</span></label>
-                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="admin" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> admin</label>
-                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="data_developer" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> data_developer</label>
-                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="agent_developer" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> agent_developer</label>
-                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="readonly_member" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> readonly_member</label>
+                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="超级管理员" disabled style="accent-color:#1677ff;width:15px;height:15px"> <span style="color:rgba(0,0,0,0.45)">超级管理员</span> <span style="font-size:11px;color:#d48806;background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:1px 6px;margin-left:4px">与工作区创建者绑定，不可授予</span></label>
+                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="工作区管理员" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> 工作区管理员</label>
+                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="数据开发者" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> 数据开发者</label>
+                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="智能体开发者" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> 智能体开发者</label>
+                <label class="um-role-option" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.88);transition:background 0.15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''"><input type="checkbox" value="只读成员" onchange="updateRoleSelect()" style="accent-color:#1677ff;width:15px;height:15px"> 只读成员</label>
               </div>
             </div>
           </div>
@@ -674,10 +674,10 @@
             <div class="um-form-label"><span class="req">*</span> 预设角色：</div>
             <div class="um-form-control">
               <div class="um-radio-group" id="cuLinkRoles" style="flex-wrap:wrap">
-                <label class="um-radio"><input type="checkbox" value="admin"> admin</label>
-                <label class="um-radio"><input type="checkbox" value="data_developer"> data_developer</label>
-                <label class="um-radio"><input type="checkbox" value="agent_developer"> agent_developer</label>
-                <label class="um-radio"><input type="checkbox" value="readonly_member" checked> readonly_member</label>
+                <label class="um-radio"><input type="checkbox" value="工作区管理员"> 工作区管理员</label>
+                <label class="um-radio"><input type="checkbox" value="数据开发者"> 数据开发者</label>
+                <label class="um-radio"><input type="checkbox" value="智能体开发者"> 智能体开发者</label>
+                <label class="um-radio"><input type="checkbox" value="只读成员" checked> 只读成员</label>
               </div>
             </div>
           </div>
@@ -729,7 +729,7 @@
           <div class="um-form-label"><span class="req">*</span> 角色：</div>
           <div class="um-form-control">
             <div id="mrRoleList" style="display:flex;flex-direction:column;gap:6px"></div>
-            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:8px;line-height:1.7">允许将角色清零——零角色用户可登录但没有任何权限（等同持有空权限角色）；<b>默认角色只能从已勾选的角色中选择</b>（零角色时无默认角色）。使用 AI Studio 时未指定当前角色，即以默认角色进入；权限判定始终针对单个当前角色。「superadmin」与工作区创建者绑定，不可授予 / 回收。</div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:8px;line-height:1.7">允许将角色清零——零角色用户可登录但没有任何权限（等同持有空权限角色）；<b>默认角色只能从已勾选的角色中选择</b>（零角色时无默认角色）。使用 AI Studio 时未指定当前角色，即以默认角色进入；权限判定始终针对单个当前角色。「超级管理员」与工作区创建者绑定，不可授予 / 回收。</div>
           </div>
         </div>
       </div>

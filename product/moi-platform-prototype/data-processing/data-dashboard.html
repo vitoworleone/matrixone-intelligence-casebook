@@ -204,7 +204,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           <select id="ddCrSel" onchange="saveComputeRes()" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer;color:rgba(0,0,0,0.75)">
             <option>平台默认 SQL 资源</option>
-            <option>NESR 专属 · SQL-M</option>
+            <option>示例制造集团 专属 · SQL-M</option>
             <option>高并发 · SQL-L</option>
           </select>
         </div>
@@ -236,7 +236,7 @@
         <label class="dd-form-label" style="margin-top:14px">SQL 计算资源 <span style="font-weight:400;color:rgba(0,0,0,0.35)">(本看板所有查询与定时刷新使用)</span></label>
         <select class="dd-select" id="ndCr" style="width:100%">
           <option>平台默认 SQL 资源</option>
-          <option>NESR 专属 · SQL-M</option>
+          <option>示例制造集团 专属 · SQL-M</option>
           <option>高并发 · SQL-L</option>
         </select>
       </div>
@@ -441,9 +441,9 @@
     function series30(base, amp){ var a=[],v=base; for(var i=0;i<30;i++){ v=Math.max(0, v + Math.round((Math.random()-0.45)*amp)); a.push(v);} return a; }
 
     var DASHBOARDS = [
-      { id:'db1', name:'NESR 设备可靠性看板', desc:'设备与工单核心指标 · 运营日常巡检', creator:'lisong', updated:'2026-08-05 18:30',
-        tables:['nesr.silver.assets','nesr.silver.fiix_work_orders','nesr.gold.device_reliability_daily'],
-        computeRes:'NESR 专属 · SQL-M',
+      { id:'db1', name:'示例制造集团 设备可靠性看板', desc:'设备与工单核心指标 · 运营日常巡检', creator:'demo_user_01', updated:'2026-08-05 18:30',
+        tables:['demo_mfg.silver.assets','demo_mfg.silver.fiix_work_orders','demo_mfg.gold.device_reliability_daily'],
+        computeRes:'示例制造集团 专属 · SQL-M',
         alertLogs:[
           { time:'2026-08-06 10:15', chart:'近30天每日新增工单', rule:'最新值 > 25', value:'8/5 · 32', level:'critical', status:'firing', read:false },
           { time:'2026-08-05 22:08', chart:'高优先级未关闭工单', rule:'最新值 > 10', value:'13', level:'critical', status:'firing', read:false },
@@ -454,7 +454,7 @@
         ],
         charts:[
         { id:'c1', title:'在役设备数', nl:'当前在役设备总数', type:'metric', xCol:'', yCol:'cnt', agg:'COUNT', refresh:'1h', size:'s',
-          sql:"SELECT COUNT(*) AS cnt\nFROM nesr.silver.assets\nWHERE status = 'active';",
+          sql:"SELECT COUNT(*) AS cnt\nFROM demo_mfg.silver.assets\nWHERE status = 'active';",
           alert:{ enabled:true, op:'<', threshold:120, level:'warning', interval:'6h' },
           data:{ value:'128', delta:'+3 较上周', dir:'up' },
           snapshots:[
@@ -462,20 +462,20 @@
             { t:'2026-08-03 18:00', data:{ value:'125', delta:'+4 较上周', dir:'up' } }
           ] },
         { id:'c2', title:'本月工单完成率', nl:'本月已完成工单占比', type:'metric', xCol:'', yCol:'rate', agg:'AVG', refresh:'6h', size:'s',
-          sql:"SELECT ROUND(SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)*100.0/COUNT(*),1) AS rate\nFROM nesr.silver.fiix_work_orders\nWHERE created_at >= DATE_TRUNC('month', CURRENT_DATE);",
+          sql:"SELECT ROUND(SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)*100.0/COUNT(*),1) AS rate\nFROM demo_mfg.silver.fiix_work_orders\nWHERE created_at >= DATE_TRUNC('month', CURRENT_DATE);",
           data:{ value:'92.4%', delta:'+1.8pp 较上月', dir:'up' },
           snapshots:[
             { t:'2026-08-01 18:00', data:{ value:'89.6%', delta:'-1.0pp 较上月', dir:'down' } },
             { t:'2026-08-03 18:00', data:{ value:'91.2%', delta:'+0.6pp 较上月', dir:'up' } }
           ] },
         { id:'c3', title:'高优先级未关闭工单', nl:'当前高优先级且未关闭的工单清单', type:'table', xCol:'', yCol:'', agg:'', refresh:'15m', size:'s',
-          sql:"SELECT code, asset_name, priority, status\nFROM nesr.silver.fiix_work_orders\nWHERE priority='High' AND status<>'completed'\nORDER BY created_at DESC LIMIT 10;",
+          sql:"SELECT code, asset_name, priority, status\nFROM demo_mfg.silver.fiix_work_orders\nWHERE priority='High' AND status<>'completed'\nORDER BY created_at DESC LIMIT 10;",
           data:{ columns:['工单号','设备','状态'], rows:[['WO-8912','HP Pump #3','处理中'],['WO-8907','压缩机 C-12','待派单'],['WO-8899','传送带 B-2','处理中'],['WO-8895','HP Pump #7','已暂停'],['WO-8890','冷却塔 T-1','处理中']] },
           snapshots:[
             { t:'2026-08-01 18:00', data:{ columns:['工单号','设备','状态'], rows:[['WO-8871','传送带 B-2','处理中'],['WO-8869','HP Pump #7','待派单'],['WO-8860','冷却塔 T-1','处理中']] } }
           ] },
         { id:'c4', title:'近30天每日新增工单', nl:'近30天每天新增的工单数量趋势', type:'line', xCol:'日期', yCol:'工单数', agg:'COUNT', refresh:'6h', size:'l',
-          sql:"SELECT DATE(created_at) AS d, COUNT(*) AS cnt\nFROM nesr.silver.fiix_work_orders\nWHERE created_at >= CURRENT_DATE - INTERVAL 30 DAY\nGROUP BY DATE(created_at) ORDER BY d;",
+          sql:"SELECT DATE(created_at) AS d, COUNT(*) AS cnt\nFROM demo_mfg.silver.fiix_work_orders\nWHERE created_at >= CURRENT_DATE - INTERVAL 30 DAY\nGROUP BY DATE(created_at) ORDER BY d;",
           alert:{ enabled:true, op:'>', threshold:25, level:'critical', interval:'1h' },
           data:{ x:D30, y:(function(){ var a = series30(14, 6); a[a.length - 1] = 32; return a; })() },
           snapshots:[
@@ -483,16 +483,16 @@
             { t:'2026-08-03 18:00', data:{ x:makeD30(2026, 8, 3), y:series30(13, 5) } }
           ] },
         { id:'c5', title:'各站点设备数量 TOP8', nl:'按站点统计设备数量,取前8', type:'bar', xCol:'站点', yCol:'设备数', agg:'COUNT', refresh:'1d', size:'m',
-          sql:"SELECT site_name, COUNT(*) AS cnt\nFROM nesr.silver.assets\nGROUP BY site_name\nORDER BY cnt DESC LIMIT 8;",
+          sql:"SELECT site_name, COUNT(*) AS cnt\nFROM demo_mfg.silver.assets\nGROUP BY site_name\nORDER BY cnt DESC LIMIT 8;",
           data:{ x:['Jubail','Yanbu','Dammam','Riyadh','Abqaiq','Khurais','Shaybah','Safaniya'], y:[26,21,18,16,14,12,11,10] } },
         { id:'c6', title:'工单类型分布', nl:'各类型工单的数量占比', type:'pie', xCol:'类型', yCol:'数量', agg:'COUNT', refresh:'1d', size:'m',
-          sql:"SELECT maintenance_type, COUNT(*) AS cnt\nFROM nesr.silver.fiix_work_orders\nGROUP BY maintenance_type;",
+          sql:"SELECT maintenance_type, COUNT(*) AS cnt\nFROM demo_mfg.silver.fiix_work_orders\nGROUP BY maintenance_type;",
           data:{ labels:['预防性维护','故障维修','巡检','改造'], values:[38,31,22,9] } },
         { id:'c10', title:'每日新增工单 vs 完成率', nl:'近14天每天新增工单数与当日完成率', type:'combo', xCol:'日期', yCol:'工单数', agg:'COUNT', refresh:'6h', size:'l',
-          sql:"SELECT DATE(created_at) AS d, COUNT(*) AS cnt,\n  ROUND(SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)*100.0/COUNT(*),1) AS rate\nFROM nesr.silver.fiix_work_orders\nWHERE created_at >= CURRENT_DATE - INTERVAL 14 DAY\nGROUP BY DATE(created_at) ORDER BY d;",
+          sql:"SELECT DATE(created_at) AS d, COUNT(*) AS cnt,\n  ROUND(SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)*100.0/COUNT(*),1) AS rate\nFROM demo_mfg.silver.fiix_work_orders\nWHERE created_at >= CURRENT_DATE - INTERVAL 14 DAY\nGROUP BY DATE(created_at) ORDER BY d;",
           data:{ x:D30.slice(-14), bars:[18,14,21,16,12,19,23,17,15,20,24,18,16,28], line:[88,91,86,92,90,87,93,89,91,94,88,90,92,86], barLabel:'工单数', lineLabel:'完成率 %' } },
         { id:'c11', title:'近7天工单按类型堆叠', nl:'近7天每天各类型工单数量', type:'stacked', xCol:'日期', yCol:'数量', agg:'COUNT', refresh:'6h', size:'m',
-          sql:"SELECT DATE(created_at) AS d, maintenance_type, COUNT(*) AS cnt\nFROM nesr.silver.fiix_work_orders\nWHERE created_at >= CURRENT_DATE - INTERVAL 7 DAY\nGROUP BY DATE(created_at), maintenance_type ORDER BY d;",
+          sql:"SELECT DATE(created_at) AS d, maintenance_type, COUNT(*) AS cnt\nFROM demo_mfg.silver.fiix_work_orders\nWHERE created_at >= CURRENT_DATE - INTERVAL 7 DAY\nGROUP BY DATE(created_at), maintenance_type ORDER BY d;",
           data:{ x:D30.slice(-7), series:[
             { label:'预防性维护', values:[7,6,8,7,9,6,10] },
             { label:'故障维修',   values:[5,4,6,5,4,7,6] },
@@ -500,14 +500,14 @@
             { label:'改造',       values:[1,2,1,2,1,1,2] }
           ] } },
         { id:'c12', title:'设备运行时长 vs 故障次数', nl:'各设备累计运行小时与故障次数的关系', type:'scatter', xCol:'运行时长(h)', yCol:'故障次数', agg:'', refresh:'1d', size:'m',
-          sql:"SELECT asset_name, running_hours, failure_count\nFROM nesr.gold.device_reliability_daily\nWHERE stat_date = CURRENT_DATE - 1;",
+          sql:"SELECT asset_name, running_hours, failure_count\nFROM demo_mfg.gold.device_reliability_daily\nWHERE stat_date = CURRENT_DATE - 1;",
           data:{ xLabel:'运行时长(h)', yLabel:'故障次数', points:[
             [5200,7,'压缩机 C-12'],[4800,5,'HP Pump #3'],[6100,9,'传送带 B-2'],[3900,2,'冷却塔 T-1'],
             [5600,6,'HP Pump #7'],[2800,1,'发电机 G-1'],[4400,4,'压缩机 C-3'],[6800,11,'HP Pump #1'],
             [3300,2,'冷却塔 T-2'],[5900,8,'搅拌机 M-2'],[4100,3,'泵站 P-5'],[2500,1,'风机 F-8']
           ] } }
       ]},
-      { id:'db2', name:'数据资产概览', desc:'Catalog 资产规模与载入增长', creator:'chenwei', updated:'2026-08-04 11:20',
+      { id:'db2', name:'数据资产概览', desc:'Catalog 资产规模与载入增长', creator:'demo_user_02', updated:'2026-08-04 11:20',
         tables:['system.catalog_tables','system.load_jobs'], computeRes:'平台默认 SQL 资源', alertLogs:[], charts:[
         { id:'c7', title:'Catalog 表总数', nl:'当前 Catalog 中表的总数', type:'metric', xCol:'', yCol:'cnt', agg:'COUNT', refresh:'1d', size:'s',
           sql:"SELECT COUNT(*) AS cnt FROM system.catalog_tables;",
@@ -566,7 +566,7 @@
     function createDash() {
       var name = document.getElementById('ndName').value.trim();
       if (!name) { alert('请输入看板名称'); return; }
-      var d = { id:'db' + Date.now(), name:name, desc:document.getElementById('ndDesc').value.trim(), creator:'lisong', updated:nowStr(), charts:[], alertLogs:[], tables: collectDsPicker('ndDsPicker'), computeRes: document.getElementById('ndCr').value };
+      var d = { id:'db' + Date.now(), name:name, desc:document.getElementById('ndDesc').value.trim(), creator:'demo_user_01', updated:nowStr(), charts:[], alertLogs:[], tables: collectDsPicker('ndDsPicker'), computeRes: document.getElementById('ndCr').value };
       DASHBOARDS.unshift(d);
       closeNewDashModal();
       openDash(d.id);
@@ -947,9 +947,9 @@
 
     // ===================== 看板数据源(Catalog 库表) =====================
     var CATALOG_TREE = {
-      'nesr.bronze': ['fiix_work_orders', 'fiix_assets', 'fiix_priorities', 'intelie_sensor_readings'],
-      'nesr.silver': ['assets', 'fiix_work_orders', 'sensor_1min'],
-      'nesr.gold': ['device_reliability_daily', 'wo_summary_monthly'],
+      'demo_mfg.bronze': ['fiix_work_orders', 'fiix_assets', 'fiix_priorities', 'iot_demo_sensor_readings'],
+      'demo_mfg.silver': ['assets', 'fiix_work_orders', 'sensor_1min'],
+      'demo_mfg.gold': ['device_reliability_daily', 'wo_summary_monthly'],
       'system': ['catalog_tables', 'load_jobs'],
       '示例库': ['用户行为表', '订单表']
     };
@@ -1003,7 +1003,7 @@
     // ===================== 明细(Drill Through):点击数据点 → 还原聚合背后的原始行 =====================
     var _detail = null;   // 当前抽屉数据 {title, sub, sql, columns, rows, visible, total}
 
-    function fromTable(sql) { var m = (sql || '').match(/FROM\s+([^\s;]+)/i); return m ? m[1] : 'nesr.silver.fiix_work_orders'; }
+    function fromTable(sql) { var m = (sql || '').match(/FROM\s+([^\s;]+)/i); return m ? m[1] : 'demo_mfg.silver.fiix_work_orders'; }
 
     // 造明细行(演示):按图表场景生成 total 行,权限可见 visible 行,展示前 10 行
     var WO_TYPES = ['预防性维护', '故障维修', '巡检', '改造'];
@@ -1269,8 +1269,8 @@
       var nl = document.getElementById('cmNL').value.trim();
       if (!nl) { alert('先用一句话描述你要看的数据'); return; }
       // 表名只在本看板数据源范围内选取(未配置数据源时退回默认样例表)
-      var tWo = pickDsTable('work_order') || 'nesr.silver.fiix_work_orders';
-      var tAs = pickDsTable('asset') || 'nesr.silver.assets';
+      var tWo = pickDsTable('work_order') || 'demo_mfg.silver.fiix_work_orders';
+      var tAs = pickDsTable('asset') || 'demo_mfg.silver.assets';
       var sql, cols, rec;
       if (/每天|每日|趋势|近.*天/.test(nl)) {
         sql = "SELECT DATE(created_at) AS 日期, COUNT(*) AS 数量\nFROM " + tWo + "\nWHERE created_at >= CURRENT_DATE - INTERVAL 30 DAY\nGROUP BY DATE(created_at)\nORDER BY 日期;";

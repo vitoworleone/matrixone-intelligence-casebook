@@ -73,8 +73,8 @@ a { text-decoration: none; color: inherit; }
 }
 .top-bar > * { position: relative; z-index: 1; }
 .top-bar .logo {
-  display: flex; align-items: center; cursor: pointer;
-  width: 184px; flex-shrink: 0; justify-content: flex-start; padding-left: 4px;
+  display: flex; align-items: center; cursor: default;
+  width: 236px; flex-shrink: 0; justify-content: flex-start; padding-left: 4px;
 }
 .top-bar .logo svg { height: 48px; width: auto; }
 .top-bar .logo img { height: 48px; width: auto; }

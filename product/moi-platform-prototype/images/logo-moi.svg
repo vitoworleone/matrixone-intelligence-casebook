@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="88" viewBox="0 0 384 88" role="img" aria-labelledby="title">
+  <title id="title">MatrixOne Intelligence</title>
+  <defs>
+    <linearGradient id="moiBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#124af5"/>
+      <stop offset="1" stop-color="#296eff"/>
+    </linearGradient>
+    <linearGradient id="moiCyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1ab7f5"/>
+      <stop offset="1" stop-color="#10d5bd"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(6 12)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 44V12l17 13L39 9v25" stroke="url(#moiBlue)" stroke-width="11"/>
+    <path d="M18 50l17 12 24-17" stroke="url(#moiCyan)" stroke-width="11"/>
+    <circle cx="43" cy="45" r="5.7" fill="url(#moiBlue)" stroke="none"/>
+    <circle cx="64" cy="50" r="5.2" fill="url(#moiCyan)" stroke="none"/>
+  </g>
+  <text x="91" y="43" fill="#111f35" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="31" font-weight="620" letter-spacing="-1.15">MatrixOne</text>
+  <text x="92" y="70" fill="#1665f5" font-family="Inter, Avenir Next, Arial, sans-serif" font-size="25" font-weight="560" letter-spacing="-.4">Intelligence</text>
+</svg>

@@ -1,26 +1,26 @@
 // === MOI i18n System ===
 var MOI_LANG = localStorage.getItem('moi_lang') || 'zh';
 var MOI_I18N = {
-  '仪表盘':{en:'Dashboard'},'概览':{en:'Overview'},'数据看板':{en:'Dashboard'},'数据连接':{en:'Data Connection'},'连接器':{en:'Connectors'},'数据载入':{en:'Data Import'},'数据导出':{en:'Data Export'},'数据处理':{en:'Data Processing'},'工作流':{en:'Workflows'},'SQL 编辑器':{en:'SQL Editor'},'资源中心':{en:'Resources'},'计算资源':{en:'Compute'},'数据分享':{en:'Data Sharing'},'知识库':{en:'Knowledge Base'},'监测':{en:'Monitoring'},'SQL 历史':{en:'SQL History'},'作业':{en:'Jobs'},'日志':{en:'Logs'},'告警':{en:'Alerts'},'告警规则':{en:'Alert Rules'},'通知对象':{en:'Notification Target'},'告警记录':{en:'Alert History'},'用户权限':{en:'Access Control'},'用户管理':{en:'User Management'},'角色权限':{en:'Roles & Permissions'},
+  '仪表盘':{en:'Dashboard'},'概览':{en:'Overview'},'数据看板':{en:'Data Dashboard'},'数据连接':{en:'Data Connection'},'连接器':{en:'Connectors'},'数据载入':{en:'Data Import'},'数据导出':{en:'Data Export'},'数据处理':{en:'Data Processing'},'工作流':{en:'Workflows'},'SQL 编辑器':{en:'SQL Editor'},'资源中心':{en:'Resources'},'计算资源':{en:'Compute'},'数据分享':{en:'Data Sharing'},'知识库':{en:'Knowledge Base'},'监测':{en:'Monitoring'},'SQL 历史':{en:'SQL History'},'作业':{en:'Jobs'},'日志':{en:'Logs'},'告警':{en:'Alerts'},'告警规则':{en:'Alert Rules'},'通知对象':{en:'Notification Target'},'告警记录':{en:'Alert History'},'用户权限':{en:'Access Control'},'用户管理':{en:'User Management'},'角色权限':{en:'Roles & Permissions'},
   '智能体':{en:'Agent'},'数据':{en:'Data'},'应用':{en:'Apps'},'默认工作区':{en:'Default Workspace'},'联系我们':{en:'Contact Us'},'请联系邮箱':{en:'Contact Email'},'查看文档':{en:'Documentation'},'语言':{en:'Language'},'时区':{en:'Timezone'},'账户':{en:'Account'},'用户':{en:'User'},'账号管理':{en:'Account Settings'},'访问凭据':{en:'Access Credentials'},'计费中心':{en:'Billing'},'退出登录':{en:'Sign Out'},
   '创建连接器':{en:'Create Connector'},'编辑连接器':{en:'Edit Connector'},'搜索连接器名称/创建人':{en:'Search connectors...'},'名称':{en:'Name'},'类型':{en:'Type'},'数据源':{en:'Data Source'},'用途':{en:'Purpose'},'创建时间':{en:'Created'},'操作':{en:'Actions'},'载入':{en:'Import'},'导出':{en:'Export'},'权限':{en:'Permissions'},'编辑':{en:'Edit'},'删除':{en:'Delete'},'对象存储':{en:'Object Storage'},'分布式文件系统':{en:'Distributed FS'},'数据库':{en:'Database'},'连接器名称':{en:'Connector Name'},'请输入连接器名称':{en:'Enter connector name'},'连接信息':{en:'Connection Info'},'连接测试':{en:'Test Connection'},'取 消':{en:'Cancel'},'创 建':{en:'Create'},'保 存':{en:'Save'},'认证方式':{en:'Authentication'},'主机':{en:'Host'},'端口':{en:'Port'},'用户名':{en:'Username'},'密码':{en:'Password'},
   '阿里云 OSS':{en:'Alibaba Cloud OSS'},'标准 S3':{en:'Standard S3'},'地区':{en:'Region'},'文件路径':{en:'File Path'},'NameNode 地址':{en:'NameNode Address'},'请输入用户名':{en:'Enter username'},'请输入密码':{en:'Enter password'},'请输入数据库名':{en:'Enter database name'},'请输入 Access Key':{en:'Enter Access Key'},'请输入 Secret Key':{en:'Enter Secret Key'},'请输入 Bucket 名称':{en:'Enter Bucket name'},'请输入AccessKey ID':{en:'Enter AccessKey ID'},'请输入AccessKey Secret':{en:'Enter AccessKey Secret'},'华东1 （杭州）':{en:'East China 1 (Hangzhou)'},'华东2 （上海）':{en:'East China 2 (Shanghai)'},'华北2 （北京）':{en:'North China 2 (Beijing)'},'华南1 （深圳）':{en:'South China 1 (Shenzhen)'},
   '请输入 HiveServer2 主机地址':{en:'Enter HiveServer2 host address'},'请输入端口号（默认：10000）':{en:'Enter port (default: 10000)'},'请输入 Hive 用户名':{en:'Enter Hive username'},'请输入 Hive 密码':{en:'Enter Hive password'},'请输入 MongoDB 主机地址':{en:'Enter MongoDB host address'},'用户名密码':{en:'Username & Password'},'无认证':{en:'No Auth'},'认证库':{en:'Auth Database'},'读取偏好':{en:'Read Preference'},'primary（主节点）':{en:'primary (Primary)'},'secondary（从节点）':{en:'secondary (Secondary)'},'secondaryPreferred（推荐）':{en:'secondaryPreferred (Recommended)'},'nearest（最近节点）':{en:'nearest (Nearest)'},
   'Key 名称':{en:'Key Name'},'Key 值':{en:'Key Value'},'放置位置':{en:'Location'},'Header（请求头）':{en:'Header'},'Query（URL 参数）':{en:'Query (URL Param)'},'请输入 API Key':{en:'Enter API Key'},'请输入 Bearer Token':{en:'Enter Bearer Token'},'请输入 Client ID':{en:'Enter Client ID'},'请输入 Client Secret':{en:'Enter Client Secret'},'超时时间':{en:'Timeout'},'默认请求头':{en:'Default Headers'},
   '+ 添加主机端口':{en:'+ Add Host & Port'},'Keytab 文件':{en:'Keytab File'},'Krb5 配置文件':{en:'Krb5 Config File'},'添加 Keytab 文件':{en:'Add Keytab file'},'添加 Krb5 文件':{en:'Add Krb5 file'},'选择文件':{en:'Select file'},
-  'Intelie 传感器数据':{en:'Intelie Sensor Data'},'Fiix CMMS 维修系统':{en:'Fiix CMMS Maintenance'},
+  '示例工业物联 传感器数据':{en:'示例工业物联 Sensor Data'},'Fiix CMMS 维修系统':{en:'Fiix CMMS Maintenance'},
   '请输入连接器名称':{en:'Enter connector name'},'确定删除连接器「':{en:'Are you sure you want to delete connector "'},'」？\n\n删除后，使用该连接器的载入/导出任务将无法执行。':{en:'"?\n\nAfter deletion, import/export tasks using this connector will not work.'},'连接器「':{en:'Connector "'},'」已保存（模拟）':{en:'" saved (simulated)'},'」已删除（模拟）':{en:'" deleted (simulated)'},'连接测试中...\n\n（模拟）连接成功 ✅':{en:'Testing connection...\n\n(Simulated) Connection successful ✅'},'刷新':{en:'Refresh'},
   '载入数据':{en:'Import Data'},'新建载入任务':{en:'New Import Task'},'搜索任务名称/创建人':{en:'Search tasks...'},'任务':{en:'Task'},'任务名称':{en:'Task Name'},'载入类型':{en:'Import Type'},'载入模式':{en:'Import Mode'},'目标位置':{en:'Target'},'状态':{en:'Status'},'非结构化':{en:'Unstructured'},'结构化':{en:'Structured'},'一次性':{en:'One-time'},'周期性':{en:'Periodic'},'完成':{en:'Completed'},'运行中':{en:'Running'},'失败':{en:'Failed'},'详情':{en:'Details'},'重试':{en:'Retry'},
   '非结构化数据':{en:'Unstructured Data'},'结构化数据':{en:'Structured Data'},'连接器载入':{en:'Connector Import'},'本地上传':{en:'Local Upload'},'网页采集':{en:'Web Scraping'},'一次载入':{en:'One-time'},'周期载入':{en:'Periodic'},'实时更新':{en:'Real-time'},'载入位置':{en:'Target Location'},'选择已有表':{en:'Existing Table'},'新建表':{en:'New Table'},'表定义':{en:'Table Definition'},'表映射':{en:'Column Mapping'},'数据回填':{en:'Data Backfill'},'载入前预处理':{en:'Pre-processing'},'增量同步配置':{en:'Incremental Sync'},'增量字段':{en:'Incremental Field'},'回溯窗口':{en:'Lookback Window'},'初次载入规则':{en:'Initial Load Rule'},'在已有数据后追加':{en:'Append to existing'},'清空已有数据后追加':{en:'Truncate then append'},
   '工作流名称':{en:'Workflow Name'},'分支':{en:'Branches'},'优先级':{en:'Priority'},'最近运行':{en:'Last Run'},'已完成':{en:'Completed'},'待运行':{en:'Pending'},'已停止':{en:'Stopped'},'新建工作流':{en:'New Workflow'},
   '数据检查':{en:'Data Check'},'重命名':{en:'Rename'},'校验规则':{en:'Validation Rules'},'添加规则':{en:'Add Rule'},'校验结果':{en:'Results'},'运行检查':{en:'Run Check'},'非空':{en:'Not Null'},'唯一':{en:'Unique'},'范围':{en:'Range'},'枚举值':{en:'Enum'},'外键关系':{en:'Foreign Key'},'空值率':{en:'Null Rate'},'新鲜度':{en:'Freshness'},'自定义 SQL':{en:'Custom SQL'},'仅记录':{en:'Log Only'},'标记':{en:'Flag'},'分流':{en:'Split'},
   '载入任务详情':{en:'Import Task Details'},'连接器':{en:'Connector'},'连接器类型':{en:'Connector Type'},'数据类型':{en:'Data Type'},'调度周期':{en:'Schedule'},'累计运行':{en:'Total Runs'},'累计行数':{en:'Total Rows'},'累计大小':{en:'Total Size'},'文件类型':{en:'File Types'},'连接详情':{en:'Connection Details'},'错误信息':{en:'Error Info'},'次':{en:' runs'},'最近运行':{en:'Last Run'},
-  '【NESR-湖仓项目】Intelie 传感器数据同步':{en:'[NESR-Lakehouse] Intelie Sensor Data Sync'},'【NESR-湖仓项目】Fiix 工单数据同步':{en:'[NESR-Lakehouse] Fiix Work Order Sync'},'【NESR-湖仓项目】Fiix 资产数据同步':{en:'[NESR-Lakehouse] Fiix Asset Data Sync'},
+  '【示例制造数据项目】示例工业物联 传感器数据同步':{en:'[示例制造集团-Lakehouse] 示例工业物联 Sensor Data Sync'},'【示例制造数据项目】Fiix 工单数据同步':{en:'[示例制造集团-Lakehouse] Fiix Work Order Sync'},'【示例制造数据项目】Fiix 资产数据同步':{en:'[示例制造集团-Lakehouse] Fiix Asset Data Sync'},
   '本地文件':{en:'Local File'},'S3（对象存储）':{en:'S3 (Object Storage)'},'OSS（对象存储）':{en:'OSS (Object Storage)'},'MySQL（数据库）':{en:'MySQL (Database)'},'Hive（数据仓库）':{en:'Hive (Data Warehouse)'},'MongoDB（数据库）':{en:'MongoDB (Database)'},
-  'NESR / Silver / sensor_readings_1min':{en:'NESR / Silver / sensor_readings_1min'},'NESR / Bronze / work_orders':{en:'NESR / Bronze / work_orders'},'NESR / Bronze / assets':{en:'NESR / Bronze / assets'},
+  '示例制造集团 / Silver / sensor_readings_1min':{en:'示例制造集团 / Silver / sensor_readings_1min'},'示例制造集团 / Bronze / work_orders':{en:'示例制造集团 / Bronze / work_orders'},'示例制造集团 / Bronze / assets':{en:'示例制造集团 / Bronze / assets'},
   '每天 04:00 AST':{en:'Daily 04:00 AST'},'每天 04:30 AST':{en:'Daily 04:30 AST'},
   '1 小时':{en:'1 hour'},'24 小时':{en:'24 hours'},'任务详情加载中...':{en:'Loading task details...'},
-  'MongoDB 数据库':{en:'MongoDB Database'},'主键冲突处理':{en:'Primary Key Conflict'},'替换冲突行':{en:'Replace conflicting rows'},'日均新增':{en:'Daily New Rows'},'分页策略':{en:'Pagination Strategy'},'偏移量分页（offset + limit）':{en:'Offset pagination (offset + limit)'},'数据路径':{en:'Data Path'},'字段数':{en:'Field Count'},'Intelie 传感器数据 (MongoDB)':{en:'Intelie Sensor Data (MongoDB)'},'Fiix CMMS 维修系统 (REST API)':{en:'Fiix CMMS Maintenance (REST API)'},'增量字段：':{en:'Incremental Field: '},'回溯窗口：':{en:'Lookback Window: '},
+  'MongoDB 数据库':{en:'MongoDB Database'},'主键冲突处理':{en:'Primary Key Conflict'},'替换冲突行':{en:'Replace conflicting rows'},'日均新增':{en:'Daily New Rows'},'分页策略':{en:'Pagination Strategy'},'偏移量分页（offset + limit）':{en:'Offset pagination (offset + limit)'},'数据路径':{en:'Data Path'},'字段数':{en:'Field Count'},'示例工业物联 传感器数据 (MongoDB)':{en:'示例工业物联 Sensor Data (MongoDB)'},'Fiix CMMS 维修系统 (REST API)':{en:'Fiix CMMS Maintenance (REST API)'},'增量字段：':{en:'Incremental Field: '},'回溯窗口：':{en:'Lookback Window: '},
   // Workflow
   '搜索工作流名称':{en:'Search workflows...'},'计算资源':{en:'Compute'},'调度方式':{en:'Schedule Type'},'手动触发':{en:'Manual'},'周期调度':{en:'Scheduled'},'数据触发':{en:'Data Trigger'},'高':{en:'High'},'中':{en:'Medium'},'低':{en:'Low'},'基础模式':{en:'Basic'},'专业模式':{en:'Advanced'},
   // Workflow edit
@@ -67,7 +67,7 @@ var MOI_I18N = {
   '全屏编辑器功能开发中':{en:'Fullscreen editor is under development'},
   '变更说明：':{en:'Changelog: '},'建议在新分支中测试后再应用到主分支。':{en:'Recommend testing in a new branch before applying to main.'},'将恢复到该版本的处理逻辑。':{en:'Will restore to this version\'s processing logic.'},
   '开始':{en:'Start'},'结束':{en:'End'},'数据读取':{en:'Data Read'},'数据保存':{en:'Data Save'},'文档解析':{en:'Doc Parse'},'图片解析':{en:'Image Parse'},'音频解析':{en:'Audio Parse'},'视频解析':{en:'Video Parse'},'分段':{en:'Chunking'},'文本嵌入':{en:'Embedding'},'清洗':{en:'Cleaning'},'信息提取':{en:'Extraction'},'训练数据生成':{en:'Training Data Gen'},'SQL 处理':{en:'SQL Process'},'Python 处理':{en:'Python Process'},'条件分支':{en:'Condition'},'智能分段':{en:'Smart Chunking'},'情感分类':{en:'Sentiment'},
-  '读取传感器数据':{en:'Read Sensor Data'},'读取 Intelie 传感器数据':{en:'Read Intelie Sensor Data'},'读取 Intelie 1分钟级数据':{en:'Read Intelie 1-min Data'},'读取 Fiix 维修数据':{en:'Read Fiix Maintenance Data'},'读取 Fiix 工单数据':{en:'Read Fiix Work Orders'},'读取 Fiix 资产数据':{en:'Read Fiix Assets'},'1秒→1分钟聚合':{en:'1s→1min Aggregation'},'状态分类':{en:'State Classification'},'会话检测':{en:'Session Detection'},'KPI 计算':{en:'KPI Calculation'},'设备可靠性 KPI':{en:'Equipment Reliability KPI'},'保存 KPI 结果':{en:'Save KPI Results'},'字典去重 + 清洗':{en:'Dict Dedup + Clean'},'资产层级解析':{en:'Asset Hierarchy'},'工单资产展开':{en:'WO Asset Expand'},'工时汇总':{en:'Labor Summary'},'保存处理结果':{en:'Save Results'},
+  '读取传感器数据':{en:'Read Sensor Data'},'读取 示例工业物联 传感器数据':{en:'Read 示例工业物联 Sensor Data'},'读取 示例工业物联 1分钟级数据':{en:'Read 示例工业物联 1-min Data'},'读取 Fiix 维修数据':{en:'Read Fiix Maintenance Data'},'读取 Fiix 工单数据':{en:'Read Fiix Work Orders'},'读取 Fiix 资产数据':{en:'Read Fiix Assets'},'1秒→1分钟聚合':{en:'1s→1min Aggregation'},'状态分类':{en:'State Classification'},'会话检测':{en:'Session Detection'},'KPI 计算':{en:'KPI Calculation'},'设备可靠性 KPI':{en:'Equipment Reliability KPI'},'保存 KPI 结果':{en:'Save KPI Results'},'字典去重 + 清洗':{en:'Dict Dedup + Clean'},'资产层级解析':{en:'Asset Hierarchy'},'工单资产展开':{en:'WO Asset Expand'},'工时汇总':{en:'Labor Summary'},'保存处理结果':{en:'Save Results'},
   '读取产品文档':{en:'Read Product Docs'},'保存向量数据':{en:'Save Vector Data'},'读取合同文件':{en:'Read Contracts'},'保存提取结果':{en:'Save Extraction'},'读取销售数据':{en:'Read Sales Data'},'数据清洗':{en:'Data Cleaning'},'保存清洗结果':{en:'Save Cleaned Data'},'读取用户反馈':{en:'Read User Feedback'},'保存分类结果':{en:'Save Classification'},'读取技术文档':{en:'Read Tech Docs'},'读取音频文件':{en:'Read Audio Files'},'保存转写结果':{en:'Save Transcription'},
   // Catalog
   '目录':{en:'Directory'},'库':{en:'Database'},'表':{en:'Table'},'卷':{en:'Volume'},'算子':{en:'Operator'},'模型':{en:'Model'},'系统默认':{en:'System Default'},'新建库':{en:'New Database'},'新建目录':{en:'New Directory'},'上传文件':{en:'Upload Files'},'使用':{en:'Use'},'基本信息':{en:'Basic Info'},'列定义':{en:'Column Definition'},'数据预览':{en:'Data Preview'},'创建人':{en:'Created By'},'更新人':{en:'Updated By'},'更新时间':{en:'Updated'},'描述':{en:'Description'},'行数':{en:'Rows'},'大小':{en:'Size'},'路径':{en:'Path'},'锁定':{en:'Locked'},'搜索节点':{en:'Search nodes'},
@@ -79,7 +79,7 @@ var MOI_I18N = {
   // Edit mode
   '编辑载入任务':{en:'Edit Import Task'},'保存配置':{en:'Save Config'},'载入任务配置已保存（模拟）':{en:'Import task config saved (simulated)'},'变更将在下次调度时生效。':{en:'Changes will take effect on next scheduled run.'},'水位线将重置，下次载入会重新拉取数据。确认保存？':{en:'Watermark will be reset, next import will re-fetch data. Confirm save?'},
   // Apps mode
-  '我的应用':{en:'My Apps'},'创建应用':{en:'Create App'},'搜索应用...':{en:'Search apps...'},'运行中':{en:'Running'},'草稿':{en:'Draft'},'已停止':{en:'Stopped'},'关联智能体':{en:'Linked Agents'},'访问量':{en:'Visits'},'最近编辑':{en:'Last Edited'},'打开应用':{en:'Open App'},'编辑应用':{en:'Edit App'},'个智能体':{en:' agents'},'次访问':{en:' visits'},'还没有创建任何应用':{en:'No apps created yet'},'用自然语言描述你想要的应用，MOI 帮你构建':{en:'Describe the app you want in natural language, MOI builds it for you'},'创建第一个应用':{en:'Create Your First App'},'全部':{en:'All'},'客户管理':{en:'Customer Management'},'数据看板':{en:'Dashboard'},'审批流程':{en:'Approval Flow'},'客服系统':{en:'Customer Service'},'从模板开始':{en:'Start from Template'},'从零开始':{en:'Start from Scratch'},
+  '我的应用':{en:'My Apps'},'创建应用':{en:'Create App'},'搜索应用...':{en:'Search apps...'},'运行中':{en:'Running'},'草稿':{en:'Draft'},'已停止':{en:'Stopped'},'关联智能体':{en:'Linked Agents'},'访问量':{en:'Visits'},'最近编辑':{en:'Last Edited'},'打开应用':{en:'Open App'},'编辑应用':{en:'Edit App'},'个智能体':{en:' agents'},'次访问':{en:' visits'},'还没有创建任何应用':{en:'No apps created yet'},'用自然语言描述你想要的应用，MOI 帮你构建':{en:'Describe the app you want in natural language, MOI builds it for you'},'创建第一个应用':{en:'Create Your First App'},'全部':{en:'All'},'客户管理':{en:'Customer Management'},'数据看板':{en:'Data Dashboard'},'审批流程':{en:'Approval Flow'},'客服系统':{en:'Customer Service'},'从模板开始':{en:'Start from Template'},'从零开始':{en:'Start from Scratch'},
   '选择列':{en:'Select column'},'条规则通过':{en:' rules passed'},'条需要关注':{en:' need attention'},'点击"运行检查"执行校验':{en:'Click "Run Check" to validate'},'校验中':{en:'Validating...'},
   // Dashboard
   '资源概览':{en:'Resource Overview'},'任务执行':{en:'Task Execution'},'最近活动':{en:'Recent Activity'},'快捷操作':{en:'Quick Actions'},'数据对象':{en:'Data Objects'},'工作流数量':{en:'Workflows'},'计算资源数':{en:'Compute Resources'},'知识库数':{en:'Knowledge Bases'},'近 7 天':{en:'Last 7 Days'},
@@ -125,10 +125,10 @@ var MOI_I18N = {
   // SQL Editor (dynamic)
   '当前语句':{en:'Current Statement'},'请先在编辑器中输入 SQL 语句':{en:'Please enter a SQL statement in the editor'},'当前语句为空':{en:'Current statement is empty'},'执行成功':{en:'Execution Successful'},'返回':{en:'Returned'},'耗时':{en:'Duration'},'行':{en:'rows'},'暂无包含表的数据库':{en:'No databases with tables'},'柱状图':{en:'Bar'},'折线图':{en:'Line'},'散点图':{en:'Scatter'},'面积图':{en:'Area'},'图表类型':{en:'Chart Type'},'X 轴':{en:'X Axis'},'Y 轴':{en:'Y Axis'},'+ 添加 Y 轴':{en:'+ Add Y Axis'},'无可用数据生成图表':{en:'No data available for chart'},'请先执行查询以生成图表':{en:'Run a query first to generate chart'},'恢复':{en:'Restore'},'最小化':{en:'Minimize'},'最大化':{en:'Maximize'},'工作簿':{en:'Workbook'},'确定删除该工作簿？':{en:'Delete this workbook?'},'处理数据库':{en:'Processing DB'},'用户行为表':{en:'User Behavior Table'},'执行':{en:'Execute'},'点击"执行"运行 SQL 查看结果':{en:'Click "Execute" to run SQL and view results'},'数据库':{en:'Database'},
   // Workflow (dynamic)
-  '【NESR-湖仓项目】设备可靠性数据处理':{en:'[NESR-Lakehouse] Equipment Reliability Processing'},'默认计算资源':{en:'Default Compute'},'GPU 计算集群':{en:'GPU Compute Cluster'},'高性能计算集群':{en:'High-perf Compute Cluster'},'暂无工作流':{en:'No workflows'},'确定删除该工作流？':{en:'Delete this workflow?'},'已恢复，下次新建工作流时将显示模板选择':{en:'Restored. Template selection will show next time.'},'停止':{en:'Stop'},
+  '【示例制造数据项目】设备可靠性数据处理':{en:'[示例制造集团-Lakehouse] Equipment Reliability Processing'},'默认计算资源':{en:'Default Compute'},'GPU 计算集群':{en:'GPU Compute Cluster'},'高性能计算集群':{en:'High-perf Compute Cluster'},'暂无工作流':{en:'No workflows'},'确定删除该工作流？':{en:'Delete this workflow?'},'已恢复，下次新建工作流时将显示模板选择':{en:'Restored. Template selection will show next time.'},'停止':{en:'Stop'},
   // Compute (dynamic)
-  '标准型':{en:'Standard'},'内存型':{en:'Memory'},'工作区默认计算资源，适用于常规数据处理任务':{en:'Default workspace compute for general data processing'},'用于 AI 推理和嵌入计算':{en:'For AI inference and embedding'},'高内存配置，用于大文件解析和数据增强':{en:'High memory for large file parsing and augmentation'},'轻量级资源，用于 Notebook 开发调试':{en:'Lightweight for Notebook development'},'【NESR-湖仓项目】设备可靠性数据处理':{en:'[NESR-Lakehouse] Equipment Reliability Processing'},'数据质量分析':{en:'Data Quality Analysis'},'文本嵌入批处理':{en:'Text Embedding Batch'},'自定义去敏处理':{en:'Custom Desensitization'},'合同关键信息提取':{en:'Contract Key Info Extraction'},'空闲':{en:'Idle'},'暂停计算资源':{en:'Suspend Compute'},'暂停后计算资源将停止运行，不再产生 Credit 消耗。':{en:'After suspension, the compute resource will stop and no longer consume Credits.'},'关联的工作负载将被中断。确定暂停？':{en:'Associated workloads will be interrupted. Confirm suspend?'},'删除计算资源':{en:'Delete Compute'},'该资源正在运行中，删除后关联工作负载将被中断。':{en:'This resource is running. Deletion will interrupt associated workloads.'},'确定删除计算资源「':{en:'Delete compute resource "'},'」？此操作不可恢复。':{en:'"? This cannot be undone.'},'不自动暂停':{en:'No auto-suspend'},'分钟无活动':{en:'min inactive'},'默认':{en:'Default'},'节点数':{en:'Nodes'},'资源使用率':{en:'Resource Usage'},'内存':{en:'Memory'},'当前 Credit 消耗':{en:'Current Credit Usage'},'关联工作负载':{en:'Associated Workloads'},'暂无关联工作负载':{en:'No associated workloads'},'规格详情':{en:'Spec Details'},'规格 ID':{en:'Spec ID'},'系列':{en:'Family'},'核':{en:'cores'},'块':{en:'units'},'Credit 单价':{en:'Credit Price'},'暂无计算资源':{en:'No compute resources'},'新建计算资源':{en:'New Compute Resource'},
-  '已暂停':{en:'Suspended'},'启动中':{en:'Starting'},'扩缩容中':{en:'Scaling'},'异常':{en:'Error'},'暂停':{en:'Suspend'},'小时':{en:'hour'},'节点':{en:'node'},'分钟':{en:'min'},'个':{en:''},'张三':{en:'Zhang San'},'李四':{en:'Li Si'},'王五':{en:'Wang Wu'},'系统':{en:'System'},'用户':{en:'User'},
+  '标准型':{en:'Standard'},'内存型':{en:'Memory'},'工作区默认计算资源，适用于常规数据处理任务':{en:'Default workspace compute for general data processing'},'用于 AI 推理和嵌入计算':{en:'For AI inference and embedding'},'高内存配置，用于大文件解析和数据增强':{en:'High memory for large file parsing and augmentation'},'轻量级资源，用于 Notebook 开发调试':{en:'Lightweight for Notebook development'},'【示例制造数据项目】设备可靠性数据处理':{en:'[示例制造集团-Lakehouse] Equipment Reliability Processing'},'数据质量分析':{en:'Data Quality Analysis'},'文本嵌入批处理':{en:'Text Embedding Batch'},'自定义去敏处理':{en:'Custom Desensitization'},'合同关键信息提取':{en:'Contract Key Info Extraction'},'空闲':{en:'Idle'},'暂停计算资源':{en:'Suspend Compute'},'暂停后计算资源将停止运行，不再产生 Credit 消耗。':{en:'After suspension, the compute resource will stop and no longer consume Credits.'},'关联的工作负载将被中断。确定暂停？':{en:'Associated workloads will be interrupted. Confirm suspend?'},'删除计算资源':{en:'Delete Compute'},'该资源正在运行中，删除后关联工作负载将被中断。':{en:'This resource is running. Deletion will interrupt associated workloads.'},'确定删除计算资源「':{en:'Delete compute resource "'},'」？此操作不可恢复。':{en:'"? This cannot be undone.'},'不自动暂停':{en:'No auto-suspend'},'分钟无活动':{en:'min inactive'},'默认':{en:'Default'},'节点数':{en:'Nodes'},'资源使用率':{en:'Resource Usage'},'内存':{en:'Memory'},'当前 Credit 消耗':{en:'Current Credit Usage'},'关联工作负载':{en:'Associated Workloads'},'暂无关联工作负载':{en:'No associated workloads'},'规格详情':{en:'Spec Details'},'规格 ID':{en:'Spec ID'},'系列':{en:'Family'},'核':{en:'cores'},'块':{en:'units'},'Credit 单价':{en:'Credit Price'},'暂无计算资源':{en:'No compute resources'},'新建计算资源':{en:'New Compute Resource'},
+  '已暂停':{en:'Suspended'},'启动中':{en:'Starting'},'扩缩容中':{en:'Scaling'},'异常':{en:'Error'},'暂停':{en:'Suspend'},'小时':{en:'hour'},'节点':{en:'node'},'分钟':{en:'min'},'个':{en:''},'演示用户壬':{en:'Zhang San'},'李四':{en:'Li Si'},'演示用户辛':{en:'Wang Wu'},'系统':{en:'System'},'用户':{en:'User'},
   // Data Share (dynamic)
   '默认目录':{en:'Default Directory'},'原始数据库':{en:'Raw Database'},'样例卷':{en:'Sample Data Volume'},'客户卷':{en:'Customer Data Volume'},'产品信息表':{en:'Product Info Table'},'解析结果':{en:'Parse Results'},'文档分段结果表':{en:'Doc Chunking Results Table'},'订单汇总表':{en:'Order Summary Table'},'开发目录':{en:'Dev Directory'},'测试数据库':{en:'Test Database'},'测试卷':{en:'Test Data Volume'},'产品数据共享':{en:'Product Data Share'},'处理结果分享':{en:'Processing Results Share'},'默认 / 原始数据库 / 样例卷':{en:'Default / Raw DB / Sample Data Volume'},'默认 / 原始数据库 / 产品信息表':{en:'Default / Raw DB / Product Info Table'},'默认 / 处理数据库':{en:'Default / Processing DB'},'数据分析项目':{en:'Data Analysis Project'},'只读':{en:'Read Only'},'外部客户数据':{en:'External Customer Data'},'客户画像表':{en:'Customer Profile Table'},'测试工作区':{en:'Test Workspace'},'外部客户画像':{en:'External Customer Profile'},'默认 / 原始数据库':{en:'Default / Raw DB'},'模型训练数据集':{en:'Model Training Dataset'},'训练卷':{en:'Training Data Volume'},'行业知识库':{en:'Industry Knowledge Base'},'行业文档目录':{en:'Industry Doc Directory'},'已订阅':{en:'Subscribed'},'未订阅':{en:'Unsubscribed'},'取消订阅':{en:'Unsubscribe'},'订阅':{en:'Subscribe'},'请选择工作区':{en:'Select workspace'},'外部工作区':{en:'External Workspace'},'添加发布':{en:'Add Publication'},'编辑发布':{en:'Edit Publication'},'删除发布':{en:'Delete Publication'},'请选择发布对象':{en:'Please select a publish object'},'请选择发布目标工作区':{en:'Please select target workspace'},'确定删除该发布？删除后目标工作区将无法再访问此数据。':{en:'Delete this publication? Target workspaces will lose access.'},'确定取消订阅？取消后将无法在本工作区访问该数据。':{en:'Unsubscribe? You will lose access to this data.'},'该对象为目录级别，将订阅到工作区根级别':{en:'This is a directory-level object, will subscribe at workspace root'},'请选择一个目录作为订阅位置':{en:'Select a directory as subscription location'},'请选择一个库作为订阅位置':{en:'Select a database as subscription location'},'目录级别对象将直接订阅到工作区根级别':{en:'Directory-level objects subscribe at workspace root'},'工作区根级别':{en:'Workspace Root'},'请选择订阅位置':{en:'Please select subscription location'},'暂无发布数据':{en:'No publications'},'暂无可订阅的数据':{en:'No data available to subscribe'},
   // Catalog (dynamic)
@@ -187,7 +187,7 @@ var MOI_I18N = {
   '文章写作':{en:'Article Writing'},'SEO 优化':{en:'SEO Optimization'},'社交媒体':{en:'Social Media'},'营销文案':{en:'Marketing Copy'},'视频脚本':{en:'Video Script'},'播客转录':{en:'Podcast Transcription'},'PPT 生成':{en:'PPT Generation'},'多语言内容':{en:'Multilingual Content'},'内容日历':{en:'Content Calendar'},'标题优化':{en:'Title Optimization'},
   'CSV/Excel 分析':{en:'CSV/Excel Analysis'},'数据可视化':{en:'Data Visualization'},'ETL 流水线':{en:'ETL Pipeline'},'报表生成':{en:'Report Generation'},'异常检测':{en:'Anomaly Detection'},'用户行为分析':{en:'User Behavior Analysis'},'A/B 测试分析':{en:'A/B Test Analysis'},
   // App Builder
-  '未命名应用':{en:'Untitled App'},'已发布':{en:'Published'},'分享':{en:'Share'},'发布':{en:'Publish'},'应用构建对话':{en:'App Builder Chat'},'用自然语言描述你想要的应用':{en:'Describe the app you want in natural language'},'应用模板':{en:'App Templates'},'客户管理':{en:'Customer Management'},'审批流程':{en:'Approval Workflow'},'数据看板':{en:'Dashboard'},'客服系统':{en:'Help Desk'},'库存管理':{en:'Inventory Management'},'从零开始':{en:'Start from Scratch'},
+  '未命名应用':{en:'Untitled App'},'已发布':{en:'Published'},'分享':{en:'Share'},'发布':{en:'Publish'},'应用构建对话':{en:'App Builder Chat'},'用自然语言描述你想要的应用':{en:'Describe the app you want in natural language'},'应用模板':{en:'App Templates'},'客户管理':{en:'Customer Management'},'审批流程':{en:'Approval Workflow'},'数据看板':{en:'Data Dashboard'},'客服系统':{en:'Help Desk'},'库存管理':{en:'Inventory Management'},'从零开始':{en:'Start from Scratch'},
   '桌面端':{en:'Desktop'},'平板':{en:'Tablet'},'手机':{en:'Mobile'},'搜索客户...':{en:'Search customers...'},'累计订单':{en:'Total Orders'},'累计金额':{en:'Total Amount'},'健康度':{en:'Health Score'},'历史订单':{en:'Order History'},'订单号':{en:'Order No.'},'日期':{en:'Date'},'产品':{en:'Product'},'金额':{en:'Amount'},'客户':{en:'Customers'},'订单':{en:'Orders'},'自定义应用':{en:'Custom App'},
   // Notebook
   '从模板开始':{en:'Start from Template'},'工作流算子使用教程':{en:'Workflow Operator Tutorial'},'数据探索与分析':{en:'Data Exploration & Analysis'},'自定义算子开发':{en:'Custom Operator Development'},'搜索 Notebook':{en:'Search Notebook'},'全部语言':{en:'All Languages'},'混合':{en:'Mixed'},'新建 Notebook':{en:'New Notebook'},'算子引用':{en:'Operator References'},'暂无 Notebook':{en:'No Notebooks'},'打开':{en:'Open'},'确定删除该 Notebook？':{en:'Delete this Notebook?'},'系统算子':{en:'System Operator'},'自定义算子':{en:'Custom Operator'},
@@ -307,7 +307,7 @@ var MOI_I18N = {
   '请输入智能体名称':{en:'Please enter agent name'},'请输入模型名称':{en:'Please enter model name'},'请输入工具名称':{en:'Please enter tool name'},'请输入 MCP Server 地址':{en:'Please enter MCP Server address'},'请输入 API URL':{en:'Please enter API URL'},'请输入测试问题':{en:'Please enter test question'},
   '删除此对话？':{en:'Delete this conversation?'},'确定删除智能体「':{en:'Delete agent "'},'确定删除此自定义技能？':{en:'Delete this custom skill?'},'确定删除此知识库？':{en:'Delete this knowledge base?'},
   // Page: app-dev/app-builder.html
-  '客户管理':{en:'Customer Management'},'审批流程':{en:'Approval Workflow'},'数据看板':{en:'Dashboard'},'客服系统':{en:'Customer Service'},'库存管理':{en:'Inventory Management'},'从零开始':{en:'From Scratch'},
+  '客户管理':{en:'Customer Management'},'审批流程':{en:'Approval Workflow'},'数据看板':{en:'Data Dashboard'},'客服系统':{en:'Customer Service'},'库存管理':{en:'Inventory Management'},'从零开始':{en:'From Scratch'},
   '客户':{en:'Customers'},'订单':{en:'Orders'},'历史订单':{en:'Order History'},'订单号':{en:'Order No.'},'日期':{en:'Date'},'产品':{en:'Product'},'金额':{en:'Amount'},'累计订单':{en:'Total Orders'},'累计金额':{en:'Total Amount'},'健康度':{en:'Health Score'},'优':{en:'Excellent'},
   '未命名应用':{en:'Untitled App'},'桌面端':{en:'Desktop'},'平板':{en:'Tablet'},'手机':{en:'Mobile'},
 };
@@ -459,28 +459,27 @@ function buildTopBar() {
   var isMatrixOnePage = path.indexOf('/matrixone/') !== -1;
   // Admin pages skip workspace selector, mode switch, and Genesis button
   var isAdminPage = path.indexOf('/admin/') !== -1;
-  // Detect if current page is agent mode (app-dev) or apps mode
+  // “智能体”直接进入构建页；不再提供单独的“应用”模式。
   var isAppMode = path.indexOf('/app-dev/index.html') !== -1;
   var isAppsMode = path.indexOf('/app-dev/apps.html') !== -1;
+  var isAgentMode = isAppMode || isAppsMode;
 
-  // Mode switch: three modes — apps, agent, data
-  var appsActiveClass = isAppsMode ? ' active' : '';
-  var agentActiveClass = isAppMode ? ' active' : '';
-  var dataActiveClass = (!isAppMode && !isAppsMode) ? ' active' : '';
-  var appsOnclick = isAppsMode ? '' : ' onclick="switchToAppsMode(\'' + basePath + '\')"';
-  var agentOnclick = isAppMode ? '' : ' onclick="switchToAgentMode(\'' + basePath + '\')"';
-  var dataOnclick = (isAppMode || isAppsMode) ? ' onclick="switchToDataMode(\'' + basePath + '\')"' : '';
+  // Mode switch: agent and data only.
+  var agentActiveClass = isAgentMode ? ' active' : '';
+  var dataActiveClass = isAgentMode ? '' : ' active';
+  var agentOnclick = isAgentMode ? '' : ' onclick="switchToAgentMode(\'' + basePath + '\')"';
+  var dataOnclick = isAgentMode ? ' onclick="switchToDataMode(\'' + basePath + '\')"' : '';
 
   // Admin pages get a minimal top bar
   if (isAdminPage) {
     topBar.innerHTML = ''
-      + '<a class="logo" href="' + basePath + 'website/index.html" style="text-decoration:none;color:inherit"><img src="' + basePath + 'images/logo-blue.svg" alt="MOI"></a>'
+      + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi.svg" alt="MatrixOne Intelligence"></div>'
       + '<div class="spacer"></div>'
       + '<div class="right-actions">'
       +   '<div class="user-avatar-wrap" id="consoleAvatarWrap">'
       +     '<div class="user-avatar" id="consoleAvatarBtn" title="账户">A</div>'
       +     '<div class="user-popover" id="consolePopover">'
-      +       '<div class="popover-header"><div class="popover-avatar">A</div><div class="popover-info"><div class="popover-name">admin</div><div class="popover-email">admin@matrixorigin.cn</div></div></div>'
+      +       '<div class="popover-header"><div class="popover-avatar">A</div><div class="popover-info"><div class="popover-name">admin</div><div class="popover-email">公开演示环境</div></div></div>'
       +       '<div class="popover-menu"><button class="popover-item danger" onclick="consoleLogout()">退出登录</button></div>'
       +     '</div>'
       +   '</div>'
@@ -488,36 +487,8 @@ function buildTopBar() {
     return;
   }
 
-  // 九宫格 app launcher（跨产品切换）
-  var curProduct = isTaasPage ? 'genesis' : (isMatrixOnePage ? 'matrixone' : 'workspace');
-  function appTile(key, logo, name, sub, onclick, disabled, mode) {
-    var isCur = key === curProduct;
-    // mode='wordmark'：方框里放完整官方字标（如 MatrixOne 的 logo-matrixone.svg），下面仍有名称 + 介绍
-    var ico = mode === 'wordmark'
-      ? '<span class="applauncher-ico"><img class="al-wm" src="' + basePath + 'images/' + logo + '" alt="' + name + '"></span>'
-      : '<span class="applauncher-ico"><img src="' + basePath + 'images/' + logo + '" alt="' + name + '"></span>';
-    return '<div class="applauncher-tile' + (isCur ? ' current' : '') + (disabled ? ' disabled' : '') + '"'
-      + (!isCur && onclick ? ' onclick="' + onclick + '"' : '') + '>'
-      + ico
-      + '<span class="applauncher-name">' + name + '</span>'
-      + '<span class="applauncher-sub">' + sub + '</span>'
-      + '</div>';
-  }
-  var gridIcon = '<svg class="al-grid" width="21" height="21" viewBox="0 0 24 24"><defs><linearGradient id="alGrad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stop-color="#004af0"/><stop offset="1" stop-color="#00d4aa"/></linearGradient></defs><circle cx="5" cy="5" r="1.9"/><circle cx="12" cy="5" r="1.9"/><circle cx="19" cy="5" r="1.9"/><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/><circle cx="5" cy="19" r="1.9"/><circle cx="12" cy="19" r="1.9"/><circle cx="19" cy="19" r="1.9"/></svg>';
-  var appLauncherHtml = ''
-    + '<div class="dropdown" id="appLauncherWrap">'
-    +   '<div class="action-btn applauncher-btn" onclick="toggleDropdown(\'appLauncherDD\')" title="切换产品 · 工作区 / Genesis / MatrixOne">' + gridIcon + '</div>'
-    +   '<div class="dropdown-content right" id="appLauncherDD" style="min-width:348px;padding:12px;background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid #ebedf2;box-shadow:0 12px 34px rgba(20,33,64,0.15)">'
-    +     '<div class="applauncher-grid">'
-    +       appTile('workspace', 'logo-workspace.svg', 'AI Studio', '从数据到 AI 应用的端到端生成', 'gotoWorkspace(\'' + basePath + '\')', false)
-    +       appTile('genesis', 'logo-genesis.svg', 'Genesis', 'TaaS 模型服务', 'gotoGenesis()', false)
-    +       appTile('matrixone', 'logo-matrixone.svg', 'MatrixOne', '超融合数据库', 'gotoMatrixOne()', false, 'wordmark')
-    +     '</div>'
-    +   '</div>'
-    + '</div>';
-
   topBar.innerHTML = ''
-    + '<a class="logo" href="' + basePath + 'website/index.html" style="text-decoration:none;color:inherit"><img src="' + basePath + 'images/logo-blue.svg" alt="MOI"></a>'
+    + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi.svg" alt="MatrixOne Intelligence"></div>'
     + (isAccountPage || isTaasPage || isMatrixOnePage ? '' : '<div class="ws-mode-group">'
     +   '<div class="ws-selector">'
     +     '<div class="ws-trigger" onclick="toggleWsPanel()">'
@@ -529,23 +500,12 @@ function buildTopBar() {
     +   '</div>'
     +   '<span class="ws-mode-sep"></span>'
     +   '<div class="mode-switch" id="modeSwitch">'
-    +     '<div class="mode-btn' + appsActiveClass + '" data-mode="apps"' + appsOnclick + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="3"/><path d="M2 9h20"/><circle cx="6" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="9.5" cy="6" r="1" fill="currentColor" stroke="none"/><path d="M7 14h10M7 17.5h6"/></svg>' + t('应用') + '</div>'
     +     '<div class="mode-btn' + agentActiveClass + '" data-mode="agent"' + agentOnclick + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="M8 15c1 1.5 3 2 4 2s3-.5 4-2"/></svg>' + t('智能体') + '</div>'
     +     '<div class="mode-btn' + dataActiveClass + '" data-mode="data"' + dataOnclick + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>' + t('数据') + '</div>'
     +   '</div>'
     + '</div>')
     + '<div class="spacer"></div>'
     + '<div class="right-actions">'
-    // 运营入口:签到邀请(奖励中心弹窗),仅前台产品与账户页顶栏,管理端不显示;红点 = 今日未签提示
-    + (isAdminPage || isTaasPage || isMatrixOnePage ? '' :
-        '<button id="rwTopBtn" onclick="openRewardsModal()" title="每日签到 · 邀请有礼" '
-        + 'style="position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;margin-right:4px;border:1px solid rgba(0,74,240,0.18);border-radius:16px;background:rgba(0,74,240,0.05);color:#004af0;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap" '
-        + 'onmouseover="this.style.borderColor=\'#004af0\';this.style.background=\'rgba(0,74,240,0.09)\'" onmouseout="this.style.borderColor=\'rgba(0,74,240,0.18)\';this.style.background=\'rgba(0,74,240,0.05)\'">'
-        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7a3 3 0 1 0-3-3c0 1.5 1.5 3 3 3zM12 7a3 3 0 1 1 3-3c0 1.5-1.5 3-3 3z"/></svg>'
-        + '签到邀请'
-        + '<span id="rwTopDot" style="position:absolute;top:-2px;right:2px;width:8px;height:8px;border-radius:50%;background:#ff4d4f;border:1.5px solid #fff"></span>'
-        + '</button>')
-    +   appLauncherHtml
     +   '<div class="user-avatar-wrap" id="consoleAvatarWrap">'
     +     '<div class="user-avatar" id="consoleAvatarBtn" title="账户">U</div>'
     +     '<div class="user-popover" id="consolePopover">'
@@ -560,7 +520,6 @@ function buildTopBar() {
     +         '<button class="popover-item" onclick="window.open(\'' + basePath + 'account/account.html\',\'_blank\')">账号管理</button>'
     +         '<button class="popover-item" onclick="window.open(\'' + basePath + 'account/credentials.html\',\'_blank\')">访问凭据</button>'
     +         '<button class="popover-item popover-between" onclick="window.open(\'' + basePath + 'account/billing.html\',\'_blank\')"><span>计费中心</span><span class="pop-credit" id="popCredit">— cr</span></button>'
-    +         '<button class="popover-item popover-between" onclick="openRewardsModal()"><span>奖励中心</span><span class="pop-meta">签到 · 邀请</span></button>'
     +         '<button class="popover-item" onclick="window.open(\'' + basePath + 'admin/index.html\',\'_blank\')">管理后台</button>'
     +         '<div class="popover-sep"></div>'
     +         '<button class="popover-item popover-between" onclick="sessionStorage.setItem(\'moi_portal_stay\',\'1\');location.href=\'' + basePath + 'website/portal.html\'" title="回到服务站点选择页,切换到其他云"><span>服务站点</span><span class="pop-meta">' + (function(){ try { var cs = JSON.parse(localStorage.getItem('moi_current_site') || 'null'); return (cs && cs.cloud) ? cs.cloud : '阿里云'; } catch (e) { return '阿里云'; } })() + ' ›</span></button>'
@@ -613,19 +572,7 @@ function saveDataPageAndSwitch(basePath, target) {
   location.href = basePath + (target === 'apps' ? 'app-dev/apps.html' : 'app-dev/index.html');
 }
 
-// Switch to apps mode
-function switchToAppsMode(basePath) {
-  var path = window.location.pathname;
-  // Save data page if coming from data mode
-  if (path.indexOf('/app-dev/') === -1) {
-    var match = path.match(/(dashboard|data-connection|data-processing|resource-center|user-perm)\/[^?#]+/);
-    if (match) localStorage.setItem('moi_last_data_page', match[0]);
-  }
-  localStorage.setItem('moi_mode', 'apps');
-  location.href = basePath + 'app-dev/apps.html';
-}
-
-// Switch to agent mode
+// Switch to the agent workspace.
 function switchToAgentMode(basePath) {
   var path = window.location.pathname;
   // Save data page if coming from data mode
@@ -633,8 +580,8 @@ function switchToAgentMode(basePath) {
     var match = path.match(/(dashboard|data-connection|data-processing|resource-center|user-perm)\/[^?#]+/);
     if (match) localStorage.setItem('moi_last_data_page', match[0]);
   }
-  localStorage.setItem('moi_mode', 'app');
-  location.href = basePath + 'app-dev/index.html';
+  localStorage.setItem('moi_mode', 'agent');
+  location.href = basePath + 'app-dev/apps.html';
 }
 
 // Switch from app/agent mode back to data mode (restore last data page)
@@ -775,9 +722,9 @@ function initMomo() {
     +   '<button class="momo-send" id="momoSendBtn" onclick="momoSendOrStop()" title="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>'
     + '</div>'
     + '<div class="momo-foot">'
-    +   '<a class="momo-foot-link" href="https://docs.matrixorigin.cn/zh/m1intelligence/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>使用文档</a>'
+    +   '<a class="momo-foot-link" href="#" onclick="return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>使用文档（演示）</a>'
     +   '<span class="momo-foot-dot"></span>'
-    +   '<a class="momo-foot-link" href="mailto:contact@matrixorigin.cn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6L12 13 2 6"/></svg>联系我们</a>'
+    +   '<a class="momo-foot-link" href="#" onclick="return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6L12 13 2 6"/></svg>联系我们</a>'
     + '</div>';
   document.body.appendChild(panel);
   momoLoad();
@@ -1110,7 +1057,7 @@ function momoReply(q) {
   };
 }
 
-// ===== MOMO · LLM（基于 docs/moi-product-design.md 的真实问答） =====
+// ===== MOMO · LLM（使用公开的原型上下文） =====
 // 模型配置只保存在浏览器 localStorage，不写入代码、不进 Git。
 function momoCfg() {
   return {
@@ -1139,13 +1086,10 @@ function momoSetBusy(b) {
 var _momoDocPromise = null;
 function momoEnsureDoc() {
   if (_momoDocPromise) return _momoDocPromise;
-  if (location.protocol === 'file:') {
-    return Promise.reject(new Error('MOMO 不能用 file:// 直接打开网页使用。请在项目根目录运行  python3 -m http.server 8137 ，再用  http://localhost:8137/html/...  打开本页面。'));
-  }
-  _momoDocPromise = fetch(momoBasePath() + '../docs/moi-product-design.md').then(function(r) {
-    if (!r.ok) throw new Error('产品文档加载失败（HTTP ' + r.status + '），请确认通过本地服务器（http://localhost…）访问。');
-    return r.text();
-  }).catch(function(e) { _momoDocPromise = null; throw e; });
+  _momoDocPromise = Promise.resolve(
+    'MOI 是一个企业数据与 AI 平台的静态交互原型。原型展示数据连接、数据处理、知识库与检索、Agent 应用、' +
+    '权限治理、监控和管理等界面流程。所有页面数据均为演示用途；原型不连接生产系统，也不执行真实数据操作。'
+  );
   return _momoDocPromise;
 }
 function momoSystemPrompt(doc) {
@@ -1691,7 +1635,7 @@ function toggleSubMenu(id, el) {
     try {
       var user = JSON.parse(raw);
       var initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
-      var email = user.email || (user.username ? user.username + '@matrixorigin.cn' : (user.phone || '') + '@matrixorigin.cn');
+      var email = user.email || (user.username ? user.username + '@moi-demo.cn' : (user.phone || '') + '@moi-demo.cn');
 
       var avatarBtn = document.getElementById('consoleAvatarBtn');
       var popAvatar = document.querySelector('#consolePopover .popover-avatar');
@@ -1796,31 +1740,6 @@ function consoleLogout() {
 
     updateBadge();
 
-    // Add Genesis button before credit badge (skip on Genesis pages)
-    var _isTaas = window.location.pathname.indexOf('/taas/') !== -1;
-    var _isAdmin = window.location.pathname.indexOf('/admin/') !== -1;
-    if (false) {  // Genesis 入口已移入左上角产品切换器，不再单独占右上角
-      if (!document.getElementById('taasBtnStyle')) {
-        var taasStyle = document.createElement('style');
-        taasStyle.id = 'taasBtnStyle';
-        taasStyle.textContent = '.taas-btn{position:relative;display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:16px;background:rgba(99,102,241,0.08);color:#5b5fc7;cursor:pointer;margin-right:6px;transition:all .2s;font-size:12px;font-weight:600;line-height:1;letter-spacing:0.3px;border:1px solid rgba(99,102,241,0.15);text-decoration:none;white-space:nowrap;}'
-          + '.taas-btn svg{display:block;flex-shrink:0;}'
-          + '.taas-btn:hover{background:rgba(99,102,241,0.14);border-color:rgba(99,102,241,0.25);transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,0.12);}'
-          + '.taas-btn[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 11px);right:0;width:262px;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);color:rgba(20,33,64,0.78);font-size:12px;font-weight:400;line-height:1.7;letter-spacing:0;text-align:left;white-space:normal;padding:12px 14px;border:1px solid rgba(0,74,240,0.12);border-radius:12px;box-shadow:0 10px 30px rgba(20,33,64,0.16),0 2px 8px rgba(20,33,64,0.06);z-index:9999;pointer-events:none;opacity:0;transform:translateY(-6px) scale(0.97);transform-origin:top right;transition:opacity .2s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1);}'
-          + '.taas-btn[data-tip]::before{content:\'\';position:absolute;top:calc(100% + 6px);right:18px;width:11px;height:11px;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-left:1px solid rgba(0,74,240,0.12);border-top:1px solid rgba(0,74,240,0.12);transform:rotate(45deg);z-index:10000;pointer-events:none;opacity:0;transition:opacity .2s cubic-bezier(.16,1,.3,1);}'
-          + '.taas-btn[data-tip]:hover::after{opacity:1;transform:translateY(0) scale(1);}'
-          + '.taas-btn[data-tip]:hover::before{opacity:1;}';
-        document.head.appendChild(taasStyle);
-      }
-      var taasBtn = document.createElement('a');
-      taasBtn.className = 'taas-btn';
-      taasBtn.href = (function(){ var p=window.location.pathname; if(p.indexOf('/dashboard/')!==-1||p.indexOf('/data-connection/')!==-1||p.indexOf('/data-processing/')!==-1||p.indexOf('/resource-center/')!==-1||p.indexOf('/user-perm/')!==-1||p.indexOf('/account/')!==-1||p.indexOf('/app-dev/')!==-1) return '../taas/taas.html'; return 'taas/taas.html'; })();
-      taasBtn.target = '_blank';
-      taasBtn.setAttribute('data-tip', 'Genesis 是 MOI 的统一模型网关：一个 API 接入对话 / 嵌入 / OCR / 文生图等所有主流大模型，自动路由与计量计费。点击进入控制台。');
-      taasBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" fill="none" stroke="currentColor"><ellipse cx="24" cy="24" rx="17" ry="8" stroke-width="2.6" transform="rotate(-45 24 24)"/><path d="M15 33 L15 15 L33 33 L33 15" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="15" r="3.6" fill="currentColor" stroke="none"/><circle cx="33" cy="33" r="3.6" fill="currentColor" stroke="none"/></svg>Genesis';
-      rightActions.insertBefore(taasBtn, badge);
-    }
-
     // 刷新按钮已移除（与浏览器刷新重复）；顶栏右侧只留：MOMO · 点点点 · 头像
 
     // Listen for credit changes from other tabs
@@ -1840,10 +1759,10 @@ function consoleLogout() {
 // === Workspace Manager (shared across all pages) ===
 (function() {
   var ver = localStorage.getItem('moi_ws_ver');
-  if (ver !== '2') {
+  if (ver !== '3') {
     localStorage.removeItem('moi_workspaces');
     localStorage.removeItem('moi_current_ws');
-    localStorage.setItem('moi_ws_ver', '2');
+    localStorage.setItem('moi_ws_ver', '3');
   }
 })();
 
@@ -1852,11 +1771,11 @@ function getWorkspaces() {
   if (!ws) {
     var defaults = [
       { id: 'ws1', name: '默认工作区', owner: 'me', region: '华东-1' },
-      { id: 'ws2', name: '数据分析项目', owner: 'me', region: '华东-1' },
-      { id: 'ws3', name: '0818 演示', owner: 'me', region: '华北-1' },
-      { id: 'ws4', name: '测试工作区', ownerName: '陈 jeff', owner: 'shared', region: '华东-1' },
-      { id: 'ws5', name: 'MOI 2602 的工作区', ownerName: 'MOI 2602', owner: 'shared', region: '华南-1' },
-      { id: 'ws6', name: 'Project test1', ownerName: '许 跃蓬', owner: 'shared', region: '华东-1' }
+      { id: 'ws2', name: '数据分析工作区', owner: 'me', region: '华东-1' },
+      { id: 'ws3', name: '公开演示工作区', owner: 'me', region: '华北-1' },
+      { id: 'ws4', name: '共享工作区 A', ownerName: '演示成员 A', owner: 'shared', region: '华东-1' },
+      { id: 'ws5', name: '共享工作区 B', ownerName: '演示成员 B', owner: 'shared', region: '华南-1' },
+      { id: 'ws6', name: '项目示例工作区', ownerName: '演示成员 C', owner: 'shared', region: '华东-1' }
     ];
     localStorage.setItem('moi_workspaces', JSON.stringify(defaults));
     localStorage.setItem('moi_current_ws', 'ws1');
@@ -1920,19 +1839,7 @@ function selectWs(id) {
   if (p) p.classList.remove('show');
   renderWsPanel();
 }
-function gotoGenesis() {
-  var p = window.location.pathname, base = '';
-  if (p.indexOf('/dashboard/') !== -1 || p.indexOf('/data-connection/') !== -1 || p.indexOf('/data-processing/') !== -1 || p.indexOf('/resource-center/') !== -1 || p.indexOf('/user-perm/') !== -1 || p.indexOf('/account/') !== -1 || p.indexOf('/app-dev/') !== -1 || p.indexOf('/monitor/') !== -1) base = '../';
-  window.location.href = base + 'taas/taas.html';
-}
-function gotoMatrixOne() {
-  var path = window.location.pathname;
-  var dirs = ['/dashboard/','/data-connection/','/data-processing/','/resource-center/','/user-perm/','/monitor/','/account/','/app-dev/','/taas/','/matrixone/','/admin/'];
-  var base = '';
-  for (var i = 0; i < dirs.length; i++) { if (path.indexOf(dirs[i]) !== -1) { base = '../'; break; } }
-  window.location.href = base + 'matrixone/matrixone.html';
-}
-// 从 Genesis / 其他产品切回工作区（落到上次数据页或仪表盘）
+// 返回工作区（落到上次数据页或仪表盘）
 function gotoWorkspace(basePath) {
   basePath = basePath || '';
   var last = localStorage.getItem('moi_last_data_page');
@@ -2045,7 +1952,7 @@ function refreshData(btn) {
 var MOI_NOTEBOOKS = [
   { id: 'nb1', name: '产品文档处理脚本', lang: 'python', langName: 'Python',
     desc: '产品文档全流程处理，包含解析、分段、清洗和嵌入',
-    updated: '2026-03-14 10:30', author: '张三',
+    updated: '2026-03-14 10:30', author: '演示用户壬',
     operators: [{name:'解析',type:'system'},{name:'分段',type:'system'},{name:'清洗',type:'system'},{name:'嵌入',type:'system'}] },
   { id: 'nb2', name: '合同关键信息提取', lang: 'python', langName: 'Python',
     desc: '从合同 PDF 中提取甲乙方、金额、日期等关键字段',
@@ -2053,11 +1960,11 @@ var MOI_NOTEBOOKS = [
     operators: [{name:'解析',type:'system'},{name:'提取',type:'system'},{name:'合同字段映射',type:'custom'}] },
   { id: 'nb3', name: 'Catalog 数据质量分析', lang: 'sql', langName: 'SQL',
     desc: '对 Catalog 中的处理数据进行质量统计和异常检测',
-    updated: '2026-03-12 09:00', author: '张三',
+    updated: '2026-03-12 09:00', author: '演示用户壬',
     operators: [] },
   { id: 'nb4', name: '自定义去敏处理', lang: 'python', langName: 'Python',
     desc: '对文档中的手机号、身份证号等敏感信息进行脱敏处理',
-    updated: '2026-03-11 14:45', author: '王五',
+    updated: '2026-03-11 14:45', author: '演示用户辛',
     operators: [{name:'解析',type:'system'},{name:'清洗',type:'system'},{name:'PII 脱敏',type:'custom'},{name:'正则替换',type:'custom'}] },
   { id: 'nb5', name: '多模态数据处理流水线', lang: 'mixed', langName: '混合',
     desc: '图文混合文档的端到端处理，含 Python 处理逻辑和 SQL 分析',
@@ -2343,320 +2250,3 @@ var MOI_NOTEBOOKS = [
     btn.removeAttribute('title');
   });
 })();
-
-// === 奖励中心弹窗(签到 + 邀请):全局注入,头像菜单「奖励中心」触发 ===
-var rwState = { done: 3, today: false, tab: 'checkin' };
-// 累计签到:15 天一轮,每日 +100;本轮累计第 3 / 7 / 15 次里程碑额外 +200 / +500 / +1000,断签不清进度,轮结束重置
-var RW_PLAN = (function() {
-  var a = [];
-  for (var i = 0; i < 15; i++) a.push({ d: '第 ' + (i + 1) + ' 次', amt: 100, bonus: i === 2 ? 200 : (i === 6 ? 500 : (i === 14 ? 1000 : 0)) });
-  return a;
-})();
-
-function openRewardsModal() {
-  if (!document.getElementById('rwModalStyle')) {
-    var st = document.createElement('style');
-    st.id = 'rwModalStyle';
-    st.textContent = ''
-      + '.rw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:3000;display:none;align-items:center;justify-content:center}'
-      + '.rw-overlay.open{display:flex}'
-      + '.rw-modal{background:#fff;border-radius:14px;width:560px;max-height:82vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.16)}'
-      + '.rw-m-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 0}'
-      + '.rw-m-title{font-size:16px;font-weight:700;color:rgba(0,0,0,0.85)}'
-      + '.rw-m-close{border:none;background:none;font-size:15px;color:rgba(0,0,0,0.4);cursor:pointer;padding:4px}'
-      + '.rw-m-close:hover{color:rgba(0,0,0,0.7)}'
-      + '.rw-tabs{display:flex;gap:20px;padding:8px 22px 0;border-bottom:1px solid #f0f0f0}'
-      + '.rw-tab{padding:8px 2px;font-size:13.5px;color:rgba(0,0,0,0.55);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}'
-      + '.rw-tab.on{color:#1677ff;font-weight:600;border-bottom-color:#1677ff}'
-      + '.rw-body{padding:18px 22px 22px}'
-      + '.rw-desc{font-size:12.5px;color:rgba(0,0,0,0.45);line-height:1.7;margin-bottom:14px}'
-      + '.rw-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:16px}'
-      + '.rw-d{border:1px solid #eef0f4;border-radius:11px;padding:10px 4px 8px;text-align:center;position:relative;background:#fafbfd;transition:all .15s}'
-      + '.rw-d .dd{font-size:10.5px;color:rgba(0,0,0,0.4)}'
-      + '.rw-d .aa{font-size:13px;font-weight:700;color:rgba(0,0,0,0.72);margin-top:3px}'
-      + '.rw-d .bb{margin-top:4px;height:16px;display:flex;align-items:center;justify-content:center}'
-      + '.rw-d .bb .cap{font-size:9.5px;padding:0 7px;line-height:15px;border-radius:8px;background:rgba(245,34,45,0.08);color:#f5222d;font-weight:600}'
-      + '.rw-d.done{background:linear-gradient(160deg,#fff8ec,#ffefd8);border-color:#ffd591}'
-      + '.rw-d.done .aa{color:#d46b08}.rw-d.done .dd{color:rgba(212,107,8,0.55)}'
-      + '.rw-d.today{background:#fff;border:1.5px solid #fa8c16;box-shadow:0 4px 14px rgba(250,140,22,0.18)}'
-      + '.rw-d.today .dd{color:#fa8c16;font-weight:600}'
-      + '.rw-d.grand{background:linear-gradient(160deg,#fffbe0,#ffe14d);border-color:#ffd400;box-shadow:0 2px 10px rgba(255,212,0,0.35)}'
-      + '.rw-d.grand .aa{color:#8a5a00}.rw-d.grand .dd{color:#a06800}'
-      + '.rw-d .tk{position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:50%;background:linear-gradient(135deg,#fa8c16,#ffc53d);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(250,140,22,0.4)}'
-      + '.rw-bar{display:flex;align-items:center;justify-content:space-between}'
-      + '.rw-stat{font-size:13px;color:rgba(0,0,0,0.6)}.rw-stat b{color:#fa8c16;font-size:15px}'
-      + '.rw-go{background:linear-gradient(135deg,#fa8c16,#ffa940);color:#fff;border:none;padding:8px 24px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(250,140,22,0.3)}'
-      + '.rw-go:hover{background:linear-gradient(135deg,#ffa940,#ffc069)}.rw-go:disabled{background:#d9d9d9;box-shadow:none;cursor:not-allowed}'
-      + '.rw-linkrow{display:flex;gap:8px;margin-bottom:12px}'
-      + '.rw-link{flex:1;height:34px;display:flex;align-items:center;padding:0 12px;background:#f7f9fc;border:1px solid #e8ecf2;border-radius:8px;font-family:monospace;font-size:11.5px;color:rgba(0,0,0,0.65);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}'
-      + '.rw-cp{background:#1677ff;color:#fff;border:none;padding:0 14px;border-radius:8px;font-size:12.5px;cursor:pointer;white-space:nowrap}'
-      + '.rw-cp:hover{background:#4096ff}'
-      + '.rw-cp.ghost{background:#fff;color:#1677ff;border:1px solid #1677ff}'
-      + '.rw-meta{display:flex;gap:22px;margin-bottom:6px}'
-      + '.rw-meta .v{font-size:17px;font-weight:700;color:rgba(0,0,0,0.85)}.rw-meta .v small{font-size:11px;font-weight:400;color:rgba(0,0,0,0.4)}'
-      + '.rw-meta .l{font-size:11.5px;color:rgba(0,0,0,0.45);margin-top:1px}'
-      + '.rw-tb{width:100%;border-collapse:collapse;margin-top:10px}'
-      + '.rw-tb th{text-align:left;padding:7px 10px;font-size:11.5px;color:rgba(0,0,0,0.4);font-weight:600;background:#fafafa;border-bottom:1px solid #f0f0f0}'
-      + '.rw-tb td{padding:9px 10px;font-size:12.5px;color:rgba(0,0,0,0.78);border-bottom:1px solid #f5f5f5}'
-      + '.rw-tb tr:last-child td{border-bottom:none}'
-      + '.rw-st{display:inline-block;font-size:11px;padding:0 7px;border-radius:4px;line-height:18px}'
-      + '.rw-st.ok{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f}'
-      + '.rw-st.wt{background:#fff7e6;color:#d46b08;border:1px solid #ffd591}'
-      + '.rw-rule{font-size:11.5px;color:rgba(0,0,0,0.45);background:#f7f9fc;border:1px solid #eef2f7;border-radius:8px;padding:8px 12px;margin-top:12px;line-height:1.7}'
-      + '.rw-tst{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:8px 16px;border-radius:8px;font-size:12.5px;z-index:3100;display:none}';
-    document.head.appendChild(st);
-  }
-  var ov = document.getElementById('rwOverlay');
-  if (!ov) {
-    ov = document.createElement('div');
-    ov.id = 'rwOverlay';
-    ov.className = 'rw-overlay';
-    ov.onclick = function(e) { if (e.target === ov) closeRewardsModal(); };
-    ov.innerHTML = '<div class="rw-modal">'
-      + '<div class="rw-m-head"><div class="rw-m-title">奖励中心</div><button class="rw-m-close" onclick="closeRewardsModal()">✕</button></div>'
-      + '<div class="rw-tabs">'
-      + '<div class="rw-tab" id="rwTab-checkin" onclick="rwSwitch(\'checkin\')">每日签到</div>'
-      + '<div class="rw-tab" id="rwTab-invite" onclick="rwSwitch(\'invite\')">邀请有礼</div>'
-      + '</div>'
-      + '<div class="rw-body" id="rwBody"></div>'
-      + '</div>';
-    document.body.appendChild(ov);
-    var tst = document.createElement('div');
-    tst.id = 'rwTst'; tst.className = 'rw-tst';
-    document.body.appendChild(tst);
-  }
-  ov.classList.add('open');
-  rwSwitch(rwState.tab);
-}
-function closeRewardsModal() {
-  var ov = document.getElementById('rwOverlay');
-  if (ov) ov.classList.remove('open');
-}
-function rwSwitch(tab) {
-  rwState.tab = tab;
-  var a = document.getElementById('rwTab-checkin'), b = document.getElementById('rwTab-invite');
-  if (a) a.classList.toggle('on', tab === 'checkin');
-  if (b) b.classList.toggle('on', tab === 'invite');
-  document.getElementById('rwBody').innerHTML = tab === 'checkin' ? rwCheckinHtml() : rwInviteHtml();
-}
-function rwCheckinHtml() {
-  var gained = 0;
-  for (var i = 0; i < rwState.done; i++) gained += RW_PLAN[i].amt + RW_PLAN[i].bonus;
-  return '<div class="rw-desc">每日签到得 100 Credit，累计签到会有额外奖励。<b>活动有效期为注册后 20 天</b>（您的活动截止 2026-09-10，还剩 12 天），奖励直接计入账户余额。</div>'
-    + '<div class="rw-strip">' + RW_PLAN.map(function(p, i) {
-      var cls = 'rw-d' + (i < rwState.done ? ' done' : '') + (i === rwState.done && !rwState.today ? ' today' : '') + (i === 14 ? ' grand' : '');
-      return '<div class="' + cls + '">' + (i < rwState.done ? '<span class="tk">✓</span>' : '')
-        + '<div class="dd">' + p.d + '</div><div class="aa">+' + p.amt + '</div><div class="bb">' + (p.bonus ? '<span class="cap">额外 +' + p.bonus + '</span>' : '') + '</div></div>';
-    }).join('') + '</div>'
-    + '<div class="rw-bar">'
-    + '<div class="rw-stat">本轮已签 <b>' + rwState.done + '</b> 次 · 已得 <b>' + gained + '</b> cr</div>'
-    + '<button class="rw-go" ' + (rwState.today ? 'disabled' : '') + ' onclick="rwCheckin()">' + (rwState.today ? '今日已签到' : '今日签到 +100 cr') + '</button>'
-    + '</div>';
-}
-function rwCheckin() {
-  if (rwState.today) return;
-  var p = RW_PLAN[rwState.done];
-  rwState.done++; rwState.today = true;
-  rwSwitch('checkin');
-  var dot = document.getElementById('rwTopDot');
-  if (dot) dot.style.display = 'none';
-  rwToastMsg('签到成功 +' + p.amt + ' cr' + (p.bonus ? '，本轮累计 ' + rwState.done + ' 次额外 +' + p.bonus + ' cr' : ''));
-}
-// 邀请链接指向原型注册页(带 invite 参数),按当前访问方式(file:// / localhost)动态生成,复制即可打开
-function rwInviteUrl() {
-  var p = location.pathname;
-  var i = p.indexOf('/html/');
-  var base = i >= 0 ? p.slice(0, i + 6) : p.replace(/[^/]*$/, '');
-  return location.protocol + '//' + (location.host || '') + base + 'website/register.html?invite=MOI-U8F3KD';
-}
-function rwInviteHtml() {
-  return '<div class="rw-desc">邀请新用户注册 MOI：对方通过您的链接完成注册激活后，您获得 <b>500 Credit</b> / 人，对方获得 <b>200 Credit</b>；每个账户最多可邀请 <b>10</b> 人。手机 / GitHub 注册即时激活；邮箱注册需完成邮箱验证。</div>'
-    + '<div class="rw-linkrow">'
-    + '<div class="rw-link" id="rwInvLink">' + rwInviteUrl() + '</div>'
-    + '<button class="rw-cp" onclick="rwCopy(document.getElementById(\'rwInvLink\').textContent,\'邀请链接已复制\')">复制链接</button>'
-    + '</div>'
-    + '<div style="font-size:11.5px;color:rgba(0,0,0,0.45);margin:2px 0 10px">将链接发给好友，对方通过此链接完成注册激活后，奖励自动发放到双方账户。</div>'
-    + '<div class="rw-meta">'
-    + '<div><div class="v">3 <small>/ 10 人</small></div><div class="l">已成功邀请</div></div>'
-    + '<div><div class="v">1,500 <small>cr</small></div><div class="l">累计获得</div></div>'
-    + '<div><div class="v">7 <small>人</small></div><div class="l">剩余名额</div></div>'
-    + '</div>'
-    + '<table class="rw-tb"><thead><tr><th>被邀请用户</th><th>注册方式</th><th>注册时间</th><th>状态</th><th style="text-align:right">获得奖励</th></tr></thead><tbody>'
-    + '<tr><td>138****6621</td><td>手机</td><td>2026-08-20 14:32</td><td><span class="rw-st ok">已发放</span></td><td style="text-align:right;color:#1677ff;font-weight:600">+500 cr</td></tr>'
-    + '<tr><td>oc***hub</td><td>GitHub</td><td>2026-08-15 09:18</td><td><span class="rw-st ok">已发放</span></td><td style="text-align:right;color:#1677ff;font-weight:600">+500 cr</td></tr>'
-    + '<tr><td>li***@163.com</td><td>邮箱</td><td>2026-08-27 20:05</td><td><span class="rw-st wt">待激活</span></td><td style="text-align:right;color:rgba(0,0,0,0.35)">—</td></tr>'
-    + '</tbody></table>'
-    + '<div class="rw-rule">被邀请用户须为新用户，完成注册激活后奖励自动发放（手机 / GitHub 注册即时激活并发放；邮箱注册待完成邮箱验证后发放）。同一设备 / 同一实名 / 同一支付账号重复注册不计入；检测到异常刷取将回收 Credit 并可能限制账户功能。</div>';
-}
-function rwCopy(text, msg) {
-  if (navigator.clipboard) navigator.clipboard.writeText(text);
-  rwToastMsg(msg);
-}
-var rwTstTimer = null;
-function rwToastMsg(msg) {
-  var t = document.getElementById('rwTst');
-  if (!t) return;
-  t.textContent = msg; t.style.display = 'block';
-  clearTimeout(rwTstTimer);
-  rwTstTimer = setTimeout(function() { t.style.display = 'none'; }, 2400);
-}
-
-// === 问题反馈浮窗:右下角悬浮入口(MOMO 上方),对话式新增反馈 + 反馈历史两页签 ===
-var fbwState = { tab: 'new', step: 0 };
-var FBW_LIST = [
-  { id: 'FB-20260826-012', title: '工作流定时任务在 02:00 未按时触发', cat: '缺陷', st: 'replied', stLabel: '已回复', time: '2026-08-26', reply: '官方回复：已确认为有效反馈，100 Credit 已发放至您的账户。问题定位为调度时区配置缺陷，修复将随下一次发布上线；期间可将触发时间避开整点。' },
-  { id: 'FB-20260822-007', title: '希望知识库支持按文件夹批量更新', cat: '需求', st: 'doing', stLabel: '处理中', time: '2026-08-22', reply: '' },
-  { id: 'FB-20260815-003', title: 'CSV 导入含中文表头时列名乱码', cat: '缺陷', st: 'done', stLabel: '已解决', time: '2026-08-15', reply: '官方回复：编码探测缺陷已修复并上线，感谢反馈。' }
-];
-
-function fbwEnsure() {
-  if (document.getElementById('fbwPanel')) return;
-  var st = document.createElement('style');
-  st.id = 'fbwStyle';
-  st.textContent = ''
-    + '.fbw-fab{position:fixed;right:0;bottom:190px;z-index:1000;width:34px;padding:11px 0 13px;border-radius:10px 0 0 10px;background:linear-gradient(180deg,#1677ff,#3f8dff);color:#fff;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;box-shadow:-3px 4px 16px rgba(22,119,255,0.28);transition:all .18s}'
-    + '.fbw-fab span{font-size:12px;line-height:1.35;font-weight:500;letter-spacing:1px}'
-    + '.fbw-fab:hover{transform:translateX(-2px);box-shadow:-5px 6px 20px rgba(22,119,255,0.36)}'
-    + 'body.fbw-open .fbw-fab{opacity:0;pointer-events:none}'
-    + '.fbw-panel{position:fixed;right:22px;bottom:60px;z-index:1001;width:460px;height:680px;max-height:calc(100vh - 110px);background:#fff;border-radius:14px;box-shadow:0 12px 48px rgba(0,0,0,0.18);display:none;flex-direction:column;overflow:hidden}'
-    + 'body.fbw-open .fbw-panel{display:flex}'
-    + '.fbw-head{display:flex;align-items:center;gap:9px;padding:13px 16px 9px}'
-    + '.fbw-ava{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#1677ff,#00d4aa);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}'
-    + '.fbw-name{font-size:13.5px;font-weight:700;color:rgba(0,0,0,0.85)}'
-    + '.fbw-tag{font-size:10.5px;color:rgba(0,0,0,0.4)}'
-    + '.fbw-close{margin-left:auto;border:none;background:none;font-size:14px;color:rgba(0,0,0,0.4);cursor:pointer;padding:4px}'
-    + '.fbw-close:hover{color:rgba(0,0,0,0.7)}'
-    + '.fbw-tabs{display:flex;gap:18px;padding:0 16px;border-bottom:1px solid #f0f0f0}'
-    + '.fbw-tab{padding:7px 2px;font-size:12.5px;color:rgba(0,0,0,0.55);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}'
-    + '.fbw-tab.on{color:#1677ff;font-weight:600;border-bottom-color:#1677ff}'
-    + '.fbw-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}'
-    + '.fbw-msg{display:flex;gap:8px;max-width:94%}'
-    + '.fbw-msg .bub{padding:8px 12px;border-radius:9px;font-size:12.5px;line-height:1.7;color:rgba(0,0,0,0.8)}'
-    + '.fbw-msg.bot .bub{background:#f5f7fa;border-top-left-radius:3px}'
-    + '.fbw-msg.me{align-self:flex-end;flex-direction:row-reverse}'
-    + '.fbw-msg.me .bub{background:#e6f4ff;border-top-right-radius:3px}'
-    + '.fbw-mini{width:24px;height:24px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}'
-    + '.fbw-mini.bot{background:linear-gradient(135deg,#1677ff,#00d4aa)}'
-    + '.fbw-mini.me{background:#8c8c8c}'
-    + '.fbw-ticket{border:1px solid #dbe7ff;background:#f7faff;border-radius:9px;padding:10px 12px;margin-top:7px}'
-    + '.fbw-ticket .tt{font-size:12px;font-weight:700;color:rgba(0,0,0,0.78);margin-bottom:6px}'
-    + '.fbw-ticket .tr2{display:flex;font-size:12px;line-height:1.9}'
-    + '.fbw-ticket .tr2 .k{width:56px;color:rgba(0,0,0,0.45);flex-shrink:0}'
-    + '.fbw-ticket .tr2 .v{color:rgba(0,0,0,0.78)}'
-    + '.fbw-ticket .ta{margin-top:8px;display:flex;gap:8px}'
-    + '.fbw-btn{border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer}'
-    + '.fbw-btn.pri{background:#1677ff;color:#fff}.fbw-btn.pri:hover{background:#4096ff}'
-    + '.fbw-btn.ghost{background:#fff;color:rgba(0,0,0,0.65);border:1px solid #d9d9d9}'
-    + '.fbw-inrow{display:flex;gap:8px;padding:11px 14px;border-top:1px solid #f5f5f5}'
-    + '.fbw-in{flex:1;height:34px;border:1px solid #d9d9d9;border-radius:8px;padding:0 12px;font-size:12.5px;outline:none}'
-    + '.fbw-in:focus{border-color:#1677ff;box-shadow:0 0 0 2px rgba(22,119,255,0.1)}'
-    + '.fbw-send{background:#1677ff;color:#fff;border:none;border-radius:8px;padding:0 16px;font-size:12.5px;cursor:pointer}'
-    + '.fbw-send:hover{background:#4096ff}'
-    + '.fbw-list{flex:1;overflow-y:auto}'
-    + '.fbw-item{padding:11px 16px;border-bottom:1px solid #f5f5f5;cursor:pointer}'
-    + '.fbw-item:hover{background:#fafcff}'
-    + '.fbw-item .t{font-size:12.5px;color:rgba(0,0,0,0.82);font-weight:500;line-height:1.5}'
-    + '.fbw-item .m{display:flex;align-items:center;gap:7px;margin-top:4px;font-size:11px;color:rgba(0,0,0,0.4);flex-wrap:wrap}'
-    + '.fbw-st{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:4px;line-height:17px}'
-    + '.fbw-st.doing{background:#e6f4ff;color:#1677ff;border:1px solid #91caff}'
-    + '.fbw-st.replied{background:#fff7e6;color:#d46b08;border:1px solid #ffd591}'
-    + '.fbw-st.done{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f}'
-    + '.fbw-cat{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:4px;line-height:17px;background:#f5f5f5;color:rgba(0,0,0,0.55)}'
-    + '.fbw-reply{margin-top:7px;background:#f7f9fc;border-radius:8px;padding:8px 10px;font-size:11.5px;color:rgba(0,0,0,0.6);line-height:1.65;display:none}'
-    + '.fbw-item.open .fbw-reply{display:block}';
-  document.head.appendChild(st);
-
-  var fab = document.createElement('div');
-  fab.className = 'fbw-fab';
-  fab.title = '问题反馈';
-  fab.onclick = openFeedbackPanel;
-  fab.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>反</span><span>馈</span>';
-  document.body.appendChild(fab);
-
-  var panel = document.createElement('div');
-  panel.id = 'fbwPanel';
-  panel.className = 'fbw-panel';
-  panel.innerHTML = ''
-    + '<div class="fbw-head">'
-    + '<div class="fbw-ava"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></svg></div>'
-    + '<div><div class="fbw-name">反馈助手</div><div class="fbw-tag">MOI 智能体驱动 · 自动分类并生成工单</div></div>'
-    + '<button class="fbw-close" onclick="closeFeedbackPanel()">✕</button>'
-    + '</div>'
-    + '<div class="fbw-tabs">'
-    + '<div class="fbw-tab" id="fbwTab-new" onclick="fbwSwitch(\'new\')">新增反馈</div>'
-    + '<div class="fbw-tab" id="fbwTab-history" onclick="fbwSwitch(\'history\')">反馈历史</div>'
-    + '</div>'
-    + '<div class="fbw-msgs" id="fbwMsgs" style="display:none"></div>'
-    + '<div class="fbw-inrow" id="fbwInrow" style="display:none"><input class="fbw-in" id="fbwIn" placeholder="描述您遇到的问题或建议…" onkeydown="if(event.key===\'Enter\')fbwSend()"><button class="fbw-send" onclick="fbwSend()">发送</button></div>'
-    + '<div class="fbw-list" id="fbwList" style="display:none"></div>';
-  document.body.appendChild(panel);
-
-  fbwAddMsg('bot', '您好，我是 MOI 反馈助手。请直接描述您遇到的问题或建议——文字即可，我会帮您补齐关键信息、自动分类并生成工单。');
-}
-
-function openFeedbackPanel() {
-  fbwEnsure();
-  document.body.classList.add('fbw-open');
-  fbwSwitch(fbwState.tab);
-}
-function closeFeedbackPanel() { document.body.classList.remove('fbw-open'); }
-function fbwSwitch(tab) {
-  fbwState.tab = tab;
-  document.getElementById('fbwTab-new').classList.toggle('on', tab === 'new');
-  document.getElementById('fbwTab-history').classList.toggle('on', tab === 'history');
-  document.getElementById('fbwMsgs').style.display = tab === 'new' ? 'flex' : 'none';
-  document.getElementById('fbwInrow').style.display = tab === 'new' ? 'flex' : 'none';
-  document.getElementById('fbwList').style.display = tab === 'history' ? 'block' : 'none';
-  if (tab === 'history') fbwRenderList();
-}
-function fbwRenderList() {
-  document.getElementById('fbwList').innerHTML = FBW_LIST.map(function(f) {
-    return '<div class="fbw-item" onclick="this.classList.toggle(\'open\')">'
-      + '<div class="t">' + f.title + '</div>'
-      + '<div class="m"><span class="fbw-cat">' + f.cat + '</span><span class="fbw-st ' + f.st + '">' + f.stLabel + '</span><span>' + f.id + '</span><span>' + f.time + '</span></div>'
-      + (f.reply ? '<div class="fbw-reply">' + f.reply + '</div>' : '')
-      + '</div>';
-  }).join('');
-}
-function fbwAddMsg(who, html) {
-  var box = document.getElementById('fbwMsgs');
-  if (!box) return;
-  box.insertAdjacentHTML('beforeend',
-    '<div class="fbw-msg ' + who + '"><div class="fbw-mini ' + who + '">' + (who === 'bot' ? 'A' : '我') + '</div><div class="bub">' + html + '</div></div>');
-  box.scrollTop = box.scrollHeight;
-}
-function fbwSend() {
-  var input = document.getElementById('fbwIn');
-  var text = input.value.trim();
-  if (!text) return;
-  fbwAddMsg('me', text.replace(/&/g, '&amp;').replace(/</g, '&lt;'));
-  input.value = '';
-  if (fbwState.step === 0) {
-    fbwState.step = 1;
-    setTimeout(function() {
-      fbwAddMsg('bot', '收到。为了更快定位，请补充两点：1）问题发生在哪个模块（如 数据载入 / 工作流 / 知识库 / 智能体）？2）大概什么时间发生的，是否可复现？');
-    }, 450);
-  } else if (fbwState.step === 1) {
-    fbwState.step = 2;
-    setTimeout(function() {
-      fbwAddMsg('bot', '信息齐了，我根据描述生成了这张工单，请确认：'
-        + '<div class="fbw-ticket"><div class="tt">工单草稿</div>'
-        + '<div class="tr2"><span class="k">分类</span><span class="v">缺陷</span></div>'
-        + '<div class="tr2"><span class="k">模块</span><span class="v">数据 · 数据载入</span></div>'
-        + '<div class="tr2"><span class="k">摘要</span><span class="v" id="fbwSummary">载入任务异常（据您的描述自动归纳）</span></div>'
-        + '<div class="tr2"><span class="k">优先级</span><span class="v">中（影响使用，存在绕过方式）</span></div>'
-        + '<div class="ta"><button class="fbw-btn pri" onclick="fbwSubmit(this)">确认提交</button><button class="fbw-btn ghost" onclick="fbwAddMsg(\'bot\',\'好的，请继续补充，我会更新工单内容。\')">再补充</button></div>'
-        + '</div>');
-    }, 550);
-  } else {
-    setTimeout(function() { fbwAddMsg('bot', '已记录并同步到工单。还有其他问题欢迎随时反馈。'); }, 400);
-  }
-}
-function fbwSubmit(btn) {
-  btn.disabled = true;
-  var id = 'FB-20260828-0' + (FBW_LIST.length + 13);
-  FBW_LIST.unshift({ id: id, title: document.getElementById('fbwSummary').textContent, cat: '缺陷', st: 'doing', stLabel: '处理中', time: '2026-08-28', reply: '' });
-  fbwAddMsg('bot', '工单 <b>' + id + '</b> 已提交，可在「反馈历史」页签跟踪进展。感谢反馈！');
-}
-// 页面加载即挂右缘反馈入口——仅前台产品页面;管理后台与官网门户(登录/注册)不挂
-if (document.body && location.pathname.indexOf('/admin/') < 0 && location.pathname.indexOf('/website/') < 0) fbwEnsure();

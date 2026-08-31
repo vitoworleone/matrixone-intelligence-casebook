@@ -22,9 +22,9 @@ window.ObjPerm = (function () {
     '模型': [['MD3', '修改模型', '修改该模型'], ['MD4', '删除模型', '删除该模型'], ['MD5', '设为默认模型', '将该模型设为默认']],
     '算子': [['OP3', '修改算子', '修改该算子（代码 / 参数定义，须先取消发布）'], ['OP4', '删除算子', '删除该算子'], ['OP5', '发布算子', '把该算子发布为可调用的 API 服务'], ['OP6', '使用算子', '在工作区中选择该算子、通过访问凭证调用其 API 服务']]
   };
-  var ALL_ROLES = ['superadmin', 'admin', 'data_developer', 'agent_developer', 'readonly_member', '部门经理'];
-  var GLOBAL_ROLES = ['superadmin', 'admin']; // mock：拥有全局权限（生效范围 = 全部）的角色
-  var ROLE_DESCS = { 'superadmin': '超级管理员——系统内置，拥有所有权限', 'admin': '工作区管理员——管理工作区资源和成员', 'data_developer': '数据开发者——数据模式完整权限', 'agent_developer': '智能体开发者——智能体模式完整权限', 'readonly_member': '只读成员——仅可查看', '部门经理': '继承 data_developer 权限' };
+  var ALL_ROLES = ['超级管理员', '工作区管理员', '数据开发者', '智能体开发者', '只读成员', '部门经理'];
+  var GLOBAL_ROLES = ['超级管理员', '工作区管理员']; // mock：拥有全局权限（生效范围 = 全部）的角色
+  var ROLE_DESCS = { '超级管理员': '系统内置，拥有所有权限', '工作区管理员': '管理工作区资源和成员', '数据开发者': '数据模式完整权限', '智能体开发者': '智能体模式完整权限', '只读成员': '仅可查看', '部门经理': '继承数据开发者权限' };
 
   var store = {};   // objType||objName -> { code: [{role, global}] }
   var cur = { type: null, name: null };

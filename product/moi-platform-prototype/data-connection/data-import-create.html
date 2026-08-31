@@ -382,49 +382,25 @@
     .csv-config-btn:hover { border-color: #1677ff; color: #1677ff; }
     .csv-config-btn.configured { border-color: #1677ff; color: #1677ff; background: #e6f4ff; }
 
-    /* CSV config modal（布局对齐 TiDB Cloud：一行字段 + 灰底标注预览） */
-    .csv-modal { background: #fff; border-radius: 8px; width: 680px; box-shadow: 0 6px 30px rgba(0,0,0,0.12); }
+    /* CSV config modal */
+    .csv-modal { background: #fff; border-radius: 8px; width: 600px; box-shadow: 0 6px 30px rgba(0,0,0,0.12); }
     .csv-modal-header {
       display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px;
     }
     .csv-modal-header h3 { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 0; }
     .csv-modal-body { padding: 0 24px 20px; }
-    .csv-fields { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 20px; }
+    .csv-fields { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px; }
     .csv-field { display: flex; flex-direction: column; gap: 6px; }
-    .csv-field-label { font-size: 13px; color: rgba(0,0,0,0.88); white-space: nowrap; display: inline-flex; align-items: center; }
-    .csv-field-label .help-icon {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25);
-      font-size: 10px; color: rgba(0,0,0,0.35); cursor: help; margin-left: 4px;
-      position: relative; flex-shrink: 0;
+    .csv-field-label { font-size: 14px; color: rgba(0,0,0,0.88); }
+    .csv-field select {
+      padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+      min-width: 180px;
     }
-    .csv-field-label .help-icon[data-tip]:hover::after {
-      content: attr(data-tip); position: absolute; left: -8px; top: calc(100% + 6px);
-      background: rgba(0,0,0,0.75); color: #fff;
-      font-size: 12px; line-height: 1.6; padding: 8px 12px; border-radius: 6px;
-      white-space: normal; width: 300px; z-index: 100; pointer-events: none;
-      font-weight: 400; text-align: left;
-    }
-    .csv-field-label .help-icon[data-tip]:hover::before {
-      content: ""; position: absolute; left: 50%; top: calc(100% + 2px);
-      transform: translateX(-50%); border: 4px solid transparent;
-      border-bottom-color: rgba(0,0,0,0.75); z-index: 100; pointer-events: none;
-    }
-    .csv-text-input {
-      height: 32px; padding: 4px 10px; border: 1px solid #d9d9d9; border-radius: 6px;
-      font-size: 13px; color: rgba(0,0,0,0.88); outline: none; background: #fff;
-      font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: center;
-    }
-    .csv-text-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .csv-field select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
     .csv-toggle-field {
       display: flex; flex-direction: column; gap: 6px; padding-top: 0;
     }
-    .csv-reset-btn {
-      width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid #d9d9d9; border-radius: 6px; background: #fff; cursor: pointer;
-      color: rgba(0,0,0,0.65); transition: all 0.2s;
-    }
-    .csv-reset-btn:hover { border-color: #1677ff; color: #1677ff; }
     .csv-preview {
       background: #fafafa; border-radius: 8px; padding: 24px 28px; position: relative;
     }
@@ -441,20 +417,9 @@
       content: ''; display: inline-block; width: 40px; height: 1px; background: rgba(0,0,0,0.15);
     }
     .csv-preview-data {
-      margin-top: 24px; font-size: 14px; font-family: 'SF Mono', 'Menlo', monospace;
-      color: rgba(0,0,0,0.88); display: flex; align-items: center; gap: 0; flex-wrap: nowrap;
-      line-height: 1; padding-bottom: 34px; white-space: nowrap;
-    }
-    /* 标注挂在被标注元素自身下方（纯 CSS 定位，不做 JS 测量，天然对齐） */
-    .csv-tagged { position: relative; }
-    .csv-tagged::before {
-      content: ''; position: absolute; top: calc(100% + 2px); left: 50%;
-      width: 1px; height: 12px; background: rgba(0,0,0,0.2);
-    }
-    .csv-tagged::after {
-      content: attr(data-tag); position: absolute; top: calc(100% + 16px); left: 50%;
-      transform: translateX(-50%); font-size: 11px; color: rgba(0,0,0,0.45);
-      white-space: nowrap; font-family: -apple-system, 'PingFang SC', sans-serif; font-weight: 400;
+      margin-top: 24px; font-size: 15px; font-family: 'SF Mono', 'Menlo', monospace;
+      color: rgba(0,0,0,0.88); display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+      line-height: 1;
     }
     .csv-preview-data .sep {
       display: inline-flex; align-items: center; justify-content: center;
@@ -474,27 +439,20 @@
       border: 1.5px solid rgba(0,0,0,0.2); border-radius: 4px; background: #fff;
       color: rgba(0,0,0,0.88); font-weight: 500;
     }
-    .csv-preview-data .val { color: rgba(0,0,0,0.65); margin: 0 2px; white-space: pre; }
-    .csv-preview-data .nul {
-      display: inline-block; padding: 0 5px; margin: 0 1px; border: 1.5px solid #d46b08;
-      border-radius: 4px; color: #d46b08; font-weight: 700; background: #fff7e6;
+    .csv-preview-data .val { color: rgba(0,0,0,0.65); margin: 0 2px; }
+    .csv-preview-labels {
+      margin-top: 4px; display: flex; font-size: 12px; color: rgba(0,0,0,0.35);
+      position: relative; height: 48px;
     }
-    .csv-null-box {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 5px; min-height: 32px;
-      padding: 2px 8px; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff; cursor: text;
+    .csv-label-item {
+      display: flex; flex-direction: column; align-items: center; position: absolute;
     }
-    .csv-null-box:focus-within { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
-    .csv-null-box input {
-      flex: 1; min-width: 64px; border: none; outline: none; font-size: 13px; height: 24px;
-      font-family: 'SF Mono', Monaco, Consolas, monospace;
+    .csv-label-item .csv-label-line {
+      width: 1px; height: 16px; background: rgba(0,0,0,0.15);
     }
-    .csv-null-chip {
-      display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 4px;
-      background: #f5f5f5; border: 1px solid #e8e8e8; font-size: 12.5px;
-      font-family: 'SF Mono', Monaco, Consolas, monospace; color: rgba(0,0,0,0.78);
+    .csv-label-item .csv-label-bracket {
+      font-size: 11px; color: rgba(0,0,0,0.35); white-space: nowrap;
     }
-    .csv-null-chip .rm { cursor: pointer; color: rgba(0,0,0,0.35); font-size: 13px; line-height: 1; }
-    .csv-null-chip .rm:hover { color: #ff4d4f; }
 
     /* Multi-sheet target items */
     .sheet-target-item {
@@ -649,7 +607,7 @@
                   <option value="">请选择连接器</option>
                   <optgroup label="对象存储">
                     <option value="aliyun-oss"  data-kind="object">营销素材库 · 阿里云 OSS</option>
-                    <option value="s3"          data-kind="object">NESR 备份桶 · AWS S3</option>
+                    <option value="s3"          data-kind="object">示例制造集团 备份桶 · AWS S3</option>
                     <option value="tencent-cos" data-kind="object">视频内容库 · 腾讯云 COS</option>
                     <option value="huawei-obs"  data-kind="object">政企归档 · 华为云 OBS</option>
                   </optgroup>
@@ -657,9 +615,9 @@
                     <option value="hdfs"        data-kind="dfs">集团数据湖 · HDFS</option>
                   </optgroup>
                   <optgroup label="文件协议">
-                    <option value="ftp"         data-kind="file">NESR 现场文件服务器 · FTP</option>
+                    <option value="ftp"         data-kind="file">示例制造集团 现场文件服务器 · FTP</option>
                     <option value="sftp"        data-kind="file">客户合同同步 · SFTP</option>
-                    <option value="sharepoint"  data-kind="file">有临医药 · SharePoint 站点</option>
+                    <option value="sharepoint"  data-kind="file">示例医药企业 · SharePoint 站点</option>
                     <option value="smb-nas"     data-kind="file">集团 NAS · SMB 共享</option>
                   </optgroup>
                   <optgroup label="邮件">
@@ -731,10 +689,10 @@
               </div>
             </div>
             <div class="us-field" style="flex:1;min-width:0" id="usUnzipField">
-              <span class="us-field-label">目录结构<span class="help-icon" data-tip="源文件夹（或压缩包内）的层次如何落卷，连接器目录载入与压缩包解压遵循同一规则。保留层次（默认）：以所选根目录为基准，相对路径完整映射为卷内路径——文件夹名称与层级作为数据保留，供卷目录树浏览和工作流读取节点的路径列使用；平铺：所有文件放到卷根同一级——不同文件夹的同名文件会相互冲突并触发重复文件处理。">?</span>：</span>
+              <span class="us-field-label">解压策略<span class="help-icon" data-tip="设置压缩文件的解压方式。保持结构将维护原有文件夹层级；扁平化结构将所有文件放在同一级目录。">?</span>：</span>
               <div class="radio-group" style="padding-top:0">
-                <label><input type="radio" name="unzip" value="keep" checked> 保留层次</label>
-                <label><input type="radio" name="unzip" value="flat"> 平铺</label>
+                <label><input type="radio" name="unzip" value="ignore" checked> 忽略目录结构</label>
+                <label><input type="radio" name="unzip" value="keep"> 保持原始目录</label>
               </div>
             </div>
             <!-- Web mode: 增量策略 -->
@@ -778,12 +736,11 @@
           <div class="us-row" style="margin-bottom:0" id="usRangeRow">
             <div style="flex:1">
               <div id="usFileRangeControls" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <span class="us-field-label">载入范围<span class="help-icon" data-tip="载入范围由文件类型与路径正则表达式共同限定，二者为「且」关系。文件类型可选「全部文件（含无扩展名）」——按扩展名过滤会漏掉无扩展名文件（如邮件归档目录中按数字编号命名的邮件文件），选择此项放行一切文件。">?</span>：</span>
+                <span class="us-field-label">载入范围<span class="help-icon" data-tip="本地文件载入范围由文件类型与路径正则表达式共同限定，二者为「且」关系。">?</span>：</span>
                 <span style="font-size:13px;color:rgba(0,0,0,0.45)">文件类型</span>
                 <div class="checkbox-group" id="fileTypeTags"></div>
                 <select class="form-select" id="addFileType" onchange="addFileTypeTag()" style="width:90px;flex:none;height:28px;font-size:13px">
                   <option value="">+ 更多</option>
-                  <option value="全部文件（含无扩展名）">全部文件（含无扩展名）</option>
                   <option value="PPT">PPT</option>
                   <option value="XLS">XLS</option>
                   <option value="HTML">HTML</option>
@@ -1005,14 +962,14 @@
                   <select class="form-select" id="stConnectorSelect" onchange="onStructuredConnectorChange()" style="flex:1">
                     <option value="">请选择连接器</option>
                     <optgroup label="数据库">
-                      <option value="mongodb"    data-type="db">Intelie 传感器数据 (MongoDB)</option>
-                      <option value="hive"       data-type="db">NESR 数据仓库 Hive</option>
+                      <option value="mongodb"    data-type="db">示例工业物联 传感器数据 (MongoDB)</option>
+                      <option value="hive"       data-type="db">示例制造集团 数据仓库 Hive</option>
                       <option value="matrixone"  data-type="db">MatrixOne 生产集群</option>
                       <option value="mysql"      data-type="db">用户中心 · MySQL</option>
                       <option value="postgresql" data-type="db">财务报表库 · PostgreSQL</option>
-                      <option value="sqlserver"  data-type="db">汉得 Topcast · SQL Server</option>
-                      <option value="oracle"     data-type="db">武汉新芯 · Oracle ERP DB</option>
-                      <option value="clickhouse" data-type="db">芯联汉得 · ClickHouse 行情库</option>
+                      <option value="sqlserver"  data-type="db">示例企业服务集团 示例业务协作 · SQL Server</option>
+                      <option value="oracle"     data-type="db">示例半导体企业 · Oracle ERP DB</option>
+                      <option value="clickhouse" data-type="db">示例集成电路企业示例企业服务集团 · ClickHouse 行情库</option>
                       <option value="doris"      data-type="db">业务实时分析 · Apache Doris</option>
                     </optgroup>
                     <optgroup label="邮件">
@@ -1029,14 +986,14 @@
                       <option value="graphql"  data-type="api">电商订单 · GraphQL</option>
                     </optgroup>
                     <optgroup label="消息队列">
-                      <option value="kafka"    data-type="mq">CDG GPS 流 · Kafka</option>
+                      <option value="kafka"    data-type="mq">示例动态定价项目 GPS 流 · Kafka</option>
                       <option value="mqtt"     data-type="mq">IoT 设备遥测 · MQTT</option>
                       <option value="rabbitmq" data-type="mq">通知服务 · RabbitMQ</option>
                     </optgroup>
                     <optgroup label="企业应用">
-                      <option value="sap-s4hana" data-type="app">武汉新芯 · SAP S/4HANA</option>
+                      <option value="sap-s4hana" data-type="app">示例半导体企业 · SAP S/4HANA</option>
                       <option value="oracle-erp" data-type="app">Oracle ERP Cloud · 集团</option>
-                      <option value="yonyou-u8"  data-type="app">芯导科技 · 用友 U8</option>
+                      <option value="yonyou-u8"  data-type="app">示例电子制造企业 · 用友 U8</option>
                       <option value="kingdee-k3" data-type="app">集团 · 金蝶 K/3 Cloud</option>
                       <option value="salesforce" data-type="app">销售 · Salesforce</option>
                     </optgroup>
@@ -1045,7 +1002,7 @@
                       <option value="dingtalk"  data-type="collab">集团钉钉</option>
                       <option value="wecom-api" data-type="collab">企业微信项目通知 API</option>
                       <option value="slack"     data-type="collab">海外团队 · Slack</option>
-                      <option value="github"    data-type="collab">matrixflow · GitHub</option>
+                      <option value="github"    data-type="collab">MOI 协作空间 · GitHub</option>
                       <option value="yuque"     data-type="collab">内部 · 语雀知识库</option>
                     </optgroup>
                   </select>
@@ -1572,18 +1529,22 @@
         <div class="csv-fields">
           <div class="csv-field">
             <span class="csv-field-label">分隔符</span>
-            <input class="csv-text-input" id="csvSeparator" value="," maxlength="4" oninput="updateCsvPreview()" style="width:60px">
+            <select id="csvSeparator" onchange="updateCsvPreview()">
+              <option value="," selected>逗号 (,)</option>
+              <option value=";">分号 (;)</option>
+              <option value="\t">制表符 (\t)</option>
+              <option value="|">管道符号 (|)</option>
+              <option value=" ">空格 ( )</option>
+            </select>
           </div>
           <div class="csv-field">
             <span class="csv-field-label">定界符</span>
-            <input class="csv-text-input" id="csvDelimiter" value="&quot;" maxlength="4" oninput="updateCsvPreview()" style="width:60px">
-          </div>
-          <div class="csv-field" style="flex:1;min-width:160px">
-            <span class="csv-field-label">空值转换<span class="help-icon" data-tip="命中任一标记的字段值将写入 NULL（区分大小写），可添加多个。CSV 没有统一的 NULL 标准，不同来源的文件可能用 \N、NULL、null 等文本表示缺失值；未列入标记的文本一律按字符串处理，写入数值列时将报错而不是被猜测转换。">?</span></span>
-            <div class="csv-null-box" id="csvNullBox" onclick="document.getElementById('csvNullInput').focus()">
-              <span id="csvNullChips"><span class="csv-null-chip">\N<span class="rm" onclick="removeNullMarker(0)">✕</span></span></span>
-              <input id="csvNullInput" placeholder="回车添加" onkeydown="csvNullInputKey(event)">
-            </div>
+            <select id="csvDelimiter" onchange="updateCsvPreview()">
+              <option value="&quot;" selected>双引号 ("")</option>
+              <option value="'">单引号 (')</option>
+              <option value="~">波浪号 (~)</option>
+              <option value="">无</option>
+            </select>
           </div>
           <div class="csv-toggle-field">
             <span class="csv-field-label">反斜杠转义</span>
@@ -1592,14 +1553,8 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <div class="csv-field">
-            <span class="csv-field-label">重置</span>
-            <button class="csv-reset-btn" title="恢复默认配置" onclick="resetCsvConfig()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            </button>
-          </div>
         </div>
-        <div class="csv-preview" id="csvPreviewArea"><div class="csv-preview-header">id, name, type, description, notes</div><span class="csv-preview-header-label">表头</span><div class="csv-preview-data"><span class="val">021</span><span class="sep csv-tagged" data-tag="分隔符">,</span><span class="delim">"</span><span class="val">MOI</span><span class="delim">"</span><span class="sep">,</span><span class="delim csv-tagged" data-tag="定界符">"</span><span class="val"> database </span><span class="delim">"</span><span class="sep">,</span><span class="delim">"</span><span class="val"> moi ok </span><span class="delim">"</span><span class="sep">,</span><span class="nul csv-tagged" data-tag="NULL 值">\N</span></div></div>
+        <div class="csv-preview" id="csvPreviewArea"></div>
       </div>
       <div class="catalog-modal-footer">
         <button class="btn-cancel" onclick="closeCsvConfigModal()">取 消</button>

@@ -483,15 +483,15 @@
 
     // Role data model
     var roles = [
-      {id:1, name:'superadmin', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-01-15 10:00:00', remark:'超级管理员——系统内置，拥有所有权限', isSystem:true},
-      {id:2, name:'admin', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-20 14:30:00', remark:'工作区管理员——管理工作区资源和成员'},
-      {id:3, name:'data_developer', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-18 09:00:00', remark:'数据开发者——数据模式完整权限'},
-      {id:4, name:'agent_developer', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-15 16:00:00', remark:'智能体开发者——智能体模式完整权限'},
-      {id:5, name:'部门经理', status:'normal', created:'2025-03-20 10:00:00', updated:'2025-03-20 10:00:00', remark:'继承 data_developer 权限'}
+      {id:1, name:'超级管理员', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-01-15 10:00:00', remark:'系统内置，拥有所有权限', isSystem:true},
+      {id:2, name:'工作区管理员', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-20 14:30:00', remark:'管理工作区资源和成员'},
+      {id:3, name:'数据开发者', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-18 09:00:00', remark:'数据模式完整权限'},
+      {id:4, name:'智能体开发者', status:'normal', created:'2025-01-15 10:00:00', updated:'2025-03-15 16:00:00', remark:'智能体模式完整权限'},
+      {id:5, name:'部门经理', status:'normal', created:'2025-03-20 10:00:00', updated:'2025-03-20 10:00:00', remark:'继承数据开发者权限'}
     ];
     // Inheritance: {roleId: [inheritedFromRoleIds]}
     var roleInheritance = {
-      5: [3] // 部门经理 inherits from data_developer
+      5: [3] // 部门经理 inherits from 数据开发者
     };
     // Ownership: which objects each role is the Owner of {roleId: [{type,name}]}
     var roleOwnedObjects = {
@@ -505,7 +505,7 @@
       ]
     };
     // 当前执行删除操作者所属角色（用于"全部转移给我"）
-    var currentOperatorRoleName = 'superadmin';
+    var currentOperatorRoleName = '超级管理员';
     var delRoleCtx = { roleId: null, mode: 'self' };
 
     function renderRoleTable() {
@@ -1230,9 +1230,9 @@
       Object.keys(permData).forEach(function(cat) {
         permData[cat].forEach(function(item) {
           var keep = false;
-          if (r.name === 'superadmin' || r.name === 'admin') keep = true;
-          else if (r.name === 'data_developer') keep = dataCats.indexOf(cat) !== -1 || /查看|查询|使用/.test(item);
-          else if (r.name === 'agent_developer') keep = ['智能体','技能','工具','知识库'].indexOf(cat) !== -1 || /查看|查询/.test(item);
+          if (r.name === '超级管理员' || r.name === '工作区管理员') keep = true;
+          else if (r.name === '数据开发者') keep = dataCats.indexOf(cat) !== -1 || /查看|查询|使用/.test(item);
+          else if (r.name === '智能体开发者') keep = ['智能体','技能','工具','知识库'].indexOf(cat) !== -1 || /查看|查询/.test(item);
           else keep = /查看|查询/.test(item);
           if (keep) { (out[cat] = out[cat] || []).push(item); }
         });
@@ -1472,7 +1472,7 @@
       '连接器': ['oss-138','mysql-prod','hdfs-cluster'],
       '载入任务': ['daily-import-01','weekly-sync'],
       '导出任务': ['export-to-oss','export-to-milvus'],
-      '工作流': ['文档解析流程','数据清洗流程','嵌入生成流程','【NESR】设备可靠性数据处理','月度泵 KPI 计算','建 Silver 层','建 Gold 层','数据质量校验','RAG 文档准备','信息提取流程','合同要素抽取','发票 OCR 入库','邮件分类归档','客户画像聚合','销售日报生成','图片批量打标','音频转写流程','视频关键帧抽取','知识库增量更新','跨库联邦同步','报表推送流程','异常检测流程','维度表刷新','埋点日志清洗'],
+      '工作流': ['文档解析流程','数据清洗流程','嵌入生成流程','【示例制造集团】设备可靠性数据处理','月度泵 KPI 计算','建 Silver 层','建 Gold 层','数据质量校验','RAG 文档准备','信息提取流程','合同要素抽取','发票 OCR 入库','邮件分类归档','客户画像聚合','销售日报生成','图片批量打标','音频转写流程','视频关键帧抽取','知识库增量更新','跨库联邦同步','报表推送流程','异常检测流程','维度表刷新','埋点日志清洗'],
       '工作流模板': ['文档知识问答模板','信息提取模板','文档摘要模板'],
       '计算资源': ['gpu-compute-01','cpu-general-01'],
       '智能体': ['产品问答助手','合同审查助手','数据分析助手'],
@@ -1482,8 +1482,8 @@
       '知识库': ['产品文档知识库','合同信息库','销售数据集'],
       '发布订阅': ['数据变更通知','报表推送'],
       '告警': ['CPU告警规则','磁盘告警规则'],
-      '用户': ['lisong','chenwei','wangwu','zhangsan','lisi'],
-      '角色': ['superadmin','admin','data_developer','agent_developer','部门经理']
+      '用户': ['demo_user_01','demo_user_02','demo_user_03','demo_user_04','demo_user_05'],
+      '角色': ['超级管理员','工作区管理员','数据开发者','智能体开发者','部门经理']
     };
     var agentCapabilityData = {
       '产品问答助手': {
@@ -2292,9 +2292,9 @@
     // Permission panel for selected node
     function getMockPermsForRole(role){
       if(role.isSystem){var a={};Object.keys(permData).forEach(function(k){a[k]=permData[k].slice();});return a;}
-      if(role.name==='admin')return{'用户':permData['用户'].slice(),'角色':permData['角色'].slice(),'目录':permData['目录'].slice(),'库':permData['库'].slice()};
-      if(role.name==='data_developer')return{'连接器':permData['连接器'].slice(),'载入任务':permData['载入任务'].slice(),'导出任务':permData['导出任务'].slice(),'工作流':permData['工作流'].slice(),'表':permData['表'].slice()};
-      if(role.name==='agent_developer')return{'知识库':permData['知识库'].slice()};return{};}
+      if(role.name==='工作区管理员')return{'用户':permData['用户'].slice(),'角色':permData['角色'].slice(),'目录':permData['目录'].slice(),'库':permData['库'].slice()};
+      if(role.name==='数据开发者')return{'连接器':permData['连接器'].slice(),'载入任务':permData['载入任务'].slice(),'导出任务':permData['导出任务'].slice(),'工作流':permData['工作流'].slice(),'表':permData['表'].slice()};
+      if(role.name==='智能体开发者')return{'知识库':permData['知识库'].slice()};return{};}
     function showDagPermPanel(roleId){
       var panel=document.getElementById('dagPermPanel');var role=roles.find(function(r){return r.id===roleId;});
       if(!role){hideDagPermPanel();return;}
@@ -2528,7 +2528,7 @@
           <div class="dr-objs-head">该角色拥有的对象（<span id="drObjCount">0</span>）</div>
           <div class="dr-objs" id="drObjList"></div>
           <div class="dr-opts">
-            <label class="dr-opt on"><input type="radio" name="drMode" value="self" checked onchange="setDelTransferMode('self')"><div><div class="dr-opt-t">全部转移给我</div><div class="dr-opt-d">当前操作者所属角色：<b id="drOperator">superadmin</b>，由其一并接手以上全部对象的 Owner</div></div></label>
+            <label class="dr-opt on"><input type="radio" name="drMode" value="self" checked onchange="setDelTransferMode('self')"><div><div class="dr-opt-t">全部转移给我</div><div class="dr-opt-d">当前操作者所属角色：<b id="drOperator">超级管理员</b>，由其一并接手以上全部对象的 Owner</div></div></label>
             <label class="dr-opt"><input type="radio" name="drMode" value="role" onchange="setDelTransferMode('role')"><div style="flex:1"><div class="dr-opt-t">全部转移给指定角色</div><div class="dr-opt-d">把以上对象的 Owner 统一改为某个角色</div><select id="drTargetRole" class="dr-select" disabled></select></div></label>
             <label class="dr-opt"><input type="radio" name="drMode" value="manual" onchange="setDelTransferMode('manual')"><div><div class="dr-opt-t">逐个手动转移</div><div class="dr-opt-d">不在此处统一转移，前往各对象页面分别将 Owner 改给不同角色</div></div></label>
           </div>

@@ -8,8 +8,7 @@
     { id: 'aistudio', label: 'AI Studio', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>',
       page: 'aistudio-management.html',
       children: [
-        { id: 'as-models', label: 'AI 服务', hash: 'models' },
-        { id: 'as-compute', label: '计算资源', hash: 'compute' }
+        { id: 'as-models', label: '模型服务', hash: 'models' }
       ]
     },
     { id: 'taas', label: 'Genesis', icon: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor"><ellipse cx="24" cy="24" rx="17" ry="8" stroke-width="2.6" transform="rotate(-45 24 24)"/><path d="M15 33 L15 15 L33 33 L33 15" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="15" r="3.6" fill="currentColor" stroke="none"/><circle cx="33" cy="33" r="3.6" fill="currentColor" stroke="none"/></svg>',
@@ -35,14 +34,7 @@
         { id: 'billing-pricing', label: '价格设置', hash: 'pricing' }
       ]
     },
-    { id: 'users', label: '用户管理', href: 'user-management.html', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
-    { id: 'operations', label: '产品运营', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>',
-      page: 'operations-management.html',
-      children: [
-        { id: 'op-feedback', label: '用户反馈', hash: 'feedback' },
-        { id: 'op-rewards', label: '奖励中心', hash: 'rewards' }
-      ]
-    }
+    { id: 'users', label: '用户管理', href: 'user-management.html', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' }
   ];
 
   function isOnPage(href) {

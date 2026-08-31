@@ -61,9 +61,7 @@
   let nextSourceId = 100;
   let nextAssetId = 100;
   const models = [
-    { id: 1, name: 'BPC', desc: '用于合并报表指标、期间和组织维度相关查询。', files: 0, tables: 1 },
-    // 安利 CA AI 小助手：定制知识库，数据源固定只读、语义配置版本化，点击进入旧版定制详情（桥接见 knowledge-base.html）
-    { id: 2, name: '安利 CA AI 小助手', desc: 'CA Explore 召回知识库 · 定制，数据源固定、语义配置可版本化。', files: 0, tables: 5, special: 'ca' }
+    { id: 1, name: 'BPC', desc: '用于合并报表指标、期间和组织维度相关查询。', files: 0, tables: 1 }
   ];
 
   const baseSources = [
@@ -1119,12 +1117,11 @@
 
   function renderModelCard(model) {
     const stats = (model.files > 0 ? '<span class="kv2-stat">' + model.files + ' 文件</span>' : '') + (model.tables > 0 ? '<span class="kv2-stat">' + model.tables + ' 表</span>' : '');
-    const isCa = model.special === 'ca';
     return '<div class="kv2-card" tabindex="0" data-action="open-model" data-id="' + model.id + '">'
       + '<div class="kv2-card-body"><div class="kv2-card-head"><div class="kv2-folder-wrap"><div class="kv2-folder">' + icons.folder + '</div></div>'
-      + (isCa ? '' : '<div class="kv2-card-actions"><button class="kv2-icon-btn" title="删除" aria-label="删除知识库" data-action="delete-model" data-id="' + model.id + '">' + icons.trash + '</button></div>') + '</div>'
-      + '<div class="kv2-card-title" title="' + attr(model.name) + '">' + h(model.name) + (isCa ? '<span class="kv2-ca-badge">定制</span>' : '') + '</div><div class="kv2-card-remark">' + h(model.desc) + '</div></div>'
-      + '<div class="kv2-card-foot">' + stats + (isCa ? '' : '<button class="kv2-dialog-btn" data-action="start-dialog" data-id="' + model.id + '">' + icons.send + '<span>对话</span></button>') + '</div></div>';
+      + '<div class="kv2-card-actions"><button class="kv2-icon-btn" title="删除" aria-label="删除知识库" data-action="delete-model" data-id="' + model.id + '">' + icons.trash + '</button></div></div>'
+      + '<div class="kv2-card-title" title="' + attr(model.name) + '">' + h(model.name) + '</div><div class="kv2-card-remark">' + h(model.desc) + '</div></div>'
+      + '<div class="kv2-card-foot">' + stats + '<button class="kv2-dialog-btn" data-action="start-dialog" data-id="' + model.id + '">' + icons.send + '<span>对话</span></button></div></div>';
   }
 
   function renderDetail() {
@@ -2216,7 +2213,7 @@
   function click(action, el, originalTarget) {
     if (action === 'board-tab') { restoreDeletedDemo(); state.boardTab = el.dataset.tab; state.page = 'board'; if (state.boardTab === 'explore') { state.chatReturn = 'board'; if (state.modelId == null || !models.some(function (model) { return model.id === state.modelId; })) state.modelId = models[0] ? models[0].id : null; } render(); return; }
     if (action === 'open-create') { state.createDraft = { name: '', description: '' }; state.modal = 'create'; render(); return; }
-    if (action === 'open-model') { const modelId = Number(el.dataset.id); const target = models.find(function (item) { return item.id === modelId; }); if (target && target.special === 'ca' && window.__openCaKbFromV2) { window.__openCaKbFromV2(); return; } restoreDeletedDemo(modelId); state.modelId = modelId; state.page = 'detail'; state.detailTab = 'source'; render(); return; }
+    if (action === 'open-model') { const modelId = Number(el.dataset.id); restoreDeletedDemo(modelId); state.modelId = modelId; state.page = 'detail'; state.detailTab = 'source'; render(); return; }
     if (action === 'edit-model') { state.modelId = Number(el.dataset.id); state.modal = 'edit-model'; render(); return; }
     if (action === 'delete-model') { const id = Number(el.dataset.id); const m = models.find(function (x) { return x.id === id; }); if (m) openConfirm({ kind: 'model', id: id, title: '删除知识库', message: '确定删除知识库「' + m.name + '」吗？', description: '删除后，该知识库将从当前列表中移除。' }); return; }
     if (action === 'start-dialog') { state.chatReturn = state.page === 'detail' ? 'detail' : 'board'; state.chatReturnDetailTab = state.detailTab; state.modelId = Number(el.dataset.id); state.page = 'board'; state.boardTab = 'explore'; render(); return; }

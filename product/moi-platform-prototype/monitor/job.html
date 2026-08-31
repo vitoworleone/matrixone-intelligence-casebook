@@ -311,49 +311,49 @@
     var now = new Date('2026-07-13T15:20:00');
     var JOBS = [
       { id: '0199a3f2-8c11', type: 'wf',   name: '文档解析入库', branch: '主要',
-        src: { kind: 'volume', text: 'default/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: 'default/处理数据库/contract_chunks' },
+        src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_chunks' },
         status: 'running', done: 3, total: 8, unit: '文件', trigger: '手动', start: '2026-07-13 15:02:44', durSec: null },
       { id: '0199a3e1-55b0', type: 'load', name: '订单库增量载入', branch: null,
-        src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: 'default/原始数据库/orders' },
+        src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' },
         status: 'running', done: 46000, total: 89000, unit: '行', trigger: '增量同步', start: '2026-07-13 15:00:12', durSec: null },
       { id: '0199a3d8-1f92', type: 'wf',   name: '合同信息提取', branch: '表格增强',
-        src: { kind: 'volume', text: 'default/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: 'default/处理数据库/contract_fields' },
+        src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' },
         status: 'queued', done: 0, total: 12, unit: '文件', trigger: '数据卷触发', start: '2026-07-13 14:58:30', durSec: null },
       { id: '0199a2c4-7ae3', type: 'load', name: '用户中心全量载入', branch: null,
-        src: { brand: 'postgresql', text: 'user_center（5 张表）' }, dst: { kind: 'catalog', text: 'default/原始数据库' },
+        src: { brand: 'postgresql', text: 'user_center（5 张表）' }, dst: { kind: 'catalog', text: '默认目录/原始数据库' },
         status: 'success', done: 5, total: 5, unit: '表', trigger: '手动', start: '2026-07-13 11:40:08', durSec: 312 },
       { id: '0199a2b0-90dd', type: 'exp',  name: '销售日汇总导出', branch: null,
-        src: { kind: 'catalog', text: 'NESR-湖仓项目/Gold/销售日汇总' }, dst: { brand: 'amazons3', text: 's3://bi-report/sales/daily/' },
+        src: { kind: 'catalog', text: '示例制造数据项目/Gold/销售日汇总' }, dst: { brand: 'amazons3', text: 's3://bi-report/sales/daily/' },
         status: 'success', done: 1, total: 1, unit: '表', trigger: '定时', start: '2026-07-13 06:00:00', durSec: 95 },
       { id: '0199a1f6-3c07', type: 'wf',   name: '产品手册知识加工', branch: '主要',
-        src: { kind: 'volume', text: 'default/原始数据库/产品手册卷' }, dst: { kind: 'catalog', text: 'default/处理数据库/manual_chunks' },
+        src: { kind: 'volume', text: '默认目录/原始数据库/产品手册卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/manual_chunks' },
         status: 'partial', done: 9, total: 11, unit: '文件', trigger: '定时', start: '2026-07-13 03:00:05', durSec: 1265,
         err: '2 个文件处理失败：\nscan_034.pdf — OCR 置信度过低\nlegacy_v2.doc — 不支持的旧版格式' },
       { id: '0199a1d2-b481', type: 'load', name: '本地文件上传载入', branch: null,
-        src: { kind: 'upload', text: '本地上传（3 个文件）' }, dst: { kind: 'volume', text: 'default/原始数据库/图纸卷' },
+        src: { kind: 'upload', text: '本地上传（3 个文件）' }, dst: { kind: 'volume', text: '默认目录/原始数据库/图纸卷' },
         status: 'failed', done: 0, total: 3, unit: '文件', trigger: '手动', start: '2026-07-12 18:22:41', durSec: 6,
         err: '源文件格式不支持：.dwg（当前支持 pdf / word / ppt / 图片 / 音视频等）' },
       { id: '0199a1a8-e2c5', type: 'wf',   name: '文档解析入库', branch: '公式增强',
-        src: { kind: 'volume', text: 'default/原始数据库/工艺文档卷' }, dst: { kind: 'catalog', text: 'default/处理数据库/spec_chunks' },
+        src: { kind: 'volume', text: '默认目录/原始数据库/工艺文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/spec_chunks' },
         status: 'paused', done: 4, total: 10, unit: '文件', trigger: '手动', start: '2026-07-12 16:05:10', durSec: null },
       { id: '01999fe4-6d19', type: 'exp',  name: '处理结果导出 Doris', branch: null,
-        src: { kind: 'catalog', text: 'default/处理数据库/contract_fields' }, dst: { brand: 'apachedoris', text: 'doris.report.contract_summary' },
+        src: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' }, dst: { brand: 'apachedoris', text: 'doris.report.contract_summary' },
         status: 'failed', done: 0, total: 1, unit: '表', trigger: '手动', start: '2026-07-12 11:31:26', durSec: 30,
         err: '目标连接超时：doris-fe:9030 连接失败，请检查连接器配置与网络连通性' },
       { id: '01999f80-42aa', type: 'wf',   name: '简历信息提取', branch: '主要',
-        src: { kind: 'volume', text: 'default/原始数据库/简历卷' }, dst: { kind: 'catalog', text: 'default/处理数据库/resume_fields' },
+        src: { kind: 'volume', text: '默认目录/原始数据库/简历卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/resume_fields' },
         status: 'success', done: 6, total: 6, unit: '文件', trigger: '数据卷触发', start: '2026-07-11 14:40:13', durSec: 126 },
       { id: '01999e12-09f4', type: 'load', name: '订单库增量载入', branch: null,
-        src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: 'default/原始数据库/orders' },
+        src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' },
         status: 'success', done: 152000, total: 152000, unit: '行', trigger: '增量同步', start: '2026-07-12 15:00:09', durSec: 210 },
       { id: '01999cf0-77b2', type: 'exp',  name: '客户标签导出 OSS', branch: null,
-        src: { kind: 'catalog', text: 'NESR-湖仓项目/Gold/客户标签' }, dst: { brand: 'alibabacloud', text: 'oss://crm-sync/tags/' },
+        src: { kind: 'catalog', text: '示例制造数据项目/Gold/客户标签' }, dst: { brand: 'alibabacloud', text: 'oss://crm-sync/tags/' },
         status: 'success', done: 1, total: 1, unit: '表', trigger: '定时', start: '2026-07-10 06:00:00', durSec: 88 },
       { id: '01999cd8-31e6', type: 'wf',   name: '合同信息提取', branch: '主要',
-        src: { kind: 'volume', text: 'default/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: 'default/处理数据库/contract_fields' },
+        src: { kind: 'volume', text: '默认目录/原始数据库/合同文档卷' }, dst: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' },
         status: 'success', done: 12, total: 12, unit: '文件', trigger: '手动', start: '2026-07-08 14:48:13', durSec: 428 },
       { id: '01999b02-c4d8', type: 'load', name: '设备台账载入', branch: null,
-        src: { brand: 'mongodb', text: 'asset_db.devices' }, dst: { kind: 'catalog', text: 'NESR-湖仓项目/Bronze/devices' },
+        src: { brand: 'mongodb', text: 'asset_db.devices' }, dst: { kind: 'catalog', text: '示例制造数据项目/Bronze/devices' },
         status: 'canceled', done: 0, total: 1, unit: '表', trigger: '手动', start: '2026-07-08 10:15:00', durSec: 12 }
     ];
 
@@ -526,7 +526,7 @@
           { name: '文档解析', st: 'ok', meta: '8/8 · 26s', ntype: '系统算子 · 文档解析', res: '默认任务资源', out: '解析产物 8 篇（正文 / 表格 / 图片）' },
           { name: '版面分段', st: 'ok', meta: '8/8 · 12s', ntype: '系统算子 · 分段', res: '默认任务资源', out: '分段 214 段' },
           { name: '文本嵌入', st: 'run', meta: '3/8 · 运行中', ntype: '系统算子 · 文本嵌入', res: '默认任务资源（模型调用走 Genesis）', out: '已生成向量 82 条' },
-          { name: '写入 Catalog', st: 'wait', meta: '等待上游', ntype: '写入节点', res: '默认查询资源', out: '目标：default/处理数据库/contract_chunks' }
+          { name: '写入 Catalog', st: 'wait', meta: '等待上游', ntype: '写入节点', res: '默认查询资源', out: '目标：默认目录/处理数据库/contract_chunks' }
         ], files: [
           { name: '合同扫描件_001.pdf', ftype: 'pdf', status: 'success', start: '15:02:51', end: '15:04:10', note: '' },
           { name: '合同扫描件_002.pdf', ftype: 'pdf', status: 'success', start: '15:02:51', end: '15:05:02', note: '' },
@@ -542,7 +542,7 @@
           { name: '版面分段', st: 'ok', meta: '11/11 · 1m 05s', ntype: '系统算子 · 分段', res: '默认任务资源', out: '分段 386 段' },
           { name: 'OCR 增强', st: 'err', meta: '9/11 · 2 个失败', ntype: '系统算子 · OCR', res: '默认任务资源', out: 'OCR 修正 9 篇', err: '2 个文件失败：scan_034.pdf（OCR 置信度过低 0.41 < 0.60）、legacy_v2.doc（不支持的旧版格式）' },
           { name: '文本嵌入', st: 'ok', meta: '9/9 · 4m 40s', ntype: '系统算子 · 文本嵌入', res: '默认任务资源（模型调用走 Genesis）', out: '向量 342 条' },
-          { name: '写入 Catalog', st: 'ok', meta: '9/9 · 18s', ntype: '写入节点', res: '默认查询资源', out: '目标：default/处理数据库/manual_chunks' }
+          { name: '写入 Catalog', st: 'ok', meta: '9/9 · 18s', ntype: '写入节点', res: '默认查询资源', out: '目标：默认目录/处理数据库/manual_chunks' }
         ], files: [
           { name: '产品手册_v3.pdf', ftype: 'pdf', status: 'success', start: '03:00:12', end: '03:08:44', note: '' },
           { name: '快速上手指南.pdf', ftype: 'pdf', status: 'success', start: '03:00:12', end: '03:06:21', note: '' },
@@ -557,17 +557,17 @@
           { name: '术语表.md', ftype: 'md', status: 'success', start: '03:14:20', end: '03:15:02', note: '' }
         ] },
       '0199a3e1-55b0': { mode: '增量同步 · 水位线 updated_at > 2026-07-12 15:00:09', conflict: '主键冲突：跳过', tables: [
-          { src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: 'default/原始数据库/orders' }, status: 'running', read: 46000, written: 45800, skipped: 200, dur: null }
+          { src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' }, status: 'running', read: 46000, written: 45800, skipped: 200, dur: null }
         ] },
       '0199a2c4-7ae3': { mode: '全量载入', conflict: '主键冲突：覆盖', tables: [
-          { src: { brand: 'postgresql', text: 'user_center.users' }, dst: { kind: 'catalog', text: 'default/原始数据库/users' }, status: 'success', read: 125600, written: 125600, skipped: 0, dur: 96 },
-          { src: { brand: 'postgresql', text: 'user_center.user_profiles' }, dst: { kind: 'catalog', text: 'default/原始数据库/user_profiles' }, status: 'success', read: 125600, written: 125600, skipped: 0, dur: 88 },
-          { src: { brand: 'postgresql', text: 'user_center.login_logs' }, dst: { kind: 'catalog', text: 'default/原始数据库/login_logs' }, status: 'success', read: 4820000, written: 4820000, skipped: 0, dur: 105 },
-          { src: { brand: 'postgresql', text: 'user_center.roles' }, dst: { kind: 'catalog', text: 'default/原始数据库/roles' }, status: 'success', read: 24, written: 24, skipped: 0, dur: 3 },
-          { src: { brand: 'postgresql', text: 'user_center.user_roles' }, dst: { kind: 'catalog', text: 'default/原始数据库/user_roles' }, status: 'success', read: 138000, written: 138000, skipped: 0, dur: 20 }
+          { src: { brand: 'postgresql', text: 'user_center.users' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/users' }, status: 'success', read: 125600, written: 125600, skipped: 0, dur: 96 },
+          { src: { brand: 'postgresql', text: 'user_center.user_profiles' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/user_profiles' }, status: 'success', read: 125600, written: 125600, skipped: 0, dur: 88 },
+          { src: { brand: 'postgresql', text: 'user_center.login_logs' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/login_logs' }, status: 'success', read: 4820000, written: 4820000, skipped: 0, dur: 105 },
+          { src: { brand: 'postgresql', text: 'user_center.roles' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/roles' }, status: 'success', read: 24, written: 24, skipped: 0, dur: 3 },
+          { src: { brand: 'postgresql', text: 'user_center.user_roles' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/user_roles' }, status: 'success', read: 138000, written: 138000, skipped: 0, dur: 20 }
         ] },
       '01999e12-09f4': { mode: '增量同步 · 水位线 updated_at > 2026-07-11 15:00:11', conflict: '主键冲突：跳过', tables: [
-          { src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: 'default/原始数据库/orders' }, status: 'success', read: 152000, written: 151400, skipped: 600, dur: 210 }
+          { src: { brand: 'mysql', text: 'order_center.orders' }, dst: { kind: 'catalog', text: '默认目录/原始数据库/orders' }, status: 'success', read: 152000, written: 151400, skipped: 600, dur: 210 }
         ] },
       '0199a1d2-b481': { files: [
           { name: '装配图_主体.dwg', ftype: 'dwg', status: 'failed', start: '18:22:42', end: '18:22:44', note: '源文件格式不支持：.dwg（当前支持 pdf / word / ppt / 图片 / 音视频等）' },
@@ -578,7 +578,7 @@
           { name: 'sales_daily_20260713.parquet', ftype: 'parquet', status: 'success', start: '06:00:04', end: '06:01:35', note: 's3://bi-report/sales/daily/dt=2026-07-13/' }
         ] },
       '01999fe4-6d19': { tables: [
-          { src: { kind: 'catalog', text: 'default/处理数据库/contract_fields' }, dst: { brand: 'apachedoris', text: 'doris.report.contract_summary' }, status: 'failed', read: 0, written: 0, skipped: 0, dur: 30, note: '目标连接超时：doris-fe:9030 连接失败，请检查连接器配置与网络连通性' }
+          { src: { kind: 'catalog', text: '默认目录/处理数据库/contract_fields' }, dst: { brand: 'apachedoris', text: 'doris.report.contract_summary' }, status: 'failed', read: 0, written: 0, skipped: 0, dur: 30, note: '目标连接超时：doris-fe:9030 连接失败，请检查连接器配置与网络连通性' }
         ] },
       '01999cf0-77b2': { files: [
           { name: 'customer_tags_20260710.csv', ftype: 'csv', status: 'success', start: '06:00:03', end: '06:01:28', note: 'oss://crm-sync/tags/dt=2026-07-10/' }
