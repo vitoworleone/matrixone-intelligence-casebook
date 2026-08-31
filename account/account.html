@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 账号管理</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    body { background: #f5f6fa; }
+    .sidebar { display: none !important; }
+    .main { margin-left: 0 !important; }
+    .acct-page { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+    .acct-section { background: #fff; border-radius: 12px; border: 1px solid #f0f0f0; padding: 24px 28px; margin-bottom: 20px; }
+    .acct-section-title { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .acct-section-title svg { color: rgba(0,0,0,0.35); }
+    .acct-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .acct-row:last-child { border-bottom: none; }
+    .acct-label { width: 120px; font-size: 13px; color: rgba(0,0,0,0.55); flex-shrink: 0; }
+    .acct-value { flex: 1; font-size: 13px; color: rgba(0,0,0,0.88); font-weight: 500; }
+    .acct-value .sub { font-weight: 400; color: rgba(0,0,0,0.35); font-size: 12px; margin-left: 6px; }
+    .acct-action { font-size: 12px; color: #1677ff; cursor: pointer; background: none; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 500; }
+    .acct-action:hover { background: #e6f4ff; }
+    .acct-action.danger { color: #ff4d4f; }
+    .acct-action.danger:hover { background: #fff1f2; }
+    .acct-avatar-wrap { display: flex; align-items: center; gap: 16px; padding: 8px 0; }
+    .acct-avatar { width: 64px; height: 64px; border-radius: 50%; background: #1677ff; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.15s; position: relative; }
+    .acct-avatar:hover { opacity: 0.85; }
+    .acct-avatar-edit { position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid #f0f0f0; display: flex; align-items: center; justify-content: center; }
+    .acct-avatar-edit svg { width: 12px; height: 12px; color: rgba(0,0,0,0.45); }
+    .acct-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .acct-badge.bound { background: #ecfdf5; color: #10b981; }
+    .acct-badge.unbound { background: #f5f5f5; color: rgba(0,0,0,0.35); }
+    .acct-badge.linked { background: #e6f4ff; color: #1677ff; }
+    /* Login method cards */
+    .login-method { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .login-method:last-child { border-bottom: none; }
+    .login-method-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .login-method-icon.phone { background: #ecfdf5; color: #10b981; }
+    .login-method-icon.email { background: #e6f4ff; color: #1677ff; }
+    .login-method-icon.github { background: #f5f5f5; color: #24292f; }
+    .login-method-icon.google { background: #fff1f2; color: #ea4335; }
+    .login-method-icon.wechat { background: #ecfdf5; color: #07c160; }
+    .login-method-info { flex: 1; }
+    .login-method-name { font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .login-method-detail { font-size: 12px; color: rgba(0,0,0,0.45); margin-top: 2px; }
+    /* Workspace list */
+    .ws-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .ws-list-item:last-child { border-bottom: none; }
+    .ws-list-dot { width: 8px; height: 8px; border-radius: 50%; background: #1677ff; flex-shrink: 0; }
+    .ws-list-info { flex: 1; }
+    .ws-list-name { font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .ws-list-meta { font-size: 12px; color: rgba(0,0,0,0.35); margin-top: 2px; }
+    .ws-list-role { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #e6f4ff; color: #1677ff; font-weight: 500; }
+    /* Log table */
+    .log-table { width: 100%; border-collapse: collapse; }
+    .log-table th { text-align: left; padding: 8px 0; font-size: 12px; color: rgba(0,0,0,0.35); font-weight: 500; border-bottom: 1px solid #f0f0f0; }
+    .log-table td { padding: 10px 0; font-size: 12px; color: rgba(0,0,0,0.65); border-bottom: 1px solid #f5f5f5; }
+    .log-table tr:last-child td { border-bottom: none; }
+    /* API Key */
+    .apikey-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .apikey-item:last-child { border-bottom: none; }
+    .apikey-name { font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .apikey-val { font-family: monospace; font-size: 12px; color: rgba(0,0,0,0.45); }
+    .apikey-meta { font-size: 11px; color: rgba(0,0,0,0.25); }
+    /* Danger zone */
+    .danger-zone { border-color: #ffccc7; }
+    .danger-zone .acct-section-title { color: #ff4d4f; }
+    /* Preferences */
+    .pref-select { height: 32px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; cursor: pointer; min-width: 160px; }
+    .pref-select:focus { border-color: #1677ff; }
+    /* Credit quick view */
+    .credit-quick { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f6ffed; border-radius: 8px; }
+    .credit-amount { font-size: 20px; font-weight: 700; color: #389e0d; }
+    .credit-label { font-size: 12px; color: rgba(0,0,0,0.45); }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+
+  <div class="main">
+    <div class="acct-page">
+
+      <!-- Basic Info -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg>基本信息</div>
+        <div class="acct-avatar-wrap">
+          <div class="acct-avatar" id="acctAvatar" onclick="document.getElementById('avatarFileInput').click()">U
+            <div class="acct-avatar-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88)" id="acctDisplayName">用户</div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px" id="acctIdDisplay">ID: —</div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button style="font-size:12px;color:#004af0;border:none;background:none;cursor:pointer;padding:0" onclick="document.getElementById('avatarFileInput').click()">上传头像</button>
+              <button style="font-size:12px;color:rgba(0,0,0,0.35);border:none;background:none;cursor:pointer;padding:0" id="removeAvatarBtn" style="display:none" onclick="removeAvatar()">移除头像</button>
+            </div>
+          </div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">用户 ID</div>
+          <div class="acct-value" id="acctUserId">—</div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">姓名</div>
+          <div class="acct-value" id="acctName">
+            <span id="acctNameVal">未设置</span>
+            <button class="acct-action" onclick="editName()">设置</button>
+          </div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">用户名</div>
+          <div class="acct-value" id="acctUsername">
+            <span id="acctUsernameVal">未设置</span>
+            <button class="acct-action" onclick="editUsername()">设置</button>
+          </div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">公司</div>
+          <div class="acct-value" id="acctCompany">
+            <span id="acctCompanyVal">未设置</span>
+            <button class="acct-action" onclick="editCompany()">设置</button>
+          </div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">注册时间</div>
+          <div class="acct-value" id="acctRegTime">—</div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">最近登录</div>
+          <div class="acct-value" id="acctLastLogin">—</div>
+        </div>
+      </div>
+
+      <!-- Login Methods -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>登录方式</div>
+        <div class="login-method">
+          <div class="login-method-icon phone"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="login-method-info">
+            <div class="login-method-name">手机号</div>
+            <div class="login-method-detail" id="acctPhone">未绑定</div>
+          </div>
+          <span class="acct-badge unbound" id="phoneBadge">未绑定</span>
+          <button class="acct-action" id="phoneAction" onclick="alert('绑定手机号')">绑定</button>
+        </div>
+        <div class="login-method">
+          <div class="login-method-icon email"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg></div>
+          <div class="login-method-info">
+            <div class="login-method-name">邮箱</div>
+            <div class="login-method-detail" id="acctEmail">未绑定</div>
+          </div>
+          <span class="acct-badge unbound" id="emailBadge">未绑定</span>
+          <button class="acct-action" id="emailAction" onclick="alert('绑定邮箱')">绑定</button>
+        </div>
+        <div class="login-method">
+          <div class="login-method-icon github"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></div>
+          <div class="login-method-info">
+            <div class="login-method-name">GitHub</div>
+            <div class="login-method-detail" id="acctGithub">未关联</div>
+          </div>
+          <span class="acct-badge unbound" id="githubBadge">未关联</span>
+          <button class="acct-action" id="githubAction" onclick="alert('关联 GitHub 账号')">关联</button>
+        </div>
+        <div class="login-method">
+          <div class="login-method-icon google"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div>
+          <div class="login-method-info">
+            <div class="login-method-name">Google</div>
+            <div class="login-method-detail" id="acctGoogle">未关联</div>
+          </div>
+          <span class="acct-badge unbound" id="googleBadge">未关联</span>
+          <button class="acct-action" id="googleAction" onclick="alert('关联 Google 账号')">关联</button>
+        </div>
+        <div class="login-method">
+          <div class="login-method-icon wechat"><svg width="18" height="18" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><path fill="#2DC100" d="M300 255c0 24.854-20.147 45-45 45H45c-24.854 0-45-20.146-45-45V45C0 20.147 20.147 0 45 0h210c24.853 0 45 20.147 45 45v210z"/><g fill="#FFF"><path d="M200.803 111.88c-24.213 1.265-45.268 8.605-62.362 25.188-17.271 16.754-25.155 37.284-23 62.734-9.464-1.172-18.084-2.462-26.753-3.192-2.994-.252-6.547.106-9.083 1.537-8.418 4.75-16.488 10.113-26.053 16.092 1.755-7.938 2.891-14.889 4.902-21.575 1.479-4.914.794-7.649-3.733-10.849-29.066-20.521-41.318-51.232-32.149-82.85 8.483-29.25 29.315-46.989 57.621-56.236 38.635-12.62 82.054.253 105.547 30.927 8.485 11.08 13.688 23.516 15.063 38.224zm-111.437-9.852c.223-5.783-4.788-10.993-10.74-11.167-6.094-.179-11.106 4.478-11.284 10.483-.18 6.086 4.475 10.963 10.613 11.119 6.085.154 11.186-4.509 11.411-10.435zm58.141-11.171c-5.974.11-11.022 5.198-10.916 11.004.109 6.018 5.061 10.726 11.204 10.652 6.159-.074 10.83-4.832 10.772-10.977-.051-6.032-4.981-10.79-11.06-10.679z"/><path d="M255.201 262.83c-7.667-3.414-14.7-8.536-22.188-9.318-7.459-.779-15.3 3.524-23.104 4.322-23.771 2.432-45.067-4.193-62.627-20.432-33.397-30.89-28.625-78.254 10.014-103.568 34.341-22.498 84.704-14.998 108.916 16.219 21.129 27.24 18.646 63.4-7.148 86.284-7.464 6.623-10.15 12.073-5.361 20.804.884 1.612.985 3.653 1.498 5.689zm-87.274-84.499c4.881.005 8.9-3.815 9.085-8.636.195-5.104-3.91-9.385-9.021-9.406-5.06-.023-9.299 4.318-9.123 9.346.166 4.804 4.213 8.69 9.059 8.696zm56.261-18.022c-4.736-.033-8.76 3.844-8.953 8.629-.205 5.117 3.772 9.319 8.836 9.332 4.898.016 8.768-3.688 8.946-8.562.19-5.129-3.789-9.364-8.829-9.399z"/></g></svg></div>
+          <div class="login-method-info">
+            <div class="login-method-name">微信</div>
+            <div class="login-method-detail" id="acctWechat">未关联</div>
+          </div>
+          <span class="acct-badge unbound" id="wechatBadge">未关联</span>
+          <button class="acct-action" id="wechatAction" onclick="alert('关联微信账号')">关联</button>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>安全设置</div>
+        <div class="acct-row">
+          <div class="acct-label">登录密码</div>
+          <div class="acct-value">已设置<span class="sub">上次修改：2025-03-15</span></div>
+          <button class="acct-action" onclick="alert('修改密码')">修改</button>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">两步验证</div>
+          <div class="acct-value"><span class="acct-badge unbound">未开启</span></div>
+          <button class="acct-action" onclick="alert('开启两步验证')">开启</button>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">登录设备</div>
+          <div class="acct-value">当前 1 台设备在线</div>
+          <button class="acct-action" onclick="alert('查看登录设备')">管理</button>
+        </div>
+      </div>
+
+      <!-- Workspaces -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>我加入的工作区</div>
+        <div id="acctWsList"></div>
+      </div>
+
+      <!-- Preferences -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>外观与偏好</div>
+        <div class="acct-row">
+          <div class="acct-label">语言</div>
+          <div class="acct-value"><select class="pref-select"><option>简体中文</option><option>English</option></select></div>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">时区</div>
+          <div class="acct-value"><select class="pref-select"><option>UTC+08:00 （中国标准时间）</option><option>UTC+00:00 (GMT)</option><option>UTC-05:00 （美东）</option><option>UTC+09:00 （日本）</option></select></div>
+        </div>
+      </div>
+
+      <!-- API Keys -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>API 访问</div>
+        <div id="acctApiKeys"></div>
+        <button style="margin-top:12px;padding:6px 16px;border:1px dashed #d9d9d9;border-radius:6px;background:#fff;font-size:12px;color:rgba(0,0,0,0.45);cursor:pointer;display:flex;align-items:center;gap:4px" onclick="alert('创建新 API Key')" onmouseover="this.style.borderColor='#1677ff';this.style.color='#1677ff'" onmouseout="this.style.borderColor='#d9d9d9';this.style.color='rgba(0,0,0,0.45)'">+ 创建新密钥</button>
+      </div>
+
+      <!-- Credit -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12"/><path d="M15.5 9.5a3.5 3.5 0 0 0-7 0c0 2 3.5 3 3.5 5a3.5 3.5 0 0 1-3.5 3.5"/></svg>计费信息</div>
+        <div class="credit-quick">
+          <div>
+            <div class="credit-amount" id="acctCredit">86.50</div>
+            <div class="credit-label">Credit 余额</div>
+          </div>
+          <div style="flex:1"></div>
+          <button class="acct-action" onclick="alert('前往计费中心')">计费中心 →</button>
+        </div>
+      </div>
+
+      <!-- Platform Logs -->
+      <div class="acct-section">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>平台操作日志</div>
+        <table class="log-table">
+          <thead><tr><th>时间</th><th>操作</th><th>详情</th><th>IP</th></tr></thead>
+          <tbody id="acctLogBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="acct-section danger-zone">
+        <div class="acct-section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff4d4f" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>危险操作</div>
+        <div class="acct-row">
+          <div class="acct-label">注销账号</div>
+          <div class="acct-value" style="color:rgba(0,0,0,0.45);font-weight:400;font-size:12px">永久删除账号及所有关联数据，此操作不可恢复</div>
+          <button class="acct-action danger" onclick="if(confirm('确定要注销账号吗？此操作不可恢复。'))alert('账号注销流程待实现')">注销账号</button>
+        </div>
+        <div class="acct-row">
+          <div class="acct-label">导出数据</div>
+          <div class="acct-value" style="color:rgba(0,0,0,0.45);font-weight:400;font-size:12px">导出该账号的所有操作记录和个人数据</div>
+          <button class="acct-action" onclick="alert('数据导出功能待实现')">导出</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script>
+    // Mock user data
+    var mockUser = JSON.parse(localStorage.getItem('moi_user') || '{}');
+    var userId = '019c481d-113a-72af-a0c2-7e77e3315300';
+
+    function initAccountPage() {
+      // Basic info
+      var name = mockUser.name || '用户';
+      var initial = name.charAt(0).toUpperCase();
+      var avatarEl = document.getElementById('acctAvatar');
+      if (mockUser.avatarUrl) {
+        avatarEl.style.backgroundImage = 'url(' + mockUser.avatarUrl + ')';
+        avatarEl.style.backgroundSize = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+        avatarEl.childNodes[0].textContent = '';
+        document.getElementById('removeAvatarBtn').style.display = '';
+      } else {
+        avatarEl.childNodes[0].textContent = initial;
+        document.getElementById('removeAvatarBtn').style.display = 'none';
+      }
+      document.getElementById('acctDisplayName').textContent = name;
+      document.getElementById('acctIdDisplay').textContent = 'ID: ' + userId;
+      document.getElementById('acctUserId').textContent = userId;
+      document.getElementById('acctRegTime').textContent = '2025-01-15 10:00:00';
+      document.getElementById('acctLastLogin').textContent = new Date().toLocaleString('zh-CN') + '  IP: 192.168.1.100';
+
+      // Username
+      if (mockUser.username) {
+        document.getElementById('acctUsernameVal').textContent = mockUser.username;
+        document.querySelector('#acctUsername .acct-action').textContent = '修改';
+      }
+
+      // Name
+      if (mockUser.name) {
+        document.getElementById('acctNameVal').textContent = mockUser.name;
+        document.querySelector('#acctName .acct-action').textContent = '修改';
+      }
+
+      // Company
+      if (mockUser.company) {
+        document.getElementById('acctCompanyVal').textContent = mockUser.company;
+        document.querySelector('#acctCompany .acct-action').textContent = '修改';
+      }
+
+      // Login methods
+      if (mockUser.phone) {
+        document.getElementById('acctPhone').textContent = mockUser.phone;
+        document.getElementById('phoneBadge').className = 'acct-badge bound';
+        document.getElementById('phoneBadge').textContent = '已绑定';
+        document.getElementById('phoneAction').textContent = '更换';
+      }
+      if (mockUser.email) {
+        document.getElementById('acctEmail').textContent = mockUser.email;
+        document.getElementById('emailBadge').className = 'acct-badge bound';
+        document.getElementById('emailBadge').textContent = '已绑定';
+        document.getElementById('emailAction').textContent = '更换';
+      }
+      // Mock: GitHub linked
+      if (mockUser.name && mockUser.name.indexOf('GitHub') !== -1) {
+        document.getElementById('acctGithub').textContent = '@' + (mockUser.username || 'github_user');
+        document.getElementById('githubBadge').className = 'acct-badge linked';
+        document.getElementById('githubBadge').textContent = '已关联';
+        document.getElementById('githubAction').textContent = '取消关联';
+      }
+
+      // Workspaces
+      var wsList = JSON.parse(localStorage.getItem('moi_workspaces') || '[]');
+      var wsHtml = '';
+      wsList.forEach(function(ws) {
+        var isMine = ws.owner === 'me';
+        wsHtml += '<div class="ws-list-item">';
+        wsHtml += '<div class="ws-list-dot" style="background:' + (isMine ? '#1677ff' : '#52c41a') + '"></div>';
+        wsHtml += '<div class="ws-list-info"><div class="ws-list-name">' + ws.name
+          + ' <span style="font-size:10.5px;font-weight:400;color:#2b4acb;background:rgba(0,74,240,0.06);border:1px solid rgba(0,74,240,0.12);border-radius:4px;padding:0 5px;vertical-align:1px">' + (ws.region || '华东-1') + '</span></div>';
+        wsHtml += '<div class="ws-list-meta">' + (isMine ? '我创建的' : '由 ' + (ws.ownerName || '—') + ' 创建') + '</div></div>';
+        wsHtml += '<span class="ws-list-role">' + (isMine ? 'Owner' : '成员') + '</span>';
+        if (!isMine) wsHtml += '<button class="acct-action danger" onclick="alert(\'退出工作区\')">退出</button>';
+        wsHtml += '</div>';
+      });
+      if (!wsHtml) wsHtml = '<div style="font-size:12px;color:rgba(0,0,0,0.25);padding:12px 0">暂无工作区</div>';
+      document.getElementById('acctWsList').innerHTML = wsHtml;
+
+      // API Keys
+      var apiKey = localStorage.getItem('moi_api_key') || '';
+      var apiTime = localStorage.getItem('moi_api_key_time') || '—';
+      var keyHtml = '';
+      if (apiKey) {
+        var masked = apiKey.substring(0, 4) + '••••••••' + apiKey.substring(apiKey.length - 3);
+        keyHtml += '<div class="apikey-item"><div style="flex:1"><div class="apikey-name">默认密钥</div><div class="apikey-val">' + masked + '</div><div class="apikey-meta">创建于 ' + apiTime + '</div></div>';
+        keyHtml += '<button class="acct-action" onclick="alert(\'已复制\')">复制</button>';
+        keyHtml += '<button class="acct-action danger" onclick="alert(\'撤销密钥\')">撤销</button></div>';
+      } else {
+        keyHtml = '<div style="font-size:12px;color:rgba(0,0,0,0.25);padding:12px 0">暂无 API Key</div>';
+      }
+      document.getElementById('acctApiKeys').innerHTML = keyHtml;
+
+      // Credit
+      var credit = localStorage.getItem('moi_credit') || '86.50';
+      document.getElementById('acctCredit').textContent = parseFloat(credit).toFixed(2);
+
+      // Logs
+      var logs = [
+        { time: new Date().toLocaleString('zh-CN'), action: '登录', detail: '浏览器登录', ip: '192.168.1.100' },
+        { time: '2025-03-26 14:30:00', action: '修改密码', detail: '密码已更新', ip: '192.168.1.100' },
+        { time: '2025-03-20 10:00:00', action: '绑定 GitHub', detail: '关联 GitHub 账号 @github_user', ip: '192.168.1.100' },
+        { time: '2025-03-15 09:00:00', action: '加入工作区', detail: '加入「数据分析项目」工作区', ip: '10.0.0.1' },
+        { time: '2025-02-20 16:00:00', action: '创建 API Key', detail: '创建默认密钥', ip: '192.168.1.100' },
+        { time: '2025-01-15 10:00:00', action: '注册账号', detail: '通过邮箱注册', ip: '192.168.1.100' }
+      ];
+      var logHtml = '';
+      logs.forEach(function(l) {
+        logHtml += '<tr><td style="white-space:nowrap">' + l.time + '</td><td>' + l.action + '</td><td style="color:rgba(0,0,0,0.45)">' + l.detail + '</td><td style="color:rgba(0,0,0,0.25)">' + l.ip + '</td></tr>';
+      });
+      document.getElementById('acctLogBody').innerHTML = logHtml;
+    }
+
+    function editUsername() {
+      var current = mockUser.username || '';
+      var newName = prompt('请输入用户名：', current);
+      if (newName !== null && newName.trim()) {
+        mockUser.username = newName.trim();
+        localStorage.setItem('moi_user', JSON.stringify(mockUser));
+        document.getElementById('acctUsernameVal').textContent = newName.trim();
+        document.querySelector('#acctUsername .acct-action').textContent = '修改';
+      }
+    }
+
+    function editName() {
+      var current = mockUser.name || '';
+      var newVal = prompt('请输入姓名：', current);
+      if (newVal !== null && newVal.trim()) {
+        mockUser.name = newVal.trim();
+        localStorage.setItem('moi_user', JSON.stringify(mockUser));
+        document.getElementById('acctNameVal').textContent = newVal.trim();
+        document.querySelector('#acctName .acct-action').textContent = '修改';
+        document.getElementById('acctDisplayName').textContent = newVal.trim();
+        // Update avatar initial if no custom avatar
+        if (!mockUser.avatarUrl) {
+          document.getElementById('acctAvatar').childNodes[0].textContent = newVal.trim().charAt(0).toUpperCase();
+        }
+      }
+    }
+
+    function editCompany() {
+      var current = mockUser.company || '';
+      var newVal = prompt('请输入公司名称：', current);
+      if (newVal !== null && newVal.trim()) {
+        mockUser.company = newVal.trim();
+        localStorage.setItem('moi_user', JSON.stringify(mockUser));
+        document.getElementById('acctCompanyVal').textContent = newVal.trim();
+        document.querySelector('#acctCompany .acct-action').textContent = '修改';
+      }
+    }
+
+    function handleAvatarUpload(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var url = e.target.result;
+        var avatar = document.getElementById('acctAvatar');
+        avatar.style.backgroundImage = 'url(' + url + ')';
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+        avatar.childNodes[0].textContent = '';
+        mockUser.avatarUrl = url;
+        localStorage.setItem('moi_user', JSON.stringify(mockUser));
+        document.getElementById('removeAvatarBtn').style.display = '';
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    function removeAvatar() {
+      var avatar = document.getElementById('acctAvatar');
+      avatar.style.backgroundImage = '';
+      var name = mockUser.name || '用户';
+      avatar.childNodes[0].textContent = name.charAt(0).toUpperCase();
+      mockUser.avatarUrl = '';
+      localStorage.setItem('moi_user', JSON.stringify(mockUser));
+      document.getElementById('removeAvatarBtn').style.display = 'none';
+    }
+
+    initAccountPage();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 连接器</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    /* Page specific styles */
+    .btn-primary {
+      background: #1677ff; color: #fff; border: none; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 400;
+      display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #4096ff; }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; }
+    .data-table th {
+      text-align: left; padding: 12px 16px; font-size: 14px; color: rgba(0,0,0,0.88);
+      font-weight: 600; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+    }
+    .data-table td { padding: 12px 16px; font-size: 14px; color: rgba(0,0,0,0.88); border-bottom: 1px solid #f0f0f0; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #fafafa; }
+
+    .conn-name-link {
+      color: rgba(0,0,0,0.88); cursor: pointer; font-weight: 500;
+      transition: color 0.15s;
+    }
+    .conn-name-link:hover { color: #1677ff; }
+
+    .connector-type-badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+      border-radius: 4px; font-size: 12px; background: #e6f4ff; color: #1677ff;
+    }
+    .usage-tag {
+      display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px;
+      margin-right: 4px;
+    }
+    .usage-tag.import { background: #f6ffed; color: #52c41a; }
+    .usage-tag.export { background: #fff7e6; color: #fa8c16; }
+
+    .action-btns { display: flex; gap: 8px; }
+    .action-btn-sm {
+      padding: 0 7px; height: 24px; border-radius: 6px; font-size: 14px; cursor: pointer;
+      border: 1px solid #d9d9d9; background: #fff; color: rgba(0,0,0,0.88); transition: all 0.2s;
+      display: inline-flex; align-items: center;
+    }
+    .action-btn-sm:hover { border-color: #1677ff; color: #1677ff; }
+    .action-btn-sm.danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 8px; width: 1040px; max-width: 94vw; max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+    }
+    .modal-header {
+      padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h2 { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .modal-close { cursor: pointer; font-size: 16px; color: rgba(0,0,0,0.45); padding: 4px; background: none; border: none; }
+    .modal-close:hover { color: rgba(0,0,0,0.88); }
+    .modal-body { padding: 0 24px 24px; }
+    .modal-footer {
+      padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .form-group { margin-bottom: 20px; display: flex; align-items: flex-start; gap: 12px; }
+    .form-label {
+      display: flex; align-items: center; gap: 2px;
+      font-size: 14px; color: rgba(0,0,0,0.88); font-weight: 400;
+      width: 100px; flex-shrink: 0; text-align: right; justify-content: flex-end;
+      padding-top: 5px; line-height: 22px; white-space: nowrap;
+    }
+    .form-label .required { color: #ff4d4f; margin-right: 2px; }
+    .form-input {
+      flex: 1; padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; transition: all 0.2s;
+    }
+    .form-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .form-input::placeholder { color: rgba(0,0,0,0.25); }
+    .form-select {
+      flex: 1; padding: 4px 11px; height: 32px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 14px; color: rgba(0,0,0,0.88); outline: none; background: #fff; cursor: pointer;
+    }
+    .form-select:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+
+    /* Name input with counter */
+    .input-with-counter { flex: 1; position: relative; }
+    .input-with-counter input { width: 100%; padding-right: 55px; }
+    .input-counter {
+      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+      font-size: 12px; color: rgba(0,0,0,0.25); pointer-events: none;
+    }
+
+    /* Type selector — tabs + cards */
+    /* 分段式 pill 控件 (Apple-style segmented control) */
+    .ds-type-tabs {
+      display: inline-flex; gap: 2px; margin-bottom: 16px; padding: 4px;
+      background: rgba(0,0,0,0.04); border-radius: 10px;
+      backdrop-filter: blur(8px) saturate(140%);
+      -webkit-backdrop-filter: blur(8px) saturate(140%);
+    }
+    .ds-type-tab {
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      padding: 7px 14px; font-size: 12px; color: rgba(0,0,0,0.6); cursor: pointer;
+      border-radius: 7px; transition: all 0.18s cubic-bezier(.16,1,.3,1);
+      font-weight: 500; white-space: nowrap; user-select: none; min-width: 72px;
+    }
+    .ds-type-tab .ds-tab-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      line-height: 0; opacity: 0.7; transition: opacity 0.18s;
+    }
+    .ds-type-tab .ds-tab-icon svg { display: block; }
+    .ds-type-tab:hover { color: rgba(0,0,0,0.88); background: rgba(255,255,255,0.5); }
+    .ds-type-tab:hover .ds-tab-icon { opacity: 1; }
+    .ds-type-tab.active {
+      color: #004af0; background: #fff; font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04);
+    }
+    .ds-type-tab.active .ds-tab-icon { opacity: 1; }
+    .ds-type-items { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ds-type-item {
+      display: flex; align-items: center; gap: 7px; padding: 8px 16px;
+      border: 1.5px solid #e8e8e8; border-radius: 8px; cursor: pointer;
+      transition: all 0.15s; background: #fff; font-size: 13px; color: rgba(0,0,0,0.78);
+    }
+    .ds-type-item:hover { border-color: rgba(0,74,240,0.28); background: rgba(0,74,240,0.04); }
+    .ds-type-item.active { border-color: #004af0; background: rgba(0,74,240,0.06); color: #004af0; font-weight: 600; box-shadow: 0 0 0 1px #004af0; }
+    .ds-type-item .ds-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 0; width: 18px; height: 18px; flex-shrink: 0; }
+    .ds-type-item .ds-icon svg, .ds-type-item .ds-icon img { display: block; }
+
+    /* Checkbox group */
+    .checkbox-group { display: flex; align-items: center; gap: 16px; padding-top: 5px; }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; color: rgba(0,0,0,0.88);
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: #1677ff; cursor: pointer;
+    }
+
+    /* Connection info section */
+    .conn-info-section {
+      background: #fafafa; border-radius: 8px; padding: 20px; margin-top: 4px;
+    }
+    .conn-info-section .form-group { margin-bottom: 16px; }
+    .conn-info-section .form-group:last-child { margin-bottom: 0; }
+    .conn-info-section .form-label {
+      width: 130px; padding-top: 5px;
+    }
+    .help-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25);
+      font-size: 10px; color: rgba(0,0,0,0.35); cursor: help; margin-left: 4px; flex-shrink: 0;
+      position: relative;
+    }
+    .help-icon[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.78); color: #fff; font-size: 12px; font-weight: 400;
+      padding: 6px 10px; border-radius: 6px; white-space: normal; width: max-content; max-width: 240px;
+      line-height: 1.5; z-index: 999; pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15); text-align: left;
+    }
+    .help-icon[data-tip]:hover::before {
+      content: ''; position: absolute; left: calc(100% + 4px); top: 50%; transform: translateY(-50%);
+      border: 4px solid transparent; border-right-color: rgba(0,0,0,0.78); z-index: 999;
+    }
+    .conn-info-section .form-label .help-icon {
+      /* inherits from .help-icon above */
+    }
+    .password-input { flex: 1; position: relative; }
+    .password-input input { width: 100%; padding-right: 36px; }
+    .password-toggle {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; color: rgba(0,0,0,0.35); font-size: 14px; background: none; border: none;
+    }
+    .password-toggle:hover { color: rgba(0,0,0,0.65); }
+
+    /* Inline tabs (auth mode) */
+    .inline-tabs { display: inline-flex; gap: 0; }
+    .inline-tab {
+      padding: 4px 16px; font-size: 14px; color: rgba(0,0,0,0.65); cursor: pointer;
+      border: 1px solid #d9d9d9; background: #fff; transition: all 0.2s;
+    }
+    .inline-tab:first-child { border-radius: 6px 0 0 6px; }
+    .inline-tab:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+    .inline-tab:hover { color: #1677ff; }
+    .inline-tab.active { color: #1677ff; background: #e6f4ff; border-color: #1677ff; }
+    .inline-tab.active + .inline-tab { border-left-color: #1677ff; }
+
+    .btn-secondary {
+      background: #fff; color: rgba(0,0,0,0.88); border: 1px solid #d9d9d9; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center;
+    }
+    .btn-secondary:hover { border-color: #1677ff; color: #1677ff; }
+    .btn-test {
+      background: #fff; color: rgba(0,0,0,0.88); border: 1px solid #d9d9d9; padding: 4px 15px; height: 32px;
+      border-radius: 6px; font-size: 14px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-test:hover { border-color: #1677ff; color: #1677ff; }
+
+    .test-result {
+      margin-left: 12px; padding: 7px 12px; border-radius: 8px; font-size: 13px; display: none;
+      max-width: 430px; line-height: 1.45;
+    }
+    .test-result.pending { display: block; background: rgba(0,74,240,0.06); color: #004af0; }
+    .test-result.success { display: block; background: #f6ffed; color: #237804; }
+    .test-result.error { display: block; background: #fff2f0; color: #cf1322; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="../dashboard/dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item active" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="dataConn">
+        <a class="sub-item active" href="connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataProc">
+        <a class="sub-item" href="../data-processing/workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="../data-processing/notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item" href="../data-processing/sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="resCenter">
+        <a class="sub-item" href="../resource-center/catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="../resource-center/compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item" href="../resource-center/data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="../resource-center/knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="page-content" id="connListPage">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="position:relative;width:280px">
+          <input class="form-input" type="text" id="connectorSearch" placeholder="搜索连接器名称 / 类型 / 数据源" style="padding-right:32px;padding-left:32px;flex:none;width:100%" oninput="filterConnectorTable(this.value)">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:rgba(0,0,0,0.45);display:inline-flex;align-items:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <span id="connectorSearchClear" onclick="document.getElementById('connectorSearch').value='';filterConnectorTable('');this.style.display='none'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:rgba(0,0,0,0.45);cursor:pointer;display:none;align-items:center" title="清空">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="refresh-btn" onclick="refreshData(this)" title="刷新">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M2.5 22v-6h6"/><path d="M2.5 11.5a10 10 0 0 1 17.3-5.7L21.5 8"/><path d="M21.5 12.5a10 10 0 0 1-17.3 5.7L2.5 16"/></svg>
+          </button>
+          <button class="btn-primary" onclick="openModal()">创建连接器</button>
+        </div>
+      </div>
+
+      <table class="data-table">
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>类型</th>
+          <th>数据源</th>
+          <th>用途</th>
+          <th>创建时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="connectorTableBody">
+        <tr>
+          <td>【nesr】Intelie 传感器数据</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>MongoDB</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-04-11 09:30</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【nesr】Intelie 传感器数据')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【nesr】Intelie 传感器数据','database','mongodb',true,false,{host:'mongo-prod.nesr.internal',port:'27017',authMode:'userpass',user:'moi_reader',password:'••••••••',authSource:'admin',replicaSet:'rs0',readPreference:'secondaryPreferred'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【nesr】Intelie 传感器数据')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>【nesr】Fiix CMMS 维修系统</td>
+          <td><span class="connector-type-badge">API</span></td>
+          <td>REST API</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-04-11 10:00</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【nesr】Fiix CMMS 维修系统')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【nesr】Fiix CMMS 维修系统','api','rest-api',true,false,{baseUrl:'https://api.fiix.io/v1',authMode:'apikey',apiKeyName:'X-API-Key',apiKeyValue:'••••••••',apiKeyLocation:'header',timeout:'30',defaultHeaders:'Content-Type: application/json'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【nesr】Fiix CMMS 维修系统')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>【示例】NESR 数据仓库 Hive</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>Hive</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 10:00</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【示例】NESR 数据仓库 Hive')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【示例】NESR 数据仓库 Hive','database','hive',true,false,{host:'hive-prod.nesr.internal',port:'10000',authMode:'userpass',user:'moi_reader',password:'••••••••',database:'dw_ods'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【示例】NESR 数据仓库 Hive')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>【示例】客户服务 Gmail 收件箱</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>Gmail</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-21 14:20</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【示例】客户服务 Gmail 收件箱')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【示例】客户服务 Gmail 收件箱','mail','gmail',true,false,{mailboxAddress:'support@example.com',clientId:'gmail-client-id',clientSecret:'••••••••',refreshToken:'••••••••'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【示例】客户服务 Gmail 收件箱')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>【示例】法务 Outlook 收件箱</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>Outlook</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-21 16:05</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【示例】法务 Outlook 收件箱')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【示例】法务 Outlook 收件箱','mail','outlook',true,false,{tenantId:'m365-tenant-id',mailboxAddress:'legal@example.com',clientId:'outlook-client-id',clientSecret:'••••••••'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【示例】法务 Outlook 收件箱')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>【示例】企业微信项目邮箱</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>企业微信邮箱</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-22 09:45</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【示例】企业微信项目邮箱')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【示例】企业微信项目邮箱','mail','wecom-mail',true,false,{mailboxAddress:'project@company.com',password:'••••••••'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【示例】企业微信项目邮箱')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>【示例】运营 QQ 邮箱</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>QQ 邮箱</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-23 11:30</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openConnPermModal('【示例】运营 QQ 邮箱')">权限</button>
+              <button class="action-btn-sm" onclick="editConnector('【示例】运营 QQ 邮箱','mail','qq-mail',true,false,{mailboxAddress:'ops@qq.com',password:'••••••••'})">编辑</button>
+              <button class="action-btn-sm danger" onclick="deleteConnector('【示例】运营 QQ 邮箱')">删除</button>
+            </div>
+          </td>
+        </tr>
+        <!-- ============ 对象存储 ============ -->
+        <tr>
+          <td>【示例】营销素材库 · 阿里云 OSS</td>
+          <td><span class="connector-type-badge">对象存储</span></td>
+          <td>阿里云 OSS</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 10:15</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】营销素材库 · 阿里云 OSS')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】营销素材库 · 阿里云 OSS','object-storage','aliyun-oss',true,true,{region:'cn-hangzhou',accessKeyId:'LTAI•••••••••QH9',accessKeySecret:'••••••••',filePath:'marketing-assets/2026/'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】营销素材库 · 阿里云 OSS')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】NESR 备份桶 · AWS S3</td>
+          <td><span class="connector-type-badge">对象存储</span></td>
+          <td>标准 S3 / MinIO</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 10:20</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】NESR 备份桶 · AWS S3')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】NESR 备份桶 · AWS S3','object-storage','s3',true,true,{endpoint:'https://s3.me-south-1.amazonaws.com',accessKey:'AKIA•••••••••JKL',secretKey:'••••••••',bucket:'nesr-fleet-backup',region:'me-south-1'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】NESR 备份桶 · AWS S3')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】视频内容库 · 腾讯云 COS</td>
+          <td><span class="connector-type-badge">对象存储</span></td>
+          <td>腾讯云 COS</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 10:25</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】视频内容库 · 腾讯云 COS')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】视频内容库 · 腾讯云 COS','object-storage','tencent-cos',true,false,{region:'ap-guangzhou',secretId:'AKID••••••••••',secretKey:'••••••••',bucket:'media-library-1250000000',filePath:'videos/raw/'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】视频内容库 · 腾讯云 COS')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】政企归档 · 华为云 OBS</td>
+          <td><span class="connector-type-badge">对象存储</span></td>
+          <td>华为云 OBS</td>
+          <td><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 10:30</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】政企归档 · 华为云 OBS')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】政企归档 · 华为云 OBS','object-storage','huawei-obs',false,true,{region:'cn-north-4',accessKey:'HW••••••••',secretKey:'••••••••',bucket:'gov-archive-bj',filePath:'compliance-reports/'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】政企归档 · 华为云 OBS')">删除</button></div></td>
+        </tr>
+        <!-- ============ 分布式文件系统 ============ -->
+        <tr>
+          <td>【示例】集团数据湖 · HDFS</td>
+          <td><span class="connector-type-badge">分布式文件系统</span></td>
+          <td>HDFS</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 10:35</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】集团数据湖 · HDFS')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】集团数据湖 · HDFS','dfs','hdfs',true,false,{namenode:'hdfs://nn-master.corp.local:8020',user:'moi_reader'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】集团数据湖 · HDFS')">删除</button></div></td>
+        </tr>
+        <!-- ============ 数据库（已有 MongoDB / Hive，再补 7 个）============ -->
+        <tr>
+          <td>【示例】MatrixOne 生产集群</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>MatrixOne</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 10:40</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】MatrixOne 生产集群')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】MatrixOne 生产集群','database','matrixone',true,true,{host:'mo-prod-cn.corp.local',port:'6001',user:'moi_app',password:'••••••••',database:'moi_warehouse'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】MatrixOne 生产集群')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】用户中心 · MySQL</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>MySQL</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 10:45</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】用户中心 · MySQL')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】用户中心 · MySQL','database','mysql',true,false,{host:'mysql-uc.prod.local',port:'3306',user:'reader',password:'••••••••',database:'user_center'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】用户中心 · MySQL')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】财务报表库 · PostgreSQL</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>PostgreSQL</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 10:50</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】财务报表库 · PostgreSQL')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】财务报表库 · PostgreSQL','database','postgresql',true,false,{host:'pg-finance.prod.local',port:'5432',user:'finance_ro',password:'••••••••',database:'finance_dw',schema:'reporting'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】财务报表库 · PostgreSQL')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】汉得 Topcast · SQL Server</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>SQL Server</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 10:55</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】汉得 Topcast · SQL Server')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】汉得 Topcast · SQL Server','database','sqlserver',true,true,{host:'mssql.topcast.com',port:'1433',instance:'',user:'svc_topcast',password:'••••••••',database:'TopcastQuote',encrypt:'true'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】汉得 Topcast · SQL Server')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】武汉新芯 · Oracle ERP DB</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>Oracle</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:00</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】武汉新芯 · Oracle ERP DB')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】武汉新芯 · Oracle ERP DB','database','oracle',true,false,{host:'ora-erp.xmc.local',port:'1521',connectMode:'service',serviceName:'ERPPDB1',user:'XMC_RO',password:'••••••••',schema:'FINOPS'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】武汉新芯 · Oracle ERP DB')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】芯联汉得 · ClickHouse 行情库</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>ClickHouse</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:05</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】芯联汉得 · ClickHouse 行情库')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】芯联汉得 · ClickHouse 行情库','database','clickhouse',true,false,{host:'ch-hk.xlhand.cloud',port:'8443',protocol:'https',user:'analyst',password:'••••••••',database:'hkex_market'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】芯联汉得 · ClickHouse 行情库')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】业务实时分析 · Apache Doris</td>
+          <td><span class="connector-type-badge">数据库</span></td>
+          <td>Apache Doris</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 11:10</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】业务实时分析 · Apache Doris')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】业务实时分析 · Apache Doris','database','doris',true,true,{feHost:'doris-fe.prod.local',queryPort:'9030',httpPort:'8030',user:'moi_etl',password:'••••••••',database:'rt_analytics'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】业务实时分析 · Apache Doris')">删除</button></div></td>
+        </tr>
+        <!-- ============ 邮件（已有 Gmail / Outlook / wecom-mail / QQ，再补 3 个）============ -->
+        <tr>
+          <td>【示例】全员 Microsoft 365 邮箱</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>Microsoft 365 (Graph)</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:15</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】全员 Microsoft 365 邮箱')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】全员 Microsoft 365 邮箱','mail','ms365-graph',true,false,{tenantId:'••••-tenant-id-••••',clientId:'••••-client-id-••••',clientSecret:'••••••••',mailboxAddress:'',scope:'Mail.Read offline_access'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】全员 Microsoft 365 邮箱')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】内部 IMAP 邮箱</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>IMAP/SMTP 通用</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 11:20</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】内部 IMAP 邮箱')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】内部 IMAP 邮箱','mail','imap-smtp',true,true,{imapHost:'imap.corp.local',imapPort:'993',smtpHost:'smtp.corp.local',smtpPort:'465',encryption:'ssl',authMode:'userpass',user:'svc_inbox@corp.local',password:'••••••••'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】内部 IMAP 邮箱')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】自有邮件 API</td>
+          <td><span class="connector-type-badge">邮件</span></td>
+          <td>自有邮件 API</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:25</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】自有邮件 API')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】自有邮件 API','mail','custom-mail-api',true,false,{baseUrl:'https://mail-api.corp.local/v1',authMode:'bearer',bearerToken:'••••••••',messagesEndpoint:'/messages',messageDetailEndpoint:'/messages/{id}',sendEndpoint:'/messages/send',dataPath:'data.items'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】自有邮件 API')">删除</button></div></td>
+        </tr>
+        <!-- ============ API（已有 REST API，再补 1 个）============ -->
+        <tr>
+          <td>【示例】电商订单 · GraphQL</td>
+          <td><span class="connector-type-badge">API</span></td>
+          <td>GraphQL</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:30</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】电商订单 · GraphQL')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】电商订单 · GraphQL','api','graphql',true,false,{endpoint:'https://shop.corp.com/api/graphql',authMode:'bearer',bearerToken:'••••••••',introspection:'enabled',defaultHeaders:'Content-Type: application/json'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】电商订单 · GraphQL')">删除</button></div></td>
+        </tr>
+        <!-- ============ 文件协议 ============ -->
+        <tr>
+          <td>【示例】NESR 现场文件服务器 · FTP</td>
+          <td><span class="connector-type-badge">文件协议</span></td>
+          <td>FTP</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:35</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】NESR 现场文件服务器 · FTP')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】NESR 现场文件服务器 · FTP','file-protocol','ftp',true,false,{host:'ftp-rig7.nesr.local',port:'21',user:'nesr_ops',password:'••••••••',basePath:'/data/well-reports',mode:'passive'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】NESR 现场文件服务器 · FTP')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】客户合同同步 · SFTP</td>
+          <td><span class="connector-type-badge">文件协议</span></td>
+          <td>SFTP</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 11:40</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】客户合同同步 · SFTP')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】客户合同同步 · SFTP','file-protocol','sftp',true,true,{host:'sftp.partner.com',port:'22',user:'moi_sync',authMode:'privateKey',privateKey:'-----BEGIN OPENSSH PRIVATE KEY-----\\n••••••••\\n-----END OPENSSH PRIVATE KEY-----',basePath:'/uploads/contracts'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】客户合同同步 · SFTP')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】有临医药 · SharePoint 站点</td>
+          <td><span class="connector-type-badge">文件协议</span></td>
+          <td>SharePoint</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:45</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】有临医药 · SharePoint 站点')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】有临医药 · SharePoint 站点','file-protocol','sharepoint',true,false,{siteUrl:'https://youlin.sharepoint.com/sites/cro-agent',tenantId:'••••-youlin-tenant-••••',clientId:'••••-app-id-••••',clientSecret:'••••••••',libraryName:'Documents',folderPath:'问卷/2026'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】有临医药 · SharePoint 站点')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】集团 NAS · SMB 共享</td>
+          <td><span class="connector-type-badge">文件协议</span></td>
+          <td>NAS (SMB/CIFS)</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:50</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】集团 NAS · SMB 共享')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】集团 NAS · SMB 共享','file-protocol','smb-nas',true,false,{host:'nas01.corp.local',share:'department-data',domain:'CORP',user:'moi_reader',password:'••••••••',smbVersion:'smb3'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】集团 NAS · SMB 共享')">删除</button></div></td>
+        </tr>
+        <!-- ============ 消息队列 ============ -->
+        <tr>
+          <td>【示例】CDG GPS 流 · Kafka</td>
+          <td><span class="connector-type-badge">消息队列</span></td>
+          <td>Apache Kafka</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 11:55</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】CDG GPS 流 · Kafka')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】CDG GPS 流 · Kafka','message-queue','kafka',true,false,{brokers:'kafka-1.cdg.sg:9093,kafka-2.cdg.sg:9093,kafka-3.cdg.sg:9093',securityProtocol:'SASL_SSL',saslMechanism:'SCRAM-SHA-512',saslUser:'moi_consumer',saslPassword:'••••••••',consumerGroup:'moi-gps-ingest',topicPattern:'taxi.gps.*',autoOffsetReset:'latest'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】CDG GPS 流 · Kafka')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】IoT 设备遥测 · MQTT</td>
+          <td><span class="connector-type-badge">消息队列</span></td>
+          <td>MQTT</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 12:00</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】IoT 设备遥测 · MQTT')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】IoT 设备遥测 · MQTT','message-queue','mqtt',true,false,{brokerUrl:'mqtts://broker.iot.corp.com:8883',clientId:'moi-iot-ingest-1',user:'moi_iot',password:'••••••••',topicFilter:'iot/+/telemetry',qos:'1'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】IoT 设备遥测 · MQTT')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】通知服务 · RabbitMQ</td>
+          <td><span class="connector-type-badge">消息队列</span></td>
+          <td>RabbitMQ</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:05</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】通知服务 · RabbitMQ')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】通知服务 · RabbitMQ','message-queue','rabbitmq',true,true,{host:'rabbit.corp.local',port:'5672',vhost:'/notify',user:'moi_notify',password:'••••••••',queue:'moi.notifications',exchange:'notify.direct',routingKey:'agent.alert'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】通知服务 · RabbitMQ')">删除</button></div></td>
+        </tr>
+        <!-- ============ 企业应用 ============ -->
+        <tr>
+          <td>【示例】武汉新芯 · SAP S/4HANA</td>
+          <td><span class="connector-type-badge">企业应用</span></td>
+          <td>SAP S/4HANA</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 12:10</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】武汉新芯 · SAP S/4HANA')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】武汉新芯 · SAP S/4HANA','enterprise-app','sap-s4hana',true,false,{baseUrl:'https://s4hana.xmc.local/sap/opu/odata/sap',client:'100',authMode:'oauth2',clientId:'••••-sap-client-••••',clientSecret:'••••••••',tokenUrl:'https://s4hana.xmc.local/sap/bc/sec/oauth2/token',csrfHandling:'auto'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】武汉新芯 · SAP S/4HANA')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】Oracle ERP Cloud · 集团</td>
+          <td><span class="connector-type-badge">企业应用</span></td>
+          <td>Oracle ERP Cloud</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 12:15</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】Oracle ERP Cloud · 集团')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】Oracle ERP Cloud · 集团','enterprise-app','oracle-erp',true,false,{baseUrl:'https://erp.corp.com:7777',user:'erp_integration',password:'••••••••',apiVersion:'v11'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】Oracle ERP Cloud · 集团')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】芯导科技 · 用友 U8</td>
+          <td><span class="connector-type-badge">企业应用</span></td>
+          <td>用友 U8</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 12:20</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】芯导科技 · 用友 U8')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】芯导科技 · 用友 U8','enterprise-app','yonyou-u8',true,false,{serverUrl:'http://u8.xindao.local:8080',accountId:'001',year:'2026',user:'moi_sales',password:'••••••••'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】芯导科技 · 用友 U8')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】集团 · 金蝶 K/3 Cloud</td>
+          <td><span class="connector-type-badge">企业应用</span></td>
+          <td>金蝶 K/3 Cloud</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 12:25</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】集团 · 金蝶 K/3 Cloud')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】集团 · 金蝶 K/3 Cloud','enterprise-app','kingdee-k3',true,false,{serverUrl:'https://k3cloud.corp.com',dbId:'CN240101000001',user:'moi_api',password:'••••••••',lcid:'2052'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】集团 · 金蝶 K/3 Cloud')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】销售 · Salesforce</td>
+          <td><span class="connector-type-badge">企业应用</span></td>
+          <td>Salesforce</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:30</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】销售 · Salesforce')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】销售 · Salesforce','enterprise-app','salesforce',true,true,{instanceUrl:'https://corp.my.salesforce.com',clientId:'••••-sf-consumer-key-••••',clientSecret:'••••••••',username:'moi_integration@corp.com',password:'••••••••',apiVersion:'v60.0'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】销售 · Salesforce')">删除</button></div></td>
+        </tr>
+        <!-- ============ 协作平台 ============ -->
+        <tr>
+          <td>【示例】团队飞书</td>
+          <td><span class="connector-type-badge">协作平台</span></td>
+          <td>飞书</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:35</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】团队飞书')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】团队飞书','collab','feishu',true,true,{appId:'cli_••••••••',appSecret:'••••••••',appType:'self-built',scope:'im:message contact:user.base:readonly docs:doc:readonly'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】团队飞书')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】集团钉钉</td>
+          <td><span class="connector-type-badge">协作平台</span></td>
+          <td>钉钉</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:40</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】集团钉钉')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】集团钉钉','collab','dingtalk',true,true,{appKey:'dingxxxxxxxxx',appSecret:'••••••••',corpId:'ding••••••••',agentId:'1234567890'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】集团钉钉')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】企业微信项目通知 API</td>
+          <td><span class="connector-type-badge">协作平台</span></td>
+          <td>企业微信 API</td>
+          <td><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:45</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】企业微信项目通知 API')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】企业微信项目通知 API','collab','wecom-api',false,true,{corpId:'wwxxxxxxxxxx',agentId:'1000002',appSecret:'••••••••',callbackToken:'',callbackAesKey:''})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】企业微信项目通知 API')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】海外团队 · Slack</td>
+          <td><span class="connector-type-badge">协作平台</span></td>
+          <td>Slack</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:50</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】海外团队 · Slack')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】海外团队 · Slack','collab','slack',true,true,{workspaceUrl:'https://corp-global.slack.com',authMode:'bot',botToken:'xoxb-••••••••',appToken:'',signingSecret:'••••••••'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】海外团队 · Slack')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】matrixflow · GitHub</td>
+          <td><span class="connector-type-badge">协作平台</span></td>
+          <td>GitHub</td>
+          <td><span class="usage-tag import">载入</span><span class="usage-tag export">导出</span></td>
+          <td>2026-05-25 12:55</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】matrixflow · GitHub')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】matrixflow · GitHub','collab','github',true,true,{baseUrl:'https://api.github.com',authMode:'pat',token:'ghp_••••••••',orgFilter:'matrixorigin'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】matrixflow · GitHub')">删除</button></div></td>
+        </tr>
+        <tr>
+          <td>【示例】内部 · 语雀知识库</td>
+          <td><span class="connector-type-badge">协作平台</span></td>
+          <td>语雀</td>
+          <td><span class="usage-tag import">载入</span></td>
+          <td>2026-05-25 13:00</td>
+          <td><div class="action-btns"><button class="action-btn-sm" onclick="openConnPermModal('【示例】内部 · 语雀知识库')">权限</button>
+            <button class="action-btn-sm" onclick="editConnector('【示例】内部 · 语雀知识库','collab','yuque',true,false,{serverUrl:'https://corp.yuque.com',token:'••••••••',namespace:'corp/internal-docs'})">编辑</button>
+            <button class="action-btn-sm danger" onclick="deleteConnector('【示例】内部 · 语雀知识库')">删除</button></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 连接器只读详情（整页覆盖，点列表名字进入；右上角「编辑」打开编辑弹层） -->
+  <div class="page-content" id="connDetailPage" style="display:none">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button onclick="backToConnList()" title="返回列表" style="width:32px;height:32px;flex-shrink:0;border:1px solid #e5e6eb;border-radius:8px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:rgba(0,0,0,0.65)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
+      <div id="connDetailHead" style="flex:1;display:flex;align-items:center;gap:12px;min-width:0"></div>
+      <div id="connDetailActions" style="display:flex;gap:10px;flex-shrink:0"></div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+      <div id="connDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- Create Connector Modal -->
+  <div class="modal-overlay" id="connectorModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">创建连接器</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Connector Name -->
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span> 连接器名称：</label>
+          <div class="input-with-counter">
+            <input class="form-input" id="connName" type="text" placeholder="请输入连接器名称" maxlength="100" oninput="updateNameCounter()">
+            <span class="input-counter" id="nameCounter">0 / 100</span>
+          </div>
+        </div>
+
+        <!-- Data Source Type -->
+        <div class="form-group" style="align-items:flex-start">
+          <label class="form-label" style="padding-top:10px">数据源类型：</label>
+          <div style="flex:1">
+            <div class="ds-type-tabs" id="dsTypeTabs"></div>
+            <div class="ds-type-items" id="dsTypeItems"></div>
+          </div>
+        </div>
+
+        <!-- Usage Checkboxes -->
+        <div class="form-group">
+          <label class="form-label">连接用途 <span class="help-icon" data-tip="定义此连接源与 MOI 之间的数据流向：载入表示从外部读取数据到 MOI，导出表示从 MOI 写出数据到外部">?</span>：</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" id="usageImport" checked> 载入</label>
+            <label class="checkbox-item"><input type="checkbox" id="usageExport" checked> 导出</label>
+          </div>
+        </div>
+
+        <!-- Connection Info -->
+        <div id="connInfoGroup" style="margin-top:0">
+          <div class="conn-info-section" id="connInfoSection" style="flex:1"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="display:flex;align-items:center;min-width:0">
+          <button class="btn-test" id="testConnectionBtn" onclick="testConnection()">连接测试</button>
+          <div class="test-result" id="testResult"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-secondary" onclick="closeModal()">取 消</button>
+          <button class="btn-primary" id="modalSubmitBtn" onclick="createConnector()">创 建</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/op-icons.js"></script>
+  <script>
+    // Data source options per type
+    // icon 规则（见 CLAUDE.md §6）：
+    //   抽象 / 通用 → 线条 SVG（lineIcon helper）
+    //   具体产品 → 品牌 logo（brand:<simpleicons-slug>，渲染时走 cdn.simpleicons.org）
+    function lineIcon(path, size) {
+      size = size || 16;
+      return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg>';
+    }
+    var ICON = {
+      cloud:    '<path d="M17.5 19a4.5 4.5 0 1 0-1.41-8.775 5.5 5.5 0 0 0-10.59 1.775h-.5a4 4 0 1 0 0 8z"/>',
+      database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+      hdfs:     '<path d="M3 7V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2A2 2 0 0 0 13.07 6H19a2 2 0 0 1 2 2v2"/><rect x="3" y="13" width="18" height="8" rx="2"/><path d="M7 17h.01M11 17h.01M15 17h.01"/>',
+      mail:     '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>',
+      api:      '<path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/>',
+      file:     '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+      mq:       '<path d="M3 5h13l4 4v6l-4 4H3"/><path d="M3 9h11"/><path d="M3 13h11"/>',
+      building: '<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h.01M9 12h.01M9 15h.01M9 18h.01"/>',
+      users:    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      bucket:   '<path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M2 12h20"/>',
+      sharepoint:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 8h6v2H9zM9 12h6v2H9zM9 16h4v2H9z"/>',
+      lock:     '<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+      drive:    '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01"/>',
+      ftp:      '<path d="M3 7h18M3 12h18M3 17h18"/><path d="M8 7v10M16 7v10"/>',
+      send:     '<path d="m22 2-11 11"/><path d="m22 2-7 20-4-9-9-4z"/>',
+      tool:     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+      ms365:    '<path d="M3 5l9-3v20l-9-3z"/><path d="M21 5l-9-3v20l9-3z"/>',
+      graphql:  '<path d="M12 2v20M3 7l18 10M3 17l18-10"/><circle cx="12" cy="2" r="1.5"/><circle cx="12" cy="22" r="1.5"/><circle cx="3" cy="7" r="1.5"/><circle cx="3" cy="17" r="1.5"/><circle cx="21" cy="7" r="1.5"/><circle cx="21" cy="17" r="1.5"/>',
+      globe:    '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'
+    };
+
+    function brand(slug) { return 'brand:' + slug; }
+
+    const sourceOptions = {
+      'object-storage': [
+        { value: 'aliyun-oss',  label: '阿里云 OSS',          icon: brand('alibabacloud') },
+        { value: 's3',          label: '标准 S3 / MinIO',     icon: brand('amazons3') },
+        { value: 'tencent-cos', label: '腾讯云 COS',          icon: brand('tencentqq') },
+        { value: 'huawei-obs',  label: '华为云 OBS',          icon: brand('huawei') }
+      ],
+      'dfs': [
+        { value: 'hdfs',        label: 'HDFS',                icon: brand('apachehadoop') }
+      ],
+      'database': [
+        { value: 'matrixone',   label: 'MatrixOne',           icon: lineIcon(ICON.database) },
+        { value: 'mysql',       label: 'MySQL',               icon: brand('mysql') },
+        { value: 'postgresql',  label: 'PostgreSQL',          icon: brand('postgresql') },
+        { value: 'mongodb',     label: 'MongoDB',             icon: brand('mongodb') },
+        { value: 'hive',        label: 'Hive',                icon: brand('apachehive') },
+        { value: 'sqlserver',   label: 'SQL Server',          icon: brand('microsoftsqlserver') },
+        { value: 'oracle',      label: 'Oracle',              icon: brand('oracle') },
+        { value: 'clickhouse',  label: 'ClickHouse',          icon: brand('clickhouse') },
+        { value: 'doris',       label: 'Apache Doris',        icon: brand('apachedoris') }
+      ],
+      'mail': [
+        { value: 'gmail',       label: 'Gmail',               icon: brand('gmail') },
+        { value: 'outlook',     label: 'Outlook',             icon: brand('microsoftoutlook') },
+        { value: 'ms365-graph', label: 'Microsoft 365 (Graph)', icon: brand('microsoft365') },
+        { value: 'wecom-mail',  label: '企业微信邮箱',         icon: brand('wechat') },
+        { value: 'qq-mail',     label: 'QQ 邮箱',             icon: brand('tencentqq') },
+        { value: 'imap-smtp',   label: 'IMAP/SMTP 通用',      icon: lineIcon(ICON.mail) },
+        { value: 'custom-mail-api', label: '自有邮件 API',    icon: lineIcon(ICON.tool) }
+      ],
+      'api': [
+        { value: 'rest-api',    label: 'REST API',            icon: lineIcon(ICON.api) },
+        { value: 'graphql',     label: 'GraphQL',             icon: brand('graphql') }
+      ],
+      'file-protocol': [
+        { value: 'ftp',         label: 'FTP',                 icon: lineIcon(ICON.ftp) },
+        { value: 'sftp',        label: 'SFTP',                icon: lineIcon(ICON.lock) },
+        { value: 'sharepoint',  label: 'SharePoint',          icon: brand('microsoftsharepoint') },
+        { value: 'smb-nas',     label: 'NAS (SMB/CIFS)',      icon: lineIcon(ICON.drive) }
+      ],
+      'message-queue': [
+        { value: 'kafka',       label: 'Apache Kafka',        icon: brand('apachekafka') },
+        { value: 'mqtt',        label: 'MQTT',                icon: brand('mqtt') },
+        { value: 'rabbitmq',    label: 'RabbitMQ',            icon: brand('rabbitmq') }
+      ],
+      'enterprise-app': [
+        { value: 'sap-s4hana',  label: 'SAP S/4HANA',         icon: brand('sap') },
+        { value: 'oracle-erp',  label: 'Oracle ERP Cloud',    icon: brand('oracle') },
+        { value: 'yonyou-u8',   label: '用友 U8',             icon: lineIcon(ICON.building) },
+        { value: 'kingdee-k3',  label: '金蝶 K/3 Cloud',      icon: lineIcon(ICON.building) },
+        { value: 'salesforce',  label: 'Salesforce',          icon: brand('salesforce') }
+      ],
+      'collab': [
+        { value: 'feishu',      label: '飞书',                icon: brand('larksuite') },
+        { value: 'dingtalk',    label: '钉钉',                icon: brand('dingtalk') },
+        { value: 'wecom-api',   label: '企业微信 API',        icon: brand('wechat') },
+        { value: 'slack',       label: 'Slack',               icon: brand('slack') },
+        { value: 'github',      label: 'GitHub',              icon: brand('github') },
+        { value: 'yuque',       label: '语雀',                icon: lineIcon(ICON.file) }
+      ],
+      'web': [
+        { value: 'web-crawl',   label: '网页采集',            icon: lineIcon(ICON.globe) }
+      ]
+    };
+
+    // 渲染 icon：brand:slug → simpleicons CDN <img>；<svg…> → 直出；其他 → 兜底文本
+    function renderProductIcon(iconStr, size) {
+      size = size || 18;
+      if (!iconStr) return '';
+      if (iconStr.indexOf('brand:') === 0) {
+        var slug = iconStr.substring(6);
+        return '<img src="https://cdn.simpleicons.org/' + slug + '" width="' + size + '" height="' + size + '" alt="" style="display:block;object-fit:contain" loading="lazy">';
+      }
+      return iconStr; // 已经是 SVG / 文本
+    }
+
+    // Config fields per data source
+    const configTemplates = {
+      'aliyun-oss': [
+        { key: 'region', label: '地区', type: 'select', required: true, help: true, options: [
+          { value: 'cn-hangzhou', label: '华东1 （杭州）' },
+          { value: 'cn-shanghai', label: '华东2 （上海）' },
+          { value: 'cn-beijing', label: '华北2 （北京）' },
+          { value: 'cn-shenzhen', label: '华南1 （深圳）' }
+        ]},
+        { key: 'accessKeyId', label: 'AccessKey ID', placeholder: '请输入AccessKey ID', required: true, help: true },
+        { key: 'accessKeySecret', label: 'AccessKey Secret', placeholder: '请输入AccessKey Secret', required: true, help: true, password: true },
+        { key: 'filePath', label: '文件路径', placeholder: '<桶名>/<文件夹路径> 或 <桶名>', required: true, help: true }
+      ],
+      's3': [
+        { key: 'endpoint', label: 'Endpoint', placeholder: 'https://s3.amazonaws.com', required: true, help: true },
+        { key: 'accessKey', label: 'Access Key', placeholder: '请输入 Access Key', required: true, help: true },
+        { key: 'secretKey', label: 'Secret Key', placeholder: '请输入 Secret Key', required: true, help: true, password: true },
+        { key: 'bucket', label: 'Bucket', placeholder: '请输入 Bucket 名称', required: true, help: true },
+        { key: 'region', label: 'Region', placeholder: 'us-east-1', required: true, help: true }
+      ],
+      'hdfs': [
+        { key: 'namenode', label: 'NameNode 地址', placeholder: 'hdfs://namenode:8020', required: true, help: true },
+        { key: 'user', label: '用户名', placeholder: '请输入用户名', required: true, help: true }
+      ],
+      'matrixone': [
+        { key: 'host', label: '主机', placeholder: '127.0.0.1', required: true, help: true },
+        { key: 'port', label: '端口', placeholder: '6001', required: true, help: true },
+        { key: 'user', label: '用户名', placeholder: '请输入用户名', required: true, help: true },
+        { key: 'password', label: '密码', placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'database', label: '数据库', placeholder: '可选，留空则在载入 / 查询时选择', required: false, help: true, helpText: '连接器只定义连接；具体库 / 表在载入或查询时再选，留空表示不限定库' }
+      ],
+      'mysql': [
+        { key: 'host', label: '主机', placeholder: '127.0.0.1', required: true, help: true },
+        { key: 'port', label: '端口', placeholder: '3306', required: true, help: true },
+        { key: 'user', label: '用户名', placeholder: '请输入用户名', required: true, help: true },
+        { key: 'password', label: '密码', placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'database', label: '数据库', placeholder: '可选，留空则在载入 / 查询时选择', required: false, help: true, helpText: '连接器只定义连接；具体库 / 表在载入或查询时再选，留空表示不限定库' }
+      ],
+      'postgresql': [
+        { key: 'host', label: '主机', placeholder: '127.0.0.1', required: true, help: true },
+        { key: 'port', label: '端口', placeholder: '5432', required: true, help: true },
+        { key: 'user', label: '用户名', placeholder: '请输入用户名', required: true, help: true },
+        { key: 'password', label: '密码', placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'database', label: '数据库', placeholder: '可选，留空则在载入 / 查询时选择', required: false, help: true, helpText: '连接器只定义连接；具体库 / 表在载入或查询时再选，留空表示不限定库' },
+        { key: 'schema', label: 'Schema', placeholder: 'public', required: false, help: true }
+      ],
+      'hive': [
+        { key: 'host', label: '主机', placeholder: '请输入 HiveServer2 主机地址', required: true, help: true },
+        { key: 'port', label: '端口', placeholder: '请输入端口号（默认：10000）', required: true, help: true },
+        { key: 'addHost', type: 'addHostBtn' },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'ldap', label: 'LDAP', fields: [
+            { key: 'user', label: '用户名', placeholder: '请输入 Hive 用户名', required: true, help: true },
+            { key: 'password', label: '密码', placeholder: '请输入 Hive 密码', required: true, help: true, password: true }
+          ]},
+          { value: 'kerberos', label: 'Kerberos', fields: [
+            { key: 'principal', label: 'Kerberos Principal', placeholder: 'user@REALM.COM 或 service/host@REALM.COM', required: true, help: true },
+            { key: 'keytab', label: 'Keytab 文件', placeholder: '添加 Keytab 文件', required: true, help: true, type: 'file' },
+            { key: 'krb5conf', label: 'Krb5 配置文件', placeholder: '添加 Krb5 文件', required: true, help: true, type: 'file' }
+          ]}
+        ]}
+      ],
+      'mongodb': [
+        { key: 'host', label: '主机', placeholder: '请输入 MongoDB 主机地址', required: true, help: true },
+        { key: 'port', label: '端口', placeholder: '27017', required: true, help: true },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'userpass', label: '用户名密码', fields: [
+            { key: 'user', label: '用户名', placeholder: '请输入用户名', required: true, help: true },
+            { key: 'password', label: '密码', placeholder: '请输入密码', required: true, help: true, password: true },
+            { key: 'authSource', label: '认证库', placeholder: 'admin', required: false, help: true }
+          ]},
+          { value: 'none', label: '无认证', fields: [] }
+        ]},
+        { key: 'replicaSet', label: 'Replica Set', placeholder: '可选，如 rs0', required: false, help: true },
+        { key: 'readPreference', label: '读取偏好', type: 'select', required: false, help: true, options: [
+          { value: 'primary', label: 'primary（主节点）' },
+          { value: 'primaryPreferred', label: 'primaryPreferred' },
+          { value: 'secondary', label: 'secondary（从节点）' },
+          { value: 'secondaryPreferred', label: 'secondaryPreferred（推荐）' },
+          { value: 'nearest', label: 'nearest（最近节点）' }
+        ]}
+      ],
+      'gmail': [
+        { key: 'mailboxAddress', label: '邮箱地址', placeholder: 'user@company.com', required: true, help: true, helpText: '需要读取的 Gmail 或 Google Workspace 邮箱地址' },
+        { key: 'clientId', label: 'Client ID', placeholder: '请输入 Google OAuth Client ID', required: true, help: true, helpText: 'Google Cloud OAuth 应用的客户端标识' },
+        { key: 'clientSecret', label: 'Client Secret', placeholder: '请输入 Client Secret', required: true, help: true, helpText: 'Google Cloud OAuth 应用的客户端密钥', password: true },
+        { key: 'refreshToken', label: 'Refresh Token', placeholder: '授权后自动生成或手动粘贴', required: true, help: true, helpText: '用于持续读取 Gmail 数据的刷新令牌', password: true }
+      ],
+      'outlook': [
+        { key: 'tenantId', label: 'Tenant ID', placeholder: '请输入 Microsoft Entra Tenant ID', required: true, help: true, helpText: 'Microsoft 365 租户标识' },
+        { key: 'mailboxAddress', label: '邮箱地址', placeholder: 'user@company.com', required: true, help: true, helpText: '需要读取的 Outlook 邮箱或共享邮箱地址' },
+        { key: 'clientId', label: 'Client ID', placeholder: '请输入应用 Client ID', required: true, help: true, helpText: 'Microsoft Entra 应用标识' },
+        { key: 'clientSecret', label: 'Client Secret', placeholder: '请输入应用密钥', required: true, help: true, helpText: 'Microsoft Entra 应用密钥', password: true }
+      ],
+      'wecom-mail': [
+        { key: 'mailboxAddress', label: '邮箱账号', placeholder: 'user@company.com', required: true, help: true, helpText: '企业微信邮箱或腾讯企业邮箱中的完整邮箱账号' },
+        { key: 'password', label: '授权码', placeholder: '请输入 IMAP/SMTP 授权码', required: true, help: true, helpText: '在企业微信邮箱或腾讯企业邮箱中开启 IMAP/SMTP 后生成的第三方客户端授权码', password: true }
+      ],
+      'qq-mail': [
+        { key: 'mailboxAddress', label: '邮箱账号', placeholder: 'user@qq.com / user@foxmail.com', required: true, help: true, helpText: '用于登录 QQ 邮箱 IMAP/SMTP 的完整邮箱账号' },
+        { key: 'password', label: '授权码', placeholder: '请输入 QQ 邮箱 IMAP/SMTP 授权码', required: true, help: true, helpText: 'QQ 邮箱在“设置 - 账号 - IMAP/SMTP 服务”中生成的第三方客户端授权码', password: true }
+      ],
+      'imap-smtp': [
+        { key: 'imapHost', label: 'IMAP 主机', placeholder: 'imap.company.com', required: true, help: true },
+        { key: 'imapPort', label: 'IMAP 端口', placeholder: '993', required: true, help: true },
+        { key: 'smtpHost', label: 'SMTP 主机', placeholder: 'smtp.company.com', required: false, help: true },
+        { key: 'smtpPort', label: 'SMTP 端口', placeholder: '465', required: false, help: true },
+        { key: 'encryption', label: '加密方式', type: 'select', required: true, help: true, options: [
+          { value: 'ssl', label: 'SSL/TLS' },
+          { value: 'starttls', label: 'STARTTLS' },
+          { value: 'none', label: '无加密' }
+        ]},
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'userpass', label: '用户名密码', fields: [
+            { key: 'user', label: '用户名', placeholder: '请输入邮箱账号', required: true, help: true },
+            { key: 'password', label: '密码/授权码', placeholder: '请输入密码或应用专用授权码', required: true, help: true, password: true }
+          ]},
+          { value: 'oauth2', label: 'OAuth 2.0', fields: [
+            { key: 'clientId', label: 'Client ID', placeholder: '请输入 Client ID', required: true, help: true },
+            { key: 'clientSecret', label: 'Client Secret', placeholder: '请输入 Client Secret', required: true, help: true, password: true },
+            { key: 'tokenUrl', label: 'Token URL', placeholder: 'https://auth.company.com/oauth/token', required: true, help: true }
+          ]}
+        ]}
+      ],
+      'custom-mail-api': [
+        { key: 'baseUrl', label: 'Base URL', placeholder: 'https://mail-api.company.com/v1', required: true, help: true, helpText: '企业自有邮件系统开放的 API 根地址' },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'apikey', label: 'API Key', fields: [
+            { key: 'apiKeyName', label: 'Key 名称', placeholder: '如 X-API-Key 或 Authorization', required: true, help: true },
+            { key: 'apiKeyLocation', label: '放置位置', type: 'select', required: true, help: true, options: [
+              { value: 'header', label: 'Header（请求头）' },
+              { value: 'query', label: 'Query（URL 参数）' }
+            ]},
+            { key: 'apiKeyValue', label: 'Key 值', placeholder: '请输入 API Key', required: true, help: true, password: true }
+          ]},
+          { value: 'bearer', label: 'Bearer Token', fields: [
+            { key: 'bearerToken', label: 'Token', placeholder: '请输入 Bearer Token', required: true, help: true, password: true }
+          ]},
+          { value: 'oauth2', label: 'OAuth 2.0', fields: [
+            { key: 'clientId', label: 'Client ID', placeholder: '请输入 Client ID', required: true, help: true },
+            { key: 'clientSecret', label: 'Client Secret', placeholder: '请输入 Client Secret', required: true, help: true, password: true },
+            { key: 'tokenUrl', label: 'Token URL', placeholder: 'https://auth.company.com/oauth/token', required: true, help: true }
+          ]}
+        ]},
+        { key: 'messagesEndpoint', label: '邮件列表接口', placeholder: '/messages', required: true, help: true, helpText: '读取原始邮件列表的 API 路径' },
+        { key: 'messageDetailEndpoint', label: '邮件详情接口', placeholder: '/messages/{id}', required: false, help: true },
+        { key: 'sendEndpoint', label: '发送接口', placeholder: '/messages/send', required: false, help: true },
+        { key: 'dataPath', label: '数据路径', placeholder: 'data.items', required: false, help: true }
+      ],
+      'rest-api': [
+        { key: 'baseUrl', label: 'Base URL', placeholder: 'https://api.example.com/v1', required: true, help: true, helpText: 'API 服务的根地址，所有请求将基于此 URL 发送' },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'apikey', label: 'API Key', compact: true, fields: [
+            { key: 'apiKeyName', label: 'Key 名称', placeholder: '如 X-API-Key 或 api_key', required: true, help: true, helpText: 'API 服务商定义的 Key 参数名，常见如 X-API-Key、api_key、Authorization 等' },
+            { key: 'apiKeyLocation', label: '放置位置', type: 'select', required: true, help: true, helpText: 'Key 随请求发送的方式：Header 放在请求头中（推荐），Query 拼接在 URL 参数中', options: [
+              { value: 'header', label: 'Header（请求头）' },
+              { value: 'query', label: 'Query（URL 参数）' }
+            ]},
+            { key: 'apiKeyValue', label: 'Key 值', placeholder: '请输入 API Key', required: true, help: true, helpText: 'API 服务商提供的密钥字符串', password: true }
+          ]},
+          { value: 'bearer', label: 'Bearer Token', fields: [
+            { key: 'bearerToken', label: 'Token', placeholder: '请输入 Bearer Token', required: true, help: true, helpText: '服务端签发的 Bearer Token，请求时自动添加 Authorization: Bearer <token> 头', password: true }
+          ]},
+          { value: 'oauth2', label: 'OAuth 2.0', fields: [
+            { key: 'clientId', label: 'Client ID', placeholder: '请输入 Client ID', required: true, help: true, helpText: 'OAuth 2.0 应用的客户端标识' },
+            { key: 'clientSecret', label: 'Client Secret', placeholder: '请输入 Client Secret', required: true, help: true, helpText: 'OAuth 2.0 应用的客户端密钥', password: true },
+            { key: 'tokenUrl', label: 'Token URL', placeholder: 'https://auth.example.com/oauth/token', required: true, help: true, helpText: 'OAuth 2.0 Token API 地址，用于获取访问令牌' }
+          ]},
+          { value: 'none', label: '无认证', fields: [] }
+        ]},
+        { key: 'timeout', label: '超时时间', placeholder: '30', required: false, help: true, helpText: '单次 API 请求的最大等待秒数，超时未响应则判定失败，默认 30 秒' },
+        { key: 'pagination', label: '分页策略', type: 'select', required: false, help: true, helpText: '上游 API 的分页方式，查阅 API 文档确认。同一 API 下所有 Endpoint 通常一致', options: [
+          { value: 'offset', label: '偏移量分页（offset + limit）' },
+          { value: 'cursor', label: '游标分页（cursor / next_token）' },
+          { value: 'page', label: '页码分页（page + per_page）' },
+          { value: 'none', label: '无分页（单次返回全部）' }
+        ]},
+        { key: 'dataPath', label: '数据路径', placeholder: '如 data.items 或 results', required: false, help: true, helpText: 'JSON 响应中数据数组的路径。如 API 返回 {"data":{"items":[...]}}，则填 data.items。直接返回数组时留空' },
+        { key: 'defaultHeaders', label: '默认请求头', placeholder: 'Content-Type: application/json', required: false, help: true, helpText: '每次请求自动携带的 HTTP 头，多个用换行分隔，如 Content-Type: application/json' }
+      ],
+
+      // ===== 对象存储扩展 =====
+      'tencent-cos': [
+        { key: 'region', label: '地区', type: 'select', required: true, help: true, options: [
+          { value: 'ap-guangzhou', label: '华南（广州）' },
+          { value: 'ap-shanghai',  label: '华东（上海）' },
+          { value: 'ap-beijing',   label: '华北（北京）' },
+          { value: 'ap-chengdu',   label: '西南（成都）' },
+          { value: 'ap-hongkong',  label: '亚太（香港）' }
+        ]},
+        { key: 'secretId',     label: 'SecretId',     placeholder: '请输入 SecretId', required: true, help: true },
+        { key: 'secretKey',    label: 'SecretKey',    placeholder: '请输入 SecretKey', required: true, help: true, password: true },
+        { key: 'bucket',       label: 'Bucket',       placeholder: '<bucket-name>-<appid>', required: true, help: true, helpText: '腾讯云 COS bucket 命名必须含 appid 后缀，如 mydata-1250000000' },
+        { key: 'filePath',     label: '文件路径',      placeholder: '<bucket>/<文件夹路径> 或 <bucket>', required: true, help: true }
+      ],
+      'huawei-obs': [
+        { key: 'region', label: '地区', type: 'select', required: true, help: true, options: [
+          { value: 'cn-north-4',    label: '华北-北京四' },
+          { value: 'cn-east-3',     label: '华东-上海一' },
+          { value: 'cn-south-1',    label: '华南-广州' },
+          { value: 'ap-southeast-1',label: '亚太-香港' }
+        ]},
+        { key: 'accessKey',    label: 'AK',           placeholder: '请输入 Access Key', required: true, help: true },
+        { key: 'secretKey',    label: 'SK',           placeholder: '请输入 Secret Key', required: true, help: true, password: true },
+        { key: 'bucket',       label: 'Bucket',       placeholder: '请输入桶名', required: true, help: true },
+        { key: 'filePath',     label: '文件路径',      placeholder: '<bucket>/<文件夹路径>', required: true, help: true }
+      ],
+
+      // ===== 数据库扩展 =====
+      'sqlserver': [
+        { key: 'host',         label: '主机',         placeholder: '127.0.0.1', required: true, help: true },
+        { key: 'port',         label: '端口',         placeholder: '1433', required: true, help: true },
+        { key: 'instance',     label: '实例名',       placeholder: '可选，命名实例时填写，如 SQLEXPRESS', required: false, help: true, helpText: 'SQL Server 命名实例名称；默认实例留空' },
+        { key: 'user',         label: '用户名',       placeholder: '请输入用户名', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'database',     label: '数据库',       placeholder: '可选，留空则在载入 / 查询时选择', required: false, help: true, helpText: '连接器只定义连接；具体库 / 表在载入或查询时再选，留空表示不限定库' },
+        { key: 'encrypt',      label: '加密连接',     type: 'select', required: false, help: true, options: [
+          { value: 'true',  label: '启用（推荐，需服务端配置证书）' },
+          { value: 'false', label: '禁用' }
+        ]}
+      ],
+      'oracle': [
+        { key: 'host',         label: '主机',         placeholder: '127.0.0.1', required: true, help: true },
+        { key: 'port',         label: '端口',         placeholder: '1521', required: true, help: true },
+        { key: 'connectMode',  label: '连接方式',     type: 'select', required: true, help: true, helpText: 'Oracle 12c+ 推荐使用 Service Name；11g 及更早使用 SID', options: [
+          { value: 'service',  label: 'Service Name（推荐）' },
+          { value: 'sid',      label: 'SID（旧版本）' }
+        ]},
+        { key: 'serviceName',  label: 'Service / SID',placeholder: '如 ORCLPDB1 或 orcl', required: true, help: true },
+        { key: 'user',         label: '用户名',       placeholder: '请输入用户名', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'schema',       label: 'Schema',       placeholder: '可选，留空使用用户默认 schema', required: false, help: true }
+      ],
+      'clickhouse': [
+        { key: 'host',         label: '主机',         placeholder: '127.0.0.1', required: true, help: true },
+        { key: 'port',         label: '端口',         placeholder: '8123（HTTP）/ 9000（Native）', required: true, help: true },
+        { key: 'protocol',     label: '协议',         type: 'select', required: true, help: true, options: [
+          { value: 'http',  label: 'HTTP（兼容性好）' },
+          { value: 'https', label: 'HTTPS' },
+          { value: 'native',label: 'Native TCP（性能高）' }
+        ]},
+        { key: 'user',         label: '用户名',       placeholder: 'default', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码（无密码留空）', required: false, help: true, password: true },
+        { key: 'database',     label: '数据库',       placeholder: '可选，留空使用 default 库', required: false, help: true, helpText: '连接器只定义连接；具体库 / 表在载入或查询时再选，留空使用 default' }
+      ],
+      'doris': [
+        { key: 'feHost',       label: 'FE 主机',      placeholder: '请输入 Frontend 主机地址', required: true, help: true, helpText: 'Apache Doris Frontend 节点地址；多个 FE 可填首选地址' },
+        { key: 'queryPort',    label: 'Query 端口',   placeholder: '9030', required: true, help: true },
+        { key: 'httpPort',     label: 'HTTP 端口',    placeholder: '8030', required: false, help: true, helpText: '用于 Stream Load 写入；只读连接可留空' },
+        { key: 'user',         label: '用户名',       placeholder: 'root', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: false, help: true, password: true },
+        { key: 'database',     label: '数据库',       placeholder: '可选，留空则在载入 / 查询时选择', required: false, help: true, helpText: '连接器只定义连接；具体库 / 表在载入或查询时再选，留空表示不限定库' }
+      ],
+
+      // ===== 邮件扩展 =====
+      'ms365-graph': [
+        { key: 'tenantId',     label: 'Tenant ID',    placeholder: '请输入 Microsoft Entra Tenant ID', required: true, help: true, helpText: 'Microsoft 365 租户标识；可在 Entra 管理中心查看' },
+        { key: 'clientId',     label: 'Client ID',    placeholder: '请输入应用 Client ID', required: true, help: true },
+        { key: 'clientSecret', label: 'Client Secret',placeholder: '请输入应用密钥', required: true, help: true, password: true },
+        { key: 'mailboxAddress', label: '邮箱白名单',  placeholder: '留空=所有邮箱，多个用逗号分隔', required: false, help: true, helpText: 'Graph API 范围内允许访问的邮箱列表；企业 IT 通常要求白名单限定' },
+        { key: 'scope',        label: 'Scope',        placeholder: 'Mail.Read offline_access', required: true, help: true, helpText: '请求的 Graph API 权限范围，至少需要 Mail.Read' }
+      ],
+
+      // ===== API 扩展 =====
+      'graphql': [
+        { key: 'endpoint',     label: 'GraphQL API 地址', placeholder: 'https://api.example.com/graphql', required: true, help: true },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'bearer', label: 'Bearer Token', fields: [
+            { key: 'bearerToken', label: 'Token', placeholder: '请输入 Bearer Token', required: true, help: true, password: true }
+          ]},
+          { value: 'apikey', label: 'API Key (Header)', fields: [
+            { key: 'apiKeyName',  label: 'Header 名',  placeholder: 'X-API-Key', required: true, help: true },
+            { key: 'apiKeyValue', label: 'Key 值',     placeholder: '请输入 API Key', required: true, help: true, password: true }
+          ]},
+          { value: 'none', label: '无认证', fields: [] }
+        ]},
+        { key: 'introspection', label: 'Schema Introspection', type: 'select', required: false, help: true, helpText: '启用后系统自动拉取 GraphQL Schema，便于在工作流中可视化字段', options: [
+          { value: 'enabled',  label: '启用（推荐）' },
+          { value: 'disabled', label: '禁用（服务端不支持时）' }
+        ]},
+        { key: 'defaultHeaders', label: '默认请求头', placeholder: 'Content-Type: application/json', required: false, help: true }
+      ],
+
+      // ===== 文件协议 =====
+      'ftp': [
+        { key: 'host',         label: '主机',         placeholder: 'ftp.company.com', required: true, help: true },
+        { key: 'port',         label: '端口',         placeholder: '21', required: true, help: true },
+        { key: 'user',         label: '用户名',       placeholder: '请输入用户名（匿名访问填 anonymous）', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: false, help: true, password: true },
+        { key: 'basePath',     label: '基础路径',      placeholder: '/data/exports', required: false, help: true, helpText: '所有读写都基于此根路径，留空使用登录默认目录' },
+        { key: 'mode',         label: '传输模式',     type: 'select', required: true, help: true, helpText: '主动模式服务端连客户端（要求客户端端口可达）；被动模式客户端连服务端（推荐，防火墙友好）', options: [
+          { value: 'passive', label: '被动（PASV，推荐）' },
+          { value: 'active',  label: '主动（PORT）' }
+        ]}
+      ],
+      'sftp': [
+        { key: 'host',         label: '主机',         placeholder: 'sftp.company.com', required: true, help: true },
+        { key: 'port',         label: '端口',         placeholder: '22', required: true, help: true },
+        { key: 'user',         label: '用户名',       placeholder: '请输入用户名', required: true, help: true },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'password', label: '密码', fields: [
+            { key: 'password', label: '密码', placeholder: '请输入密码', required: true, help: true, password: true }
+          ]},
+          { value: 'privateKey', label: '私钥', fields: [
+            { key: 'privateKey',     label: '私钥内容', placeholder: '粘贴 PEM 格式私钥内容', required: true, help: true, password: true, multiline: true },
+            { key: 'passphrase',     label: '私钥口令', placeholder: '私钥加密时填写', required: false, help: true, password: true }
+          ]}
+        ]},
+        { key: 'basePath',     label: '基础路径',      placeholder: '/home/user/data', required: false, help: true }
+      ],
+      'sharepoint': [
+        { key: 'siteUrl',      label: '站点 URL',     placeholder: 'https://tenant.sharepoint.com/sites/your-site', required: true, help: true, helpText: 'SharePoint Online 站点地址，含 /sites/<name> 路径' },
+        { key: 'tenantId',     label: 'Tenant ID',    placeholder: '请输入 Microsoft Entra Tenant ID', required: true, help: true },
+        { key: 'clientId',     label: 'Client ID',    placeholder: '请输入注册应用 Client ID', required: true, help: true, helpText: '需在 Microsoft Entra 注册 App 并授予 SharePoint Sites.Read.All 权限' },
+        { key: 'clientSecret', label: 'Client Secret',placeholder: '请输入应用密钥', required: true, help: true, password: true },
+        { key: 'libraryName',  label: '文档库名',      placeholder: 'Documents（默认）', required: false, help: true, helpText: 'SharePoint 站点下的文档库名称；留空使用默认 Documents' },
+        { key: 'folderPath',   label: '子文件夹',     placeholder: '可选，如 客户资料/2026', required: false, help: true }
+      ],
+      'smb-nas': [
+        { key: 'host',         label: '主机',         placeholder: 'nas.company.local 或 IP', required: true, help: true },
+        { key: 'share',        label: '共享名',       placeholder: 'shared-data', required: true, help: true, helpText: 'SMB/CIFS 共享名（不含前面的反斜杠）' },
+        { key: 'domain',       label: 'AD 域',        placeholder: '可选，如 CORP', required: false, help: true, helpText: '工作组或域名；非域环境留空' },
+        { key: 'user',         label: '用户名',       placeholder: '请输入用户名', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'smbVersion',   label: 'SMB 版本',     type: 'select', required: false, help: true, options: [
+          { value: 'auto', label: '自动协商（推荐）' },
+          { value: 'smb3', label: 'SMB 3.0+（安全）' },
+          { value: 'smb2', label: 'SMB 2.x' },
+          { value: 'smb1', label: 'SMB 1.0（旧设备兼容，不推荐）' }
+        ]}
+      ],
+
+      // ===== 消息队列 =====
+      'kafka': [
+        { key: 'brokers',      label: 'Bootstrap Brokers', placeholder: 'broker1:9092,broker2:9092', required: true, help: true, helpText: 'Kafka 集群入口地址列表，多个用逗号分隔' },
+        { key: 'securityProtocol', label: '安全协议', type: 'select', required: true, help: true, options: [
+          { value: 'PLAINTEXT',     label: 'PLAINTEXT（无认证）' },
+          { value: 'SSL',           label: 'SSL（仅加密）' },
+          { value: 'SASL_PLAINTEXT',label: 'SASL_PLAINTEXT（认证不加密）' },
+          { value: 'SASL_SSL',      label: 'SASL_SSL（认证 + 加密，推荐生产）' }
+        ]},
+        { key: 'saslMechanism', label: 'SASL 机制',   type: 'select', required: false, help: true, helpText: '使用 SASL_* 协议时必填', options: [
+          { value: 'PLAIN',         label: 'PLAIN' },
+          { value: 'SCRAM-SHA-256', label: 'SCRAM-SHA-256' },
+          { value: 'SCRAM-SHA-512', label: 'SCRAM-SHA-512' },
+          { value: 'GSSAPI',        label: 'GSSAPI (Kerberos)' }
+        ]},
+        { key: 'saslUser',     label: 'SASL 用户名',  placeholder: 'SASL 启用时填写', required: false, help: true },
+        { key: 'saslPassword', label: 'SASL 密码',    placeholder: 'SASL 启用时填写', required: false, help: true, password: true },
+        { key: 'consumerGroup',label: '消费者组',     placeholder: 'moi-consumer-group', required: true, help: true, helpText: '同一消费者组内的消费者会负载均衡分配 partition' },
+        { key: 'topicPattern', label: 'Topic 模式',   placeholder: 'sensor.* 或具体 topic 名', required: true, help: true, helpText: '支持通配符匹配多个 topic' },
+        { key: 'autoOffsetReset', label: '起始位移',  type: 'select', required: true, help: true, options: [
+          { value: 'latest',   label: 'latest（从最新开始）' },
+          { value: 'earliest', label: 'earliest（从最早开始，全量回溯）' }
+        ]}
+      ],
+      'mqtt': [
+        { key: 'brokerUrl',    label: 'Broker URL',   placeholder: 'mqtt://broker.company.com:1883 或 mqtts://...:8883', required: true, help: true, helpText: '支持 mqtt:// (TCP) 与 mqtts:// (TLS over TCP) 协议' },
+        { key: 'clientId',     label: 'Client ID',    placeholder: 'moi-mqtt-client-1', required: true, help: true, helpText: '客户端唯一标识；同一 ID 重复连接会被踢下线' },
+        { key: 'user',         label: '用户名',       placeholder: '匿名访问留空', required: false, help: true },
+        { key: 'password',     label: '密码',         placeholder: '匿名访问留空', required: false, help: true, password: true },
+        { key: 'topicFilter',  label: 'Topic 订阅',   placeholder: 'iot/+/telemetry 或 sensor/#', required: true, help: true, helpText: '+ 单层通配，# 多层通配' },
+        { key: 'qos',          label: 'QoS 等级',     type: 'select', required: true, help: true, options: [
+          { value: '0', label: '0 - 至多一次（fire and forget）' },
+          { value: '1', label: '1 - 至少一次（推荐）' },
+          { value: '2', label: '2 - 恰好一次（开销大）' }
+        ]}
+      ],
+      'rabbitmq': [
+        { key: 'host',         label: '主机',         placeholder: 'rabbitmq.company.com', required: true, help: true },
+        { key: 'port',         label: '端口',         placeholder: '5672（AMQP）/ 5671（AMQPS）', required: true, help: true },
+        { key: 'vhost',        label: 'Virtual Host', placeholder: '/', required: true, help: true, helpText: 'RabbitMQ 虚拟主机，默认为 /' },
+        { key: 'user',         label: '用户名',       placeholder: 'guest', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: 'guest', required: true, help: true, password: true },
+        { key: 'queue',        label: '队列名',       placeholder: 'moi.input.queue', required: true, help: true },
+        { key: 'exchange',     label: 'Exchange',     placeholder: '可选，留空使用默认 exchange', required: false, help: true },
+        { key: 'routingKey',   label: 'Routing Key',  placeholder: '可选', required: false, help: true }
+      ],
+
+      // ===== 企业应用 =====
+      'sap-s4hana': [
+        { key: 'baseUrl',      label: 'OData 服务根',  placeholder: 'https://s4hana.company.com/sap/opu/odata/sap', required: true, help: true, helpText: 'SAP S/4HANA OData V2/V4 服务的根地址（白名单服务由 BASIS 团队开放）' },
+        { key: 'client',       label: 'Client',       placeholder: '100', required: true, help: true, helpText: 'SAP 客户端代码（3 位数字），如生产 100、测试 200' },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'basic', label: 'Basic Auth', fields: [
+            { key: 'user',     label: 'SAP 用户名', placeholder: '请输入 SAP 用户', required: true, help: true },
+            { key: 'password', label: 'SAP 密码',   placeholder: '请输入 SAP 密码', required: true, help: true, password: true }
+          ]},
+          { value: 'oauth2', label: 'OAuth 2.0', fields: [
+            { key: 'clientId',     label: 'Client ID',     placeholder: '请输入 Client ID', required: true, help: true },
+            { key: 'clientSecret', label: 'Client Secret', placeholder: '请输入 Client Secret', required: true, help: true, password: true },
+            { key: 'tokenUrl',     label: 'Token URL',     placeholder: 'SAP OAuth Token API 地址', required: true, help: true }
+          ]}
+        ]},
+        { key: 'csrfHandling', label: 'CSRF 防护',    type: 'select', required: true, help: true, helpText: 'S/4HANA 写操作要求 CSRF token；只读场景可关', options: [
+          { value: 'auto',     label: '自动获取（默认）' },
+          { value: 'disabled', label: '禁用（仅只读）' }
+        ]}
+      ],
+      'oracle-erp': [
+        { key: 'baseUrl',      label: '服务 URL',     placeholder: 'https://erp.company.com:7777', required: true, help: true, helpText: 'Oracle ERP Cloud 实例的根地址' },
+        { key: 'user',         label: '用户名',       placeholder: '请输入 ERP 用户名', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'apiVersion',   label: 'REST API 版本',type: 'select', required: true, help: true, options: [
+          { value: 'v11',  label: 'v11（24C+）' },
+          { value: 'v10',  label: 'v10' },
+          { value: 'v9',   label: 'v9' }
+        ]}
+      ],
+      'yonyou-u8': [
+        { key: 'serverUrl',    label: '服务器地址',    placeholder: 'http://u8-server.company.local:8080', required: true, help: true, helpText: '用友 U8 应用服务器地址（含端口）' },
+        { key: 'accountId',    label: '账套号',       placeholder: '001', required: true, help: true, helpText: 'U8 账套编号，3 位数字' },
+        { key: 'year',         label: '会计年度',     placeholder: '2026', required: true, help: true },
+        { key: 'user',         label: '用户名',       placeholder: '请输入 U8 用户名', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: true, help: true, password: true }
+      ],
+      'kingdee-k3': [
+        { key: 'serverUrl',    label: '服务器地址',    placeholder: 'http://k3cloud.company.com', required: true, help: true, helpText: '金蝶 K/3 Cloud 站点地址' },
+        { key: 'dbId',         label: '账套 ID',      placeholder: '请输入数据中心账套 ID', required: true, help: true, helpText: '在 K/3 Cloud 管理中心 - 数据中心查看' },
+        { key: 'user',         label: '用户名',       placeholder: '请输入 K3 用户名', required: true, help: true },
+        { key: 'password',     label: '密码',         placeholder: '请输入密码', required: true, help: true, password: true },
+        { key: 'lcid',         label: '语言',         type: 'select', required: false, help: true, options: [
+          { value: '2052', label: '简体中文（默认）' },
+          { value: '1033', label: 'English' }
+        ]}
+      ],
+      'salesforce': [
+        { key: 'instanceUrl',  label: '实例 URL',     placeholder: 'https://yourorg.my.salesforce.com', required: true, help: true, helpText: 'Salesforce 组织实例域名；可在 Salesforce Setup → My Domain 查看' },
+        { key: 'clientId',     label: 'Consumer Key', placeholder: '请输入 Connected App Consumer Key', required: true, help: true, helpText: '需在 Salesforce 中创建 Connected App 获取' },
+        { key: 'clientSecret', label: 'Consumer Secret', placeholder: '请输入 Consumer Secret', required: true, help: true, password: true },
+        { key: 'username',     label: 'Salesforce 用户名', placeholder: 'user@company.com', required: true, help: true },
+        { key: 'password',     label: '密码 + Security Token', placeholder: '密码后直接拼 Security Token', required: true, help: true, password: true, helpText: 'Salesforce 要求 password 字段为「密码 + Security Token」拼接' },
+        { key: 'apiVersion',   label: 'API 版本',     placeholder: 'v60.0', required: true, help: true }
+      ],
+
+      // ===== 协作平台 =====
+      'feishu': [
+        { key: 'appId',        label: 'App ID',       placeholder: '请输入飞书应用 App ID', required: true, help: true, helpText: '在飞书开放平台「凭据与基础信息」查看' },
+        { key: 'appSecret',    label: 'App Secret',   placeholder: '请输入 App Secret', required: true, help: true, password: true },
+        { key: 'appType',      label: '应用类型',     type: 'select', required: true, help: true, options: [
+          { value: 'self-built',label: '企业自建应用' },
+          { value: 'isv',       label: '商店应用（ISV）' }
+        ]},
+        { key: 'scope',        label: '权限范围',     placeholder: '如 im:message contact:user.base:readonly', required: true, help: true, helpText: '空格分隔的权限作用域；按业务最小化授权' }
+      ],
+      'dingtalk': [
+        { key: 'appKey',       label: 'AppKey',       placeholder: '请输入钉钉应用 AppKey', required: true, help: true, helpText: '在钉钉开放平台应用详情页查看' },
+        { key: 'appSecret',    label: 'AppSecret',    placeholder: '请输入 AppSecret', required: true, help: true, password: true },
+        { key: 'corpId',       label: 'CorpId',       placeholder: '请输入企业 CorpId', required: true, help: true },
+        { key: 'agentId',      label: 'AgentId',      placeholder: '可选，应用 AgentId', required: false, help: true, helpText: '微应用类型需填，第三方企业应用留空' }
+      ],
+      'wecom-api': [
+        { key: 'corpId',       label: 'CorpId',       placeholder: '请输入企业 ID', required: true, help: true, helpText: '在企业微信管理后台「我的企业」查看' },
+        { key: 'agentId',      label: 'AgentId',      placeholder: '请输入应用 AgentId', required: true, help: true },
+        { key: 'appSecret',    label: 'Secret',       placeholder: '请输入应用 Secret', required: true, help: true, password: true },
+        { key: 'callbackToken', label: '回调 Token',  placeholder: '可选，配置消息回调时填', required: false, help: true, password: true },
+        { key: 'callbackAesKey',label: 'EncodingAESKey', placeholder: '可选，43 位字符串', required: false, help: true, password: true }
+      ],
+      'slack': [
+        { key: 'workspaceUrl', label: 'Workspace URL',placeholder: 'https://yourteam.slack.com', required: true, help: true },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'bot', label: 'Bot Token', fields: [
+            { key: 'botToken',  label: 'Bot Token',  placeholder: 'xoxb-...', required: true, help: true, password: true, helpText: 'Slack App 安装后获取的 Bot User OAuth Token' },
+            { key: 'appToken',  label: 'App Token',  placeholder: 'xapp-...（启用 Socket Mode 时填）', required: false, help: true, password: true }
+          ]},
+          { value: 'user', label: 'User Token', fields: [
+            { key: 'userToken', label: 'User Token', placeholder: 'xoxp-...', required: true, help: true, password: true }
+          ]}
+        ]},
+        { key: 'signingSecret',label: 'Signing Secret', placeholder: '可选，事件回调验签', required: false, help: true, password: true }
+      ],
+      'github': [
+        { key: 'baseUrl',      label: 'GitHub URL',   placeholder: 'https://api.github.com（公有）或 https://github.company.com/api/v3（企业版）', required: true, help: true },
+        { key: 'authMode', type: 'authTabs', label: '认证方式', help: true, tabs: [
+          { value: 'pat', label: 'Personal Access Token', fields: [
+            { key: 'token', label: 'Token', placeholder: 'ghp_... 或 github_pat_...', required: true, help: true, password: true, helpText: '建议使用 Fine-grained PAT 并按 repo 最小化授权' }
+          ]},
+          { value: 'app', label: 'GitHub App', fields: [
+            { key: 'appId',          label: 'App ID',          placeholder: '请输入 GitHub App ID', required: true, help: true },
+            { key: 'installationId', label: 'Installation ID', placeholder: '请输入 Installation ID', required: true, help: true },
+            { key: 'privateKey',     label: 'Private Key',     placeholder: '粘贴 PEM 格式私钥', required: true, help: true, password: true, multiline: true }
+          ]}
+        ]},
+        { key: 'orgFilter',    label: '组织 / 仓库范围',placeholder: '如 matrixorigin 或 matrixorigin/moi-prototype，留空=所有可访问', required: false, help: true, helpText: '限定可访问的 org / repo 范围；多个用逗号分隔' }
+      ],
+      'yuque': [
+        { key: 'serverUrl',    label: '服务地址',     placeholder: 'https://www.yuque.com（公有云）或私有部署地址', required: true, help: true },
+        { key: 'token',        label: 'Token',        placeholder: '请输入语雀 Token', required: true, help: true, password: true, helpText: '在语雀「个人设置 - Token」生成；私有部署版本由管理员签发' },
+        { key: 'namespace',    label: '知识库 namespace', placeholder: '如 your-name/your-book，留空=全部可访问', required: false, help: true }
+      ],
+      // 网页连接器 = 站点地址 + 可选认证。公开页可不填认证；同一站点反复抓、需登录态时抽成连接器复用
+      'web-crawl': [
+        { key: 'siteUrl',      label: '站点 / 基础地址', placeholder: 'https://www.szse.cn（同站点可只配一次，抓取时填具体路径）', required: true, help: true },
+        { key: 'authType',     label: '认证方式',     type: 'select', required: false, help: true, options: [
+          { value: 'none',   label: '无（公开页）' },
+          { value: 'cookie', label: 'Cookie' },
+          { value: 'header', label: '自定义 Header / Token' },
+          { value: 'basic',  label: 'Basic Auth' }
+        ]},
+        { key: 'authValue',    label: '认证凭据',     placeholder: '按上方方式填：Cookie 串 / Authorization: Bearer xxx / user:pass', required: false, help: true, password: true, helpText: '公开网页留空即可；需要登录态的站点才填' },
+        { key: 'userAgent',    label: 'User Agent',   placeholder: 'MOI-Crawler/1.0', required: false, help: true },
+        { key: 'reqInterval',  label: '请求间隔（秒）',  placeholder: '2（避免触发反爬）', required: false, help: true }
+      ]
+    };
+
+    let currentType = 'object-storage';
+    let currentSource = '';
+    let currentEditId = null;
+    const connectorStorageKey = 'moi.connector.saved.v1';
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+      renderSourceCards('object-storage');
+      renderSavedConnectorRows();
+    });
+
+    function updateNameCounter() {
+      const input = document.getElementById('connName');
+      document.getElementById('nameCounter').textContent = input.value.length + ' / 100';
+    }
+
+    const typeGroupLabels = {
+      'object-storage':  '对象存储',
+      'dfs':             '分布式文件系统',
+      'database':        '数据库',
+      'mail':            '邮件',
+      'api':             'API',
+      'file-protocol':   '文件协议',
+      'message-queue':   '消息队列',
+      'enterprise-app':  '企业应用',
+      'collab':          '协作平台',
+      'web':             '网页'
+    };
+
+    // 表格搜索：匹配前 3 列（名称 / 类型 / 数据源），不区分大小写
+    function filterConnectorTable(query) {
+      var q = (query || '').trim().toLowerCase();
+      var clearBtn = document.getElementById('connectorSearchClear');
+      if (clearBtn) clearBtn.style.display = q ? 'inline-flex' : 'none';
+      var rows = document.querySelectorAll('#connectorTableBody tr');
+      var matched = 0;
+      rows.forEach(function(tr) {
+        var cells = tr.querySelectorAll('td');
+        if (!cells.length) return;
+        // 取前 3 列文本（名称 / 类型徽标 / 数据源），全部转小写后拼起来匹配
+        var hay = (cells[0].textContent + ' ' + cells[1].textContent + ' ' + cells[2].textContent).toLowerCase();
+        var hit = !q || hay.indexOf(q) !== -1;
+        tr.style.display = hit ? '' : 'none';
+        if (hit) matched++;
+      });
+      // 空结果提示
+      var tbody = document.getElementById('connectorTableBody');
+      var emptyRow = tbody.querySelector('tr[data-empty-hint]');
+      if (q && matched === 0) {
+        if (!emptyRow) {
+          emptyRow = document.createElement('tr');
+          emptyRow.setAttribute('data-empty-hint', '1');
+          emptyRow.innerHTML = '<td colspan="6" style="padding:40px;text-align:center;color:rgba(0,0,0,0.35);font-size:13px">未找到匹配的连接器</td>';
+          tbody.appendChild(emptyRow);
+        }
+        emptyRow.style.display = '';
+      } else if (emptyRow) {
+        emptyRow.style.display = 'none';
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, function(ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+      });
+    }
+
+    function getSourceLabel(source) {
+      var label = source;
+      Object.keys(sourceOptions).forEach(function(group) {
+        sourceOptions[group].forEach(function(item) {
+          if (item.value === source) label = item.label;
+        });
+      });
+      return label || '-';
+    }
+
+    function getSavedConnectors() {
+      try {
+        var raw = localStorage.getItem(connectorStorageKey);
+        var parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch(e) {
+        return [];
+      }
+    }
+
+    function saveSavedConnectors(connectors) {
+      localStorage.setItem(connectorStorageKey, JSON.stringify(connectors));
+    }
+
+    function getStaticConnectorNames() {
+      return Array.from(document.querySelectorAll('#connectorTableBody tr:not([data-saved-connector-id]) td:first-child'))
+        .map(function(td) { return td.textContent.trim(); })
+        .filter(Boolean);
+    }
+
+    function connectorNameExists(name, ignoreSavedId) {
+      var normalized = String(name || '').trim();
+      if (!normalized) return false;
+      if (getStaticConnectorNames().indexOf(normalized) !== -1) return true;
+      return getSavedConnectors().some(function(conn) {
+        return conn.id !== ignoreSavedId && conn.name === normalized;
+      });
+    }
+
+    function getConnectorUsageHtml(connector) {
+      var usage = connector.usage || {};
+      var tags = [];
+      if (usage.import) tags.push('<span class="usage-tag import">载入</span>');
+      if (usage.export) tags.push('<span class="usage-tag export">导出</span>');
+      return tags.length ? tags.join('') : '<span style="color:rgba(0,0,0,0.35)">-</span>';
+    }
+
+    function createSavedConnectorRow(connector) {
+      var tr = document.createElement('tr');
+      tr.setAttribute('data-saved-connector-id', connector.id);
+      tr.innerHTML = ''
+        + '<td>' + escapeHtml(connector.name) + '</td>'
+        + '<td><span class="connector-type-badge">' + escapeHtml(typeGroupLabels[connector.type] || connector.type) + '</span></td>'
+        + '<td>' + escapeHtml(getSourceLabel(connector.source)) + '</td>'
+        + '<td>' + getConnectorUsageHtml(connector) + '</td>'
+        + '<td>' + escapeHtml(connector.createdAt) + '</td>'
+        + '<td><div class="action-btns">'
+        + '<button class="action-btn-sm" onclick="alert(\'权限配置（模拟）\')">权限</button>'
+        + '<button class="action-btn-sm" onclick="editSavedConnector(\'' + connector.id + '\')">编辑</button>'
+        + '<button class="action-btn-sm danger" onclick="deleteSavedConnector(\'' + connector.id + '\')">删除</button>'
+        + '</div></td>';
+      return tr;
+    }
+
+    // ===== 连接器只读详情（点列表名字进入；右上角「编辑」打开编辑弹层） =====
+    var CONN_CAT_LABELS = { database:'数据库', api:'API', mail:'邮件', 'object-storage':'对象存储', dfs:'分布式文件系统', 'message-queue':'消息队列', ftp:'文件传输' };
+    var CONN_FIELD_LABELS = {
+      host:'主机', port:'端口', user:'用户名', password:'密码', database:'数据库',
+      authMode:'认证方式', authSource:'认证库', replicaSet:'副本集', readPreference:'读偏好',
+      baseUrl:'基础 URL', apiKeyName:'API Key 名称', apiKeyValue:'API Key', apiKeyLocation:'位置',
+      timeout:'超时（秒）', defaultHeaders:'默认请求头',
+      region:'地域', endpoint:'Endpoint', bucket:'存储桶', filePath:'路径',
+      accessKeyId:'AccessKey ID', accessKeySecret:'AccessKey Secret',
+      accessKey:'AccessKey', secretKey:'SecretKey', secretId:'SecretId',
+      namenode:'NameNode', feHost:'FE 主机',
+      mailboxAddress:'邮箱地址', imapHost:'IMAP 主机', smtpHost:'SMTP 主机',
+      clientId:'Client ID', clientSecret:'Client Secret', refreshToken:'Refresh Token', tenantId:'租户 ID'
+    };
+    var CONN_AUTHMODE_LABELS = { userpass:'用户名 / 密码', apikey:'API Key', anonymous:'匿名', token:'Token', oauth:'OAuth' };
+
+    function initConnNameLinks() {
+      var rows = document.querySelectorAll('#connectorTableBody > tr');
+      rows.forEach(function(tr) {
+        var nameTd = tr.cells[0];
+        if (!nameTd || nameTd.querySelector('.conn-name-link')) return;
+        var editBtn = tr.querySelector('button[onclick^="editConnector("]');
+        if (!editBtn) return;
+        var name = nameTd.textContent.trim();
+        nameTd.innerHTML = '<span class="conn-name-link" onclick="showConnDetailFromRow(this)">' + name + '</span>';
+      });
+    }
+
+    function showConnDetailFromRow(el) {
+      var tr = el.closest('tr');
+      var editBtn = tr.querySelector('button[onclick^="editConnector("]');
+      if (!editBtn) return;
+      var s = editBtn.getAttribute('onclick');
+      s = s.slice(s.indexOf('(') + 1, s.lastIndexOf(')'));
+      var args;
+      try { args = eval('[' + s + ']'); } catch (e) { args = [el.textContent.trim(), '', '', false, false, {}]; }
+      var createdAt = tr.cells[4] ? tr.cells[4].textContent.trim() : '';
+      showConnDetail(args, createdAt);
+    }
+
+    function showConnDetail(args, createdAt) {
+      var name = args[0], cat = args[1], slug = args[2], forLoad = args[3], forExp = args[4], config = args[5] || {};
+      window._connDetailArgs = args;
+      var catLabel = CONN_CAT_LABELS[cat] || cat || '—';
+      document.getElementById('connDetailHead').innerHTML =
+        '<div style="font-size:17px;font-weight:600;color:rgba(0,0,0,0.88);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + name + '</div>'
+        + '<span class="connector-type-badge" style="flex-shrink:0">' + catLabel + '</span>';
+      document.getElementById('connDetailActions').innerHTML =
+        '<button onclick="editConnectorFromDetail()" style="padding:4px 15px;height:32px;border-radius:6px;font-size:14px;cursor:pointer;border:none;background:#1677ff;color:#fff;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑</button>';
+      var usage = [];
+      if (forLoad) usage.push('<span class="usage-tag import">载入</span>');
+      if (forExp) usage.push('<span class="usage-tag" style="background:rgba(114,46,209,0.08);color:#722ed1">导出</span>');
+      function kv(label, val) {
+        return '<div style="display:flex;padding:11px 0;border-bottom:1px solid rgba(0,0,0,0.05)"><div style="width:160px;flex-shrink:0;color:rgba(0,0,0,0.45);font-size:13px">' + label + '</div><div style="flex:1;color:rgba(0,0,0,0.85);font-size:13px;word-break:break-all">' + val + '</div></div>';
+      }
+      var h = '<div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:6px">基础信息</div>';
+      h += kv('数据源', slug ? (slug.charAt(0).toUpperCase() + slug.slice(1)) : catLabel);
+      h += kv('类型', catLabel);
+      h += kv('用途', usage.length ? usage.join('&nbsp;') : '—');
+      h += kv('创建时间', createdAt || '—');
+      h += '<div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88);margin:22px 0 6px">连接配置</div>';
+      var keys = Object.keys(config);
+      if (!keys.length) {
+        h += '<div style="color:rgba(0,0,0,0.4);font-size:13px;padding:11px 0">无连接配置</div>';
+      } else {
+        keys.forEach(function(k) {
+          var label = CONN_FIELD_LABELS[k] || k;
+          var v = config[k];
+          if (k === 'authMode') v = CONN_AUTHMODE_LABELS[v] || v;
+          h += kv(label, (v == null || v === '') ? '—' : String(v));
+        });
+      }
+      document.getElementById('connDetailBody').innerHTML = h;
+      document.getElementById('connListPage').style.display = 'none';
+      document.getElementById('connDetailPage').style.display = '';
+      window.scrollTo(0, 0);
+    }
+
+    function editConnectorFromDetail() {
+      var a = window._connDetailArgs;
+      if (a) editConnector(a[0], a[1], a[2], a[3], a[4], a[5]);
+    }
+
+    function backToConnList() {
+      document.getElementById('connDetailPage').style.display = 'none';
+      document.getElementById('connListPage').style.display = '';
+    }
+
+    function renderSavedConnectorRows() {
+      var tbody = document.getElementById('connectorTableBody');
+      if (!tbody) return;
+      tbody.querySelectorAll('tr[data-saved-connector-id]').forEach(function(row) { row.remove(); });
+      var firstStaticRow = tbody.querySelector('tr:not([data-saved-connector-id])');
+      getSavedConnectors().forEach(function(connector) {
+        tbody.insertBefore(createSavedConnectorRow(connector), firstStaticRow);
+      });
+      initConnNameLinks();
+      if (window.OPS) OPS.iconify(tbody);
+    }
+
+    function formatConnectorDate(date) {
+      var pad = function(n) { return String(n).padStart(2, '0'); };
+      return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
+        + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+    }
+
+    function validateConnectorPayload(payload, ignoreSavedId) {
+      if (!payload.name) { alert('请输入连接器名称'); return false; }
+      if (!payload.usage.import && !payload.usage.export) { alert('请至少选择一个连接用途'); return false; }
+      if (connectorNameExists(payload.name, ignoreSavedId)) { alert('连接器名称已存在，请使用一个新的名称'); return false; }
+      return true;
+    }
+
+    var typeGroupIcons = {
+      'object-storage':  lineIcon(ICON.cloud, 16),
+      'dfs':             lineIcon(ICON.hdfs, 16),
+      'database':        lineIcon(ICON.database, 16),
+      'mail':            lineIcon(ICON.mail, 16),
+      'api':             lineIcon(ICON.api, 16),
+      'file-protocol':   lineIcon(ICON.file, 16),
+      'message-queue':   lineIcon(ICON.mq, 16),
+      'enterprise-app':  lineIcon(ICON.building, 16),
+      'collab':          lineIcon(ICON.users, 16),
+      'web':             lineIcon(ICON.globe, 16)
+    };
+
+    function renderDsTypeTabs(activeGroup) {
+      var tabs = document.getElementById('dsTypeTabs');
+      tabs.innerHTML = Object.keys(sourceOptions).map(function(g) {
+        var icon = typeGroupIcons[g] || '';
+        return '<div class="ds-type-tab' + (g === activeGroup ? ' active' : '') + '" onclick="switchDsGroup(\'' + g + '\')">'
+          + (icon ? '<span class="ds-tab-icon">' + icon + '</span>' : '')
+          + typeGroupLabels[g] + '</div>';
+      }).join('');
+    }
+
+    function renderDsTypeItems(group, selectedSource) {
+      var items = sourceOptions[group] || [];
+      var container = document.getElementById('dsTypeItems');
+      container.innerHTML = items.map(function(s) {
+        return '<div class="ds-type-item' + (s.value === selectedSource ? ' active' : '') + '" onclick="selectDsType(\'' + s.value + '\',\'' + group + '\')">'
+          + '<span class="ds-icon">' + renderProductIcon(s.icon, 18) + '</span>' + s.label + '</div>';
+      }).join('');
+    }
+
+    function switchDsGroup(group) {
+      currentType = group;
+      renderDsTypeTabs(group);
+      var items = sourceOptions[group] || [];
+      var firstSource = items.length > 0 ? items[0].value : '';
+      currentSource = firstSource;
+      renderDsTypeItems(group, firstSource);
+      if (firstSource) renderConnInfo(firstSource);
+      else document.getElementById('connInfoSection').innerHTML = '';
+    }
+
+    function selectDsType(source, group) {
+      currentType = group;
+      currentSource = source;
+      renderDsTypeTabs(group);
+      renderDsTypeItems(group, source);
+      renderConnInfo(source);
+      clearTestResult();
+    }
+
+    // Legacy compat
+    function selectType(el, type) { switchDsGroup(type); }
+    function renderSourceCards(type) { switchDsGroup(type); }
+    function selectSource(el, source) {
+      var group = '';
+      Object.keys(sourceOptions).forEach(function(g) {
+        sourceOptions[g].forEach(function(s) { if (s.value === source) group = g; });
+      });
+      selectDsType(source, group);
+    }
+
+    function renderConnInfo(source) {
+      const section = document.getElementById('connInfoSection');
+      const fields = configTemplates[source] || [];
+      if (fields.length === 0) { section.innerHTML = ''; return; }
+
+      section.innerHTML = fields.map(f => {
+        // "添加主机端口" button
+        if (f.type === 'addHostBtn') {
+          return `<div class="form-group"><label class="form-label" style="width:auto">&nbsp;</label>`
+            + `<button style="padding:4px 12px;height:32px;border:1px solid #1677ff;border-radius:6px;background:#fff;color:#1677ff;font-size:13px;cursor:pointer;transition:all 0.2s" `
+            + `onmouseover="this.style.background='#e6f4ff'" onmouseout="this.style.background='#fff'">+ 添加主机端口</button></div>`;
+        }
+
+        // Auth mode tabs (LDAP / Kerberos)
+        if (f.type === 'authTabs') {
+          const firstTab = f.tabs[0];
+          let html = `<div style="border-top:1px solid #f0f0f0;padding-top:16px;margin-top:8px">`;
+          html += `<div class="form-group"><label class="form-label">${f.label}` + (f.help ? ' <span class="help-icon" data-tip="选择 API 服务的认证方式">?</span>' : '') + `：</label>`;
+          html += `<div class="inline-tabs">`;
+          f.tabs.forEach((tab, i) => {
+            html += `<div class="inline-tab${i === 0 ? ' active' : ''}" onclick="switchAuthTab(this,'${tab.value}')">${tab.label}</div>`;
+          });
+          html += `</div></div>`;
+          // Render each tab's fields in a container
+          f.tabs.forEach((tab, i) => {
+            const compactStyle = tab.compact ? 'margin-bottom:10px' : 'margin-bottom:16px';
+            html += `<div class="auth-tab-panel" id="authPanel_${tab.value}" style="${i > 0 ? 'display:none' : ''}${tab.compact ? ';padding:0 0 0 0' : ''}">`;
+            tab.fields.forEach(sf => {
+              var helpTitle = sf.helpText ? ' data-tip="' + sf.helpText + '"' : '';
+              const sLabel = `<label class="form-label">`
+                + (sf.required ? '<span class="required">*</span> ' : '')
+                + sf.label
+                + (sf.help ? ` <span class="help-icon"${helpTitle}>?</span>` : '')
+                + `：</label>`;
+              let sInput = '';
+              if (sf.type === 'file') {
+                sInput = `<div style="flex:1;display:flex;align-items:center;gap:8px;padding:4px 11px;height:32px;border:1px solid #d9d9d9;border-radius:6px;cursor:pointer;color:rgba(0,0,0,0.45);font-size:14px" onclick="this.querySelector('input').click()">`
+                  + `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`
+                  + `<span>${sf.placeholder || '选择文件'}</span>`
+                  + `<input type="file" style="display:none" data-key="${sf.key}">`
+                  + `</div>`;
+              } else if (sf.type === 'select') {
+                sInput = `<select class="form-select" data-key="${sf.key}">`
+                  + sf.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')
+                  + `</select>`;
+              } else if (sf.password) {
+                sInput = `<div class="password-input">`
+                  + `<input class="form-input" type="password" placeholder="${sf.placeholder || ''}" id="pwd_${sf.key}" data-key="${sf.key}">`
+                  + `<button class="password-toggle" onclick="togglePwd('pwd_${sf.key}')">👁‍🗨</button>`
+                  + `</div>`;
+              } else {
+                sInput = `<input class="form-input" type="text" placeholder="${sf.placeholder || ''}" data-key="${sf.key}">`;
+              }
+              html += `<div class="form-group" style="${compactStyle}">${sLabel}${sInput}</div>`;
+            });
+            html += `</div>`;
+          });
+          html += `</div>`;
+          return html;
+        }
+
+        var helpTitle = f.helpText ? ' data-tip="' + f.helpText + '"' : '';
+        const labelHtml = `<label class="form-label">`
+          + (f.required ? '<span class="required">*</span> ' : '')
+          + f.label
+          + (f.help ? ` <span class="help-icon"${helpTitle}>?</span>` : '')
+          + `：</label>`;
+
+        let inputHtml = '';
+        if (f.type === 'select') {
+          inputHtml = `<select class="form-select" data-key="${f.key}">`
+            + f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')
+            + `</select>`;
+        } else if (f.password) {
+          inputHtml = `<div class="password-input">`
+            + `<input class="form-input" type="password" placeholder="${f.placeholder || ''}" id="pwd_${f.key}" data-key="${f.key}">`
+            + `<button class="password-toggle" onclick="togglePwd('pwd_${f.key}')">👁‍🗨</button>`
+            + `</div>`;
+        } else {
+          inputHtml = `<input class="form-input" type="text" placeholder="${f.placeholder || ''}" data-key="${f.key}">`;
+        }
+
+        return `<div class="form-group">${labelHtml}${inputHtml}</div>`;
+      }).join('');
+    }
+
+    function togglePwd(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function switchAuthTab(el, tabValue) {
+      el.parentElement.querySelectorAll('.inline-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.querySelectorAll('.auth-tab-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('authPanel_' + tabValue).style.display = '';
+    }
+
+    var isEditMode = false;
+
+    function openModal() {
+      isEditMode = false;
+      currentEditId = null;
+      document.getElementById('modalTitle').textContent = '创建连接器';
+      document.getElementById('modalSubmitBtn').textContent = '创 建';
+      document.getElementById('modalSubmitBtn').onclick = createConnector;
+      document.getElementById('connectorModal').classList.add('show');
+      // Reset to default state
+      document.getElementById('connName').value = '';
+      updateNameCounter();
+      currentType = 'object-storage';
+      currentSource = 'aliyun-oss';
+      document.getElementById('usageImport').checked = true;
+      document.getElementById('usageExport').checked = true;
+      renderDsTypeTabs('object-storage');
+      renderDsTypeItems('object-storage', 'aliyun-oss');
+      renderConnInfo('aliyun-oss');
+      clearTestResult();
+    }
+
+    function editConnector(name, type, source, hasImport, hasExport, config) {
+      isEditMode = true;
+      currentEditId = null;
+      document.getElementById('modalTitle').textContent = '编辑连接器';
+      document.getElementById('modalSubmitBtn').textContent = '保 存';
+      document.getElementById('modalSubmitBtn').onclick = function() { saveConnector(name); };
+      document.getElementById('connectorModal').classList.add('show');
+
+      // Set name
+      document.getElementById('connName').value = name;
+      updateNameCounter();
+
+      // Set type
+      currentType = type;
+      currentSource = source;
+
+      // Set usage
+      document.getElementById('usageImport').checked = hasImport;
+      document.getElementById('usageExport').checked = hasExport;
+
+      // Render tabs and select the right source
+      renderDsTypeTabs(type);
+      renderDsTypeItems(type, source);
+      renderConnInfo(source);
+
+      // Fill in config values after fields are rendered
+      setTimeout(function() { fillConfigValues(config); }, 100);
+      clearTestResult();
+    }
+
+    function editSavedConnector(id) {
+      var connector = getSavedConnectors().find(function(item) { return item.id === id; });
+      if (!connector) { alert('未找到该连接器，请刷新后重试'); return; }
+      editConnector(connector.name, connector.type, connector.source, !!connector.usage.import, !!connector.usage.export, connector.config || {});
+      currentEditId = id;
+    }
+
+    function fillConfigValues(config) {
+      if (!config) return;
+      // First handle authMode to switch the right tab panel
+      if (config.authMode) {
+        var panels = document.querySelectorAll('.auth-tab-panel');
+        var tabs = document.querySelectorAll('.inline-tab');
+        panels.forEach(function(p) { p.style.display = 'none'; });
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        var targetPanel = document.getElementById('authPanel_' + config.authMode);
+        if (targetPanel) targetPanel.style.display = '';
+        tabs.forEach(function(t) {
+          var onclick = t.getAttribute('onclick') || '';
+          if (onclick.indexOf("'" + config.authMode + "'") !== -1) t.classList.add('active');
+        });
+      }
+      // Then fill all other fields
+      Object.keys(config).forEach(function(key) {
+        if (key === 'authMode') return;
+        var el = document.querySelector('[data-key="' + key + '"]');
+        if (el && el.tagName === 'SELECT') { el.value = config[key]; }
+        else if (el && el.tagName === 'INPUT') { el.value = config[key]; }
+      });
+    }
+
+    function saveConnector(originalName) {
+      var payload = collectConnectorConfig();
+      if (currentEditId) {
+        if (!validateConnectorPayload(payload, currentEditId)) return;
+        var connectors = getSavedConnectors();
+        var idx = connectors.findIndex(function(item) { return item.id === currentEditId; });
+        if (idx === -1) { alert('未找到该连接器，请刷新后重试'); return; }
+        connectors[idx] = Object.assign({}, connectors[idx], payload);
+        saveSavedConnectors(connectors);
+        renderSavedConnectorRows();
+        alert('连接器「' + payload.name + '」已保存');
+      } else {
+        var newName = payload.name || document.getElementById('connName').value.trim();
+        if (!newName) { alert('请输入连接器名称'); return; }
+        alert('连接器「' + newName + '」已保存（模拟）');
+      }
+      closeModal();
+    }
+
+    function deleteConnector(name) {
+      if (confirm('确定删除连接器「' + name + '」？\n\n删除后，使用该连接器的载入/导出任务将无法执行。')) {
+        alert('连接器「' + name + '」已删除（模拟）');
+      }
+    }
+
+    // ===== 对象权限配置（快捷入口）：按对象 × 权限 × 角色，全局权限来的角色只读 =====
+    var CONN_OBJ_PERMS = [
+      ['C3', '连接器查询', '查看该连接器详情'],
+      ['C4', '连接器修改', '修改该连接器'],
+      ['C5', '连接器删除', '删除该连接器'],
+      ['C6', '连接器使用', '使用该连接器做数据载入或导出']
+    ];
+    var ALL_ROLE_NAMES = ['superadmin', 'admin', 'data_developer', 'agent_developer', 'readonly_member', '部门经理'];
+    var GLOBAL_PERM_ROLES = ['superadmin', 'admin']; // mock：这两个角色拥有连接器的全局权限（生效范围 = 全部）
+    var connPermStore = {};   // name -> { C3: [{role, global}], ... }
+    var _permModalConn = null;
+
+    function _connPermInit(name) {
+      if (connPermStore[name]) return connPermStore[name];
+      var d = {};
+      CONN_OBJ_PERMS.forEach(function(p) {
+        d[p[0]] = GLOBAL_PERM_ROLES.map(function(r) { return { role: r, global: true }; });
+      });
+      // 演示：预置一条对象级授权
+      d['C6'].push({ role: 'data_developer', global: false });
+      connPermStore[name] = d;
+      return d;
+    }
+
+    function openConnPermModal(name) {
+      _permModalConn = name;
+      document.getElementById('connPermTitle').textContent = '权限设置 · ' + name;
+      renderConnPermModal();
+      document.getElementById('connPermModal').classList.add('show');
+    }
+    function closeConnPermModal() { document.getElementById('connPermModal').classList.remove('show'); _permModalConn = null; }
+
+    function renderConnPermModal() {
+      var data = _connPermInit(_permModalConn);
+      var h = '<table style="width:100%;border-collapse:collapse">';
+      h += '<thead><tr><th style="text-align:left;padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;color:rgba(0,0,0,0.45);width:220px">权限</th><th style="text-align:left;padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:12px;color:rgba(0,0,0,0.45)">角色</th></tr></thead><tbody>';
+      CONN_OBJ_PERMS.forEach(function(p) {
+        var code = p[0];
+        h += '<tr><td style="padding:14px 12px;border-bottom:1px solid #f7f7f7;vertical-align:top">';
+        h += '<div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">' + code + '-' + p[1] + '</div>';
+        h += '<div style="font-size:11px;color:rgba(0,0,0,0.4);margin-top:2px">' + p[2] + '</div></td>';
+        h += '<td style="padding:12px;border-bottom:1px solid #f7f7f7"><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">';
+        data[code].forEach(function(g) {
+          if (g.global) {
+            h += '<span title="通过全局权限（生效范围 = 全部）获得，请在「角色权限」中调整，不能在此移除" style="display:inline-flex;align-items:center;gap:6px;border:1px solid #e8e9ec;background:#fafafa;border-radius:8px;padding:5px 10px;font-size:12.5px;color:rgba(0,0,0,0.65)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>' + g.role + '<span style="font-size:10px;color:#1677ff;background:#eef4ff;border-radius:6px;padding:0 5px">全局</span></span>';
+          } else {
+            h += '<span style="display:inline-flex;align-items:center;gap:6px;border:1px solid #d6e4ff;background:#f0f5ff;border-radius:8px;padding:5px 10px;font-size:12.5px;color:rgba(0,0,0,0.75)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>' + g.role + '<span style="cursor:pointer;color:rgba(0,0,0,0.3);font-size:13px;line-height:1" title="移除该对象授权" onclick="removeConnPermRole(\'' + code + '\',\'' + g.role + '\')">✕</span></span>';
+          }
+        });
+        h += '<span style="position:relative;display:inline-flex" id="connPermAddWrap_' + code + '">';
+        h += '<button title="为该权限添加角色（对象级授权）" style="width:30px;height:30px;border:1px solid #e5e6eb;border-radius:8px;background:#fff;cursor:pointer;font-size:15px;color:rgba(0,0,0,0.55)" onclick="toggleConnPermAdd(\'' + code + '\')">＋</button>';
+        h += '</span>';
+        h += '</div></td></tr>';
+      });
+      h += '</tbody></table>';
+      document.getElementById('connPermBody').innerHTML = h;
+    }
+
+    // 「＋」→ 角色列表弹窗，多选添加（对象级授权）
+    var ROLE_DESCS = { 'superadmin': '超级管理员——系统内置，拥有所有权限', 'admin': '工作区管理员——管理工作区资源和成员', 'data_developer': '数据开发者——数据模式完整权限', 'agent_developer': '智能体开发者——智能体模式完整权限', 'readonly_member': '只读成员——仅可查看', '部门经理': '继承 data_developer 权限' };
+    var _permAddCode = null;
+    function toggleConnPermAdd(code) {
+      var data = _connPermInit(_permModalConn);
+      var used = data[code].map(function(g) { return g.role; });
+      var avail = ALL_ROLE_NAMES.filter(function(r) { return used.indexOf(r) === -1; });
+      if (!avail.length) { alert('所有角色均已拥有该权限'); return; }
+      _permAddCode = code;
+      var p = CONN_OBJ_PERMS.find(function(x) { return x[0] === code; });
+      document.getElementById('connPermRoleTitle').textContent = '添加角色 · ' + code + '-' + (p ? p[1] : '');
+      document.getElementById('connPermRoleList').innerHTML = avail.map(function(r) {
+        return '<label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:8px;cursor:pointer" onmouseover="this.style.borderColor=\'#b9ccff\'" onmouseout="this.style.borderColor=\'#f0f0f0\'">'
+          + '<input type="checkbox" value="' + r + '" style="width:15px;height:15px">'
+          + '<span style="flex:1"><span style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">' + r + '</span>'
+          + '<span style="font-size:12px;color:rgba(0,0,0,0.4);margin-left:10px">' + (ROLE_DESCS[r] || '') + '</span></span>'
+          + '</label>';
+      }).join('');
+      document.getElementById('connPermRoleModal').classList.add('show');
+    }
+    function closeConnPermRoleModal() { document.getElementById('connPermRoleModal').classList.remove('show'); _permAddCode = null; }
+    function confirmConnPermAddRoles() {
+      var checked = [].slice.call(document.querySelectorAll('#connPermRoleList input:checked')).map(function(c) { return c.value; });
+      if (!checked.length) { alert('请选择至少一个角色'); return; }
+      var data = _connPermInit(_permModalConn);
+      checked.forEach(function(r) { data[_permAddCode].push({ role: r, global: false }); });
+      closeConnPermRoleModal();
+      renderConnPermModal();
+    }
+
+    function removeConnPermRole(code, role) {
+      var data = _connPermInit(_permModalConn);
+      var g = data[code].find(function(x) { return x.role === role; });
+      if (!g || g.global) return; // 全局权限来的角色不可移除
+      if (!confirm('移除角色「' + role + '」对该连接器的「' + code + '」对象授权？')) return;
+      data[code] = data[code].filter(function(x) { return x.role !== role; });
+      renderConnPermModal();
+    }
+
+    function closeModal() {
+      document.getElementById('connectorModal').classList.remove('show');
+      isEditMode = false;
+      currentEditId = null;
+      clearTestResult();
+    }
+
+    function createConnector() {
+      var payload = collectConnectorConfig();
+      if (!validateConnectorPayload(payload, null)) return;
+      var connectors = getSavedConnectors();
+      var connector = Object.assign({}, payload, {
+        id: 'conn_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
+        createdAt: formatConnectorDate(new Date())
+      });
+      connectors.unshift(connector);
+      saveSavedConnectors(connectors);
+      renderSavedConnectorRows();
+      alert('连接器「' + connector.name + '」已创建');
+      closeModal();
+    }
+
+    function deleteSavedConnector(id) {
+      var connectors = getSavedConnectors();
+      var connector = connectors.find(function(item) { return item.id === id; });
+      if (!connector) { alert('未找到该连接器，请刷新后重试'); return; }
+      if (confirm('确定删除连接器「' + connector.name + '」？\n\n删除后，使用该连接器的载入/导出任务将无法执行。')) {
+        saveSavedConnectors(connectors.filter(function(item) { return item.id !== id; }));
+        renderSavedConnectorRows();
+        alert('连接器「' + connector.name + '」已删除');
+      }
+    }
+
+    function getActiveAuthMode() {
+      var active = document.querySelector('#connInfoSection .inline-tab.active');
+      if (!active) return '';
+      var onclick = active.getAttribute('onclick') || '';
+      var match = onclick.match(/'([^']+)'/);
+      return match ? match[1] : '';
+    }
+
+    function isElementInActivePanel(el) {
+      var panel = el.closest('.auth-tab-panel');
+      if (!panel) return true;
+      return panel.style.display !== 'none';
+    }
+
+    function collectConnectorConfig() {
+      var config = {};
+      document.querySelectorAll('#connInfoSection [data-key]').forEach(function(el) {
+        if (!isElementInActivePanel(el)) return;
+        var key = el.getAttribute('data-key');
+        if (!key) return;
+        if (el.type === 'file') {
+          config[key] = el.files && el.files[0] ? el.files[0].name : '';
+        } else {
+          config[key] = el.value || '';
+        }
+      });
+      var activeAuthMode = getActiveAuthMode();
+      if (activeAuthMode) config.authMode = activeAuthMode;
+      return {
+        name: document.getElementById('connName').value.trim(),
+        type: currentType,
+        source: currentSource,
+        usage: {
+          import: document.getElementById('usageImport').checked,
+          export: document.getElementById('usageExport').checked
+        },
+        config: config
+      };
+    }
+
+    function setTestResult(state, message) {
+      var result = document.getElementById('testResult');
+      result.className = 'test-result ' + state;
+      result.textContent = message;
+    }
+
+    function clearTestResult() {
+      var result = document.getElementById('testResult');
+      if (!result) return;
+      result.className = 'test-result';
+      result.textContent = '';
+    }
+
+    async function testConnection() {
+      var btn = document.getElementById('testConnectionBtn');
+      var payload = collectConnectorConfig();
+      btn.disabled = true;
+      btn.textContent = '测试中……';
+      setTestResult('pending', '正在发起真实连接测试');
+      try {
+        var resp = await fetch('/api/connector/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var raw = await resp.text();
+        var data;
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch(e) {
+          throw new Error('连接测试接口返回非 JSON（HTTP ' + resp.status + '）：' + raw.slice(0, 120));
+        }
+        if (!resp.ok || !data.ok) {
+          throw new Error(data.message || ('连接测试失败，HTTP ' + resp.status));
+        }
+        setTestResult('success', data.message || '连接测试通过');
+      } catch(e) {
+        setTestResult('error', e.message || '连接测试失败');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '连接测试';
+      }
+    }
+  </script>
+  </div>
+
+  <!-- 对象权限设置弹窗（快捷入口） -->
+  <div class="modal-overlay" id="connPermModal" onclick="if(event.target===this)closeConnPermModal()">
+    <div class="modal" style="width:760px;max-width:92vw">
+      <div class="modal-header">
+        <span id="connPermTitle" style="font-size:15px;font-weight:600">权限设置</span>
+        <button style="border:none;background:none;font-size:16px;color:rgba(0,0,0,0.45);cursor:pointer" onclick="closeConnPermModal()">✕</button>
+      </div>
+      <div id="connPermBody" style="padding:6px 20px 16px;max-height:62vh;overflow:auto"></div>
+      <div style="padding:12px 20px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #f0f0f0">
+        <span style="font-size:12px;color:rgba(0,0,0,0.4)">带「全局」标记的角色来自全局权限（生效范围 = 全部），请在「用户权限 › 角色权限」中调整；此处仅管理该对象的对象级授权。</span>
+        <button class="btn-primary" style="height:32px;padding:0 18px;flex-shrink:0" onclick="closeConnPermModal()">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加角色（多选）弹窗 -->
+  <div class="modal-overlay" id="connPermRoleModal" style="z-index:310" onclick="if(event.target===this)closeConnPermRoleModal()">
+    <div class="modal" style="width:460px;max-width:90vw">
+      <div class="modal-header">
+        <span id="connPermRoleTitle" style="font-size:15px;font-weight:600">添加角色</span>
+        <button style="border:none;background:none;font-size:16px;color:rgba(0,0,0,0.45);cursor:pointer" onclick="closeConnPermRoleModal()">✕</button>
+      </div>
+      <div id="connPermRoleList" style="padding:16px 20px 8px;max-height:52vh;overflow:auto"></div>
+      <div style="padding:12px 20px 16px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid #f0f0f0">
+        <button style="height:32px;padding:0 16px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;cursor:pointer;font-size:13px" onclick="closeConnPermRoleModal()">取消</button>
+        <button class="btn-primary" style="height:32px;padding:0 18px" onclick="confirmConnPermAddRoles()">添 加</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

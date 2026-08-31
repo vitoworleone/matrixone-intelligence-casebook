@@ -1,0 +1,118 @@
+{
+  "wo_tasks": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"任务 ID","stats":{"max":152000,"min":1,"nulls":0,"unique":145000}},
+    {"name":"intWorkOrderID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"所属工单 ID","stats":{"max":28500,"min":1,"nulls":0,"unique":27000}},
+    {"name":"strDescription","dataType":"TEXT","precision":"","pk":false,"defaultVal":"","desc":"任务描述","stats":{"max":"-","min":"-","nulls":2800,"unique":98000}},
+    {"name":"intTaskType","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"任务类型","stats":{"max":5,"min":1,"nulls":0,"unique":5}},
+    {"name":"dblTimeSpentHours","dataType":"DOUBLE","precision":"","pk":false,"defaultVal":"","desc":"实际工时","stats":{"max":48.0,"min":0.0,"nulls":12500,"unique":320}},
+    {"name":"dtmDateCompleted","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"完成时间","stats":{"max":"2026-04-28","min":"2020-02-01","nulls":18000,"unique":128000}},
+    {"name":"intAssignedToUserID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"指派人 ID","stats":{"max":86,"min":1,"nulls":5200,"unique":45}},
+    {"name":"intStatusID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"状态 ID","stats":{"max":6,"min":1,"nulls":0,"unique":6}}
+  ],
+  "assets": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"资产 ID","stats":{"max":2350,"min":1,"nulls":0,"unique":2100}},
+    {"name":"strName","dataType":"VARCHAR","precision":"128","pk":false,"defaultVal":"","desc":"资产名称","stats":{"max":"-","min":"-","nulls":0,"unique":2100}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"资产编号","stats":{"max":"-","min":"-","nulls":0,"unique":2100}},
+    {"name":"intCategoryID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"分类 ID","stats":{"max":30,"min":1,"nulls":0,"unique":12}},
+    {"name":"intParentID","dataType":"INT","precision":"","pk":false,"defaultVal":"NULL","desc":"父资产 ID（80.9% 为空）","stats":{"max":2100,"min":1,"nulls":1699,"unique":180}},
+    {"name":"strMake","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"制造商","stats":{"max":"-","min":"-","nulls":420,"unique":28}},
+    {"name":"strModel","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"型号","stats":{"max":"-","min":"-","nulls":380,"unique":65}},
+    {"name":"strSerialNumber","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"序列号","stats":{"max":"-","min":"-","nulls":520,"unique":1580}},
+    {"name":"intSiteID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"站点 ID","stats":{"max":3,"min":1,"nulls":0,"unique":3}},
+    {"name":"bolIsOnline","dataType":"BOOLEAN","precision":"","pk":false,"defaultVal":"","desc":"是否在线","stats":{"max":"-","min":"-","nulls":0,"unique":2}},
+    {"name":"dtmDateCreated","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"创建时间","stats":{"max":"2026-04-10","min":"2018-03-01","nulls":0,"unique":2050}}
+  ],
+  "meter_readings": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"读数 ID","stats":{"max":127000,"min":1,"nulls":0,"unique":39600}},
+    {"name":"intAssetID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"资产 ID","stats":{"max":2350,"min":1,"nulls":0,"unique":180}},
+    {"name":"dblMeterReading","dataType":"DOUBLE","precision":"","pk":false,"defaultVal":"","desc":"仪表读数值","stats":{"max":18500.0,"min":0.0,"nulls":0,"unique":38200}},
+    {"name":"dtmDateSubmitted","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"提交时间","stats":{"max":"2026-04-28","min":"2020-01-15","nulls":0,"unique":39600}},
+    {"name":"intMeterReadingUnitsID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"单位 ID","stats":{"max":3,"min":1,"nulls":0,"unique":3}},
+    {"name":"strNotes","dataType":"TEXT","precision":"","pk":false,"defaultVal":"","desc":"备注","stats":{"max":"-","min":"-","nulls":35200,"unique":2800}}
+  ],
+  "priorities": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"优先级 ID","stats":{"max":239575,"min":231162,"nulls":0,"unique":5}},
+    {"name":"strName","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"优先级名称","stats":{"max":"-","min":"-","nulls":0,"unique":4}},
+    {"name":"intControlID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"控制 ID","stats":{"max":5,"min":1,"nulls":0,"unique":5}},
+    {"name":"intOrder","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"排序","stats":{"max":5,"min":1,"nulls":0,"unique":4}}
+  ],
+  "statuses": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"状态 ID","stats":{"max":12,"min":1,"nulls":0,"unique":12}},
+    {"name":"strName","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"状态名称","stats":{"max":"-","min":"-","nulls":0,"unique":12}},
+    {"name":"intControlID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"控制 ID","stats":{"max":4,"min":1,"nulls":0,"unique":4}},
+    {"name":"intStatusType","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"状态类型（Open/Closed）","stats":{"max":2,"min":1,"nulls":0,"unique":2}}
+  ],
+  "maintenance_types": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"维修类型 ID","stats":{"max":8,"min":1,"nulls":0,"unique":8}},
+    {"name":"strName","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"类型名称","stats":{"max":"-","min":"-","nulls":0,"unique":8}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"16","pk":false,"defaultVal":"","desc":"类型编码","stats":{"max":"-","min":"-","nulls":0,"unique":8}},
+    {"name":"intControlID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"控制 ID","stats":{"max":3,"min":1,"nulls":0,"unique":3}}
+  ],
+  "scheduled_maintenances": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"PM 计划 ID","stats":{"max":1300,"min":1,"nulls":0,"unique":1215}},
+    {"name":"strName","dataType":"VARCHAR","precision":"128","pk":false,"defaultVal":"","desc":"计划名称","stats":{"max":"-","min":"-","nulls":0,"unique":1215}},
+    {"name":"intAssetID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"关联资产 ID","stats":{"max":2350,"min":1,"nulls":0,"unique":420}},
+    {"name":"intMaintenanceTypeID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"维修类型 ID","stats":{"max":8,"min":1,"nulls":0,"unique":6}},
+    {"name":"intFrequency","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"频率（天）","stats":{"max":365,"min":7,"nulls":0,"unique":18}},
+    {"name":"dtmNextDueDate","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"下次到期日","stats":{"max":"2026-12-31","min":"2026-04-29","nulls":85,"unique":980}},
+    {"name":"intPriorityID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"优先级 ID","stats":{"max":5,"min":1,"nulls":0,"unique":4}},
+    {"name":"intSiteID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"站点 ID","stats":{"max":3,"min":1,"nulls":0,"unique":3}},
+    {"name":"dtmDateLastModified","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"最后修改时间","stats":{"max":"2026-04-28","min":"2020-06-01","nulls":0,"unique":1100}}
+  ],
+  "sites": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"站点 ID","stats":{"max":3,"min":1,"nulls":0,"unique":3}},
+    {"name":"strName","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"站点名称","stats":{"max":"-","min":"-","nulls":0,"unique":3}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"16","pk":false,"defaultVal":"","desc":"站点编码","stats":{"max":"-","min":"-","nulls":0,"unique":3}},
+    {"name":"strAddress","dataType":"VARCHAR","precision":"256","pk":false,"defaultVal":"","desc":"地址","stats":{"max":"-","min":"-","nulls":0,"unique":3}},
+    {"name":"strCity","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"城市","stats":{"max":"-","min":"-","nulls":0,"unique":2}},
+    {"name":"strCountry","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"国家","stats":{"max":"-","min":"-","nulls":0,"unique":1}}
+  ],
+  "users": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"用户 ID","stats":{"max":86,"min":1,"nulls":0,"unique":86}},
+    {"name":"strFullName","dataType":"VARCHAR","precision":"128","pk":false,"defaultVal":"","desc":"全名","stats":{"max":"-","min":"-","nulls":0,"unique":86}},
+    {"name":"strEmailAddress","dataType":"VARCHAR","precision":"128","pk":false,"defaultVal":"","desc":"邮箱","stats":{"max":"-","min":"-","nulls":12,"unique":74}},
+    {"name":"strUserName","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"用户名","stats":{"max":"-","min":"-","nulls":0,"unique":86}},
+    {"name":"bolActive","dataType":"BOOLEAN","precision":"","pk":false,"defaultVal":"","desc":"是否活跃","stats":{"max":"-","min":"-","nulls":0,"unique":2}}
+  ],
+  "parts": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"备件 ID","stats":{"max":580,"min":1,"nulls":0,"unique":520}},
+    {"name":"strName","dataType":"VARCHAR","precision":"128","pk":false,"defaultVal":"","desc":"备件名称","stats":{"max":"-","min":"-","nulls":0,"unique":520}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"备件编号","stats":{"max":"-","min":"-","nulls":0,"unique":520}},
+    {"name":"intCategoryID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"分类 ID","stats":{"max":15,"min":1,"nulls":0,"unique":15}},
+    {"name":"dblQuantityOnHand","dataType":"DOUBLE","precision":"","pk":false,"defaultVal":"","desc":"库存数量","stats":{"max":200.0,"min":0.0,"nulls":0,"unique":85}},
+    {"name":"dblUnitCost","dataType":"DOUBLE","precision":"","pk":false,"defaultVal":"","desc":"单位成本","stats":{"max":12500.0,"min":2.5,"nulls":45,"unique":380}},
+    {"name":"strBarcode","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"条码","stats":{"max":"-","min":"-","nulls":180,"unique":340}},
+    {"name":"dtmDateLastModified","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"最后修改时间","stats":{"max":"2026-04-28","min":"2020-03-15","nulls":0,"unique":480}}
+  ],
+  "purchase_orders": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"采购单 ID","stats":{"max":360,"min":1,"nulls":0,"unique":340}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"采购单编号","stats":{"max":"-","min":"-","nulls":0,"unique":340}},
+    {"name":"intSupplierID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"供应商 ID","stats":{"max":25,"min":1,"nulls":0,"unique":25}},
+    {"name":"intStatusID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"状态 ID","stats":{"max":4,"min":1,"nulls":0,"unique":4}},
+    {"name":"dblTotalCost","dataType":"DOUBLE","precision":"","pk":false,"defaultVal":"","desc":"总金额","stats":{"max":85000.0,"min":50.0,"nulls":0,"unique":320}},
+    {"name":"dtmDateCreated","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"创建时间","stats":{"max":"2026-04-18","min":"2022-01-10","nulls":0,"unique":310}},
+    {"name":"dtmDateLastModified","dataType":"TIMESTAMP","precision":"","pk":false,"defaultVal":"","desc":"最后修改时间","stats":{"max":"2026-04-20","min":"2022-01-10","nulls":0,"unique":330}},
+    {"name":"intSiteID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"站点 ID","stats":{"max":3,"min":1,"nulls":0,"unique":3}},
+    {"name":"intWorkOrderID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"关联工单 ID","stats":{"max":28000,"min":100,"nulls":85,"unique":255}}
+  ],
+  "categories": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"分类 ID","stats":{"max":30,"min":1,"nulls":0,"unique":24}},
+    {"name":"strName","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"分类名称","stats":{"max":"-","min":"-","nulls":0,"unique":24}},
+    {"name":"intParentID","dataType":"INT","precision":"","pk":false,"defaultVal":"NULL","desc":"父分类 ID","stats":{"max":20,"min":1,"nulls":8,"unique":6}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"16","pk":false,"defaultVal":"","desc":"分类编码","stats":{"max":"-","min":"-","nulls":0,"unique":24}},
+    {"name":"intSysCode","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"系统编码","stats":{"max":5,"min":1,"nulls":0,"unique":5}}
+  ],
+  "failure_codes": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"故障代码 ID","stats":{}},
+    {"name":"strName","dataType":"VARCHAR","precision":"128","pk":false,"defaultVal":"","desc":"故障名称","stats":{}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"32","pk":false,"defaultVal":"","desc":"故障编码","stats":{}},
+    {"name":"intParentID","dataType":"INT","precision":"","pk":false,"defaultVal":"NULL","desc":"父故障代码 ID","stats":{}}
+  ],
+  "crews": [
+    {"name":"id","dataType":"BIGINT","precision":"","pk":true,"defaultVal":"","desc":"班组 ID","stats":{"max":6,"min":1,"nulls":0,"unique":6}},
+    {"name":"strName","dataType":"VARCHAR","precision":"64","pk":false,"defaultVal":"","desc":"班组名称","stats":{"max":"-","min":"-","nulls":0,"unique":6}},
+    {"name":"strCode","dataType":"VARCHAR","precision":"16","pk":false,"defaultVal":"","desc":"班组编码","stats":{"max":"-","min":"-","nulls":0,"unique":6}},
+    {"name":"intSiteID","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"站点 ID","stats":{"max":3,"min":1,"nulls":0,"unique":2}},
+    {"name":"intMemberCount","dataType":"INT","precision":"","pk":false,"defaultVal":"","desc":"成员数","stats":{"max":18,"min":8,"nulls":0,"unique":5}}
+  ]
+}

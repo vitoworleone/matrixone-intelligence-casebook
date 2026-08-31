@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 管理后台 · AI Studio 管理</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <link rel="stylesheet" href="../styles/admin.css">
+  <style>
+    /* 模型服务页专用 */
+    .btn-secondary { background: #fff; color: rgba(0,0,0,0.65); border: 1px solid #d9d9d9; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .btn-secondary:hover { border-color: #722ed1; color: #722ed1; }
+
+    .ms-site-bar { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .ms-site-bar label { font-size: 13px; color: rgba(0,0,0,0.55); white-space: nowrap; }
+    .ms-site-select { height: 34px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; background: #fff; outline: none; cursor: pointer; min-width: 220px; }
+    .ms-site-select:focus { border-color: #1677ff; }
+
+    .ms-info-bar { display: flex; align-items: flex-start; gap: 8px; background: #e6f4ff; border: 1px solid #91caff; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #0958d9; line-height: 1.7; margin-bottom: 16px; }
+    .ms-info-bar svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 3px; }
+
+    /* Tab 栏 */
+    .ms-tabs { display: flex; gap: 4px; border-bottom: 1px solid #f0f0f0; margin-bottom: 18px; }
+    .ms-tab { padding: 9px 16px 11px; font-size: 13.5px; color: rgba(0,0,0,0.55); cursor: pointer; border: none; background: none; position: relative; transition: color 0.15s; }
+    .ms-tab:hover { color: rgba(0,0,0,0.85); }
+    .ms-tab.active { color: #722ed1; font-weight: 600; }
+    .ms-tab.active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: #722ed1; border-radius: 2px; }
+
+    /* 调用记录表格(请求详情 Tab) */
+    .ms-usage-table-wrap { overflow-x: auto; }
+    .ms-usage-table { min-width: 100%; }
+    .ms-usage-table th, .ms-usage-table td { white-space: nowrap; }
+    .ms-usage-table td { font-size: 12.5px !important; padding: 9px 12px !important; }
+    .ms-usage-table .num { font-variant-numeric: tabular-nums; }
+    .ms-usage-table .sub { font-size: 11.5px; color: rgba(0,0,0,0.4); }
+    .ms-user-tag { font-size: 10.5px; padding: 1px 6px; border-radius: 4px; margin-left: 5px; vertical-align: 1px; }
+    .ms-user-tag.svc { background: #e6f4ff; color: #0958d9; }
+    .ms-user-tag.sys { background: #f5f5f5; color: rgba(0,0,0,0.45); }
+    .ms-status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+    .ms-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .ms-status.ok { color: #389e0d; } .ms-status.fail { color: #cf1322; } .ms-status.limit { color: #d46b08; }
+    .ms-req-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: rgba(0,0,0,0.45); }
+    .ms-usage-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; font-size: 12.5px; color: rgba(0,0,0,0.45); }
+    .ms-pager { display: flex; align-items: center; gap: 8px; }
+    .ms-pager button { height: 28px; padding: 0 10px; font-size: 12.5px; }
+    .ms-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* 请求详情 Tab 与请求详情弹窗 */
+    .ms-req-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .ms-req-bar input, .ms-req-bar select { height: 32px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 12.5px; outline: none; background: #fff; font-family: inherit; color: rgba(0,0,0,0.82); }
+    .ms-req-bar input { width: 280px; }
+    .ms-req-bar input:focus, .ms-req-bar select:focus { border-color: #722ed1; }
+    .ms-req-link { color: #722ed1; cursor: pointer; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+    .ms-req-link:hover { text-decoration: underline; }
+    a.ms-req-link { text-decoration: none; }
+    a.ms-req-link .ext { font-size: 11px; opacity: 0.6; }
+    .ms-modal.wide { width: 900px; }
+    .ms-req-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .ms-req-view { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.85); }
+    .ms-req-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+    .ms-req-card { background: #fafafa; border-radius: 6px; padding: 8px 12px; min-width: 0; }
+    .ms-req-card .l { font-size: 10.5px; color: rgba(0,0,0,0.35); margin-bottom: 2px; }
+    .ms-req-card .v { font-size: 12.5px; color: rgba(0,0,0,0.82); word-break: break-all; }
+    .ms-req-card .v.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+    .ms-req-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0 14px; }
+    .ms-req-metric { background: #fafafa; border-radius: 6px; padding: 8px 12px; text-align: center; }
+    .ms-req-metric .l { font-size: 10.5px; color: rgba(0,0,0,0.35); }
+    .ms-req-metric .v { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.85); margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .ms-req-sec { font-size: 11.5px; font-weight: 600; color: rgba(0,0,0,0.45); margin: 0 0 5px; display: flex; align-items: center; gap: 8px; }
+    .ms-req-pre { background: #fafbfc; border: 1px solid #e8e8e8; border-radius: 6px; padding: 10px 12px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 150px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; color: rgba(0,0,0,0.7); margin-bottom: 12px; line-height: 1.55; }
+    .ms-req-pre.ok { background: #f6ffed; border-color: #d9f7be; }
+    .ms-req-pre.bad { background: #fff2f0; border-color: #ffccc7; }
+    .ms-calls-table th, .ms-calls-table td { font-size: 12px !important; padding: 7px 6px !important; }
+    .ms-calls-table .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: rgba(0,0,0,0.55); }
+    /* 计算资源规格目录 */
+    .cp-kind-chip { display: inline-flex; padding: 4px 14px; border: 1px solid #d9d9d9; border-radius: 14px; font-size: 12.5px; color: rgba(0,0,0,0.65); cursor: pointer; background: #fff; transition: all 0.15s; }
+    .cp-kind-chip:hover { border-color: #722ed1; color: #722ed1; }
+    .cp-kind-chip.on { border-color: #722ed1; color: #722ed1; background: rgba(114,46,209,0.06); font-weight: 500; }
+    .cp-conf { font-size: 13px; color: rgba(0,0,0,0.82); }
+    .cp-conf-sub { font-size: 11px; color: rgba(0,0,0,0.38); margin-top: 2px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .cp-series-en { font-size: 11px; color: rgba(0,0,0,0.4); margin-top: 1px; }
+    .cp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+    .cp-field label { display: block; font-size: 12.5px; font-weight: 500; color: rgba(0,0,0,0.85); margin-bottom: 5px; }
+    .cp-field label .req { color: #ff4d4f; margin-right: 2px; }
+    .cp-field input, .cp-field select { width: 100%; height: 32px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box; background: #fff; font-family: inherit; }
+    .cp-field input:focus, .cp-field select:focus { border-color: #722ed1; }
+    .cp-field .hint { font-size: 11px; color: rgba(0,0,0,0.4); margin-top: 4px; line-height: 1.5; }
+    .cp-gpu-box { grid-column: 1 / -1; border: 1px dashed #e0d3f5; border-radius: 8px; padding: 12px 14px; background: #fcfaff; }
+    .cp-gpu-box .ttl { font-size: 12.5px; font-weight: 600; color: #722ed1; margin-bottom: 10px; }
+
+    .ms-model-chip { display: inline-flex; align-items: center; gap: 5px; background: #f5f5f5; border: 1px solid #e8e8e8; border-radius: 5px; padding: 2px 9px; font-size: 12px; color: rgba(0,0,0,0.65); margin: 2px 4px 2px 0; white-space: nowrap; }
+    .ms-model-chip.def { background: #e6f4ff; border-color: #91caff; color: #0958d9; font-weight: 500; }
+    .ms-model-chip .star { color: #1677ff; font-size: 11px; }
+
+    .ms-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 2px 9px; border-radius: 10px; white-space: nowrap; }
+    .ms-badge.on { background: rgba(82,196,26,0.1); color: #389e0d; }
+    .ms-badge.off { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.45); }
+
+    .ms-slot-name { font-weight: 600; color: rgba(0,0,0,0.88); font-size: 13.5px; }
+    .ms-slot-desc { font-size: 12px; color: rgba(0,0,0,0.4); margin-top: 2px; }
+    .ms-type-tag { font-size: 12px; color: rgba(0,0,0,0.55); background: #fafafa; border: 1px solid #f0f0f0; border-radius: 4px; padding: 1px 8px; white-space: nowrap; }
+
+    .ms-section-title { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.88); margin: 28px 0 4px; display: flex; align-items: center; gap: 8px; }
+    .ms-section-title svg { width: 16px; height: 16px; color: #722ed1; }
+
+    /* 弹窗 */
+    .ms-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: center; justify-content: center; }
+    .ms-modal-overlay.show { display: flex; }
+    .ms-modal { background: #fff; border-radius: 12px; width: 560px; max-height: 86vh; box-shadow: 0 6px 30px rgba(0,0,0,0.12); display: flex; flex-direction: column; }
+    .ms-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 26px 14px; border-bottom: 1px solid #f0f0f0; }
+    .ms-modal-header h3 { font-size: 16px; font-weight: 600; margin: 0; }
+    .ms-modal-close { width: 30px; height: 30px; border: none; background: none; cursor: pointer; border-radius: 6px; font-size: 17px; color: rgba(0,0,0,0.45); }
+    .ms-modal-close:hover { background: rgba(0,0,0,0.04); }
+    .ms-modal-body { padding: 18px 26px; overflow-y: auto; flex: 1; }
+    .ms-modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 26px; border-top: 1px solid #f0f0f0; }
+    .ms-modal-hint { font-size: 12.5px; color: rgba(0,0,0,0.45); line-height: 1.7; margin-bottom: 12px; }
+
+    /* 模型选择器(借鉴 Genesis:搜索 + 滚动列表) */
+    .ms-picker-search { width: 100%; height: 32px; padding: 0 11px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 12.5px; outline: none; margin-bottom: 8px; box-sizing: border-box; }
+    .ms-picker-search:focus { border-color: #722ed1; box-shadow: 0 0 0 2px rgba(114,46,209,0.08); }
+    .ms-model-list { max-height: 300px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 8px; }
+    .ms-mrow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.1s; }
+    .ms-mrow:last-child { border-bottom: none; }
+    .ms-mrow:hover { background: #fafafa; }
+    .ms-mrow.checked { background: #f0f7ff; }
+    .ms-mrow input { accent-color: #1677ff; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; pointer-events: none; }
+    .ms-mrow .nm { font-size: 13px; color: rgba(0,0,0,0.85); flex: 1; }
+    .ms-mrow.checked .nm { color: #0958d9; font-weight: 500; }
+    .ms-mrow .src { font-size: 10.5px; color: rgba(0,0,0,0.4); background: #f0f0f0; padding: 1px 7px; border-radius: 8px; white-space: nowrap; }
+    .ms-empty { padding: 22px; text-align: center; font-size: 12.5px; color: rgba(0,0,0,0.3); }
+    .ms-def-label { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.88); margin: 16px 0 8px; }
+    .ms-def-area .ms-mrow { border: 1px solid #f0f0f0; border-radius: 8px; margin-bottom: 4px; }
+    .ms-def-area .ms-mrow.checked { border-color: #91caff; }
+
+    .ms-log-table td { font-size: 12.5px !important; padding: 9px 14px !important; }
+    .ms-arrow { color: rgba(0,0,0,0.3); margin: 0 6px; }
+    .ms-toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(30,32,38,0.88); color: #fff; font-size: 13px; padding: 9px 18px; border-radius: 8px; z-index: 999; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+    .ms-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="admin-layout">
+    <div class="admin-sidebar" id="adminSidebar"></div>
+    <div class="admin-main">
+
+      <!-- ========== Panel: AI 服务 ========== -->
+      <div id="asPanel-models" style="display:none">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:20px">
+          <div>
+            <div class="admin-page-title">AI 服务</div>
+            <div class="admin-page-desc" style="margin-bottom:0">AI Studio 各项 AI 服务的模型配置、变更日志与请求详情——按服务站点生效；用量统计见计费中心 › 用量明细</div>
+          </div>
+          <div class="ms-site-bar">
+            <label>服务站点</label>
+            <select class="ms-site-select" id="msSiteSelect" onchange="msSwitchSite(this.value)">
+              <option value="aliyun">阿里云(中国 · 国内主站)</option>
+              <option value="tencent">腾讯云(中国)</option>
+              <option value="v2">Virtual Vision(沙特阿拉伯)</option>
+              <option value="1stack">1Stack(马来西亚 · 新加坡)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ms-tabs">
+          <button class="ms-tab active" id="msTabBtn-config" onclick="msSwitchTab('config')">模型配置</button>
+          <button class="ms-tab" id="msTabBtn-logs" onclick="msSwitchTab('logs')">变更日志</button>
+          <button class="ms-tab" id="msTabBtn-requests" onclick="msSwitchTab('requests')">请求详情</button>
+        </div>
+
+        <!-- Tab: 模型配置 -->
+        <div id="msTab-config">
+          <div class="ms-info-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></svg>
+            <div>AI 服务分两类计价:「不可见」类收固定价(更换生效模型不影响价格);「可选」类按用户所选模型的 Genesis 原价 × markup,价格随模型选择变化。单价与 markup 在 计费中心 › 价格设置 配置。前台行为:「不可见」= 用户无模型概念,后台多选一;「可选」= 用户在此处配置的模型中选择。</div>
+          </div>
+
+          <table class="admin-table" style="table-layout:fixed">
+            <thead><tr>
+              <th style="width:24%">AI 服务</th>
+              <th style="width:10%">模型类型</th>
+              <th>模型名称(★ 默认)</th>
+              <th style="width:19%" title="只读引用:固定价与 markup 来自 计费中心 › 价格设置(按站点),可选类模型原价来自 Genesis 模型管理;本页不改价">价格</th>
+              <th style="width:8%">前台行为</th>
+              <th style="width:7%">操作</th>
+            </tr></thead>
+            <tbody id="msSlotBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Tab: 变更日志 -->
+        <div id="msTab-logs" style="display:none">
+          <div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:10px">AI 服务的全部配置变更自动记录,用于效果突变时回溯排查</div>
+          <table class="admin-table ms-log-table">
+            <thead><tr><th style="width:150px">时间</th><th style="width:100px">操作人</th><th style="width:170px">站点</th><th style="width:190px">AI 服务</th><th>变更内容</th></tr></thead>
+            <tbody id="msLogBody"></tbody>
+          </table>
+        </div>
+
+        <!-- 用量统计已并入 计费中心 › 用量明细（AI 服务行可展开细分）,本页不再单设 Tab -->
+
+        <!-- Tab: 请求详情 —— 逐条 AI 服务调用;每条可打开详情,并按请求 ID 跳转 Genesis 请求日志查看模型层(上游渠道)细节 -->
+        <div id="msTab-requests" style="display:none">
+          <div class="ms-req-bar">
+            <input type="text" id="msReqSearch" placeholder="搜索请求 ID / 用户 / 触发对象 / 账户 / 工作区" oninput="msReq.q=this.value;msReq.page=1;msRenderRequests()">
+            <select id="msReqRange" onchange="msReq.range=this.value;msReq.page=1;msRenderRequests()">
+              <option value="today">今天</option><option value="7d" selected>近 7 天</option><option value="30d">近 30 天</option><option value="90d">近 90 天</option>
+            </select>
+            <select id="msReqService" onchange="msReq.service=this.value;msReq.page=1;msRenderRequests()"></select>
+            <select id="msReqStatus" onchange="msReq.status=this.value;msReq.page=1;msRenderRequests()">
+              <option value="all">全部状态</option><option value="ok">成功</option><option value="fail">失败</option><option value="limit">限流</option>
+            </select>
+            <div style="flex:1"></div>
+            <span style="font-size:12px;color:rgba(0,0,0,0.4)">一条 = 一次 AI 服务调用;模型层的上游请求在 Genesis 请求日志中按请求 ID 贯通</span>
+          </div>
+          <div class="ms-usage-table-wrap">
+            <table class="admin-table ms-usage-table" id="msReqTable">
+              <thead><tr><th>时间</th><th>请求 ID</th><th>账户 / 工作区</th><th>用户</th><th>AI 服务</th><th>模型</th><th class="num">Token(输入 / 输出)</th><th class="num">耗时</th><th>状态</th><th style="width:70px">操作</th></tr></thead>
+              <tbody id="msReqBody"></tbody>
+            </table>
+          </div>
+          <div class="ms-usage-foot" id="msReqFoot"></div>
+        </div>
+      </div>
+
+      <!-- ========== Panel: 计算资源（规格目录）========== -->
+      <div id="asPanel-compute" style="display:none">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:20px">
+          <div>
+            <div class="admin-page-title">计算资源</div>
+            <div class="admin-page-desc" style="margin-bottom:0">平台可售的计算资源规格目录与各工作区开设的计算实例台账；单价在 <a href="billing-management.html#pricing" style="color:#722ed1">计费中心 › 价格设置</a> 按站点 × Region 配置，本页不改价</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <select id="cpSiteSel" onchange="cpOnSiteChange()" style="padding:6px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12.5px;background:#fff;color:rgba(0,0,0,0.75)"></select>
+            <select id="cpRegionSel" onchange="cpOnRegionChange()" style="padding:6px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12.5px;background:#fff;color:rgba(0,0,0,0.75)"></select>
+          </div>
+        </div>
+
+        <div class="ms-tabs">
+          <button class="ms-tab active" id="cpTabBtn-specs" onclick="cpSwitchTab('specs')">规格配置</button>
+          <button class="ms-tab" id="cpTabBtn-instances" onclick="cpSwitchTab('instances')">计算实例</button>
+        </div>
+
+        <div id="cpTab-specs">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <span class="cp-kind-chip on" data-k="all" onclick="cpFilterKind('all',this)">全部</span>
+            <span class="cp-kind-chip" data-k="task" onclick="cpFilterKind('task',this)">通用</span>
+            <span class="cp-kind-chip" data-k="query" onclick="cpFilterKind('query',this)">SQL</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.4);margin-left:6px">排序固定：类型 → 规格族 → 规格（CPU / 内存 / GPU 升序）；规格目录全站点一致，单价随右上角站点 / Region 变化</span>
+            <span style="flex:1"></span>
+            <button class="btn-primary" style="padding:6px 14px;display:inline-flex;align-items:center;gap:6px;flex-shrink:0" onclick="cpOpenModal(null)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>新增规格
+            </button>
+          </div>
+
+          <table class="admin-table" style="table-layout:fixed">
+            <thead><tr>
+              <th style="width:8%">规格 ID</th>
+              <th style="width:7%">类型</th>
+              <th style="width:16%">规格族</th>
+              <th style="width:24%">配置</th>
+              <th style="width:15%">单价</th>
+              <th style="width:9%" title="当前站点 / Region 下使用该规格的计算实例数（含平台共享与已停止），点击查看">实例数</th>
+              <th style="width:9%">状态</th>
+              <th style="width:12%">操作</th>
+            </tr></thead>
+            <tbody id="cpSpecBody"></tbody>
+          </table>
+        </div>
+
+        <div id="cpTab-instances" style="display:none">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <input id="cpInstSearch" placeholder="搜索实例 ID / 名称 / 账户 / 工作区" oninput="cpRenderInstances()" style="width:260px;padding:6px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:12.5px">
+            <select id="cpInstStatus" onchange="cpRenderInstances()" style="padding:6px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12.5px;background:#fff;color:rgba(0,0,0,0.75)">
+              <option value="all">全部状态</option><option value="running">运行中</option><option value="stopped">已停止</option>
+            </select>
+            <span id="cpInstSpecChip" style="display:none;font-size:12px;padding:4px 10px;border-radius:6px;background:#f0e6ff;color:#722ed1"></span>
+            <span style="flex:1"></span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.4)">当前站点 / Region 的运行台账；计费与用量在 <a href="billing-management.html#usage" style="color:#722ed1">计费中心 › 用量明细</a></span>
+          </div>
+
+          <table class="admin-table" style="table-layout:fixed">
+            <thead><tr>
+              <th style="width:10%">实例 ID</th>
+              <th style="width:14%">名称</th>
+              <th style="width:11%">账户</th>
+              <th style="width:11%">工作区</th>
+              <th style="width:6%">类型</th>
+              <th style="width:21%">规格</th>
+              <th style="width:8%" title="当前节点数（最小-最大扩缩容范围）">节点数</th>
+              <th style="width:7%">状态</th>
+              <th style="width:12%">创建时间</th>
+            </tr></thead>
+            <tbody id="cpInstBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 计算实例详情弹窗（字段对齐前台计算资源详情：规格 / 扩缩容 / 自动暂停 / 单节点价格 / 创建人，另附管理侧归因与计费跳转） -->
+  <div class="ms-modal-overlay" id="cpInstModal" onclick="if(event.target===this)cpCloseInstDetail()">
+    <div class="ms-modal" style="width:680px">
+      <div class="ms-modal-header"><h3 id="cpInstModalTitle">实例详情</h3><button class="ms-modal-close" onclick="cpCloseInstDetail()">✕</button></div>
+      <div class="ms-modal-body" id="cpInstModalBody"></div>
+      <div class="ms-modal-footer">
+        <button class="btn-secondary" style="padding:7px 18px;font-size:13px" onclick="cpCloseInstDetail()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 请求详情弹窗(字段结构与 Genesis 请求详情对齐,附 MOI 产品层归因;可按请求 ID 跳转 Genesis 请求日志) -->
+  <div class="ms-modal-overlay" id="msReqModal" onclick="if(event.target===this)msCloseReqDetail()">
+    <div class="ms-modal wide">
+      <div class="ms-modal-header"><h3 id="msReqModalTitle">请求详情</h3><button class="ms-modal-close" onclick="msCloseReqDetail()">✕</button></div>
+      <div class="ms-modal-body" id="msReqModalBody"></div>
+    </div>
+  </div>
+
+  <!-- 规格 新增 / 编辑 弹窗（右侧可扩出规格族管理面板） -->
+  <div class="ms-modal-overlay" id="cpModal" onclick="if(event.target===this)cpCloseModal()">
+    <div class="ms-modal" id="cpModalBox" style="width:640px;transition:width 0.25s cubic-bezier(.16,1,.3,1)">
+      <div class="ms-modal-header"><h3 id="cpModalTitle">新增规格</h3><button class="ms-modal-close" onclick="cpCloseModal()">✕</button></div>
+      <div style="display:flex;flex:1;min-height:0">
+        <div class="ms-modal-body" id="cpModalBody" style="flex:1;min-width:0"></div>
+        <div id="cpSeriesPanel" style="display:none;width:430px;flex-shrink:0;border-left:1px solid #f0f0f0;overflow-y:auto;padding:18px 22px;background:#fcfcfd"></div>
+      </div>
+      <div class="ms-modal-footer">
+        <button class="btn-secondary" style="padding:7px 18px;font-size:13px" onclick="cpCloseModal()">取消</button>
+        <button class="btn-primary" style="padding:7px 18px;font-size:13px" onclick="cpSaveSpec()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 服务配置弹窗 -->
+  <div class="ms-modal-overlay" id="msSlotModal">
+    <div class="ms-modal">
+      <div class="ms-modal-header"><h3 id="msSlotModalTitle">配置 AI 服务</h3><button class="ms-modal-close" onclick="msCloseSlotModal()">✕</button></div>
+      <div class="ms-modal-body" id="msSlotModalBody"></div>
+      <div class="ms-modal-footer">
+        <button class="btn-secondary" style="padding:7px 18px;font-size:13px" onclick="msCloseSlotModal()">取消</button>
+        <button class="btn-primary" style="padding:7px 18px;font-size:13px" onclick="msSaveSlot()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ms-toast" id="msToast"></div>
+
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/admin-common.js?v=20260828"></script>
+  <script>
+    // ===== Genesis 已接入模型(按模型类型;各站点接入清单不同)=====
+    var GENESIS_POOLS = {
+      cn: {
+        '对话(文本)': ['deepseek-v4-flash', 'glm-5.2', 'qwen3.7-plus', 'qwen3-max', 'qwen3.8-27b', 'qwen-max', 'qwen-plus', 'qwen-turbo', 'qwen-long', 'deepseek-v3', 'deepseek-r1', 'glm-4.5', 'glm-4-air', 'moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k', 'baichuan4', 'baichuan3-turbo', 'yi-large', 'yi-lightning', 'minimax-abab7', 'minimax-abab6.5s', 'ernie-4.5', 'hunyuan-large', 'spark-4.0-ultra'],
+        '对话(多模态)': ['qwen3-vl-plus', 'qwen-vl-plus', 'qwen-vl-max', 'glm-4v', 'glm-4v-plus', 'step-1v', 'moonshot-v1-vision', 'hunyuan-vision', 'yi-vision'],
+        '向量': ['bge-m3', 'text-embedding-v3', 'text-embedding-v2', 'm3e-large', 'gte-large-zh', 'bce-embedding-base', 'conan-embedding'],
+        '多模态向量': ['efficientnet-b3', 'chinese-clip', 'bge-visualized', 'cn-clip-vit-l'],
+        '重排': ['qwen3-rerank', 'bge-reranker-v2', 'gte-rerank', 'bce-reranker-base', 'conan-reranker'],
+        '语音识别': ['paraformer-zh', 'paraformer-v2', 'sensevoice-small', 'whisper-large-v3']
+      },
+      sea: {
+        '对话(文本)': ['llama-3.1-70b', 'llama-3.1-8b', 'claude-sonnet', 'claude-haiku', 'gpt-4.1', 'gpt-4.1-mini', 'mistral-large', 'mistral-small', 'sea-lion-v3', 'gemma-2-27b', 'qwen-max'],
+        '对话(多模态)': ['gpt-4.1', 'claude-sonnet', 'qwen-vl-plus', 'llama-3.2-90b-vision'],
+        '向量': ['multilingual-e5-large', 'bge-m3', 'text-embedding-3-large', 'text-embedding-3-small', 'cohere-embed-v3'],
+        '多模态向量': ['efficientnet-b3', 'siglip-large', 'cohere-embed-v3-multimodal'],
+        '重排': ['bge-reranker-v2', 'cohere-rerank-v3', 'voyage-rerank-2'],
+        '语音识别': ['whisper-large-v3', 'gpt-4o-transcribe', 'azure-speech-batch']
+      }
+    };
+
+    // ===== 站点级配置:每项 AI 服务 = 生效模型(不可见:单个;可选:多个 + 默认)=====
+    function makeSlots(d) {
+      return [
+        { id: 'parse', name: '文档解析', desc: 'VLM 视觉解析:版面识别、表格与图表理解、扫描件识别,逐页调用', type: '对话(多模态)', models: [d.parse], def: d.parse, front: 'hidden' },
+        { id: 'extract', name: '信息提取', desc: '按 schema 从解析产物 / 文本中抽取结构化字段(工作流信息提取节点)', type: '对话(文本)', models: [d.extract], def: d.extract, front: 'hidden' },
+        { id: 'img-parse', name: '图片解析', desc: '图片内容理解与描述、图内文字识别', type: '对话(多模态)', models: [d.imgParse], def: d.imgParse, front: 'hidden' },
+        { id: 'audio-parse', name: '音频解析', desc: '语音转写(ASR):音视频文件转文字,含分段时间戳', type: '语音识别', models: [d.audioParse], def: d.audioParse, front: 'hidden' },
+        { id: 'ai-infer', name: 'AI 推理', desc: '工作流 AI 推理节点 / 数据增强的通用推理(支持图文输入)', type: '对话(多模态)', models: [d.aiInfer], def: d.aiInfer, front: 'hidden' },
+        { id: 'embed-text', name: '文本嵌入', desc: '知识库 / Catalog 向量索引', type: '向量', models: [d.embedText], def: d.embedText, front: 'hidden' },
+        { id: 'embed-img', name: '图片嵌入', desc: '知识库图文检索(以图搜图)', type: '多模态向量', models: [d.embedImg], def: d.embedImg, front: 'hidden' },
+        { id: 'rerank', name: '重排序', desc: '知识库检索结果重排序', type: '重排', models: [d.rerank], def: d.rerank, front: 'hidden' },
+        { id: 'workflow', name: '智能工作流', desc: '自然语言生成 / 编排工作流(Data Agent 规划与节点编排)', type: '对话(文本)', models: [d.workflow], def: d.workflow, front: 'hidden' },
+        { id: 'nl2sql', name: 'NL2SQL', desc: '自然语言生成 SQL:数据看板图表定义、知识库结构化问答', type: '对话(文本)', models: [d.nl2sql], def: d.nl2sql, front: 'hidden' },
+        { id: 'kbqa', name: '知识库问答及 RAG', desc: '问答解析、RAG 检索生成、最终结果整合共用一个模型;用户从配置的模型中选择', type: '对话(文本)', models: d.kbqaModels.slice(), def: d.kbqaDef, front: 'selectable' },
+        { id: 'agent-chat', name: '智能体对话', desc: '智能体主对话模型;用户从此处配置的模型中选择', type: '对话(文本)', models: d.agentModels.slice(), def: d.agentDef, front: 'selectable' }
+      ];
+    }
+
+    var CN_SLOT_DEFAULTS = { parse: 'qwen3-vl-plus', extract: 'qwen3.8-27b', imgParse: 'qwen3-vl-plus', audioParse: 'paraformer-zh', aiInfer: 'qwen3-vl-plus', embedText: 'bge-m3', embedImg: 'efficientnet-b3', rerank: 'qwen3-rerank', workflow: 'glm-5.2', nl2sql: 'qwen3-max', kbqaModels: ['deepseek-v4-flash', 'glm-5.2', 'qwen3.7-plus'], kbqaDef: 'deepseek-v4-flash', agentModels: ['deepseek-v4-flash', 'glm-5.2', 'qwen3.7-plus'], agentDef: 'deepseek-v4-flash' };
+    var SITE_CONFIGS = {
+      aliyun: { label: '阿里云(国内主站)', pool: 'cn', slots: makeSlots(CN_SLOT_DEFAULTS) },
+      tencent: { label: '腾讯云(中国)', pool: 'cn', slots: makeSlots(CN_SLOT_DEFAULTS) },
+      v2: { label: 'Virtual Vision(沙特阿拉伯)', pool: 'sea', slots: makeSlots({ parse: 'gpt-4.1', extract: 'llama-3.1-70b', imgParse: 'gpt-4.1', audioParse: 'whisper-large-v3', aiInfer: 'gpt-4.1', embedText: 'multilingual-e5-large', embedImg: 'efficientnet-b3', rerank: 'bge-reranker-v2', workflow: 'claude-sonnet', nl2sql: 'llama-3.1-70b', kbqaModels: ['claude-sonnet', 'llama-3.1-70b'], kbqaDef: 'claude-sonnet', agentModels: ['claude-sonnet', 'gpt-4.1', 'llama-3.1-70b'], agentDef: 'claude-sonnet' }) },
+      '1stack': { label: '1Stack(马来西亚 · 新加坡)', pool: 'sea', slots: makeSlots({ parse: 'gpt-4.1', extract: 'llama-3.1-70b', imgParse: 'gpt-4.1', audioParse: 'whisper-large-v3', aiInfer: 'gpt-4.1', embedText: 'multilingual-e5-large', embedImg: 'efficientnet-b3', rerank: 'cohere-rerank-v3', workflow: 'claude-sonnet', nl2sql: 'llama-3.1-70b', kbqaModels: ['claude-sonnet', 'llama-3.1-70b', 'sea-lion-v3'], kbqaDef: 'claude-sonnet', agentModels: ['claude-sonnet', 'gpt-4.1', 'llama-3.1-70b', 'sea-lion-v3'], agentDef: 'claude-sonnet' }) }
+    };
+
+    // ===== 价格引用(只读):固定价与 markup 的事实源在 计费中心 › 价格设置(按站点),本页不改价 =====
+    var MS_AI_PRICE = { fixedBase: 500, markup: 1.5, siteMult: { aliyun: 1, tencent: 1, v2: 1.25, '1stack': 1.15 } };
+    // Genesis 模型原价(cr / 百万 token,[输入, 输出]),事实源在 Genesis › 模型管理;仅列可选类用到的模型
+    var MS_GENESIS_PRICE = {
+      'deepseek-v4-flash': [4, 12], 'glm-5.2': [20, 80], 'qwen3.7-plus': [16, 64],
+      'claude-sonnet': [22, 110], 'gpt-4.1': [14, 56], 'llama-3.1-70b': [6, 18], 'sea-lion-v3': [4, 10]
+    };
+
+    var MS_LOGS = [
+      { time: '2026-08-11 15:20', who: 'admin', site: '1Stack(马来西亚 · 新加坡)', slot: '智能体对话', change: '开放模型 + sea-lion-v3' },
+      { time: '2026-08-10 11:02', who: 'admin', site: '1Stack(马来西亚 · 新加坡)', slot: '知识库问答及 RAG', change: '默认模型 llama-3.1-70b <span class="ms-arrow">→</span> claude-sonnet' },
+      { time: '2026-07-22 09:40', who: 'ops-chen', site: '阿里云(国内主站)', slot: 'NL2SQL', change: '模型 qwen-max <span class="ms-arrow">→</span> qwen3-max' }
+    ];
+
+    // ===== AI 服务调用记录(供「请求详情」Tab;用量统计已并入计费中心 › 用量明细)=====
+    var MS_NOW = new Date(2026, 7, 21, 18, 0, 0); // 原型固定"当前时刻"
+    // 归因树(泛化示例账户)。系统任务 = 工作流定时 / 知识库索引 / 载入解析等无操作者的调用:用户层记「系统任务」、Key 层记「—」,保证工作区总量与按用户求和一致
+    var MS_TENANTS = [
+      { account: '华东精工制造', workspaces: [
+        { name: '生产数据区', users: [
+          { name: '王建国', type: 'user', keys: ['生产 Key', '调试 Key'] },
+          { name: '李静', type: 'user', keys: ['默认 Key'] },
+          { name: 'svc-mes-sync', type: 'svc', keys: ['MES 同步 · 生产'] }
+        ], objs: { agent: ['设备巡检助手', '质量追溯助手'], kb: ['工艺知识库', '设备手册库'], dash: ['产线良率看板'], load: ['MES 日报载入', '质检报告载入'] } },
+        { name: '研发知识库', users: [
+          { name: '赵明', type: 'user', keys: ['默认 Key'] },
+          { name: '孙倩', type: 'user', keys: ['默认 Key'] }
+        ], objs: { agent: ['研发问答助手'], kb: ['专利文献库', '研发规范库'], dash: [], load: ['专利文档载入'] } }
+      ] },
+      { account: '星河教育科技', workspaces: [
+        { name: '默认工作区', users: [
+          { name: '陈老师', type: 'user', keys: ['默认 Key'] },
+          { name: 'svc-campus-bot', type: 'svc', keys: ['校园助手 · 生产', '校园助手 · 测试'] }
+        ], objs: { agent: ['校园问答', '选课助手'], kb: ['教务知识库', '课程资料库'], dash: ['招生看板'], load: ['课程资料载入'] } }
+      ] },
+      { account: '远航物流', workspaces: [
+        { name: '运营分析区', users: [
+          { name: '周毅', type: 'user', keys: ['默认 Key'] },
+          { name: '吴晓', type: 'user', keys: ['看板 Key'] }
+        ], objs: { agent: ['运营分析助手'], kb: ['运营制度库'], dash: ['时效看板', '成本看板'], load: ['运单数据载入'] } },
+        { name: '客服智能体', users: [
+          { name: 'svc-cs-gateway', type: 'svc', keys: ['客服网关'] },
+          { name: '郑琳', type: 'user', keys: ['默认 Key'] }
+        ], objs: { agent: ['客服助手'], kb: ['客服话术库', '网点信息库'], dash: [], load: ['工单导出载入'] } }
+      ] }
+    ];
+    var MS_SYS_SUBJECT = { name: '系统任务', type: 'sys', keys: ['—'] };
+    // 各类主体偏好的 AI 服务(权重):人以对话 / 问答为主,服务账号几乎只走对话,系统任务以索引 / 解析为主
+    var MS_SVC_PREF = {
+      user: [['agent-chat', 30], ['kbqa', 26], ['nl2sql', 12], ['parse', 8], ['extract', 6], ['ai-infer', 5], ['workflow', 4], ['img-parse', 4], ['embed-text', 5]],
+      svc:  [['agent-chat', 56], ['kbqa', 30], ['extract', 8], ['nl2sql', 6]],
+      sys:  [['embed-text', 28], ['rerank', 12], ['parse', 16], ['extract', 10], ['ai-infer', 10], ['img-parse', 6], ['audio-parse', 6], ['embed-img', 8], ['nl2sql', 4]]
+    };
+    // 各 AI 服务的 token 形态:[最小, 最大, 输入占比]
+    var MS_SVC_TOK = { 'parse': [3000, 42000, 0.96], 'extract': [2000, 18000, 0.9], 'img-parse': [1500, 8000, 0.94], 'audio-parse': [2000, 30000, 0.98], 'ai-infer': [1000, 12000, 0.8], 'workflow': [1500, 10000, 0.75], 'embed-text': [200, 2400, 1], 'embed-img': [800, 1600, 1], 'rerank': [1000, 6000, 1], 'nl2sql': [1500, 6000, 0.86], 'kbqa': [3000, 22000, 0.72], 'agent-chat': [2000, 32000, 0.68] };
+    var MS_SVC_OBJ = { 'agent-chat': 'agent', 'kbqa': 'kb', 'nl2sql': 'dash', 'parse': 'load', 'extract': 'load', 'img-parse': 'load', 'audio-parse': 'load', 'ai-infer': 'load', 'workflow': 'load', 'embed-text': 'kb', 'embed-img': 'kb', 'rerank': 'kb' };
+    var MS_SITE_WEIGHT = [['aliyun', 100], ['tencent', 36], ['v2', 12], ['1stack', 19]];
+
+    // 确定性伪随机(可重现;mulberry32,全程 32 位整数运算,避免乘法超出 JS 安全整数精度导致序列退化)
+    var msSeed = 20260821;
+    function msRand() {
+      msSeed = (msSeed + 0x6D2B79F5) | 0;
+      var t = Math.imul(msSeed ^ (msSeed >>> 15), 1 | msSeed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function msPick(a) { return a[Math.floor(msRand() * a.length)]; }
+    function msWeighted(pairs) { var t = 0, i; for (i = 0; i < pairs.length; i++) t += pairs[i][1]; var r = msRand() * t; for (i = 0; i < pairs.length; i++) { r -= pairs[i][1]; if (r <= 0) return pairs[i][0]; } return pairs[pairs.length - 1][0]; }
+
+    // Genesis 侧信息(渠道 / 来源 IP / 请求模型 / 缓存)——与 Genesis 请求日志的字段对齐,由同一 request id 贯通
+    function msChannelFor(model) {
+      if (/^qwen/.test(model)) return '阿里云 (通义)_生产';
+      if (/^deepseek/.test(model)) return 'DeepSeek_生产';
+      if (/^glm/.test(model)) return '智谱 AI_生产';
+      if (/^moonshot/.test(model)) return 'Moonshot AI_生产';
+      if (/^hunyuan/.test(model)) return '腾讯云 (混元)_生产';
+      if (/^(gpt|text-embedding-3)/.test(model)) return 'OpenAI_生产';
+      if (/^claude/.test(model)) return 'Anthropic_生产';
+      if (/^(llama|sea-lion|gemma|mistral)/.test(model)) return 'Together_生产';
+      return '自托管推理 (GPU 推理型)';
+    }
+    var MS_SVC_IP = { 'svc-mes-sync': '120.27.84.196', 'svc-campus-bot': '139.196.210.55', 'svc-cs-gateway': '47.98.133.20' };
+    var MS_CLIENT_NET = ['223.104', '112.80', '101.227', '58.246'];
+    function msHex(n) { var s = ''; for (var i = 0; i < n; i++) s += Math.floor(msRand() * 16).toString(16); return s; }
+    function msUuid() { return msHex(8) + '-' + msHex(4) + '-4' + msHex(3) + '-' + msHex(4) + '-' + msHex(12); }
+
+    function msGenRecords(n) {
+      var recs = [], slotById = {};
+      Object.keys(SITE_CONFIGS).forEach(function(k) { slotById[k] = {}; SITE_CONFIGS[k].slots.forEach(function(s) { slotById[k][s.id] = s; }); });
+      for (var i = 0; i < n; i++) {
+        var site = msWeighted(MS_SITE_WEIGHT);
+        var t = msPick(MS_TENANTS), ws = msPick(t.workspaces);
+        var subject = msRand() < 0.42 ? MS_SYS_SUBJECT : msPick(ws.users);
+        var svc = msWeighted(MS_SVC_PREF[subject.type]);
+        var slot = slotById[site][svc], tk = MS_SVC_TOK[svc];
+        var total = Math.round(tk[0] + msRand() * (tk[1] - tk[0]));
+        var tokIn = Math.round(total * tk[2]), tokOut = total - tokIn;
+        var r = msRand(), status = r < 0.965 ? 'ok' : (r < 0.992 ? 'fail' : 'limit');
+        if (status === 'limit') { tokIn = 0; tokOut = 0; }
+        if (status === 'fail') { tokOut = 0; }
+        var objs = ws.objs[MS_SVC_OBJ[svc]]; if (!objs || !objs.length) objs = ws.objs.kb;
+        var ago = Math.pow(msRand(), 1.25) * 90 * 86400000; // 近 90 天,近期略密
+        var model = msPick(slot.models);
+        var isChat = svc === 'agent-chat' || svc === 'kbqa';
+        var ip = subject.type === 'sys' ? '10.12.0.' + (20 + Math.floor(msRand() * 40))
+          : subject.type === 'svc' ? (MS_SVC_IP[subject.name] || '47.98.133.20')
+          : msPick(MS_CLIENT_NET) + '.' + Math.floor(msRand() * 255) + '.' + Math.floor(msRand() * 255);
+        recs.push({
+          site: site, time: new Date(MS_NOW.getTime() - ago),
+          account: t.account, workspace: ws.name, user: subject.name, userType: subject.type, key: msPick(subject.keys),
+          service: svc, serviceName: slot.name, model: model, object: msPick(objs),
+          // 不可见类服务按能力位别名请求(moi/<服务>),由 Genesis 解析为生效模型;可选类按用户选定的模型名请求
+          reqModel: slot.front === 'selectable' ? model : 'moi/' + svc,
+          channel: msChannelFor(model), ip: ip,
+          tokIn: tokIn, tokOut: tokOut, tokCache: isChat && status === 'ok' && msRand() < 0.4 ? Math.round(tokIn * (0.1 + msRand() * 0.25)) : 0,
+          credits: status === 'ok' ? (tokIn + tokOut) / 1e6 * 500 : 0, // 统一单价 500 cr / 百万 token;失败 / 限流不计费
+          dur: Math.round(isChat ? 1800 + msRand() * 9000 : (svc === 'parse' ? 4000 + msRand() * 30000 : 120 + msRand() * 900)),
+          status: status,
+          reqId: 'usage-' + msUuid()
+        });
+      }
+      recs.sort(function(a, b) { return b.time - a.time; });
+      return recs;
+    }
+    var MS_RECORDS = msGenRecords(6000);
+
+    var MS_PAGE = 20;
+
+    var msCurSite = 'aliyun';
+
+    function msEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    function msToast(t) { var el = document.getElementById('msToast'); el.textContent = t; el.classList.add('show'); setTimeout(function() { el.classList.remove('show'); }, 2200); }
+
+    function msSwitchSite(site) { msCurSite = site; msRenderSlots(); msRenderReqServiceOptions(); msRenderRequests(); }
+
+    function msSwitchTab(tab) {
+      ['config', 'logs', 'requests'].forEach(function(t) {
+        document.getElementById('msTab-' + t).style.display = t === tab ? '' : 'none';
+        document.getElementById('msTabBtn-' + t).classList.toggle('active', t === tab);
+      });
+    }
+
+    function msFmtNum(n) { return n >= 10000 ? (n / 10000).toFixed(1).replace(/\.0$/, '') + ' 万' : String(Math.round(n)); }
+    function msFmtTok(t) { return t >= 1e9 ? (t / 1e9).toFixed(2) + ' B' : t >= 1e6 ? (t / 1e6).toFixed(2) + ' M' : t >= 1e3 ? (t / 1e3).toFixed(1) + ' k' : String(Math.round(t)); }
+    function msFmtCr(c) { return c >= 10000 ? (c / 10000).toFixed(2) + ' 万' : c >= 100 ? String(Math.round(c)) : c.toFixed(2); }
+    function msFmtMs(ms) { return ms >= 1000 ? (ms / 1000).toFixed(1) + ' s' : Math.round(ms) + ' ms'; }
+    function msPad(n) { return (n < 10 ? '0' : '') + n; }
+    function msFmtDate(d) { return msPad(d.getMonth() + 1) + '-' + msPad(d.getDate()); }
+    function msFmtTime(d) { return d.getFullYear() + '-' + msFmtDate(d) + ' ' + msPad(d.getHours()) + ':' + msPad(d.getMinutes()) + ':' + msPad(d.getSeconds()); }
+
+    function msDay0(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+    function msUserCell(name, type) {
+      return msEsc(name) + (type === 'svc' ? '<span class="ms-user-tag svc">服务账号</span>' : type === 'sys' ? '<span class="ms-user-tag sys">无操作者</span>' : '');
+    }
+
+    // ===== 请求详情 Tab:逐条 AI 服务调用 + 详情弹窗 + 按请求 ID 跳转 Genesis 请求日志 =====
+    var msReq = { q: '', range: '7d', service: 'all', status: 'all', page: 1 };
+    var MS_ST_LABEL = { ok: '成功', fail: '失败', limit: '限流' };
+    function msRenderReqServiceOptions() {
+      var sel = document.getElementById('msReqService');
+      sel.innerHTML = '<option value="all">全部 AI 服务</option>' + SITE_CONFIGS[msCurSite].slots.map(function(s) { return '<option value="' + s.id + '">' + msEsc(s.name) + '</option>'; }).join('');
+      sel.value = msReq.service; if (sel.value !== msReq.service) { msReq.service = 'all'; sel.value = 'all'; }
+    }
+    function msReqList() {
+      var DAY = 86400000, now = MS_NOW.getTime();
+      var since = msReq.range === 'today' ? msDay0(MS_NOW).getTime() : now - ({ '7d': 7, '30d': 30, '90d': 90 }[msReq.range] || 7) * DAY;
+      var q = msReq.q.trim().toLowerCase();
+      return MS_RECORDS.filter(function(r) {
+        if (r.site !== msCurSite || r.time.getTime() < since) return false;
+        if (msReq.status !== 'all' && r.status !== msReq.status) return false;
+        if (msReq.service !== 'all' && r.service !== msReq.service) return false;
+        if (q && [r.reqId, r.user, r.object, r.account, r.workspace, r.model].join(' ').toLowerCase().indexOf(q) < 0) return false;
+        return true;
+      });
+    }
+    function msRenderRequests() {
+      var list = msReqList(), total = list.length, pages = Math.max(1, Math.ceil(total / MS_PAGE));
+      if (msReq.page > pages) msReq.page = pages;
+      var slice = list.slice((msReq.page - 1) * MS_PAGE, msReq.page * MS_PAGE);
+      document.getElementById('msReqBody').innerHTML = slice.map(function(r) {
+        return '<tr><td>' + msFmtTime(r.time) + '</td>'
+          + '<td><span class="ms-req-link" onclick="msOpenReqDetail(\'' + r.reqId + '\')" title="查看请求详情">' + r.reqId + '</span></td>'
+          + '<td>' + msEsc(r.account) + ' <span class="sub">/ ' + msEsc(r.workspace) + '</span></td>'
+          + '<td>' + msUserCell(r.user, r.userType) + '</td>'
+          + '<td>' + msEsc(r.serviceName) + '</td>'
+          + '<td><span class="ms-model-chip" style="margin:0">' + msEsc(r.model) + '</span></td>'
+          + '<td class="num">' + msFmtTok(r.tokIn) + ' / ' + msFmtTok(r.tokOut) + '</td>'
+          + '<td class="num">' + msFmtMs(r.dur) + '</td>'
+          + '<td><span class="ms-status ' + r.status + '">' + MS_ST_LABEL[r.status] + '</span></td>'
+          + '<td><button class="btn-secondary" style="padding:3px 10px;font-size:12px" onclick="msOpenReqDetail(\'' + r.reqId + '\')">详情</button></td></tr>';
+      }).join('') || '<tr><td colspan="10" class="ms-empty">所选范围内没有调用记录</td></tr>';
+      document.getElementById('msReqFoot').innerHTML = '<span>共 ' + msFmtNum(total) + ' 条调用记录 · 按时间倒序 · 每页 ' + MS_PAGE + ' 条</span>'
+        + '<div class="ms-pager"><button class="btn-secondary"' + (msReq.page <= 1 ? ' disabled' : '') + ' onclick="msReq.page--;msRenderRequests()">上一页</button><span>' + msReq.page + ' / ' + pages + '</span><button class="btn-secondary"' + (msReq.page >= pages ? ' disabled' : '') + ' onclick="msReq.page++;msRenderRequests()">下一页</button></div>';
+    }
+
+    // 请求 / 响应正文预览(按 AI 服务类型生成;生产环境由网关记录,此处为示意)
+    function msReqPreview(r) {
+      var q = { 'agent-chat': '3 号产线昨天的巡检异常有哪些？', 'kbqa': '设备维护周期是多少？', 'nl2sql': '上个月各产线的良率分别是多少？' }[r.service] || '';
+      var req, res;
+      if (r.service === 'agent-chat' || r.service === 'kbqa') {
+        req = '{"model":"' + r.reqModel + '","messages":[{"role":"system","content":"你是「' + r.object + '」' + (r.service === 'kbqa' ? '的知识库问答助手。仅依据检索到的知识片段作答……\\n\\n[检索片段 1] ……\\n[检索片段 2] ……' : '，面向工作区成员提供业务问答……') + '"},{"role":"user","content":"' + q + '"}],"temperature":0.3,"stream":true}';
+        res = '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"根据' + (r.service === 'kbqa' ? '知识库' : '当前数据') + '……（已省略 ' + msFmtTok(r.tokOut) + ' 输出）"}}],"usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + (r.tokCache ? ',"prompt_cache_hit_tokens":' + r.tokCache : '') + '}}';
+      } else if (r.service === 'nl2sql') {
+        req = '{"model":"' + r.reqModel + '","messages":[{"role":"system","content":"将用户问题转换为 MatrixOne SQL。可用表结构：……"},{"role":"user","content":"' + q + '"}],"temperature":0}';
+        res = '{"sql":"SELECT line_name, SUM(pass_qty)/SUM(total_qty) AS yield FROM prod_daily WHERE dt BETWEEN \'2026-07-01\' AND \'2026-07-31\' GROUP BY line_name","usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + '}}';
+      } else if (r.service === 'parse') {
+        req = '{"model":"' + r.reqModel + '","task":"layout_enhance","input":{"source":"' + r.object + '","file":"……/scan_0427.pdf","pages":[12,13,14]},"options":{"tables":"merge_cells","images":"describe"}}';
+        res = '{"pages":[{"page":12,"blocks":[{"type":"table","rows":18,"cols":6},{"type":"paragraph","text":"……"}]},{"page":13,"blocks":[…]}],"usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + '}}';
+      } else if (r.service === 'extract') {
+        req = '{"model":"' + r.reqModel + '","messages":[{"role":"system","content":"按给定 schema 从文本中抽取字段,只输出 JSON。schema:{contract_no,amount,sign_date,…}"},{"role":"user","content":"（' + r.object + ' 的解析产物,已省略）"}],"response_format":{"type":"json_object"},"temperature":0}';
+        res = '{"fields":{"contract_no":"HT-2026-0341","amount":1280000,"sign_date":"2026-07-18"},"usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + '}}';
+      } else if (r.service === 'img-parse') {
+        req = '{"model":"' + r.reqModel + '","task":"image_understand","input":{"image":"volume://' + r.object + '/img_0512.png"},"options":{"ocr":true,"caption":true}}';
+        res = '{"caption":"产线巡检照片:3 号贴片机与操作面板……","ocr_text":"设备编号 SMT-03 ……","usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + '}}';
+      } else if (r.service === 'audio-parse') {
+        req = '{"model":"' + r.reqModel + '","file":"volume://' + r.object + '/meeting_0712.wav","language":"zh","timestamps":true}';
+        res = '{"text":"（转写全文已省略）","segments":[{"start":0.0,"end":8.4,"text":"……"},{"start":8.4,"end":15.2,"text":"……"}],"usage":{"prompt_tokens":' + r.tokIn + '}}';
+      } else if (r.service === 'ai-infer') {
+        req = '{"model":"' + r.reqModel + '","messages":[{"role":"user","content":[{"type":"text","text":"判断该质检图片是否存在缺陷并给出依据"},{"type":"image_url","image_url":"volume://' + r.object + '/qc_0731.png"}]}],"temperature":0.1}';
+        res = '{"choices":[{"finish_reason":"stop","message":{"content":"存在焊点偏移缺陷,位于……（已省略 ' + msFmtTok(r.tokOut) + ' 输出）"}}],"usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + '}}';
+      } else if (r.service === 'workflow') {
+        req = '{"model":"' + r.reqModel + '","messages":[{"role":"system","content":"根据用户描述生成 MOI 工作流编排(节点 + 连线),输出工作流 DSL……"},{"role":"user","content":"每天 8 点解析新上传合同,抽取金额与签署日期写入合同台账表"}],"temperature":0}';
+        res = '{"workflow":{"nodes":[{"type":"trigger.cron"},{"type":"volume.read"},{"type":"doc.parse"},{"type":"info.extract"},{"type":"table.write"}],"edges":[…]},"usage":{"prompt_tokens":' + r.tokIn + ',"completion_tokens":' + r.tokOut + '}}';
+      } else if (r.service === 'rerank') {
+        req = '{"model":"' + r.reqModel + '","query":"' + (q || '设备维护周期是多少？') + '","documents":["……","……","……"],"top_n":5}';
+        res = '{"results":[{"index":2,"relevance_score":0.91},{"index":0,"relevance_score":0.84},{"index":4,"relevance_score":0.62}],"usage":{"prompt_tokens":' + r.tokIn + '}}';
+      } else {
+        req = '{"model":"' + r.reqModel + '","input":[' + (r.service === 'embed-img' ? '{"image":"volume://' + r.object + '/img_0731.png"}' : '"' + r.object + ' · 第 3 章 ……","……"') + ']}';
+        res = '{"data":[{"index":0,"embedding":[0.018,-0.042,0.107,…]},{"index":1,"embedding":[…]}],"usage":{"prompt_tokens":' + r.tokIn + '}}';
+      }
+      if (r.status === 'fail') res = '{"error":{"message":"upstream request failed: 502 Bad Gateway from ' + r.channel + '","type":"upstream_error","request_id":"' + r.reqId + '"}}';
+      if (r.status === 'limit') res = '{"error":{"message":"rate limit exceeded for workspace ' + r.workspace + '","type":"rate_limit_error","code":429,"retry_after":12}}';
+      return { req: req, res: res };
+    }
+
+    // 一次 AI 服务调用拆出的 Genesis 模型请求(1 : N):知识库问答 = 向量化 + 重排 + 生成;文档解析按页多次 VLM 请求;其余 1 次
+    // 每次模型请求有自己的请求 ID(由 AI 服务请求 ID 派生,末四位编号),并带所属 AI 服务请求 ID,Genesis 请求日志据此贯通
+    function msGenesisCalls(r) {
+      var pv = msReqPreview(r), cfg = SITE_CONFIGS[r.site];
+      var slotDef = function(id) { var s = cfg.slots.filter(function(x) { return x.id === id; })[0]; return s ? s.def : ''; };
+      var http = r.status === 'ok' ? 200 : (r.status === 'limit' ? 429 : 502);
+      var subId = function(n) { return r.reqId.slice(0, -4) + ('000' + n).slice(-4); };
+      var calls;
+      if (r.service === 'kbqa' && r.status === 'ok') {
+        var eIn = Math.min(400, Math.round(r.tokIn * 0.04)), rIn = Math.min(2000, Math.round(r.tokIn * 0.15));
+        var em = slotDef('embed-text'), rm = slotDef('rerank');
+        calls = [
+          { id: subId(1), api: 'embeddings', model: em, reqModel: 'moi/embed-text', channel: msChannelFor(em), tIn: eIn, tOut: 0, tCache: 0, latency: 0.3, status: 200, reqBody: '{"model":"moi/embed-text","input":["设备维护周期是多少？"]}', resBody: '{"data":[{"embedding":[0.021,-0.008,…]}],"usage":{"prompt_tokens":' + eIn + '}}' },
+          { id: subId(2), api: 'rerank', model: rm, reqModel: 'moi/rerank', channel: msChannelFor(rm), tIn: rIn, tOut: 0, tCache: 0, latency: 0.5, status: 200, reqBody: '{"model":"moi/rerank","query":"设备维护周期是多少？","documents":["……"],"top_n":5}', resBody: '{"results":[{"index":2,"relevance_score":0.91},…]}' },
+          { id: subId(3), api: 'chat/completions', model: r.model, reqModel: r.reqModel, channel: r.channel, tIn: r.tokIn - eIn - rIn, tOut: r.tokOut, tCache: r.tokCache, latency: Number(Math.max(0.5, r.dur / 1000 - 0.8).toFixed(1)), status: 200, reqBody: pv.req, resBody: pv.res }
+        ];
+      } else if (r.service === 'parse' && r.status === 'ok') {
+        var pages = 1 + Math.floor(r.tokIn / 15000), per = Math.round(r.tokIn / pages), perOut = Math.round(r.tokOut / pages);
+        calls = [];
+        for (var p = 1; p <= pages; p++) calls.push({ id: subId(p), api: 'vision', model: r.model, reqModel: r.reqModel, channel: r.channel, tIn: per, tOut: perOut, tCache: 0, latency: Number((r.dur / 1000 / pages).toFixed(1)), status: 200, reqBody: pv.req.replace('[12,13,14]', '[' + (11 + p) + ']'), resBody: pv.res });
+      } else {
+        var api = { 'agent-chat': 'chat/completions', 'kbqa': 'chat/completions', 'nl2sql': 'chat/completions', 'extract': 'chat/completions', 'workflow': 'chat/completions', 'parse': 'vision', 'img-parse': 'vision', 'ai-infer': 'vision', 'audio-parse': 'audio/transcriptions', 'rerank': 'rerank' }[r.service] || 'embeddings';
+        calls = [{ id: subId(1), api: api, model: r.model, reqModel: r.reqModel, channel: r.channel, tIn: r.tokIn, tOut: r.tokOut, tCache: r.tokCache, latency: Number((r.dur / 1000).toFixed(1)), status: http, reqBody: pv.req, resBody: pv.res }];
+      }
+      return calls;
+    }
+
+    var msReqCur = null;
+    function msOpenReqDetail(reqId) {
+      var r = MS_RECORDS.filter(function(x) { return x.reqId === reqId; })[0]; if (!r) return;
+      msReqCur = r;
+      var pv = msReqPreview(r), http = r.status === 'ok' ? 200 : (r.status === 'limit' ? 429 : 502);
+      var card = function(l, v, mono) { return '<div class="ms-req-card"><div class="l">' + l + '</div><div class="v' + (mono ? ' mono' : '') + '">' + v + '</div></div>'; };
+      var metric = function(l, v) { return '<div class="ms-req-metric"><div class="l">' + l + '</div><div class="v">' + v + '</div></div>'; };
+      var calls = msGenesisCalls(r);
+      // 每条模型请求 ID 是超链接:新窗口打开 Genesis 请求日志并直达该条请求详情(点击时先写入握手数据,见 msHandoffGenesis)
+      var callRows = calls.map(function(c, i) {
+        return '<tr><td style="color:rgba(0,0,0,0.45)">#' + (i + 1) + '</td>'
+          + '<td><a class="ms-req-link" href="taas-management.html#logs?req=' + encodeURIComponent(c.id) + '" target="_blank" rel="noopener" onclick="msHandoffGenesis()" title="在新窗口打开 Genesis 请求详情">' + c.id + ' <span class="ext">↗</span></a></td>'
+          + '<td>' + c.api + '</td><td><span class="ms-model-chip" style="margin:0">' + msEsc(c.model) + '</span></td><td class="num">' + c.tIn.toLocaleString() + ' / ' + (c.tOut ? c.tOut.toLocaleString() : '—') + '</td><td class="num">' + c.latency + ' s</td><td><span class="ms-status ' + (c.status === 200 ? 'ok' : (c.status === 429 ? 'limit' : 'fail')) + '">HTTP ' + c.status + '</span></td></tr>';
+      }).join('');
+      document.getElementById('msReqModalTitle').textContent = '请求详情 - ' + r.reqId;
+      document.getElementById('msReqModalBody').innerHTML =
+        '<div class="ms-req-head"><span class="ms-req-view">AI 服务 → Genesis</span>'
+        + '<span style="font-size:12px;color:rgba(0,0,0,0.4)">模型层细节见下方「模型请求拆分」,点击请求 ID 在新窗口打开 Genesis 请求详情</span></div>'
+        + '<div class="ms-req-grid">'
+        + card('请求 ID', r.reqId, true) + card('时间', msFmtTime(r.time)) + card('状态', '<span class="ms-status ' + r.status + '" style="font-weight:600">' + MS_ST_LABEL[r.status] + (r.status !== 'ok' ? ' · HTTP ' + http : '') + '</span>')
+        + card('AI 服务', msEsc(r.serviceName)) + card('触发对象', msEsc(r.object)) + card('模型', '<span style="font-weight:500">' + msEsc(r.model) + '</span>')
+        + card('账户', msEsc(r.account)) + card('工作区', msEsc(r.workspace)) + card('用户 · Key', msUserCell(r.user, r.userType) + ' <span style="color:rgba(0,0,0,0.35)">·</span> ' + msEsc(r.key))
+        + card('来源 IP', r.ip, true) + card('渠道', msEsc(r.channel)) + card('请求模型', msEsc(r.reqModel) + (r.reqModel !== r.model ? ' <span style="font-size:10.5px;color:rgba(0,0,0,0.35)">→ Genesis 解析为 ' + msEsc(r.model) + '</span>' : ''))
+        + '</div>'
+        + '<div class="ms-req-grid" style="grid-template-columns:1fr 2fr">' + card('计价模式', (function() {
+          var slot = SITE_CONFIGS[r.site].slots.filter(function(s) { return s.id === r.service; })[0];
+          return slot && slot.front === 'selectable'
+            ? '<span style="display:inline-block;font-size:11px;padding:1px 7px;border-radius:3px;background:#f0e6ff;color:#722ed1">Genesis 原价 × markup</span> <span style="color:rgba(0,0,0,0.45);font-size:11.5px">按所选模型 ' + msEsc(r.model) + ' 的 Genesis 原价 × 1.5,继承输入 / 输出 / 缓存区分</span>'
+            : '<span style="display:inline-block;font-size:11px;padding:1px 7px;border-radius:3px;background:#f0e6ff;color:#722ed1">AI 服务固定价</span> <span style="color:rgba(0,0,0,0.45);font-size:11.5px">500 cr / 百万 token,不区分输入 / 输出 / 缓存</span>';
+        })()) + card('请求路径', 'MOI · ' + msEsc(r.serviceName) + ' → Genesis 网关 → ' + msEsc(r.channel) + ' / ' + msEsc(r.model)) + '</div>'
+        + '<div class="ms-req-metrics">' + metric('输入', r.tokIn.toLocaleString()) + metric('输出', r.tokOut ? r.tokOut.toLocaleString() : '—') + metric('缓存', r.tokCache ? r.tokCache.toLocaleString() : '—') + metric('耗时', msFmtMs(r.dur)) + metric('Credit', r.credits ? msFmtCr(r.credits) + ' cr' : '—') + '</div>'
+        + '<div class="ms-req-sec">模型请求拆分 <span style="font-weight:400;color:rgba(0,0,0,0.4)">本次 AI 服务调用向 Genesis 发起 ' + calls.length + ' 次模型请求,每次有独立请求 ID;点击请求 ID 在新窗口打开 Genesis 请求详情,查看上游渠道调用与路由轨迹</span></div>'
+        + '<div class="ms-usage-table-wrap" style="margin-bottom:12px"><table class="admin-table ms-usage-table ms-calls-table"><thead><tr><th style="width:36px">#</th><th>请求 ID</th><th>接口</th><th>模型</th><th class="num">Token(输入 / 输出)</th><th class="num">耗时</th><th>状态</th></tr></thead><tbody>' + callRows + '</tbody></table></div>'
+        + '<div class="ms-req-sec">AI 服务请求预览</div><div class="ms-req-pre">' + msEsc(pv.req) + '</div>'
+        + '<div class="ms-req-sec">Genesis 响应预览 <span style="font-weight:400;color:' + (r.status === 'ok' ? '#389e0d' : '#cf1322') + '">HTTP ' + http + '</span></div><div class="ms-req-pre ' + (r.status === 'ok' ? 'ok' : 'bad') + '">' + msEsc(pv.res) + '</div>';
+      document.getElementById('msReqModal').classList.add('show');
+    }
+    function msCloseReqDetail() { document.getElementById('msReqModal').classList.remove('show'); msReqCur = null; }
+
+    // 点击模型请求 ID 链接(新窗口打开 Genesis 请求详情)前,把本次调用拆出的 N 次模型请求写入握手存储:
+    // Genesis 侧本地没有该请求 ID 时据此合成日志记录并直达详情(原型演示;生产由 Genesis 自身的日志 + "所属 AI 服务请求 ID"字段贯通两层)
+    function msHandoffGenesis() {
+      var r = msReqCur; if (!r) return;
+      try {
+        var slot = SITE_CONFIGS[r.site].slots.filter(function(s) { return s.id === r.service; })[0];
+        localStorage.setItem('moi_genesis_log_handoff', JSON.stringify({
+          id: r.reqId, time: msFmtTime(r.time), user: r.user, key: r.key, status: r.status, ip: r.ip,
+          serviceName: r.serviceName, account: r.account, workspace: r.workspace, object: r.object,
+          priceMode: slot && slot.front === 'selectable' ? 'Genesis 原价 × markup' : 'AI 服务固定价',
+          calls: msGenesisCalls(r)
+        }));
+      } catch (e) {}
+    }
+
+    function msRenderSlots() {
+      var cfg = SITE_CONFIGS[msCurSite];
+      var html = '';
+      cfg.slots.forEach(function(s, i) {
+        var chips;
+        if (s.front === 'selectable') {
+          chips = s.models.map(function(m) {
+            return '<span class="ms-model-chip' + (m === s.def ? ' def' : '') + '">' + (m === s.def ? '<span class="star">★</span>' : '') + msEsc(m) + '</span>';
+          }).join('');
+        } else {
+          chips = '<span class="ms-model-chip def">' + msEsc(s.def) + '</span>';
+        }
+        var front = s.front === 'selectable'
+          ? '<span class="ms-badge on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:11px;height:11px"><path d="M20 6L9 17l-5-5"/></svg>可选</span>'
+          : '<span class="ms-badge off">不可见</span>';
+        var priceLink = ' <a href="billing-management.html#pricing" title="改价请到 计费中心 › 价格设置(固定价 / markup 按站点配置)" style="color:#722ed1;font-size:11px;text-decoration:none">改价 ↗</a>';
+        var priceCell;
+        if (s.front === 'selectable') {
+          var mk = MS_AI_PRICE.markup, defP = MS_GENESIS_PRICE[s.def];
+          var allTitle = s.models.map(function(m) { var p = MS_GENESIS_PRICE[m]; return p ? m + '：' + Math.round(p[0] * mk) + ' / ' + Math.round(p[1] * mk) + ' cr/百万 token(输入/输出)' : m; }).join('；');
+          priceCell = '<div style="font-size:12.5px">Genesis 原价 × ' + mk + priceLink + '</div>'
+            + (defP ? '<div style="font-size:11px;color:rgba(0,0,0,0.38);margin-top:2px" title="' + allTitle + '">★ ' + msEsc(s.def) + '：' + Math.round(defP[0] * mk) + ' / ' + Math.round(defP[1] * mk) + ' cr/百万 token</div>' : '');
+        } else {
+          var fixed = Math.round(MS_AI_PRICE.fixedBase * (MS_AI_PRICE.siteMult[msCurSite] || 1));
+          priceCell = '<div style="font-size:12.5px">' + fixed + ' cr / 百万 token' + priceLink + '</div>'
+            + '<div style="font-size:11px;color:rgba(0,0,0,0.38);margin-top:2px">固定价 · 与生效模型无关</div>';
+        }
+        html += '<tr>'
+          + '<td><div class="ms-slot-name">' + msEsc(s.name) + '</div><div class="ms-slot-desc">' + msEsc(s.desc) + '</div></td>'
+          + '<td><span class="ms-type-tag">' + msEsc(s.type) + '</span></td>'
+          + '<td>' + chips + '</td>'
+          + '<td>' + priceCell + '</td>'
+          + '<td>' + front + '</td>'
+          + '<td><button class="btn-secondary" style="padding:4px 12px;font-size:12px" onclick="msOpenSlotModal(' + i + ')">配置</button></td>'
+          + '</tr>';
+      });
+      document.getElementById('msSlotBody').innerHTML = html;
+    }
+
+    function msRenderLogs() {
+      document.getElementById('msLogBody').innerHTML = MS_LOGS.map(function(l) {
+        return '<tr><td>' + l.time + '</td><td>' + msEsc(l.who) + '</td><td>' + msEsc(l.site) + '</td><td>' + msEsc(l.slot) + '</td><td>' + l.change + '</td></tr>';
+      }).join('');
+    }
+
+    // ===== 配置弹窗:可搜索模型选择器(借鉴 Genesis 模型选择) =====
+    // 状态独立存放,搜索过滤重渲染列表时勾选不丢
+    var msModal = { idx: null, mode: 'single', q: '', pool: [], pick: '', picked: [], def: '' };
+
+    function msOpenSlotModal(idx) {
+      var cfg = SITE_CONFIGS[msCurSite];
+      var s = cfg.slots[idx];
+      var pool = (GENESIS_POOLS[cfg.pool][s.type] || []).slice();
+      s.models.forEach(function(m) { if (pool.indexOf(m) < 0) pool.push(m); }); // 生效中但已不在清单的模型仍列出
+
+      msModal = {
+        idx: idx,
+        mode: s.front === 'selectable' ? 'multi' : 'single',
+        q: '', pool: pool,
+        pick: s.def,
+        picked: s.models.slice(),
+        def: s.def
+      };
+
+      document.getElementById('msSlotModalTitle').textContent = '配置 AI 服务:' + s.name;
+
+      var hint = msModal.mode === 'multi'
+        ? '勾选开放给用户的模型(用户在前台从中多选一);再指定默认——未选择时的缺省。模型来自 Genesis 已接入清单(' + msEsc(s.type) + ',共 ' + pool.length + ' 个)。'
+        : '该服务对用户不可见,后台多选一:从 Genesis 已接入清单(' + msEsc(s.type) + ',共 ' + pool.length + ' 个)中选定一个生效模型。';
+
+      document.getElementById('msSlotModalBody').innerHTML =
+        '<div class="ms-modal-hint">' + hint + '</div>'
+        + '<input class="ms-picker-search" placeholder="搜索模型名称 · 共 ' + pool.length + ' 个" oninput="msModal.q=this.value;msModalRenderList()">'
+        + '<div class="ms-model-list" id="msModelList"></div>'
+        + (msModal.mode === 'multi' ? '<div class="ms-def-label">默认模型 <span style="font-weight:400;font-size:12px;color:rgba(0,0,0,0.4)">从已勾选中指定</span></div><div class="ms-def-area" id="msDefArea"></div>' : '');
+
+      msModalRenderList();
+      if (msModal.mode === 'multi') msModalRenderDef();
+      document.getElementById('msSlotModal').classList.add('show');
+    }
+
+    function msModalRenderList() {
+      var q = msModal.q.trim().toLowerCase();
+      var list = msModal.pool.filter(function(m) { return !q || m.toLowerCase().indexOf(q) >= 0; });
+      var html = list.map(function(m) {
+        var on = msModal.mode === 'multi' ? msModal.picked.indexOf(m) >= 0 : msModal.pick === m;
+        var input = msModal.mode === 'multi'
+          ? '<input type="checkbox"' + (on ? ' checked' : '') + '>'
+          : '<input type="radio"' + (on ? ' checked' : '') + '>';
+        return '<div class="ms-mrow' + (on ? ' checked' : '') + '" onclick="msModalHit(\'' + msEsc(m).replace(/'/g, "\\'") + '\')">'
+          + input + '<span class="nm">' + msEsc(m) + '</span><span class="src">Genesis</span></div>';
+      }).join('');
+      document.getElementById('msModelList').innerHTML = html || '<div class="ms-empty">无匹配模型</div>';
+    }
+
+    function msModalHit(m) {
+      if (msModal.mode === 'single') {
+        msModal.pick = m;
+      } else {
+        var i = msModal.picked.indexOf(m);
+        if (i >= 0) msModal.picked.splice(i, 1); else msModal.picked.push(m);
+        if (msModal.picked.indexOf(msModal.def) < 0) msModal.def = msModal.picked[0] || '';
+        msModalRenderDef();
+      }
+      msModalRenderList();
+    }
+
+    function msModalRenderDef() {
+      var area = document.getElementById('msDefArea');
+      if (!area) return;
+      area.innerHTML = msModal.picked.map(function(m) {
+        var on = m === msModal.def;
+        return '<div class="ms-mrow' + (on ? ' checked' : '') + '" onclick="msModal.def=\'' + msEsc(m).replace(/'/g, "\\'") + '\';msModalRenderDef()">'
+          + '<input type="radio"' + (on ? ' checked' : '') + '><span class="nm">' + msEsc(m) + '</span></div>';
+      }).join('') || '<div style="font-size:12.5px;color:rgba(0,0,0,0.35);padding:4px 2px">先在上方勾选至少一个模型</div>';
+    }
+
+    function msCloseSlotModal() { document.getElementById('msSlotModal').classList.remove('show'); msModal.idx = null; }
+
+    function msSaveSlot() {
+      var cfg = SITE_CONFIGS[msCurSite];
+      var s = cfg.slots[msModal.idx];
+      var oldDef = s.def, oldModels = s.models.slice();
+
+      if (msModal.mode === 'multi') {
+        if (!msModal.picked.length) { msToast('至少开放 1 个模型'); return; }
+        s.models = msModal.picked.slice();
+        s.def = msModal.picked.indexOf(msModal.def) >= 0 ? msModal.def : msModal.picked[0];
+      } else {
+        if (!msModal.pick) { msToast('请选择一个模型'); return; }
+        s.models = [msModal.pick];
+        s.def = msModal.pick;
+      }
+
+      if (oldDef !== s.def) {
+        MS_LOGS.unshift({ time: '2026-08-12 18:30', who: 'admin', site: cfg.label, slot: s.name, change: (msModal.mode === 'multi' ? '默认模型 ' : '模型 ') + msEsc(oldDef) + ' <span class="ms-arrow">→</span> ' + msEsc(s.def) });
+      } else if (oldModels.join() !== s.models.join()) {
+        MS_LOGS.unshift({ time: '2026-08-12 18:30', who: 'admin', site: cfg.label, slot: s.name, change: '更新开放模型清单' });
+      }
+      msRenderSlots(); msRenderLogs(); msCloseSlotModal();
+      msToast('已保存');
+    }
+
+    // ===== 计算资源规格目录 =====
+    // 本页是规格清单（SKU 目录）的事实源：工作区「新建计算资源」的规格卡片、计费中心「价格设置」的规格价格表都从这里拉取。
+    // 单价不在本页配置——价格的事实源在 计费中心 › 价格设置（按站点 × Region），本页只读展示国内主站价供参考。
+    var CP_SERIES = [
+      { key: 'standard', zh: 'CPU 通用型', en: 'General CPU', kind: 'task', gpu: false, desc: 'CPU : 内存 = 1 : 4 均衡配比，常规工作流 / 解析 / 载入' },
+      { key: 'memory', zh: 'CPU 内存型', en: 'Memory Optimized', kind: 'task', gpu: false, desc: 'CPU : 内存 = 1 : 8，大文件解析 / 数据增强等高内存场景' },
+      { key: 'gpuInfer', zh: 'GPU 推理型', en: 'GPU Inference', kind: 'task', gpu: true, desc: '中显存单卡为主，文档解析增强 / 嵌入 / AI 推理' },
+      { key: 'gpuTrain', zh: 'GPU 训练型', en: 'GPU Training', kind: 'task', gpu: true, desc: '大显存多卡 NVLink，模型微调训练' },
+      { key: 'query', zh: 'SQL 算力档', en: 'SQL Compute', kind: 'query', gpu: false, desc: '只运行 SQL，与 CPU 通用型同规格同价' }
+    ];
+    // cpu 单位 m(1000m = 1 vCPU)、mem/gpuMem 单位 MiB —— 对接 Kubernetes 的技术单位;界面输入输出一律用 vCPU / GiB,换算由页面完成
+    var CP_SPECS = [
+      { id: 'CG1', series: 'standard', cpu: 2000, mem: 8192, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '开发验证与轻量任务' },
+      { id: 'CG2', series: 'standard', cpu: 4000, mem: 16384, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '常规工作流与载入任务' },
+      { id: 'CG4', series: 'standard', cpu: 8000, mem: 32768, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '' },
+      { id: 'CG8', series: 'standard', cpu: 16000, mem: 65536, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: false, desc: '大规格场景已由 CPU 内存型承接，停售' },
+      { id: 'CM2', series: 'memory', cpu: 4000, mem: 32768, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '大文件解析 / 数据增强' },
+      { id: 'CM4', series: 'memory', cpu: 8000, mem: 65536, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '' },
+      { id: 'GI1', series: 'gpuInfer', cpu: 8000, mem: 32768, gpu: 1, gpuMem: 24576, gpuCores: 100, enabled: true, desc: '嵌入 / 推理 / 文档解析增强' },
+      { id: 'GI4', series: 'gpuInfer', cpu: 32000, mem: 131072, gpu: 4, gpuMem: 24576, gpuCores: 100, enabled: true, desc: '' },
+      { id: 'GT1', series: 'gpuTrain', cpu: 12000, mem: 98304, gpu: 1, gpuMem: 81920, gpuCores: 100, enabled: true, desc: '单卡微调' },
+      { id: 'GT4', series: 'gpuTrain', cpu: 48000, mem: 393216, gpu: 4, gpuMem: 81920, gpuCores: 100, enabled: true, desc: '' },
+      { id: 'GT8', series: 'gpuTrain', cpu: 96000, mem: 786432, gpu: 8, gpuMem: 81920, gpuCores: 100, enabled: true, desc: '' },
+      { id: 'Q1', series: 'query', cpu: 4000, mem: 16384, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: 'SQL 查询 / 看板' },
+      { id: 'Q2', series: 'query', cpu: 8000, mem: 32768, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '' },
+      { id: 'Q4', series: 'query', cpu: 16000, mem: 65536, gpu: 0, gpuMem: 0, gpuCores: 0, enabled: true, desc: '' }
+    ];
+    // 只读参考价 = 国内主站基准 ×站点系数（事实源在计费中心 › 价格设置，本页仅展示）
+    var CP_PRICES = { CG1: 15, CG2: 30, CG4: 60, CG8: 120, CM2: 40, CM4: 80, GI1: 380, GI4: 1525, GT1: 1040, GT4: 4170, GT8: 8340, Q1: 30, Q2: 60, Q4: 120 };
+    var CP_SITES = [
+      { key: 'aliyun', label: '阿里云（中国 · 国内主站）', regions: [ { key: 'cn-hangzhou', label: '中国-杭州' }, { key: 'cn-beijing', label: '中国-北京' } ] },
+      { key: 'tencent', label: '腾讯云（中国）', regions: [ { key: 'cn-shanghai', label: '中国-上海' } ] },
+      { key: 'vv', label: 'Virtual Vision（沙特阿拉伯）', regions: [ { key: 'sa-riyadh', label: '沙特-利雅得' } ] },
+      { key: '1stack', label: '1Stack（马来西亚 · 新加坡）', regions: [ { key: 'my-kl', label: '马来西亚-吉隆坡' }, { key: 'sg', label: '新加坡' } ] }
+    ];
+    var CP_SITE_MULT = { 'aliyun/cn-hangzhou': 1, 'aliyun/cn-beijing': 1, 'tencent/cn-shanghai': 1, 'vv/sa-riyadh': 1.25, '1stack/my-kl': 1.15, '1stack/sg': 1.2 };
+    var cpCurSite = 'aliyun', cpCurRegion = 'cn-hangzhou';
+    // 计算实例台账：哪个账户的哪个工作区、在哪个站点/Region、开了什么规格；shared = 平台共享的默认计算资源（每个 Region 都有）
+    // nodes = [当前, 最小, 最大]；suspend = 自动暂停（分钟，0 = 不自动暂停）；已停止实例当前节点为 0
+    var CP_INSTANCES = [
+      { id: 'ci-shared-task', name: '默认通用计算资源', account: '平台共享', workspace: '全部工作区', specId: 'CG2', status: 'running', shared: true, created: '—', nodes: [4, 2, 8], suspend: 0, createdBy: '平台', desc: 'MOI 提供的共享免费资源，所有工作区可见，由平台统一运维扩缩容' },
+      { id: 'ci-shared-query', name: '默认 SQL 计算资源', account: '平台共享', workspace: '全部工作区', specId: 'Q1', status: 'running', shared: true, created: '—', nodes: [2, 1, 6], suspend: 0, createdBy: '平台', desc: 'MOI 提供的共享免费资源，所有工作区可见，由平台统一运维扩缩容' },
+      { id: 'ci-8f31a2', name: '生产解析集群', account: '远航物流', workspace: '生产数据区', specId: 'CG2', status: 'running', site: 'aliyun', region: 'cn-hangzhou', created: '2026-05-12 10:23', nodes: [3, 1, 4], suspend: 0, createdBy: '陈立', desc: '主生产工作流专用，禁止自动暂停' },
+      { id: 'ci-8f31b7', name: '夜间批量载入', account: '远航物流', workspace: '生产数据区', specId: 'CG4', status: 'running', site: 'aliyun', region: 'cn-hangzhou', created: '2026-05-20 09:02', nodes: [2, 1, 6], suspend: 60, createdBy: '陈立', desc: '' },
+      { id: 'ci-9a02c1', name: '运营看板 SQL', account: '远航物流', workspace: '运营分析区', specId: 'Q2', status: 'running', site: 'aliyun', region: 'cn-hangzhou', created: '2026-06-01 14:40', nodes: [1, 1, 2], suspend: 30, createdBy: '周敏', desc: '' },
+      { id: 'ci-9a02d5', name: '临时分析', account: '远航物流', workspace: '运营分析区', specId: 'Q1', status: 'stopped', site: 'aliyun', region: 'cn-hangzhou', created: '2026-06-18 11:15', nodes: [0, 1, 1], suspend: 15, createdBy: '周敏', desc: '' },
+      { id: 'ci-b1c4e8', name: '合同解析专用', account: '华东精工制造', workspace: '质检文档区', specId: 'CM2', status: 'running', site: 'aliyun', region: 'cn-hangzhou', created: '2026-06-22 16:08', nodes: [1, 1, 2], suspend: 30, createdBy: '王浩', desc: '大体积扫描件解析' },
+      { id: 'ci-b1c4f0', name: '知识库嵌入', account: '华东精工制造', workspace: '质检文档区', specId: 'GI1', status: 'running', site: 'aliyun', region: 'cn-hangzhou', created: '2026-07-02 10:31', nodes: [1, 1, 1], suspend: 30, createdBy: '王浩', desc: '' },
+      { id: 'ci-b1c503', name: '大表回填', account: '华东精工制造', workspace: '产线数据区', specId: 'CG8', status: 'running', site: 'aliyun', region: 'cn-hangzhou', created: '2026-03-15 09:00', nodes: [2, 2, 2], suspend: 0, createdBy: '王浩', desc: '停售规格存量实例，按原规格运行与计费' },
+      { id: 'ci-f60a71', name: '内存增强解析', account: '远航物流', workspace: '生产数据区', specId: 'CM4', status: 'stopped', site: 'aliyun', region: 'cn-hangzhou', created: '2026-08-10 10:18', nodes: [0, 1, 2], suspend: 30, createdBy: '陈立', desc: '' },
+      { id: 'ci-c7d211', name: '课件解析', account: '星河教育科技', workspace: '教研内容区', specId: 'CG1', status: 'running', site: 'aliyun', region: 'cn-beijing', created: '2026-07-08 13:26', nodes: [1, 1, 2], suspend: 30, createdBy: '李雪', desc: '' },
+      { id: 'ci-c7d21f', name: '题库 SQL', account: '星河教育科技', workspace: '教研内容区', specId: 'Q1', status: 'running', site: 'aliyun', region: 'cn-beijing', created: '2026-07-08 13:29', nodes: [1, 1, 1], suspend: 15, createdBy: '李雪', desc: '' },
+      { id: 'ci-c7d232', name: '模型微调实验', account: '星河教育科技', workspace: 'AI 实验区', specId: 'GT4', status: 'stopped', site: 'aliyun', region: 'cn-beijing', created: '2026-07-21 18:04', nodes: [0, 1, 1], suspend: 60, createdBy: '李雪', desc: '微调实验用，跑完即停' },
+      { id: 'ci-d3e807', name: '上海灾备解析', account: '远航物流', workspace: '生产数据区', specId: 'CG2', status: 'running', site: 'tencent', region: 'cn-shanghai', created: '2026-06-30 08:12', nodes: [1, 1, 4], suspend: 0, createdBy: '陈立', desc: '灾备通道，与杭州主集群同构' },
+      { id: 'ci-e5f120', name: 'Riyadh Ops Parsing', account: 'Desert Falcon Logistics', workspace: 'ops-workspace', specId: 'CG2', status: 'running', site: 'vv', region: 'sa-riyadh', created: '2026-07-11 20:45', nodes: [2, 1, 4], suspend: 30, createdBy: 'Ahmed K.', desc: '' },
+      { id: 'ci-e5f13c', name: 'Arabic OCR Inference', account: 'Desert Falcon Logistics', workspace: 'ops-workspace', specId: 'GI1', status: 'running', site: 'vv', region: 'sa-riyadh', created: '2026-07-12 09:10', nodes: [1, 1, 2], suspend: 30, createdBy: 'Ahmed K.', desc: '' },
+      { id: 'ci-f60a55', name: 'KL Nightly ETL', account: 'Straits Retail Group', workspace: 'dw-workspace', specId: 'CG4', status: 'running', site: '1stack', region: 'my-kl', created: '2026-08-01 22:30', nodes: [2, 1, 3], suspend: 60, createdBy: 'Tan W.L.', desc: '' },
+      { id: 'ci-f60a68', name: 'SG BI Queries', account: 'Straits Retail Group', workspace: 'bi-workspace', specId: 'Q4', status: 'running', site: '1stack', region: 'sg', created: '2026-08-03 15:55', nodes: [1, 1, 2], suspend: 30, createdBy: 'Tan W.L.', desc: '' }
+    ];
+    var cpKindFilter = 'all', cpCurTab = 'specs', cpInstSpecFilter = null;
+
+    function cpSeriesOf(key) { return CP_SERIES.filter(function(s) { return s.key === key; })[0]; }
+    function cpSorted() {
+      // 排序固定：类型 → 系列 → CPU / 内存 / GPU 三维升序
+      var kindOrder = { task: 0, query: 1 };
+      var seriesOrder = {}; CP_SERIES.forEach(function(s, i) { seriesOrder[s.key] = i; });
+      return CP_SPECS.slice().sort(function(a, b) {
+        var sa = cpSeriesOf(a.series), sb = cpSeriesOf(b.series);
+        if (kindOrder[sa.kind] !== kindOrder[sb.kind]) return kindOrder[sa.kind] - kindOrder[sb.kind];
+        if (seriesOrder[a.series] !== seriesOrder[b.series]) return seriesOrder[a.series] - seriesOrder[b.series];
+        return (a.cpu - b.cpu) || (a.mem - b.mem) || (a.gpu - b.gpu);
+      });
+    }
+    function cpConfText(r) {
+      var t = (r.cpu / 1000) + ' vCPU · ' + (r.mem / 1024) + ' GiB';
+      if (r.gpu > 0) t += ' · ' + r.gpu + ' 卡 × ' + (r.gpuMem / 1024) + 'G GPU';
+      return t;
+    }
+    function cpFilterKind(k, el) {
+      cpKindFilter = k;
+      document.querySelectorAll('.cp-kind-chip').forEach(function(c) { c.classList.toggle('on', c === el); });
+      cpRenderList();
+    }
+    // ---- 站点 / Region 页级切换：影响规格单价展示与计算实例列表 ----
+    function cpSiteOf(key) { return CP_SITES.filter(function(x) { return x.key === key; })[0]; }
+    function cpPriceKey() { return cpCurSite + '/' + cpCurRegion; }
+    function cpRenderSiteSel() {
+      document.getElementById('cpSiteSel').innerHTML = CP_SITES.map(function(s) {
+        return '<option value="' + s.key + '"' + (s.key === cpCurSite ? ' selected' : '') + '>' + s.label + '</option>';
+      }).join('');
+      cpRenderRegionSel();
+    }
+    function cpRenderRegionSel() {
+      var s = cpSiteOf(cpCurSite);
+      document.getElementById('cpRegionSel').innerHTML = s.regions.map(function(r) {
+        return '<option value="' + r.key + '"' + (r.key === cpCurRegion ? ' selected' : '') + '>' + r.label + '</option>';
+      }).join('');
+    }
+    function cpOnSiteChange() {
+      cpCurSite = document.getElementById('cpSiteSel').value;
+      cpCurRegion = cpSiteOf(cpCurSite).regions[0].key;
+      cpRenderRegionSel();
+      cpRenderList(); cpRenderInstances();
+    }
+    function cpOnRegionChange() {
+      cpCurRegion = document.getElementById('cpRegionSel').value;
+      cpRenderList(); cpRenderInstances();
+    }
+    // 规格被引用数 = 使用该规格的计算实例数（含平台共享与已停止）；scoped = 仅当前站点/Region
+    function cpSpecRefs(id, scoped) {
+      return CP_INSTANCES.filter(function(i) {
+        if (i.specId !== id) return false;
+        return i.shared || !scoped || (i.site === cpCurSite && i.region === cpCurRegion);
+      }).length;
+    }
+    function cpSwitchTab(t) {
+      cpCurTab = t;
+      if (t !== 'instances') cpInstSpecFilter = null;
+      document.getElementById('cpTabBtn-specs').classList.toggle('active', t === 'specs');
+      document.getElementById('cpTabBtn-instances').classList.toggle('active', t === 'instances');
+      document.getElementById('cpTab-specs').style.display = t === 'specs' ? '' : 'none';
+      document.getElementById('cpTab-instances').style.display = t === 'instances' ? '' : 'none';
+      if (t === 'instances') cpRenderInstances();
+    }
+    function cpJumpInstances(specId) {
+      cpInstSpecFilter = specId;
+      cpSwitchTab('instances');
+    }
+    function cpRenderInstances() {
+      var q = (document.getElementById('cpInstSearch').value || '').trim().toLowerCase();
+      var st = document.getElementById('cpInstStatus').value;
+      var chip = document.getElementById('cpInstSpecChip');
+      if (cpInstSpecFilter) {
+        chip.style.display = '';
+        chip.innerHTML = '规格：' + cpInstSpecFilter + ' <a href="javascript:void(0)" onclick="cpInstSpecFilter=null;cpRenderInstances()" style="color:#722ed1;text-decoration:none;margin-left:2px">✕</a>';
+      } else chip.style.display = 'none';
+      var rows = CP_INSTANCES.filter(function(i) {
+        if (!i.shared && (i.site !== cpCurSite || i.region !== cpCurRegion)) return false;
+        if (cpInstSpecFilter && i.specId !== cpInstSpecFilter) return false;
+        if (st !== 'all' && i.status !== st) return false;
+        if (q && (i.id + i.name + i.account + i.workspace + i.specId).toLowerCase().indexOf(q) < 0) return false;
+        return true;
+      }).sort(function(a, b) {
+        var sh = (b.shared ? 1 : 0) - (a.shared ? 1 : 0);
+        return sh !== 0 ? sh : b.created.localeCompare(a.created);
+      });
+      document.getElementById('cpInstBody').innerHTML = rows.length === 0
+        ? '<tr><td colspan="9" style="text-align:center;color:rgba(0,0,0,0.35);padding:28px 0">当前站点 / Region 下没有符合条件的计算实例</td></tr>'
+        : rows.map(function(i) {
+          var spec = CP_SPECS.filter(function(x) { return x.id === i.specId; })[0];
+          var s = spec ? cpSeriesOf(spec.series) : null;
+          var kindTag = s && s.kind === 'query'
+            ? '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#e6f7ff;color:#0958d9;border:1px solid #91caff">SQL</span>'
+            : '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f">通用</span>';
+          return '<tr>'
+            + '<td style="font-family:monospace;font-size:12px">' + i.id + '</td>'
+            + '<td><a href="javascript:void(0)" onclick="cpOpenInstDetail(\'' + i.id + '\')" style="font-size:13px;font-weight:600;color:#722ed1;text-decoration:none" title="查看实例详情">' + msEsc(i.name) + '</a>' + (i.shared ? ' <span style="font-size:10.5px;font-weight:400;padding:1px 6px;border-radius:4px;background:#fff7e6;color:#d46b08;border:1px solid #ffd591" title="MOI 提供的共享免费资源，所有工作区可见">共享 · 免费</span>' : '') + '</td>'
+            + '<td style="font-size:12.5px">' + msEsc(i.account) + '</td>'
+            + '<td style="font-size:12.5px">' + msEsc(i.workspace) + '</td>'
+            + '<td>' + kindTag + '</td>'
+            + '<td><span style="font-family:monospace;font-weight:600">' + i.specId + '</span>' + (spec ? ' <span style="font-size:12px;color:rgba(0,0,0,0.55)">' + (s ? s.zh : '') + ' · ' + cpConfText(spec) + '</span>' : '') + '</td>'
+            + '<td style="font-size:12.5px" title="当前 ' + i.nodes[0] + ' 节点，扩缩容范围 ' + i.nodes[1] + '-' + i.nodes[2] + '">' + i.nodes[0] + ' <span style="color:rgba(0,0,0,0.4)">(' + i.nodes[1] + '-' + i.nodes[2] + ')</span></td>'
+            + '<td>' + (i.status === 'running' ? '<span class="ms-badge on">运行中</span>' : '<span class="ms-badge off">已停止</span>') + '</td>'
+            + '<td style="font-size:12px;color:rgba(0,0,0,0.55)">' + i.created + '</td>'
+            + '</tr>';
+        }).join('');
+    }
+    function cpRenderList() {
+      var rows = cpSorted().filter(function(r) { return cpKindFilter === 'all' || cpSeriesOf(r.series).kind === cpKindFilter; });
+      var lastSeries = null;
+      document.getElementById('cpSpecBody').innerHTML = rows.map(function(r) {
+        var s = cpSeriesOf(r.series);
+        var firstOfSeries = r.series !== lastSeries; lastSeries = r.series;
+        var kindTag = s.kind === 'query'
+          ? '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#e6f7ff;color:#0958d9;border:1px solid #91caff">SQL</span>'
+          : '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f">通用</span>';
+        var tech = r.cpu + 'm / ' + r.mem + 'MiB' + (r.gpu > 0 ? ' / gpu:' + r.gpu + ' · gpumem:' + r.gpuMem + ' · gpucores:' + r.gpuCores : '');
+        var stateBadge = r.enabled
+          ? '<span class="ms-badge on">启用</span>'
+          : '<span class="ms-badge off">停用</span>';
+        return '<tr' + (firstOfSeries ? ' style="border-top:1px solid #e8e8e8"' : '') + (r.enabled ? '' : ' ') + '>'
+          + '<td style="font-family:monospace;font-weight:600;' + (r.enabled ? '' : 'color:rgba(0,0,0,0.35)') + '">' + r.id + '</td>'
+          + '<td>' + (firstOfSeries ? kindTag : '') + '</td>'
+          + '<td>' + (firstOfSeries ? '<div style="font-size:13px;font-weight:600">' + s.zh + '</div><div class="cp-series-en">' + s.en + ' · ' + s.key + '</div>' : '<span style="color:rgba(0,0,0,0.3)">〃</span>') + '</td>'
+          + '<td><div class="cp-conf' + (r.enabled ? '' : ' cp-series-en') + '">' + cpConfText(r) + (r.desc ? ' <span style="color:rgba(0,0,0,0.4);font-size:12px">· ' + msEsc(r.desc) + '</span>' : '') + '</div><div class="cp-conf-sub" title="对接 Kubernetes 的技术单位">' + tech + '</div></td>'
+          + '<td style="font-size:12.5px">' + (CP_PRICES[r.id] != null ? Math.round(CP_PRICES[r.id] * (CP_SITE_MULT[cpPriceKey()] || 1)) + ' cr / 节点·小时 <a href="billing-management.html#pricing" title="改价请到计费中心 › 价格设置（按站点 × Region）" style="color:#722ed1;font-size:11px;text-decoration:none">改价 ↗</a>' : '<span style="color:rgba(0,0,0,0.3)">未定价</span>') + '</td>'
+          + '<td style="font-size:12.5px">' + (function() { var n = cpSpecRefs(r.id, true); return n > 0 ? '<a href="javascript:void(0)" onclick="cpJumpInstances(\'' + r.id + '\')" title="当前站点 / Region 下使用该规格的计算实例（含平台共享与已停止），点击查看" style="color:#722ed1;text-decoration:none">' + n + ' 个实例</a>' : '<span style="color:rgba(0,0,0,0.3)">无</span>'; })() + '</td>'
+          + '<td>' + stateBadge + '</td>'
+          + '<td><button class="btn-secondary" style="padding:4px 12px;font-size:12px" onclick="cpOpenModal(\'' + r.id + '\')">编辑</button> '
+          + '<button class="btn-secondary" style="padding:4px 12px;font-size:12px" onclick="cpToggleSpec(\'' + r.id + '\')">' + (r.enabled ? '停用' : '启用') + '</button></td>'
+          + '</tr>';
+      }).join('');
+    }
+    // ---- 计算实例详情：字段对齐前台计算资源详情（规格 / 扩缩容 / 自动暂停 / 单节点价格 / 创建人），另附管理侧归因与计费跳转 ----
+    function cpII(label, value, span) {
+      return '<div' + (span ? ' style="grid-column:1/-1"' : '') + '><div style="font-size:11.5px;color:rgba(0,0,0,0.45);margin-bottom:3px">' + label + '</div><div style="font-size:13px;color:rgba(0,0,0,0.85)">' + value + '</div></div>';
+    }
+    function cpInstBox(title, inner) {
+      return '<div style="background:#fafbfc;border:1px solid #f0f0f0;border-radius:10px;padding:14px 16px;margin-bottom:12px"><div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.55);margin-bottom:10px">' + title + '</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px">' + inner + '</div></div>';
+    }
+    function cpOpenInstDetail(id) {
+      var i = CP_INSTANCES.filter(function(x) { return x.id === id; })[0]; if (!i) return;
+      var spec = CP_SPECS.filter(function(x) { return x.id === i.specId; })[0];
+      var s = spec ? cpSeriesOf(spec.series) : null;
+      var siteKey = i.shared ? cpCurSite : i.site, regionKey = i.shared ? cpCurRegion : i.region;
+      var siteObj = cpSiteOf(siteKey);
+      var regionLabel = siteObj ? (siteObj.label + ' · ' + (siteObj.regions.filter(function(r) { return r.key === regionKey; })[0] || {}).label) : '—';
+      var kindTag = s && s.kind === 'query'
+        ? '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#e6f7ff;color:#0958d9;border:1px solid #91caff">SQL 计算资源</span>'
+        : '<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f">通用计算资源</span>';
+      var stateBadge = i.status === 'running' ? '<span class="ms-badge on">运行中</span>' : '<span class="ms-badge off">已停止</span>';
+      var tech = spec ? (spec.cpu + 'm / ' + spec.mem + 'MiB' + (spec.gpu > 0 ? ' / gpu:' + spec.gpu + ' · gpumem:' + spec.gpuMem + ' · gpucores:' + spec.gpuCores : '')) : '';
+      var price = spec && CP_PRICES[spec.id] != null ? Math.round(CP_PRICES[spec.id] * (CP_SITE_MULT[siteKey + '/' + regionKey] || 1)) : null;
+      document.getElementById('cpInstModalTitle').textContent = '实例详情：' + i.name;
+      var html = '';
+      if (i.shared) html += '<div class="ms-modal-hint" style="margin-bottom:12px">平台共享的默认计算资源——MOI 提供给公有云用户的共享免费资源，所有工作区可见，前台不展示规格与节点，由平台统一运维扩缩容；此处为运营视角的完整信息。</div>';
+      html += cpInstBox('基本信息',
+          cpII('实例 ID', '<span style="font-family:monospace">' + i.id + '</span>')
+        + cpII('状态', stateBadge)
+        + cpII('站点 / Region', '<span style="font-size:12.5px">' + regionLabel + '</span>')
+        + cpII('账户', msEsc(i.account) + (i.shared ? ' <span style="font-size:10.5px;padding:1px 6px;border-radius:4px;background:#fff7e6;color:#d46b08;border:1px solid #ffd591">共享 · 免费</span>' : ''))
+        + cpII('工作区', msEsc(i.workspace))
+        + cpII('创建人', msEsc(i.createdBy))
+        + cpII('创建时间', i.created)
+        + cpII('描述', i.desc ? msEsc(i.desc) : '<span style="color:rgba(0,0,0,0.3)">—</span>', true));
+      html += cpInstBox('规格与扩缩容',
+          cpII('类型', kindTag)
+        + cpII('规格族', s ? msEsc(s.zh) + ' <span style="font-size:11px;color:rgba(0,0,0,0.4)">' + msEsc(s.en) + '</span>' : '—')
+        + cpII('规格', spec ? '<span style="font-family:monospace;font-weight:600">' + spec.id + '</span>' : i.specId)
+        + cpII('配置', spec ? cpConfText(spec) + '<div style="font-size:11px;color:rgba(0,0,0,0.4);font-family:monospace;margin-top:2px">' + tech + '</div>' : '—', true)
+        + cpII('扩缩容节点数', i.nodes[0] + ' <span style="color:rgba(0,0,0,0.45)">（范围 ' + i.nodes[1] + '-' + i.nodes[2] + '）</span>')
+        + cpII('自动暂停', i.suspend === 0 ? '不自动暂停' : i.suspend + ' 分钟无活动'));
+      html += cpInstBox('计费',
+          cpII('单节点价格', i.shared ? '免费（平台承担）' : (price != null ? price + ' cr / 节点·小时 <span style="font-size:11px;color:rgba(0,0,0,0.4)">当前站点 × Region 单价</span>' : '未定价'))
+        + cpII('计费方式', i.shared ? '免费共享' : '按量后付费 <span style="font-size:11px;color:rgba(0,0,0,0.4)">节点数 × 运行时长</span>')
+        + cpII('用量与账单', '<a href="billing-management.html#usage" target="_blank" style="color:#722ed1;text-decoration:none">计费中心 › 用量明细 ↗</a>'));
+      document.getElementById('cpInstModalBody').innerHTML = html;
+      document.getElementById('cpInstModal').classList.add('show');
+    }
+    function cpCloseInstDetail() { document.getElementById('cpInstModal').classList.remove('show'); }
+
+    function cpToggleSpec(id) {
+      var r = CP_SPECS.filter(function(x) { return x.id === id; })[0]; if (!r) return;
+      if (r.enabled && !confirm('停用规格 ' + id + '？\n\n停用后不再出现在「新建计算资源」的可选规格中；已使用该规格的 ' + cpSpecRefs(id, false) + ' 个计算实例（全站点）不受影响，仍按原规格运行与计费。')) return;
+      r.enabled = !r.enabled;
+      cpRenderList();
+      msToast('规格 ' + id + ' 已' + (r.enabled ? '启用' : '停用'));
+    }
+
+    // ---- 新增 / 编辑弹窗：界面输入 vCPU / GiB，保存换算为 m / MiB；GPU 字段仅 GPU 系列显示 ----
+    var cpEditing = null; // null = 新增
+    function cpOpenModal(id) {
+      cpEditing = id;
+      var r = id ? CP_SPECS.filter(function(x) { return x.id === id; })[0] : null;
+      var curKind = r ? cpSeriesOf(r.series).kind : 'task';
+      document.getElementById('cpModalTitle').textContent = r ? '编辑规格：' + r.id : '新增规格';
+      document.getElementById('cpModalBody').innerHTML =
+        '<div class="ms-modal-hint">规格保存后即出现在工作区「新建计算资源」的规格卡片中（启用状态下）。单价不在此配置——保存后到 <a href="billing-management.html#pricing" style="color:#722ed1">计费中心 › 价格设置</a> 为各站点 × Region 配置该规格的单价。</div>'
+        + '<div class="cp-form-grid">'
+        + '<div class="cp-field"><label><span class="req">*</span>规格 ID</label><input id="cpfId" value="' + (r ? r.id : '') + '"' + (r ? ' disabled style="background:#fafafa;color:rgba(0,0,0,0.45)"' : ' placeholder="如 CG8 / CM8 / GI2"') + '><div class="hint">' + (r ? '规格 ID 是身份标识，创建后不可修改' : '命名惯例：规格族前缀 + 档位数字（CG / CM / GI / GT / Q）') + '</div></div>'
+        + '<div class="cp-field"><label><span class="req">*</span>类型</label><select id="cpfKind" onchange="cpOnKindChange()">'
+        + '<option value="task"' + (curKind === 'task' ? ' selected' : '') + '>通用计算资源（非 SQL 处理）</option>'
+        + '<option value="query"' + (curKind === 'query' ? ' selected' : '') + '>SQL 计算资源（SQL 处理）</option>'
+        + '</select><div class="hint">通用跑工作流 / 解析 / 载入等非 SQL 处理；SQL 只跑 SQL</div></div>'
+        + '<div class="cp-field" style="grid-column:1/-1"><label><span class="req">*</span>规格族 <a href="javascript:void(0)" onclick="cpToggleSeriesPanel()" style="float:right;font-weight:400;font-size:12px;color:#722ed1;text-decoration:none" id="cpSeriesPanelBtn">管理规格族 ›</a></label><select id="cpfSeries" onchange="cpOnSeriesChange()"></select><div class="hint">规格族决定命名、定位与是否含 GPU；新建或修改规格族在「管理规格族」中进行</div></div>'
+        + '<div class="cp-field"><label><span class="req">*</span>CPU（vCPU）</label><input id="cpfCpu" type="number" min="0.5" step="0.5" value="' + (r ? r.cpu / 1000 : '') + '" oninput="cpUnitHint()"><div class="hint" id="cpfCpuHint">按 vCPU 填写；对接底层为 millicore（1 vCPU = 1000m）</div></div>'
+        + '<div class="cp-field"><label><span class="req">*</span>内存（GiB）</label><input id="cpfMem" type="number" min="1" step="1" value="' + (r ? r.mem / 1024 : '') + '" oninput="cpUnitHint()"><div class="hint" id="cpfMemHint">按 GiB 填写；对接底层为 MiB（1 GiB = 1024 MiB）</div></div>'
+        + '<div class="cp-gpu-box" id="cpfGpuBox" style="display:none"><div class="ttl">GPU 参数</div><div class="cp-form-grid">'
+        + '<div class="cp-field"><label><span class="req">*</span>GPU 卡数</label><input id="cpfGpu" type="number" min="1" step="1" value="' + (r && r.gpu ? r.gpu : 1) + '"><div class="hint">对应 nvidia.com/gpu</div></div>'
+        + '<div class="cp-field"><label><span class="req">*</span>单卡显存（GiB）</label><input id="cpfGpuMem" type="number" min="1" step="1" value="' + (r && r.gpuMem ? r.gpuMem / 1024 : 24) + '"><div class="hint">对应 nvidia.com/gpumem（MiB）</div></div>'
+        + '<div class="cp-field"><label>GPU 算力（%）</label><input id="cpfGpuCores" type="number" min="1" max="100" step="1" value="' + (r && r.gpuCores ? r.gpuCores : 100) + '"><div class="hint">0–100 的整数，100 = 整卡算力；对应 nvidia.com/gpucores（vGPU 按算力百分比切分），与单卡显存配合把一张物理卡切给多个任务——不是物理 CUDA 核心数</div></div>'
+        + '</div></div>'
+        + '<div class="cp-field" style="grid-column:1/-1"><label>描述</label><input id="cpfDesc" value="' + (r ? msEsc(r.desc) : '') + '" placeholder="说明规格适用场景，展示在规格卡片上，可留空"></div>'
+        + '</div>';
+      cpRenderSeriesOptions(r ? r.series : null);
+      cpOnSeriesChange();
+      cpUnitHint();
+      document.getElementById('cpModal').classList.add('show');
+    }
+    // 规格族下拉按所选类型过滤；切换类型时重建并默认选中该类型第一个规格族
+    function cpRenderSeriesOptions(selectKey) {
+      var kind = document.getElementById('cpfKind').value;
+      var list = CP_SERIES.filter(function(s) { return s.kind === kind; });
+      var sel = document.getElementById('cpfSeries');
+      sel.innerHTML = list.map(function(s) {
+        return '<option value="' + s.key + '"' + (s.key === selectKey ? ' selected' : '') + '>' + s.zh + '（' + s.en + ' · ' + s.key + '）</option>';
+      }).join('');
+    }
+    function cpOnKindChange() { cpRenderSeriesOptions(null); cpOnSeriesChange(); }
+    function cpOnSeriesChange() {
+      var s = cpSeriesOf(document.getElementById('cpfSeries').value) || {};
+      document.getElementById('cpfGpuBox').style.display = s.gpu ? '' : 'none';
+    }
+
+    // ---- 规格族管理面板：弹窗右扩,集中管理规格族的名称与属性 ----
+    var cpSeriesPanelOpen = false, cpSeriesEditing = null, cpSeriesCreating = false;
+    function cpToggleSeriesPanel() {
+      cpSeriesPanelOpen = !cpSeriesPanelOpen;
+      cpSeriesEditing = null; cpSeriesCreating = false;
+      document.getElementById('cpSeriesPanel').style.display = cpSeriesPanelOpen ? '' : 'none';
+      document.getElementById('cpModalBox').style.width = cpSeriesPanelOpen ? '1080px' : '640px';
+      document.getElementById('cpSeriesPanelBtn').textContent = cpSeriesPanelOpen ? '收起管理 ‹' : '管理规格族 ›';
+      if (cpSeriesPanelOpen) cpRenderSeriesPanel();
+    }
+    function cpSeriesRefs(key) { return CP_SPECS.filter(function(x) { return x.series === key; }).length; }
+    function cpSeriesFormHtml(s) {
+      // s = null 表示新建
+      return '<div class="cp-gpu-box" style="background:#fff;border-color:#e0d3f5;margin-top:8px"><div class="cp-form-grid">'
+        + (s ? '<div class="cp-field"><label>规格族标识</label><input value="' + s.key + '" disabled style="background:#fafafa;color:rgba(0,0,0,0.45)"><div class="hint">内部稳定标识，创建后不可修改</div></div>'
+             : '<div class="cp-field"><label><span class="req">*</span>规格族标识</label><input id="cpsfKey" placeholder="如 gpuEdge"><div class="hint">内部稳定标识，创建后不可修改</div></div>')
+        + (s ? '<div class="cp-field"><label>类型</label><input value="' + (s.kind === 'query' ? 'SQL 计算资源' : '通用计算资源') + '" disabled style="background:#fafafa;color:rgba(0,0,0,0.45)"></div>'
+             : '<div class="cp-field"><label><span class="req">*</span>类型</label><select id="cpsfKind"><option value="task">通用计算资源</option><option value="query">SQL 计算资源</option></select></div>')
+        + '<div class="cp-field"><label><span class="req">*</span>中文名称</label><input id="cpsfZh" value="' + (s ? msEsc(s.zh) : '') + '" placeholder="如 GPU 边缘推理型"></div>'
+        + '<div class="cp-field"><label><span class="req">*</span>英文名称</label><input id="cpsfEn" value="' + (s ? msEsc(s.en) : '') + '" placeholder="如 GPU Edge Inference"></div>'
+        + '<div class="cp-field"><label>含 GPU</label><select id="cpsfGpu"' + (s && cpSeriesRefs(s.key) > 0 ? ' disabled style="background:#fafafa;color:rgba(0,0,0,0.45)"' : '') + '><option value="0"' + (s && !s.gpu ? ' selected' : '') + '>否</option><option value="1"' + (s && s.gpu ? ' selected' : '') + '>是</option></select><div class="hint">' + (s && cpSeriesRefs(s.key) > 0 ? '已有规格引用，不可更改' : '决定该规格族的规格是否填写 GPU 参数') + '</div></div>'
+        + '<div class="cp-field"><label>定位描述</label><input id="cpsfDesc" value="' + (s ? msEsc(s.desc || '') : '') + '" placeholder="一句话说明配比与适用场景，可留空"></div>'
+        + '<div style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px">'
+        + '<button class="btn-secondary" style="padding:5px 14px;font-size:12.5px" onclick="cpSeriesEditing=null;cpSeriesCreating=false;cpRenderSeriesPanel()">取消</button>'
+        + '<button class="btn-primary" style="padding:5px 14px;font-size:12.5px" onclick="' + (s ? 'cpSeriesSaveEdit(\'' + s.key + '\')' : 'cpSeriesCreate()') + '">保存</button>'
+        + '</div></div></div>';
+    }
+    function cpRenderSeriesPanel() {
+      var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+        + '<div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.85)">规格族管理</div>'
+        + '<button class="btn-secondary" style="padding:4px 12px;font-size:12px" onclick="cpSeriesCreating=true;cpSeriesEditing=null;cpRenderSeriesPanel()">＋ 新建规格族</button></div>'
+        + '<div style="font-size:11.5px;color:rgba(0,0,0,0.4);margin-bottom:12px">规格族的名称与属性改动会同步到规格目录与工作区规格卡片；被规格引用的规格族不可删除、不可更改含 GPU 属性。</div>';
+      if (cpSeriesCreating) html += cpSeriesFormHtml(null);
+      [{ kind: 'task', label: '通用计算资源' }, { kind: 'query', label: 'SQL 计算资源' }].forEach(function(g) {
+        html += '<div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);margin:14px 0 6px">' + g.label + '</div>';
+        CP_SERIES.filter(function(s) { return s.kind === g.kind; }).forEach(function(s) {
+          if (cpSeriesEditing === s.key) { html += cpSeriesFormHtml(s); return; }
+          var refs = cpSeriesRefs(s.key);
+          html += '<div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:10px 14px;margin-bottom:8px">'
+            + '<div style="display:flex;align-items:center;gap:8px">'
+            + '<span style="font-size:13px;font-weight:600;white-space:nowrap">' + msEsc(s.zh) + '</span>'
+            + (s.gpu ? '<span style="font-size:10.5px;padding:1px 6px;border-radius:4px;background:#f0e6ff;color:#722ed1">GPU</span>' : '')
+            + '<span style="flex:1"></span>'
+            + '<span style="font-size:11px;color:rgba(0,0,0,0.4);white-space:nowrap">' + (refs > 0 ? refs + ' 个规格' : '无规格') + '</span>'
+            + '<button class="tbl-act-link" style="border:none;background:none;cursor:pointer;color:#722ed1;font-size:12px;white-space:nowrap" onclick="cpSeriesEditing=\'' + s.key + '\';cpSeriesCreating=false;cpRenderSeriesPanel()">编辑</button>'
+            + (refs > 0 ? '<span style="font-size:12px;color:rgba(0,0,0,0.25);white-space:nowrap" title="被 ' + refs + ' 个规格引用，不可删除">删除</span>'
+              : '<button class="tbl-act-link" style="border:none;background:none;cursor:pointer;color:#ff4d4f;font-size:12px;white-space:nowrap" onclick="cpSeriesDelete(\'' + s.key + '\')">删除</button>')
+            + '</div>'
+            + '<div style="font-size:11px;color:rgba(0,0,0,0.4);margin-top:2px">' + msEsc(s.en) + ' · ' + s.key + '</div>'
+            + (s.desc ? '<div style="font-size:11.5px;color:rgba(0,0,0,0.45);margin-top:4px">' + msEsc(s.desc) + '</div>' : '')
+            + '</div>';
+        });
+      });
+      document.getElementById('cpSeriesPanel').innerHTML = html;
+    }
+    function cpSeriesSaveEdit(key) {
+      var s = cpSeriesOf(key); if (!s) return;
+      var zh = document.getElementById('cpsfZh').value.trim(), en = document.getElementById('cpsfEn').value.trim();
+      if (!zh || !en) { msToast('中英文名称不能为空'); return; }
+      s.zh = zh; s.en = en; s.desc = document.getElementById('cpsfDesc').value.trim();
+      if (!document.getElementById('cpsfGpu').disabled) s.gpu = document.getElementById('cpsfGpu').value === '1';
+      cpSeriesEditing = null;
+      cpAfterSeriesChange(key);
+      msToast('规格族「' + zh + '」已更新');
+    }
+    function cpSeriesCreate() {
+      var key = document.getElementById('cpsfKey').value.trim();
+      var zh = document.getElementById('cpsfZh').value.trim(), en = document.getElementById('cpsfEn').value.trim();
+      if (!key || !zh || !en) { msToast('请完整填写规格族标识与中英文名称'); return; }
+      if (cpSeriesOf(key)) { msToast('规格族标识 ' + key + ' 已存在'); return; }
+      CP_SERIES.push({ key: key, zh: zh, en: en, kind: document.getElementById('cpsfKind').value, gpu: document.getElementById('cpsfGpu').value === '1', desc: document.getElementById('cpsfDesc').value.trim() });
+      cpSeriesCreating = false;
+      cpAfterSeriesChange(null);
+      msToast('规格族「' + zh + '」已创建');
+    }
+    function cpSeriesDelete(key) {
+      var s = cpSeriesOf(key); if (!s) return;
+      if (cpSeriesRefs(key) > 0) { msToast('该规格族被规格引用，不可删除'); return; }
+      if (!confirm('删除规格族「' + s.zh + '」？该规格族下没有规格，删除后不可恢复。')) return;
+      CP_SERIES = CP_SERIES.filter(function(x) { return x.key !== key; });
+      cpAfterSeriesChange(null);
+      msToast('规格族「' + s.zh + '」已删除');
+    }
+    // 族变更后同步：左侧下拉（保持选中，被删则回退第一个）、规格目录列表、管理面板
+    function cpAfterSeriesChange(preferKey) {
+      var cur = document.getElementById('cpfSeries') ? document.getElementById('cpfSeries').value : null;
+      cpRenderSeriesOptions(cpSeriesOf(preferKey || cur) && cpSeriesOf(preferKey || cur).kind === document.getElementById('cpfKind').value ? (preferKey || cur) : null);
+      cpOnSeriesChange();
+      cpRenderList();
+      cpRenderSeriesPanel();
+    }
+    function cpUnitHint() {
+      var c = parseFloat(document.getElementById('cpfCpu').value) || 0;
+      var m = parseFloat(document.getElementById('cpfMem').value) || 0;
+      document.getElementById('cpfCpuHint').textContent = c > 0 ? '= ' + (c * 1000) + 'm（millicore）' : '按 vCPU 填写；对接底层为 millicore（1 vCPU = 1000m）';
+      document.getElementById('cpfMemHint').textContent = m > 0 ? '= ' + (m * 1024) + ' MiB' : '按 GiB 填写；对接底层为 MiB（1 GiB = 1024 MiB）';
+    }
+    function cpCloseModal() { document.getElementById('cpModal').classList.remove('show'); cpEditing = null; }
+    function cpSaveSpec() {
+      var seriesKey = document.getElementById('cpfSeries').value;
+      var s = cpSeriesOf(seriesKey);
+      var id = cpEditing || document.getElementById('cpfId').value.trim().toUpperCase();
+      if (!id) { msToast('请填写规格 ID'); return; }
+      if (!cpEditing && CP_SPECS.some(function(x) { return x.id === id; })) { msToast('规格 ID ' + id + ' 已存在'); return; }
+      var cpu = Math.round((parseFloat(document.getElementById('cpfCpu').value) || 0) * 1000);
+      var mem = Math.round((parseFloat(document.getElementById('cpfMem').value) || 0) * 1024);
+      if (cpu <= 0 || mem <= 0) { msToast('CPU 与内存必须大于 0'); return; }
+      var gpu = 0, gpuMem = 0, gpuCores = 0;
+      if (s.gpu) {
+        gpu = parseInt(document.getElementById('cpfGpu').value) || 0;
+        gpuMem = Math.round((parseFloat(document.getElementById('cpfGpuMem').value) || 0) * 1024);
+        gpuCores = parseInt(document.getElementById('cpfGpuCores').value) || 100;
+        if (gpu <= 0 || gpuMem <= 0) { msToast('GPU 系列须填写卡数与单卡显存'); return; }
+      }
+      var desc = document.getElementById('cpfDesc').value.trim();
+      if (cpEditing) {
+        var r = CP_SPECS.filter(function(x) { return x.id === cpEditing; })[0];
+        r.series = seriesKey; r.cpu = cpu; r.mem = mem; r.gpu = gpu; r.gpuMem = gpuMem; r.gpuCores = gpuCores; r.desc = desc;
+        msToast('规格 ' + r.id + ' 已更新');
+      } else {
+        CP_SPECS.push({ id: id, series: seriesKey, cpu: cpu, mem: mem, gpu: gpu, gpuMem: gpuMem, gpuCores: gpuCores, enabled: true, desc: desc });
+        msToast('规格 ' + id + ' 已创建；请到 计费中心 › 价格设置 为各站点配置单价');
+      }
+      cpCloseModal();
+      cpRenderList();
+    }
+
+    // ===== Panel 路由(与其他管理页同款 hash 模式)=====
+    function showAsPanel(hash) {
+      var panels = ['models', 'compute'];
+      var target = panels.indexOf(hash) >= 0 ? hash : 'models';
+      panels.forEach(function(p) { document.getElementById('asPanel-' + p).style.display = (p === target) ? '' : 'none'; });
+      document.querySelectorAll('.admin-nav-child').forEach(function(c) {
+        c.classList.toggle('active', c.getAttribute('href').indexOf('#' + target) >= 0);
+      });
+    }
+    window.addEventListener('hashchange', function() { showAsPanel(window.location.hash.replace('#', '')); });
+
+    showAsPanel(window.location.hash.replace('#', '') || 'models');
+    msRenderSlots(); msRenderLogs(); msRenderReqServiceOptions(); msRenderRequests(); cpRenderSiteSel(); cpRenderList(); cpRenderInstances();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - 计费中心</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .billing-page { display: flex; height: calc(100vh - 56px); margin-top: 56px; background: #f5f7fb; position: relative; z-index: 2; }
+    .billing-nav { width: 180px; background: #fff; border-right: 1px solid #f0f0f0; padding: 16px 0; flex-shrink: 0; }
+    .billing-nav-item {
+      display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-size: 13px;
+      color: rgba(0,0,0,0.55); cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent;
+    }
+    .billing-nav-item:hover { color: rgba(0,0,0,0.88); background: rgba(0,0,0,0.02); }
+    .billing-nav-item.active { color: #004af0; font-weight: 600; background: rgba(0,74,240,0.04); border-left-color: #004af0; }
+    .billing-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .billing-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .billing-panel { display: none; }
+    .billing-panel.active { display: block; }
+
+    /* Credit overview card */
+    .bal-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+      border-radius: 14px; padding: 28px 32px; color: #fff; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 32px; position: relative; overflow: hidden;
+    }
+    .bal-card::after { content: ''; position: absolute; right: -40px; top: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(22,119,255,0.08); }
+    .bal-main { flex: 1; }
+    .bal-label { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 4px; }
+    .bal-val { font-size: 42px; font-weight: 700; line-height: 1.2; letter-spacing: -1px; }
+    .bal-val .unit { font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.6); margin-left: 6px; }
+    .bal-sub { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 6px; }
+    .bal-sub b { color: rgba(255,255,255,0.75); font-weight: 600; }
+    .bal-stats { display: flex; gap: 24px; margin-top: 14px; }
+    .bal-stat { padding: 10px 16px; background: rgba(255,255,255,0.08); border-radius: 8px; }
+    .bal-stat-label { font-size: 11px; color: rgba(255,255,255,0.45); }
+    .bal-stat-val { font-size: 18px; font-weight: 700; margin-top: 2px; }
+    .bal-actions { position: relative; z-index: 1; }
+    .btn-recharge {
+      padding: 10px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; background: #1677ff; color: #fff; transition: background 0.2s;
+    }
+    .btn-recharge:hover { background: #4096ff; }
+    .btn-pricing {
+      margin-left: 10px; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+      cursor: pointer; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.25); transition: background 0.2s;
+    }
+    .btn-pricing:hover { background: rgba(255,255,255,0.18); }
+
+    /* Trend section */
+    .trend-section { margin-bottom: 20px; }
+    .trend-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .trend-title { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .trend-controls { display: flex; align-items: center; gap: 8px; }
+    .trend-tab {
+      padding: 4px 12px; border-radius: 6px; font-size: 12px; color: rgba(0,0,0,0.45);
+      cursor: pointer; border: 1px solid #e5e6eb; background: #fff; transition: all 0.15s;
+    }
+    .trend-tab:hover { border-color: #1677ff; color: #1677ff; }
+    .trend-tab.active { border-color: #1677ff; color: #1677ff; background: #e6f4ff; }
+    .trend-range {
+      display: flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid #e5e6eb;
+      border-radius: 6px; font-size: 12px; color: rgba(0,0,0,0.65); background: #fff; cursor: pointer;
+    }
+    .trend-range:hover { border-color: #1677ff; }
+    .trend-dim-tabs { display: flex; gap: 0; margin-bottom: 12px; }
+    .trend-dim-tab {
+      padding: 6px 16px; font-size: 13px; color: rgba(0,0,0,0.45); cursor: pointer;
+      border-bottom: 2px solid transparent; font-weight: 500;
+    }
+    .trend-dim-tab:hover { color: rgba(0,0,0,0.88); }
+    .trend-dim-tab.active { color: #004af0; border-bottom-color: #004af0; }
+    .trend-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .trend-chart-card {
+      background: #fff; border: 1px solid #f0f0f0;
+      border-radius: 12px; padding: 20px; min-height: 240px;
+    }
+    .trend-chart-title { font-size: 13px; font-weight: 600; color: rgba(0,0,0,0.88); margin-bottom: 12px; }
+
+    /* Bar chart */
+    .bars { display: flex; align-items: flex-end; gap: 4px; height: 160px; padding: 0 4px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-stack { width: 100%; border-radius: 3px 3px 0 0; overflow: hidden; display: flex; flex-direction: column-reverse; }
+    .bar-label { font-size: 10px; color: rgba(0,0,0,0.35); white-space: nowrap; }
+    .bar-legend { display: flex; gap: 12px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
+    .bar-legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: rgba(0,0,0,0.55); }
+    .bar-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+    /* Donut chart */
+    .donut-wrap { display: flex; align-items: center; gap: 20px; }
+    .donut { width: 140px; height: 140px; border-radius: 50%; position: relative; flex-shrink: 0; }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .donut-center-val { font-size: 20px; font-weight: 700; }
+    .donut-center-label { font-size: 11px; color: rgba(0,0,0,0.35); }
+    .donut-legend { flex: 1; }
+    .dl-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
+    .dl-item:last-child { border-bottom: none; }
+    .dl-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+    .dl-name { flex: 1; color: rgba(0,0,0,0.65); }
+    .dl-val { font-weight: 600; }
+    .dl-pct { font-size: 11px; color: rgba(0,0,0,0.35); min-width: 32px; text-align: right; }
+
+    /* Monthly bills */
+    .monthly-section { margin-bottom: 20px; }
+    .monthly-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .monthly-title { font-size: 15px; font-weight: 600; color: rgba(0,0,0,0.88); }
+    .bill-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .bill-table th { text-align: left; padding: 10px 14px; color: rgba(0,0,0,0.45); font-weight: 500; background: rgba(255,255,255,0.4); border-bottom: 1px solid #f0f0f0; }
+    .bill-table td { padding: 10px 14px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.88); }
+    .bill-table tr:hover td { background: rgba(255,255,255,0.3); }
+    .bill-status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .bill-status.paid { background: #f6ffed; color: #52c41a; }
+    .bill-status.pending { background: #e6f4ff; color: #1677ff; }
+    .bill-link { color: #1677ff; cursor: pointer; font-size: 12px; }
+    .bill-link:hover { text-decoration: underline; }
+
+    /* Recharge modal */
+    .recharge-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(20,33,64,0.2);
+      -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .recharge-overlay.show { display: flex; }
+    .recharge-modal {
+      background: #fff; border-radius: 16px; width: 640px;
+      box-shadow: 0 12px 40px rgba(20,33,64,0.12); border: 1px solid #f0f0f0;
+      max-height: 86vh;
+      display: flex; flex-direction: column;
+    }
+    /* 标题 + ✕ 始终冻结在顶部 */
+    .recharge-modal-header {
+      flex-shrink: 0;
+      padding: 24px 28px 14px;
+      border-bottom: 1px solid #f5f5f5;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+    }
+    /* 中间内容区可独立滚动 */
+    .recharge-modal-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 20px 28px 24px;
+    }
+    /* Region segmented switcher */
+    .region-switch {
+      display: flex; gap: 0; margin-bottom: 18px; padding: 3px;
+      background: #f5f7fb; border-radius: 8px;
+    }
+    .region-switch-tab {
+      flex: 1; padding: 8px 0; text-align: center; font-size: 13px;
+      cursor: pointer; border-radius: 6px; transition: all 0.15s;
+      color: rgba(0,0,0,0.55); display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .region-switch-tab.active {
+      background: #fff; color: #1677ff; font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .recharge-packs { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+    .rp {
+      background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #f0f0f0;
+      text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .rp:hover { border-color: #1677ff; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .rp.sel { border: 2px solid #1677ff; background: #f0f5ff; }
+    .rp.best::after { content: '最划算'; position: absolute; top: 6px; right: 6px; background: #ff4d4f; color: #fff; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; }
+    .rp-cr { font-size: 20px; font-weight: 700; }
+    .rp-cr span { font-size: 12px; font-weight: 400; color: rgba(0,0,0,0.35); }
+    .rp-price { font-size: 13px; color: rgba(0,0,0,0.55); margin-top: 4px; }
+    .rp-rate { font-size: 11px; color: #52c41a; margin-top: 2px; font-weight: 600; }
+
+    /* Payment method cards */
+    .pay-method {
+      flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border: 1.5px solid #f0f0f0; border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    }
+    .pay-method:hover { border-color: #1677ff; }
+    .pay-method.sel { border-color: #1677ff; background: #f0f5ff; }
+
+    /* Settings toggle */
+    .settings-toggle {
+      width: 36px; height: 20px; border-radius: 10px; background: #d9d9d9; cursor: pointer;
+      position: relative; transition: background 0.2s; flex-shrink: 0;
+    }
+    .settings-toggle.on { background: #1677ff; }
+    .settings-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+      border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: transform 0.2s;
+    }
+    .settings-toggle.on::after { transform: translateX(16px); }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <div class="billing-page">
+    <div class="billing-nav">
+      <div class="billing-nav-item active" data-panel="overview" onclick="switchBillingTab('overview',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        费用总览
+      </div>
+      <div class="billing-nav-item" data-panel="usage" onclick="switchBillingTab('usage',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        用量明细
+      </div>
+      <div class="billing-nav-item" data-panel="transactions" onclick="switchBillingTab('transactions',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        收支明细
+      </div>
+      <div class="billing-nav-item" data-panel="settings" onclick="switchBillingTab('settings',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        设置
+      </div>
+    </div>
+
+    <div class="billing-body">
+      <!-- ===== 费用总览 ===== -->
+      <div class="billing-panel active" id="panel-overview">
+        <!-- Credit Overview Card -->
+        <div class="bal-card">
+          <div class="bal-main">
+            <div class="bal-label">Credit 余额</div>
+            <div class="bal-val">1,286<span class="unit">credits</span></div>
+            <div class="bal-sub">预计可用 <b>27</b> 天（按近 7 日日均 <b>47.6</b> cr 估算）</div>
+            <div class="bal-stats">
+              <div class="bal-stat">
+                <div class="bal-stat-label">当日消费</div>
+                <div class="bal-stat-val">32.5</div>
+              </div>
+              <div class="bal-stat">
+                <div class="bal-stat-label">当月消费</div>
+                <div class="bal-stat-val">714.0</div>
+              </div>
+              <div class="bal-stat">
+                <div class="bal-stat-label">上月消费</div>
+                <div class="bal-stat-val">892.3</div>
+              </div>
+            </div>
+          </div>
+          <div class="bal-actions">
+            <button class="btn-recharge" onclick="openRechargeModal()">充值</button>
+            <button class="btn-pricing" onclick="toggleBillingInfo(event)">查看定价</button>
+          </div>
+        </div>
+
+        <!-- Consumption Trend -->
+        <div class="trend-section">
+          <div class="trend-header">
+            <div class="trend-title">消费趋势</div>
+            <div class="trend-controls">
+              <span class="trend-tab" onclick="setTrendRange('week',this)">近一周</span>
+              <span class="trend-tab active" onclick="setTrendRange('month',this)">近一个月</span>
+              <span class="trend-tab" onclick="setTrendRange('curMonth',this)">当月</span>
+              <span class="trend-range" onclick="openCustomRange()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span id="customRangeLabel">自定义</span>
+              </span>
+              <input type="date" id="customStart" style="display:none;height:28px;border:1px solid #e5e6eb;border-radius:6px;font-size:12px;padding:0 8px" onchange="applyCustomRange()">
+              <span id="customRangeSep" style="display:none;font-size:12px;color:rgba(0,0,0,0.25)">—</span>
+              <input type="date" id="customEnd" style="display:none;height:28px;border:1px solid #e5e6eb;border-radius:6px;font-size:12px;padding:0 8px" onchange="applyCustomRange()">
+            </div>
+          </div>
+          <div class="trend-dim-tabs">
+            <div class="trend-dim-tab active" onclick="switchTrendDim('billing',this)">按计费项</div>
+            <div class="trend-dim-tab" onclick="switchTrendDim('workspace',this)">按工作区</div>
+          </div>
+          <div class="trend-charts">
+            <div class="trend-chart-card">
+              <div class="trend-chart-title">消费趋势（条形图）</div>
+              <div class="bars" id="trendBars"></div>
+              <div class="bar-legend" id="trendLegend"></div>
+            </div>
+            <div class="trend-chart-card">
+              <div class="trend-chart-title">费用构成（饼图）</div>
+              <div class="donut-wrap">
+                <div class="donut" id="trendDonut"></div>
+                <div class="donut-legend" id="trendDonutLegend"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Bills -->
+        <div class="monthly-section">
+          <div class="monthly-header">
+            <div class="monthly-title">月账单概览</div>
+            <div class="trend-range" style="font-size:12px">
+              2025-11 — 2026-04
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #f0f0f0;border-radius:12px;overflow:hidden">
+            <table class="bill-table">
+              <thead><tr><th>账期</th><th>出账日期</th><th>总消耗 (credit)</th><th>用量消耗 (credit)</th><th>月费订阅 (credit)</th><th>状态</th></tr></thead>
+              <tbody>
+                <tr><td>2026-04</td><td>—</td><td style="font-weight:700">1,012.0</td><td>714.0</td><td>298.0</td><td><span class="bill-status pending">计费中</span></td></tr>
+                <tr><td>2026-03</td><td>2026-04-01</td><td style="font-weight:700">1,190.3</td><td>892.3</td><td>298.0</td><td><span class="bill-status paid">已出账</span></td></tr>
+                <tr><td>2026-02</td><td>2026-03-02</td><td style="font-weight:700">1,054.8</td><td>756.8</td><td>298.0</td><td><span class="bill-status paid">已出账</span></td></tr>
+                <tr><td>2026-01</td><td>2026-02-02</td><td style="font-weight:700">921.5</td><td>623.5</td><td>298.0</td><td><span class="bill-status paid">已出账</span></td></tr>
+                <tr><td>2025-12</td><td>2026-01-02</td><td style="font-weight:700">839.2</td><td>541.2</td><td>298.0</td><td><span class="bill-status paid">已出账</span></td></tr>
+                <tr><td>2025-11</td><td>2025-12-02</td><td style="font-weight:700">511.0</td><td>412.0</td><td>99.0</td><td><span class="bill-status paid">已出账</span></td></tr>
+                <tr style="background:rgba(0,0,0,0.02)"><td style="font-weight:600">合计</td><td></td><td style="font-weight:700">5,528.8</td><td style="font-weight:600">3,939.8</td><td style="font-weight:600">1,589.0</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placeholder panels -->
+      <div class="billing-panel" id="panel-usage">
+        <!-- Toolbar -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="position:relative;width:200px">
+            <input style="width:100%;height:32px;padding:4px 32px 4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none" placeholder="搜索账单号" id="billSearchInput">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="date" id="billDateStart" value="2026-04-01" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;padding:0 8px;outline:none">
+            <span style="font-size:12px;color:rgba(0,0,0,0.25)">—</span>
+            <input type="date" id="billDateEnd" value="2026-04-09" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;padding:0 8px;outline:none">
+          </div>
+          <div style="flex:1"></div>
+          <button style="height:32px;padding:0 14px;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;color:rgba(0,0,0,0.65);border:1px solid #d9d9d9;display:inline-flex;align-items:center;gap:5px" onclick="alert('导出功能待实现')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出
+          </button>
+        </div>
+
+        <!-- Dimension filters -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45)">统计周期</span>
+            <span class="trend-tab active" onclick="setBillPeriod('month',this)">账期</span>
+            <span class="trend-tab" onclick="setBillPeriod('day',this)">日</span>
+            <span class="trend-tab" onclick="setBillPeriod('hour',this)">小时</span>
+          </div>
+          <div style="width:1px;height:16px;background:#e5e6eb"></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45)">统计项</span>
+            <span class="trend-tab active" onclick="setBillDim('billing',this)">计费项</span>
+            <span class="trend-tab" onclick="setBillDim('workspace',this)">工作区</span>
+          </div>
+        </div>
+
+        <!-- Bill table -->
+        <div style="background:#fff;border:1px solid #f0f0f0;border-radius:12px;overflow:hidden">
+          <table class="bill-table">
+            <thead id="billTableHead"></thead>
+            <tbody id="billTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:16px">
+          <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-right:8px">共 248 条</span>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #f0f0f0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:default;font-size:13px;color:rgba(0,0,0,0.15)">&lt;</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #1677ff;background:#1677ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">1</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">2</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">3</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(0,0,0,0.65)">...</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">25</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">&gt;</button>
+        </div>
+      </div>
+      <div class="billing-panel" id="panel-transactions">
+        <!-- Toolbar -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="position:relative;width:200px">
+            <input style="width:100%;height:32px;padding:4px 32px 4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none" placeholder="搜索交易单号">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="date" value="2026-03-01" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;padding:0 8px;outline:none">
+            <span style="font-size:12px;color:rgba(0,0,0,0.25)">—</span>
+            <input type="date" value="2026-04-09" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;font-size:12px;padding:0 8px;outline:none">
+          </div>
+          <div style="flex:1"></div>
+          <button style="height:32px;padding:0 14px;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;color:rgba(0,0,0,0.65);border:1px solid #d9d9d9;display:inline-flex;align-items:center;gap:5px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出
+          </button>
+        </div>
+
+        <!-- Transaction table -->
+        <div style="background:#fff;border:1px solid #f0f0f0;border-radius:12px;overflow:hidden">
+          <table class="bill-table">
+            <thead id="txnTableHead"></thead>
+            <tbody id="txnTableBody"></tbody>
+            <tfoot id="txnTableFoot"></tfoot>
+          </table>
+          <div id="txnPager" style="display:none;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid #f0f0f0;background:#fafbfc">
+            <div style="font-size:12px;color:rgba(0,0,0,0.55)" id="txnPagerInfo"></div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;color:rgba(0,0,0,0.45)">每页</span>
+              <select id="txnPageSize" onchange="userTxnPage=1;renderTxnTable()" style="height:28px;padding:0 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:12px;background:#fff;outline:none">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <div id="txnPagerNav" style="display:flex;align-items:center;gap:4px;margin-left:8px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 旧的写死分页（隐藏，下面 hideOldPager） -->
+        <div style="display:none">
+          <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-right:8px">共 42 条</span>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #f0f0f0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:default;font-size:13px;color:rgba(0,0,0,0.15)">&lt;</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #1677ff;background:#1677ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">1</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">2</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">3</button>
+          <button style="width:32px;height:32px;border-radius:6px;border:1px solid #d9d9d9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(0,0,0,0.65)">&gt;</button>
+        </div>
+      </div>
+      <div class="billing-panel" id="panel-settings">
+        <!-- 订阅服务 -->
+        <div style="background:#fff;border-radius:10px;padding:24px;border:1px solid #f0f0f0;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:600">订阅服务</div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.35)">当月订阅合计：<span style="color:#004af0;font-weight:600" id="subTotal">298.00</span> Credit / 月</div>
+          </div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">按月扣费的增值服务，开通后每月 1 日自动从 Credit 余额扣除</div>
+
+          <!-- BYOM -->
+          <div style="display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid #f5f5f5">
+            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88)">自有模型（BYOM）</span>
+                <span style="font-size:11px;padding:1px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-weight:600" id="byomBadge">已开通</span>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px">接入您自己的模型服务（Bring Your Own Model），在平台各处使用；使用量另按 token 收取服务费</div>
+            </div>
+            <div style="text-align:right;min-width:80px">
+              <div style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.88)">99</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.35)">Credit / 月</div>
+            </div>
+            <div class="settings-toggle on" id="byomToggle" onclick="toggleSubscription('byom',this)"></div>
+          </div>
+
+          <!-- 专属支持 -->
+          <div style="display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid #f5f5f5">
+            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f093fb,#f5576c);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88)">专属支持</span>
+                <span style="font-size:11px;padding:1px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-weight:600" id="supportBadge">已开通</span>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px">专属支持通道，24h 响应 SLA，优先处理工单和技术问题</div>
+            </div>
+            <div style="text-align:right;min-width:80px">
+              <div style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.88)">199</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.35)">Credit / 月</div>
+            </div>
+            <div class="settings-toggle on" id="supportToggle" onclick="toggleSubscription('support',this)"></div>
+          </div>
+
+          <!-- 企业身份认证 -->
+          <div style="display:flex;align-items:center;gap:16px;padding:16px 0">
+            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4facfe,#00f2fe);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88)">企业身份认证</span>
+                <span style="font-size:11px;padding:1px 8px;border-radius:4px;background:#f5f5f5;color:rgba(0,0,0,0.35);font-weight:500" id="ssoBadge">未开通</span>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px">SSO / SAML 集成（Azure AD、Okta、LDAP），统一企业身份管理</div>
+            </div>
+            <div style="text-align:right;min-width:80px">
+              <div style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.88)">0</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.35)">Credit / 月</div>
+            </div>
+            <div class="settings-toggle" id="ssoToggle" onclick="toggleSubscription('sso',this)"></div>
+          </div>
+        </div>
+
+        <!-- 余额告警 -->
+        <div style="background:#fff;border-radius:10px;padding:24px;border:1px solid #f0f0f0;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">余额告警</div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">Credit 余额低于阈值时通知相关人员</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div><div style="font-size:14px;font-weight:500">启用告警</div></div>
+            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:16px">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fafafa">
+              <span style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">提醒阈值</span>
+              <input type="number" value="200" style="width:60px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none;text-align:right">
+              <span style="font-size:12px;color:rgba(0,0,0,0.35)">credit</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fafafa">
+              <span style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">紧急阈值</span>
+              <input type="number" value="50" style="width:60px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none;text-align:right">
+              <span style="font-size:12px;color:rgba(0,0,0,0.35)">credit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 消费保护 -->
+        <div style="background:#fff;border-radius:10px;padding:24px;border:1px solid #f0f0f0;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">消费保护</div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">防止意外超支，保护账户安全</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div>
+              <div style="font-size:14px;font-weight:500">新账号消费速率限制</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px">首次充值前，限制每小时最多消耗 20 credits</div>
+            </div>
+            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div>
+              <div style="font-size:14px;font-weight:500">月度消费上限</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px">达到上限后暂停消耗型操作，充值或次月自动恢复</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fafafa">
+              <input type="number" value="5000" style="width:60px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none;text-align:right">
+              <span style="font-size:12px;color:rgba(0,0,0,0.35)">cr/月</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+            <div>
+              <div style="font-size:14px;font-weight:500">余额不足时暂停服务</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px">余额为 0 时自动暂停计算资源和 AI 服务，数据存储不受影响</div>
+            </div>
+            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <!-- 自动充值 -->
+        <div style="background:#fff;border-radius:10px;padding:24px;border:1px solid #f0f0f0;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">自动充值</div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">余额低于阈值时自动充值，避免服务中断</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div><div style="font-size:14px;font-weight:500">启用自动充值</div></div>
+            <div class="settings-toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:16px">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fafafa">
+              <span style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">触发阈值</span>
+              <input type="number" value="100" style="width:60px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none;text-align:right">
+              <span style="font-size:12px;color:rgba(0,0,0,0.35)">credit</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fafafa">
+              <span style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">充值金额</span>
+              <input type="number" value="400" style="width:60px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none;text-align:right">
+              <span style="font-size:12px;color:rgba(0,0,0,0.35)">¥</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fafafa">
+              <span style="font-size:13px;color:rgba(0,0,0,0.55);white-space:nowrap">支付方式</span>
+              <select style="border:none;background:transparent;font-size:14px;font-weight:600;outline:none;cursor:pointer">
+                <option>支付宝</option>
+                <option>微信支付</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 通知渠道 -->
+        <div style="background:#fff;border-radius:10px;padding:24px;border:1px solid #f0f0f0;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">通知渠道</div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">选择接收计费相关通知的渠道</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div>
+              <div style="font-size:14px;font-weight:500">邮件</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px">接收邮箱：<input style="border:none;border-bottom:1px solid #e5e6eb;outline:none;font-size:12px;color:rgba(0,0,0,0.65);width:180px;padding:2px 0" value="admin@matrixorigin.cn"></div>
+            </div>
+            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div><div style="font-size:14px;font-weight:500">站内消息</div></div>
+            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div>
+              <div style="font-size:14px;font-weight:500">企业微信 / 飞书 / 钉钉</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px">需先在账号管理中绑定</div>
+            </div>
+            <div class="settings-toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+            <div>
+              <div style="font-size:14px;font-weight:500">Webhook</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px">URL：<input style="border:none;border-bottom:1px solid #e5e6eb;outline:none;font-size:12px;color:rgba(0,0,0,0.65);width:260px;padding:2px 0;font-family:monospace" placeholder="https://your-domain.com/webhook"></div>
+            </div>
+            <div class="settings-toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <!-- 发票设置 -->
+        <div style="background:#fff;border-radius:10px;padding:24px;border:1px solid #f0f0f0;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">发票设置</div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:16px">配置发票抬头信息，充值后可申请开具发票</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div><div style="font-size:14px;font-weight:500">发票类型</div></div>
+            <select style="height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;cursor:pointer">
+              <option>增值税普通发票</option>
+              <option>增值税专用发票</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5">
+            <div><div style="font-size:14px;font-weight:500">发票抬头</div></div>
+            <input style="height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;width:240px" value="矩阵起源（深圳）信息科技有限公司">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+            <div><div style="font-size:14px;font-weight:500">税号</div></div>
+            <input style="height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;width:240px;font-family:monospace" value="91440300MA5G8K2R3X">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recharge Modal -->
+  <div class="recharge-overlay" id="rechargeOverlay" onclick="if(event.target===this)closeRechargeModal()">
+    <div class="recharge-modal" id="rechargeStep1">
+      <div class="recharge-modal-header">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:16px;font-weight:600;color:rgba(0,0,0,0.88)">充值 Credit</div>
+          <button style="width:28px;height:28px;border:none;background:none;cursor:pointer;color:rgba(0,0,0,0.35);font-size:16px;border-radius:6px;display:flex;align-items:center;justify-content:center" onclick="closeRechargeModal()">✕</button>
+        </div>
+      </div>
+      <div class="recharge-modal-body">
+
+      <!-- Current balance -->
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:8px;margin-bottom:14px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/></svg>
+        <span style="font-size:13px;color:rgba(0,0,0,0.55)">当前余额</span>
+        <span style="font-size:18px;font-weight:700;color:#004af0">1,286</span>
+        <span style="font-size:12px;color:rgba(0,0,0,0.35)">credits</span>
+      </div>
+
+      <!-- Region switcher -->
+      <div class="region-switch">
+        <div class="region-switch-tab active" id="regionTabCN" onclick="switchRegion('cn')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          中国大陆（人民币）
+        </div>
+        <div class="region-switch-tab" id="regionTabIntl" onclick="switchRegion('intl')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          海外（USD）
+        </div>
+      </div>
+
+      <!-- Payment method - CN -->
+      <div id="payMethodsCN" style="margin-bottom:20px">
+        <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:10px">支付方式</div>
+        <div style="display:flex;gap:10px">
+          <div class="pay-method sel" onclick="selPayMethod(this,'alipay')">
+            <div style="width:36px;height:36px;border-radius:8px;background:#1677ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-3.1 12.7c-1.3.5-2.7-.2-4.2-1.1 1.2-.3 2.3-.8 3.2-1.4h-4.8v-.8h2.8v-.7h-2.8v-.8h2.3c-.2-.3-.5-.6-.8-.9l.7-.3c.4.4.7.8.9 1.2h1.8c.3-.4.6-.8.8-1.2l.8.3c-.2.3-.5.6-.8.9h2.1v.8h-2.7v.7h2.6v.8h-3.5c.9.5 2 .9 3.2 1.1l-.6.4z"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">支付宝</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">实时到账</div></div>
+          </div>
+          <div class="pay-method" onclick="selPayMethod(this,'wechat')">
+            <div style="width:36px;height:36px;border-radius:8px;background:#07c160;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M8.5 13.5c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm4 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zM20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-9.5 12.5c-1 0-2-.2-2.8-.5l-2.7 1 .7-2.2C4.6 13.8 4 12.5 4 11c0-3 2.9-5.5 6.5-5.5S17 8 17 11s-2.9 5.5-6.5 5.5z"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">微信支付</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">实时到账</div></div>
+          </div>
+          <div class="pay-method" onclick="selPayMethod(this,'bank')">
+            <div style="width:36px;height:36px;border-radius:8px;background:#5b7bd5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2L2 7v2h20V7L12 2zm0 2.5L18 7H6l6-2.5zM4 11v6h2v-6H4zm5 0v6h2v-6H9zm5 0v6h2v-6h-2zm5 0v6h2v-6h-2zM2 19v2h20v-2H2z"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">对公汇款</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">大额度充值</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment method - International -->
+      <div id="payMethodsIntl" style="margin-bottom:20px;display:none">
+        <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:10px">Payment Method</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="pay-method sel" onclick="selPayMethod(this,'card')">
+            <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#635bff,#8a83ff);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">Credit / Debit Card</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">Visa · Mastercard · AmEx · 实时</div></div>
+          </div>
+          <div class="pay-method" onclick="selPayMethod(this,'paypal')">
+            <div style="width:36px;height:36px;border-radius:8px;background:#003087;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M7.5 6.5h6c2.5 0 4 1.5 4 4 0 3-2 4.5-5 4.5h-2l-.5 3h-2L9 17h-2L7.5 6.5zm1.6 1.5L8.5 13h2c1.7 0 2.8-.8 2.8-2.5 0-1.6-1-2.5-2.5-2.5H9.1z"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">PayPal</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">PayPal balance / linked</div></div>
+          </div>
+          <div class="pay-method" onclick="selPayMethod(this,'applepay')">
+            <div style="width:36px;height:36px;border-radius:8px;background:#000;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.7 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.5.8-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.9zM15.4 5.7c.6-.8 1.1-1.9.9-3-1 .1-2.2.6-2.9 1.5-.6.7-1.1 1.9-1 2.9 1.1.1 2.3-.6 3-1.4z"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">Apple / Google Pay</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">Mobile wallet via Stripe</div></div>
+          </div>
+          <div class="pay-method" onclick="selPayMethod(this,'wire')">
+            <div style="width:36px;height:36px;border-radius:8px;background:#5b7bd5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2L2 7v2h20V7L12 2zm0 2.5L18 7H6l6-2.5zM4 11v6h2v-6H4zm5 0v6h2v-6H9zm5 0v6h2v-6h-2zm5 0v6h2v-6h-2zM2 19v2h20v-2H2z"/></svg>
+            </div>
+            <div><div style="font-size:13px;font-weight:600">Wire Transfer</div><div style="font-size:11px;color:rgba(0,0,0,0.35)">For large amounts ($5k+)</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recharge type tabs (once / monthly) -->
+      <div id="rechargeTypeTabs" style="display:flex;gap:0;margin-bottom:20px;border:1px solid #e5e6eb;border-radius:8px;overflow:hidden">
+        <div class="rch-type-tab active" onclick="switchRechargeType('once',this)" style="flex:1;padding:10px 0;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;background:#1677ff;color:#fff;border:none">一次性充值</div>
+        <div class="rch-type-tab" onclick="switchRechargeType('monthly',this)" style="flex:1;padding:10px 0;text-align:center;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;background:#fff;color:rgba(0,0,0,0.65);border:none;display:flex;align-items:center;justify-content:center;gap:4px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          月度自动充值
+        </div>
+      </div>
+
+      <!-- Bank transfer: CN -->
+      <div id="bankTransferArea" style="display:none;margin-bottom:20px">
+        <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:10px">对公汇款</div>
+        <div style="display:flex;gap:20px;align-items:flex-start">
+          <div style="width:160px;height:160px;background:#f5f5f5;border-radius:8px;border:1px solid #e5e6eb;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <div style="font-size:12px;color:rgba(0,0,0,0.25);text-align:center">[ 企业微信<br>二维码 ]</div>
+          </div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.55);line-height:1.8">
+            <div style="color:#1677ff;margin-bottom:8px">添加上方二维码，联系我们进行充值</div>
+            <div>公司：矩阵起源（深圳）信息科技有限公司</div>
+            <div>开户行：招商银行深圳分行</div>
+            <div style="font-family:monospace">账号：7559 2836 0410 902</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wire transfer: International -->
+      <div id="wireTransferArea" style="display:none;margin-bottom:20px">
+        <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:10px">Wire Transfer</div>
+        <div style="display:flex;gap:20px;align-items:flex-start">
+          <div style="width:160px;height:160px;background:#f5f5f5;border-radius:8px;border:1px solid #e5e6eb;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <div style="font-size:12px;color:rgba(0,0,0,0.25);text-align:center">[ Contact<br>QR Code ]</div>
+          </div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.55);line-height:1.8">
+            <div style="color:#1677ff;margin-bottom:8px">For wire transfer ($5,000+), please contact: <a href="mailto:billing@matrixorigin.com" style="color:#1677ff">billing@matrixorigin.com</a></div>
+            <div>Company: Matrix Origin (HK) Limited</div>
+            <div>Bank: HSBC Hong Kong</div>
+            <div style="font-family:monospace">Account: 808-XXXXXX-XXX</div>
+            <div style="font-family:monospace">SWIFT: HSBCHKHHHKH</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amount selection (hidden for bank) -->
+      <div id="amountArea">
+        <!-- Monthly auto-recharge info banner -->
+        <div id="monthlyInfoBanner" style="display:none;padding:10px 14px;background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;margin-bottom:14px;font-size:12px;color:#ad6800;display:none;align-items:flex-start;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ad6800" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <div>每月 1 日自动从绑定的支付方式扣款充值，可随时在「设置」中取消。首次开通立即扣款一次。</div>
+        </div>
+
+        <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:10px" id="packLabel">选择充值包（购买后永不过期）</div>
+
+        <!-- CN packages: 9 tiers · 公式：cr = price×10÷(1-off)，省 = cr/10 - price -->
+        <div class="recharge-packs" id="packsCN">
+          <div class="rp" onclick="selPk(this,1000,100,'cn')"><div class="rp-cr">1,000 <span>Credit</span></div><div class="rp-price">¥ 100</div><div class="rp-rate">原价</div></div>
+          <div class="rp" onclick="selPk(this,5556,500,'cn')"><div class="rp-cr">5,556 <span>Credit</span></div><div class="rp-price">¥ 500</div><div class="rp-rate">9 折 · 多得 556 Credit</div></div>
+          <div class="rp sel" onclick="selPk(this,11765,1000,'cn')"><div class="rp-cr">11,765 <span>Credit</span></div><div class="rp-price">¥ 1,000</div><div class="rp-rate">8.5 折 · 多得 1,765 Credit</div></div>
+          <div class="rp" onclick="selPk(this,25000,2000,'cn')"><div class="rp-cr">25,000 <span>Credit</span></div><div class="rp-price">¥ 2,000</div><div class="rp-rate">8 折 · 多得 5,000 Credit</div></div>
+          <div class="rp best" onclick="selPk(this,66667,5000,'cn')"><div class="rp-cr">66,667 <span>Credit</span></div><div class="rp-price">¥ 5,000</div><div class="rp-rate">7.5 折 · 多得 16,667 Credit</div></div>
+          <div class="rp" style="opacity:0.5;cursor:default;pointer-events:none;border-style:dashed"><div class="rp-cr">142,857 <span>Credit</span></div><div class="rp-price">¥ 10,000</div><div class="rp-rate">7 折 · 多得 42,857 Credit</div></div>
+          <div class="rp" style="opacity:0.5;cursor:default;pointer-events:none;border-style:dashed"><div class="rp-cr">307,692 <span>Credit</span></div><div class="rp-price">¥ 20,000</div><div class="rp-rate">6.5 折 · 多得 107,692 Credit</div></div>
+          <div class="rp" style="opacity:0.5;cursor:default;pointer-events:none;border-style:dashed"><div class="rp-cr">833,333 <span>Credit</span></div><div class="rp-price">¥ 50,000</div><div class="rp-rate">6 折 · 多得 333,333 Credit</div></div>
+          <div class="rp" style="opacity:0.5;cursor:default;pointer-events:none;border-style:dashed"><div class="rp-cr">1,818,182 <span>Credit</span></div><div class="rp-price">¥ 100,000</div><div class="rp-rate">5.5 折 · 多得 818,182 Credit</div></div>
+        </div>
+
+        <!-- INTL packages: 5 tiers · 公式：cr = price×70÷(1-off) -->
+        <div class="recharge-packs" id="packsIntl" style="display:none">
+          <div class="rp" onclick="selPk(this,700,10,'intl')"><div class="rp-cr">700 <span>Credit</span></div><div class="rp-price">$ 10</div><div class="rp-rate">原价</div></div>
+          <div class="rp" onclick="selPk(this,3684,50,'intl')"><div class="rp-cr">3,684 <span>Credit</span></div><div class="rp-price">$ 50</div><div class="rp-rate">9.5 折 · 多得 184 Credit</div></div>
+          <div class="rp sel" onclick="selPk(this,15556,200,'intl')"><div class="rp-cr">15,556 <span>Credit</span></div><div class="rp-price">$ 200</div><div class="rp-rate">9 折 · 多得 1,556 Credit</div></div>
+          <div class="rp best" onclick="selPk(this,82353,1000,'intl')"><div class="rp-cr">82,353 <span>Credit</span></div><div class="rp-price">$ 1,000</div><div class="rp-rate">8.5 折 · 多得 12,353 Credit</div></div>
+          <div class="rp" onclick="selPk(this,437500,5000,'intl')"><div class="rp-cr">437,500 <span>Credit</span></div><div class="rp-price">$ 5,000</div><div class="rp-rate">8 折 · 多得 87,500 Credit</div></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <span style="font-size:13px;color:rgba(0,0,0,0.45);white-space:nowrap">或自定义金额</span>
+          <div style="display:flex;align-items:center;border:1px solid #d9d9d9;border-radius:6px;height:36px;padding:0 10px;flex:1;max-width:200px;transition:border-color 0.2s" id="customAmountWrap">
+            <span style="font-size:14px;color:rgba(0,0,0,0.45);margin-right:4px" id="customAmountSymbol">¥</span>
+            <input type="number" id="customAmountInput" placeholder="输入金额" min="1" max="5000" step="1" style="border:none;outline:none;font-size:14px;width:100%;background:none;color:rgba(0,0,0,0.88)" oninput="onCustomAmount()" onblur="onCustomAmountBlur();document.getElementById('customAmountWrap').style.borderColor='#d9d9d9'" onfocus="document.getElementById('customAmountWrap').style.borderColor='#1677ff'">
+          </div>
+          <span style="font-size:12px;color:rgba(0,0,0,0.25)" id="customCreditHint"></span>
+        </div>
+        <div style="font-size:11px;color:rgba(0,0,0,0.25);margin-top:-14px;margin-bottom:16px" id="amountHint">支付宝和微信支付单笔最大可充值 <span style="color:#1677ff">5,000 元</span>，更高金额请对公汇款或<a href="mailto:contact@matrixorigin.cn" style="color:#1677ff;text-decoration:none">联系我们</a></div>
+
+        <div style="background:#fafafa;border-radius:8px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.35)" id="rechargePriceLabel">支付金额</div>
+            <div style="font-size:22px;font-weight:700;color:rgba(0,0,0,0.88)" id="rechargePrice">¥ 1,000</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:rgba(0,0,0,0.35)" id="rechargeCreditLabel">获得 Credit</div>
+            <div style="font-size:22px;font-weight:700;color:#52c41a" id="rechargeCredit">11,800 Credit</div>
+          </div>
+        </div>
+
+        <!-- ToS notice -->
+        <div style="display:flex;gap:6px;align-items:flex-start;padding:8px 12px;background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;font-size:11px;color:#8c6d2c;margin-bottom:8px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <div>充值的 Credit 一经购买**不予退款**，有效期 1 年；详见 <a href="#" style="color:#8c6d2c;text-decoration:underline">服务条款</a>。</div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button style="padding:8px 20px;border-radius:8px;font-size:14px;cursor:pointer;background:#fff;color:rgba(0,0,0,0.65);border:1px solid #d9d9d9" onclick="closeRechargeModal()">取消</button>
+        <button style="padding:8px 28px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:#1677ff;color:#fff;border:none" id="confirmRechargeBtn" onclick="confirmRecharge()">确认充值</button>
+      </div>
+      </div><!-- /recharge-modal-body -->
+    </div>
+
+    <!-- Step 2: QR code payment -->
+    <div class="recharge-modal" id="rechargeStep2" style="display:none">
+      <div class="recharge-modal-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <button style="border:none;background:none;cursor:pointer;color:rgba(0,0,0,0.35);font-size:14px" onclick="backToStep1()">‹</button>
+          <div style="font-size:16px;font-weight:600;color:rgba(0,0,0,0.88)" id="step2Title">支付宝充值</div>
+          <div style="flex:1"></div>
+          <button style="width:28px;height:28px;border:none;background:none;cursor:pointer;color:rgba(0,0,0,0.35);font-size:16px" onclick="closeRechargeModal()">✕</button>
+        </div>
+      </div>
+      <div class="recharge-modal-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fafafa;border-radius:8px;margin-bottom:20px">
+          <span style="font-size:13px;color:rgba(0,0,0,0.55)">充值金额</span>
+          <span style="font-size:22px;font-weight:700;color:#ff4d4f" id="step2Amount">¥ 400</span>
+        </div>
+
+        <!-- QR pay (alipay / wechat) -->
+        <div id="step2_qr" style="text-align:center;display:none">
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:16px"><span id="step2QrSubtitle">请使用支付宝扫码完成支付。如遇问题，请</span><a href="#" style="color:#1677ff">联系我们</a></div>
+          <div style="width:200px;height:200px;margin:0 auto 20px;background:#f5f5f5;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid #e5e6eb">
+            <div style="font-size:13px;color:rgba(0,0,0,0.25)">[ 二维码 ]</div>
+          </div>
+        </div>
+
+        <!-- Card form (Stripe-style) -->
+        <div id="step2_card" style="display:none">
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:16px;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Secured by Stripe · PCI-DSS Level 1
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:6px">Card number</div>
+            <div style="display:flex;align-items:center;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;height:40px">
+              <input type="text" placeholder="1234 1234 1234 1234" maxlength="19" style="border:none;outline:none;font-size:14px;flex:1;background:none;font-family:monospace">
+              <div style="display:flex;gap:4px">
+                <span style="display:inline-block;width:28px;height:18px;background:linear-gradient(135deg,#1a1f71,#2d3499);border-radius:3px;font-size:9px;color:#fff;text-align:center;line-height:18px;font-weight:700">VISA</span>
+                <span style="display:inline-block;width:28px;height:18px;background:#fff;border:1px solid #e5e6eb;border-radius:3px;position:relative">
+                  <span style="position:absolute;left:4px;top:3px;width:11px;height:11px;border-radius:50%;background:#eb001b;opacity:0.85"></span>
+                  <span style="position:absolute;left:11px;top:3px;width:11px;height:11px;border-radius:50%;background:#f79e1b;opacity:0.85"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:14px">
+            <div style="flex:1">
+              <div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:6px">Expiration</div>
+              <input type="text" placeholder="MM / YY" maxlength="7" style="width:100%;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;height:40px;font-size:14px;outline:none;font-family:monospace">
+            </div>
+            <div style="flex:1">
+              <div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:6px">CVC</div>
+              <input type="text" placeholder="CVC" maxlength="4" style="width:100%;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;height:40px;font-size:14px;outline:none;font-family:monospace">
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:6px">Cardholder name</div>
+            <input type="text" placeholder="Name on card" style="width:100%;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;height:40px;font-size:14px;outline:none">
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;color:rgba(0,0,0,0.55);margin-bottom:6px">Country / Region</div>
+            <select style="width:100%;border:1px solid #d9d9d9;border-radius:6px;padding:0 12px;height:40px;font-size:14px;outline:none;background:#fff">
+              <option>United States</option><option>Hong Kong SAR</option><option>Singapore</option>
+              <option>United Kingdom</option><option>Japan</option><option>Australia</option><option>Canada</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- PayPal redirect -->
+        <div id="step2_paypal" style="text-align:center;display:none;padding:20px 0">
+          <div style="width:80px;height:80px;margin:0 auto 16px;background:#003087;border-radius:50%;display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M7.5 6.5h6c2.5 0 4 1.5 4 4 0 3-2 4.5-5 4.5h-2l-.5 3h-2L9 17h-2L7.5 6.5zm1.6 1.5L8.5 13h2c1.7 0 2.8-.8 2.8-2.5 0-1.6-1-2.5-2.5-2.5H9.1z"/></svg>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:6px">Continue to PayPal</div>
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:20px;line-height:1.7">
+            点击下方按钮将跳转至 PayPal 完成授权<br>授权完成后自动返回 MOI
+          </div>
+        </div>
+
+        <!-- Apple / Google Pay -->
+        <div id="step2_wallet" style="text-align:center;display:none;padding:10px 0 20px">
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:20px;line-height:1.7">
+            点击下方钱包按钮，在系统弹出的浮层中完成验证（Touch ID / Face ID）
+          </div>
+          <button style="display:block;width:100%;height:48px;background:#000;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" onclick="alert('钱包浮层已触发（模拟）');closeRechargeModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.7 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.5.8-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.9zM15.4 5.7c.6-.8 1.1-1.9.9-3-1 .1-2.2.6-2.9 1.5-.6.7-1.1 1.9-1 2.9 1.1.1 2.3-.6 3-1.4z"/></svg>
+            Pay
+          </button>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px" id="step2Actions">
+          <button style="padding:8px 20px;border-radius:8px;font-size:14px;cursor:pointer;background:#fff;color:rgba(0,0,0,0.65);border:1px solid #d9d9d9" onclick="closeRechargeModal()" id="step2CancelBtn">取消</button>
+          <button style="padding:8px 28px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:#1677ff;color:#fff;border:none" id="step2ConfirmBtn" onclick="alert('支付确认成功（模拟）');closeRechargeModal()">我已支付完成</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Bill Detail Modal ========== -->
+  <div class="recharge-overlay" id="billDetailOverlay" onclick="if(event.target===this)closeBillDetail()">
+    <div class="recharge-modal" id="billDetailModal" style="width:760px;max-width:92vw">
+      <div class="recharge-modal-header">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:16px;font-weight:600;color:rgba(0,0,0,0.88)">账单详情 · <span id="bdPeriod">2026-03</span></div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px">
+              账单号 <span style="font-family:monospace" id="bdInvoiceNo">INV-2026030001</span> · 出账日期 <span id="bdIssueDate">2026-04-01</span> · <span class="bill-status paid" id="bdStatus">已出账</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button style="padding:6px 12px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px" onclick="alert('PDF 下载（模拟）')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              下载 PDF
+            </button>
+            <button style="padding:6px 12px;border:1px solid #d9d9d9;background:#fff;color:rgba(0,0,0,0.65);border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px" onclick="alert('明细 CSV 导出（模拟）')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+              导出明细
+            </button>
+            <button style="width:28px;height:28px;border:none;background:none;cursor:pointer;color:rgba(0,0,0,0.35);font-size:16px;border-radius:6px" onclick="closeBillDetail()">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="recharge-modal-body">
+        <!-- Summary cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+          <div style="background:#f7f9fc;border-radius:8px;padding:14px">
+            <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-bottom:6px">总消耗</div>
+            <div style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.88)" id="bdTotal">1,190.3</div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:2px">credits</div>
+          </div>
+          <div style="background:#f0f9eb;border-radius:8px;padding:14px">
+            <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-bottom:6px">用量消耗</div>
+            <div style="font-size:20px;font-weight:700;color:#52c41a" id="bdUsage">892.3</div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:2px">按次计费</div>
+          </div>
+          <div style="background:#f0f5ff;border-radius:8px;padding:14px">
+            <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-bottom:6px">月费订阅</div>
+            <div style="font-size:20px;font-weight:700;color:#1677ff" id="bdSubs">298.0</div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:2px">固定订阅</div>
+          </div>
+          <div style="background:#fff7e6;border-radius:8px;padding:14px">
+            <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-bottom:6px">期初余额</div>
+            <div style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.88)" id="bdOpenBal">2,476</div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:2px">期末 <span id="bdCloseBal">1,286</span></div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:0;border-bottom:1px solid #f0f0f0;margin-bottom:14px">
+          <div class="bd-tab active" onclick="switchBdTab('byApp',this)" style="padding:8px 16px;font-size:13px;font-weight:600;color:#1677ff;border-bottom:2px solid #1677ff;cursor:pointer;margin-bottom:-1px">按应用</div>
+          <div class="bd-tab" onclick="switchBdTab('byService',this)" style="padding:8px 16px;font-size:13px;font-weight:500;color:rgba(0,0,0,0.55);border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px">按服务</div>
+          <div class="bd-tab" onclick="switchBdTab('byDay',this)" style="padding:8px 16px;font-size:13px;font-weight:500;color:rgba(0,0,0,0.55);border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px">按日</div>
+          <div class="bd-tab" onclick="switchBdTab('byRecharge',this)" style="padding:8px 16px;font-size:13px;font-weight:500;color:rgba(0,0,0,0.55);border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px">充值流水</div>
+        </div>
+
+        <!-- by App -->
+        <div class="bd-pane" id="bdPane_byApp">
+          <table class="bill-table" style="width:100%">
+            <thead><tr><th>应用</th><th>类型</th><th>调用次数</th><th>用量消耗 (Credit)</th><th>月费 (Credit)</th><th>合计 (Credit)</th><th>占比</th></tr></thead>
+            <tbody id="bdTbody_byApp"></tbody>
+          </table>
+        </div>
+
+        <!-- by Service -->
+        <div class="bd-pane" id="bdPane_byService" style="display:none">
+          <table class="bill-table" style="width:100%">
+            <thead><tr><th>服务 / 模型</th><th>类别</th><th>用量</th><th>单价</th><th>金额 (Credit)</th><th>占比</th></tr></thead>
+            <tbody id="bdTbody_byService"></tbody>
+          </table>
+        </div>
+
+        <!-- by Day -->
+        <div class="bd-pane" id="bdPane_byDay" style="display:none">
+          <div style="background:#fafafa;border-radius:8px;padding:16px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px">
+              <div style="font-size:12px;color:rgba(0,0,0,0.55)">每日消耗趋势（credit）</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.45)">日均 <span id="bdDayAvg">38.4</span> · 峰值 <span id="bdDayPeak">62.1</span></div>
+            </div>
+            <div id="bdDayChart" style="display:flex;align-items:flex-end;gap:3px;height:120px"></div>
+            <div id="bdDayAxis" style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:rgba(0,0,0,0.35)"></div>
+          </div>
+          <table class="bill-table" style="width:100%">
+            <thead><tr><th>日期</th><th>用量消耗 (Credit)</th><th>月费分摊 (Credit)</th><th>合计 (Credit)</th></tr></thead>
+            <tbody id="bdTbody_byDay"></tbody>
+          </table>
+        </div>
+
+        <!-- 充值流水 -->
+        <div class="bd-pane" id="bdPane_byRecharge" style="display:none">
+          <table class="bill-table" style="width:100%">
+            <thead><tr><th>时间</th><th>订单号</th><th>支付方式</th><th>支付金额</th><th>到账 Credit</th><th>状态</th></tr></thead>
+            <tbody id="bdTbody_byRecharge"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script>
+    function switchBillingTab(name, el) {
+      document.querySelectorAll('.billing-nav-item').forEach(function(n) { n.classList.remove('active'); });
+      el.classList.add('active');
+      document.querySelectorAll('.billing-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('panel-' + name).classList.add('active');
+    }
+
+    function openRechargeModal() {
+      document.getElementById('rechargeStep1').style.display = '';
+      document.getElementById('rechargeStep2').style.display = 'none';
+      // Reset to once mode
+      switchRechargeType('once', document.querySelector('.rch-type-tab'));
+      // Reset region to CN
+      switchRegion('cn');
+      document.getElementById('rechargeOverlay').classList.add('show');
+    }
+    function closeRechargeModal() { document.getElementById('rechargeOverlay').classList.remove('show'); }
+
+    // ========== Bill Detail ==========
+    // 各账期的明细数据（cr 数与列表的总消耗严格对齐）
+    var BILL_DATA = {
+      '2026-03': {
+        invoiceNo: 'INV-2026030001', issueDate: '2026-04-01', status: '已出账',
+        total: 1190.3, usage: 892.3, subs: 298.0, openBal: 2476, closeBal: 1286,
+        byApp: [
+          ['素材应用智能体', 'AI 应用', 12480, 412.6, 0,    412.6, 34.7],
+          ['编校检索智能体', 'AI 应用',  6230, 268.4, 0,    268.4, 22.5],
+          ['通用对话',       '平台内置',  3120,  86.5, 0,     86.5,  7.3],
+          ['工作流任务',     '数据加工', '—',    74.8, 0,     74.8,  6.3],
+          ['知识库检索',     '平台内置', 18950,  50.0, 0,     50.0,  4.2],
+          ['Pro 订阅',       '订阅',     '—',     0,   298.0, 298.0, 25.0],
+        ],
+        byService: [
+          ['gpt-4o',           'Chat',      '824k tokens',  '0.35 Credit/1k tok',  288.4, 24.2],
+          ['claude-3.5-sonnet','Chat',      '612k tokens',  '0.30 Credit/1k tok',  183.6, 15.4],
+          ['qwen2.5-72b',      'Chat',      '1,240k tokens','0.10 Credit/1k tok',  124.0, 10.4],
+          ['bge-m3',           'Embedding', '8,420k tokens','0.012 Credit/1k tok',  101.0,  8.5],
+          ['bge-reranker-v2',  'Rerank',    '210k queries', '0.40 Credit/k query',   84.0,  7.1],
+          ['MOI 工作流引擎',    '平台',     '186 任务·小时', '0.40 Credit/h',         74.8,  6.3],
+          ['Whisper-large-v3', 'ASR',       '32 小时音频',   '1.20 Credit/h',         38.4,  3.2],
+          ['Pro 订阅 · 月费',  '订阅',     '1 个月',        '298 Credit/月',        298.0, 25.0],
+        ],
+        byRecharge: [
+          ['2026-03-04 10:22', 'RC-20260304-0871', '支付宝', '¥ 500', '+5,556 Credit', '成功'],
+          ['2026-03-21 14:08', 'RC-20260321-1502', '微信支付',   '¥ 1,000', '+11,765 Credit', '成功'],
+        ],
+      },
+      '2026-02': {
+        invoiceNo: 'INV-2026020001', issueDate: '2026-03-02', status: '已出账',
+        total: 1054.8, usage: 756.8, subs: 298.0, openBal: 1924, closeBal: 869,
+        byApp: [
+          ['素材应用智能体', 'AI 应用', 10200, 348.2, 0,    348.2, 33.0],
+          ['编校检索智能体', 'AI 应用',  5410, 230.5, 0,    230.5, 21.8],
+          ['通用对话',       '平台内置',  2680,  72.4, 0,     72.4,  6.9],
+          ['工作流任务',     '数据加工', '—',    65.3, 0,     65.3,  6.2],
+          ['知识库检索',     '平台内置', 16100,  40.4, 0,     40.4,  3.8],
+          ['Pro 订阅',       '订阅',     '—',     0,   298.0, 298.0, 28.3],
+        ],
+        byService: [
+          ['gpt-4o',           'Chat',      '710k tokens',   '0.35 Credit/1k tok', 248.5, 23.6],
+          ['claude-3.5-sonnet','Chat',      '520k tokens',   '0.30 Credit/1k tok', 156.0, 14.8],
+          ['qwen2.5-72b',      'Chat',      '1,050k tokens', '0.10 Credit/1k tok', 105.0,  9.9],
+          ['bge-m3',           'Embedding', '7,080k tokens', '0.012 Credit/1k tok', 85.0,  8.1],
+          ['bge-reranker-v2',  'Rerank',    '178k queries',  '0.40 Credit/k query', 71.2,  6.7],
+          ['MOI 工作流引擎',    '平台',     '163 任务·小时',  '0.40 Credit/h',       65.3,  6.2],
+          ['Whisper-large-v3', 'ASR',       '21 小时',        '1.20 Credit/h',       25.8,  2.4],
+          ['Pro 订阅 · 月费',  '订阅',     '1 个月',         '298 Credit/月',      298.0, 28.3],
+        ],
+        byRecharge: [
+          ['2026-02-12 09:14', 'RC-20260212-0612', '支付宝', '¥ 1,000', '+11,765 Credit', '成功'],
+        ],
+      },
+      '2026-01': {
+        invoiceNo: 'INV-2026010001', issueDate: '2026-02-02', status: '已出账',
+        total: 921.5, usage: 623.5, subs: 298.0, openBal: 2132, closeBal: 1211,
+        byApp: [
+          ['素材应用智能体', 'AI 应用',  8650, 286.4, 0,    286.4, 31.1],
+          ['编校检索智能体', 'AI 应用',  4280, 184.2, 0,    184.2, 20.0],
+          ['通用对话',       '平台内置',  2210,  62.8, 0,     62.8,  6.8],
+          ['工作流任务',     '数据加工', '—',    52.6, 0,     52.6,  5.7],
+          ['知识库检索',     '平台内置', 13600,  37.5, 0,     37.5,  4.1],
+          ['Pro 订阅',       '订阅',     '—',     0,   298.0, 298.0, 32.3],
+        ],
+        byService: [
+          ['gpt-4o',           'Chat',      '584k tokens',   '0.35 Credit/1k tok', 204.4, 22.2],
+          ['claude-3.5-sonnet','Chat',      '410k tokens',   '0.30 Credit/1k tok', 123.0, 13.3],
+          ['qwen2.5-72b',      'Chat',      '880k tokens',   '0.10 Credit/1k tok',  88.0,  9.6],
+          ['bge-m3',           'Embedding', '6,200k tokens', '0.012 Credit/1k tok', 74.4,  8.1],
+          ['bge-reranker-v2',  'Rerank',    '152k queries',  '0.40 Credit/k query', 60.8,  6.6],
+          ['MOI 工作流引擎',    '平台',     '131 任务·小时',  '0.40 Credit/h',       52.6,  5.7],
+          ['Whisper-large-v3', 'ASR',       '17 小时',        '1.20 Credit/h',       20.3,  2.2],
+          ['Pro 订阅 · 月费',  '订阅',     '1 个月',         '298 Credit/月',      298.0, 32.3],
+        ],
+        byRecharge: [],
+      },
+      '2025-12': {
+        invoiceNo: 'INV-2025120001', issueDate: '2026-01-02', status: '已出账',
+        total: 839.2, usage: 541.2, subs: 298.0, openBal: 1645, closeBal: 806,
+        byApp: [
+          ['素材应用智能体', 'AI 应用',  7420, 248.6, 0,    248.6, 29.6],
+          ['编校检索智能体', 'AI 应用',  3650, 154.8, 0,    154.8, 18.4],
+          ['通用对话',       '平台内置',  1980,  55.2, 0,     55.2,  6.6],
+          ['工作流任务',     '数据加工', '—',    48.0, 0,     48.0,  5.7],
+          ['知识库检索',     '平台内置', 12100,  34.6, 0,     34.6,  4.1],
+          ['Pro 订阅',       '订阅',     '—',     0,   298.0, 298.0, 35.5],
+        ],
+        byService: [
+          ['gpt-4o',           'Chat',      '498k tokens',   '0.35 Credit/1k tok', 174.3, 20.8],
+          ['claude-3.5-sonnet','Chat',      '356k tokens',   '0.30 Credit/1k tok', 106.8, 12.7],
+          ['qwen2.5-72b',      'Chat',      '760k tokens',   '0.10 Credit/1k tok',  76.0,  9.1],
+          ['bge-m3',           'Embedding', '5,400k tokens', '0.012 Credit/1k tok', 64.8,  7.7],
+          ['bge-reranker-v2',  'Rerank',    '134k queries',  '0.40 Credit/k query', 53.6,  6.4],
+          ['MOI 工作流引擎',    '平台',     '120 任务·小时',  '0.40 Credit/h',       48.0,  5.7],
+          ['Whisper-large-v3', 'ASR',       '15 小时',        '1.20 Credit/h',       17.7,  2.1],
+          ['Pro 订阅 · 月费',  '订阅',     '1 个月',         '298 Credit/月',      298.0, 35.5],
+        ],
+        byRecharge: [
+          ['2025-12-18 16:42', 'RC-20251218-2204', '支付宝', '¥ 200', '+2,000 Credit', '成功'],
+        ],
+      },
+      '2025-11': {
+        invoiceNo: 'INV-2025110001', issueDate: '2025-12-02', status: '已出账',
+        total: 511.0, usage: 412.0, subs: 99.0, openBal: 980, closeBal: 469,
+        byApp: [
+          ['素材应用智能体', 'AI 应用',  5840, 198.4, 0,   198.4, 38.8],
+          ['通用对话',       '平台内置',  1620,  45.6, 0,    45.6,  8.9],
+          ['工作流任务',     '数据加工', '—',    98.6, 0,    98.6, 19.3],
+          ['知识库检索',     '平台内置',  9300,  28.4, 0,    28.4,  5.6],
+          ['编校检索智能体', 'AI 应用',  1050,  41.0, 0,    41.0,  8.0],
+          ['Starter 订阅',   '订阅',     '—',     0,    99.0,  99.0, 19.4],
+        ],
+        byService: [
+          ['gpt-4o',           'Chat',      '362k tokens',   '0.35 Credit/1k tok', 126.7, 24.8],
+          ['claude-3.5-sonnet','Chat',      '256k tokens',   '0.30 Credit/1k tok',  76.8, 15.0],
+          ['qwen2.5-72b',      'Chat',      '540k tokens',   '0.10 Credit/1k tok',  54.0, 10.6],
+          ['bge-m3',           'Embedding', '4,100k tokens', '0.012 Credit/1k tok', 49.2,  9.6],
+          ['MOI 工作流引擎',    '平台',     '246 任务·小时',  '0.40 Credit/h',       98.6, 19.3],
+          ['Whisper-large-v3', 'ASR',       '5.6 小时',       '1.20 Credit/h',        6.7,  1.3],
+          ['Starter 订阅 · 月费','订阅',   '1 个月',         '99 Credit/月',         99.0, 19.4],
+        ],
+        byRecharge: [
+          ['2025-11-05 11:30', 'RC-20251105-0034', '支付宝', '¥ 100', '+1,000 Credit', '成功'],
+        ],
+      },
+    };
+
+    function openBillDetail(el) {
+      var row = el.closest('tr');
+      var period = row.querySelector('td').textContent.trim();
+      var d = BILL_DATA[period];
+      if (!d) { alert('该账期暂无明细'); return; }
+      // header
+      document.getElementById('bdPeriod').textContent = period;
+      document.getElementById('bdInvoiceNo').textContent = d.invoiceNo;
+      document.getElementById('bdIssueDate').textContent = d.issueDate;
+      document.getElementById('bdStatus').textContent = d.status;
+      document.getElementById('bdTotal').textContent = d.total.toLocaleString();
+      document.getElementById('bdUsage').textContent = d.usage.toLocaleString();
+      document.getElementById('bdSubs').textContent = d.subs.toLocaleString();
+      document.getElementById('bdOpenBal').textContent = d.openBal.toLocaleString();
+      document.getElementById('bdCloseBal').textContent = d.closeBal.toLocaleString();
+      // byApp
+      var tbA = document.getElementById('bdTbody_byApp');
+      tbA.innerHTML = d.byApp.map(function(r) {
+        return '<tr>'
+          + '<td style="font-weight:600">' + r[0] + '</td>'
+          + '<td><span style="font-size:11px;padding:2px 8px;background:#f0f5ff;color:#1677ff;border-radius:10px">' + r[1] + '</span></td>'
+          + '<td>' + (typeof r[2] === 'number' ? r[2].toLocaleString() : r[2]) + '</td>'
+          + '<td>' + r[3].toLocaleString() + '</td>'
+          + '<td>' + r[4].toLocaleString() + '</td>'
+          + '<td style="font-weight:600">' + r[5].toLocaleString() + '</td>'
+          + '<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden;max-width:80px"><div style="height:100%;background:#1677ff;width:' + r[6] + '%"></div></div><span style="font-size:11px;color:rgba(0,0,0,0.55);width:36px">' + r[6] + '%</span></div></td>'
+          + '</tr>';
+      }).join('');
+      // byService
+      var tbS = document.getElementById('bdTbody_byService');
+      tbS.innerHTML = d.byService.map(function(r) {
+        return '<tr>'
+          + '<td style="font-family:' + (r[1]==='订阅'?'inherit':'monospace') + ';font-size:13px">' + r[0] + '</td>'
+          + '<td><span style="font-size:11px;padding:2px 8px;background:#f7f9fc;color:rgba(0,0,0,0.55);border-radius:10px">' + r[1] + '</span></td>'
+          + '<td>' + r[2] + '</td>'
+          + '<td style="color:rgba(0,0,0,0.55);font-size:12px">' + r[3] + '</td>'
+          + '<td style="font-weight:600">' + r[4].toLocaleString() + '</td>'
+          + '<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden;max-width:80px"><div style="height:100%;background:#52c41a;width:' + r[5] + '%"></div></div><span style="font-size:11px;color:rgba(0,0,0,0.55);width:36px">' + r[5] + '%</span></div></td>'
+          + '</tr>';
+      }).join('');
+      // byDay (生成 28~31 天柱状图 + 表格)
+      buildBillDayBreakdown(period, d);
+      // 充值流水
+      var tbR = document.getElementById('bdTbody_byRecharge');
+      if (d.byRecharge.length === 0) {
+        tbR.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(0,0,0,0.35);padding:40px 0">本账期无充值记录</td></tr>';
+      } else {
+        tbR.innerHTML = d.byRecharge.map(function(r) {
+          return '<tr>'
+            + '<td style="font-family:monospace;font-size:12px">' + r[0] + '</td>'
+            + '<td style="font-family:monospace;font-size:12px;color:rgba(0,0,0,0.55)">' + r[1] + '</td>'
+            + '<td>' + r[2] + '</td>'
+            + '<td style="font-weight:600">' + r[3] + '</td>'
+            + '<td style="color:#52c41a;font-weight:600">' + r[4] + '</td>'
+            + '<td><span class="bill-status paid">' + r[5] + '</span></td>'
+            + '</tr>';
+        }).join('');
+      }
+      // 默认 tab 回到「按应用」
+      switchBdTab('byApp', document.querySelector('.bd-tab'));
+      document.getElementById('billDetailOverlay').classList.add('show');
+    }
+
+    function closeBillDetail() {
+      document.getElementById('billDetailOverlay').classList.remove('show');
+    }
+
+    function switchBdTab(name, el) {
+      document.querySelectorAll('.bd-tab').forEach(function(t) {
+        t.classList.remove('active');
+        t.style.color = 'rgba(0,0,0,0.55)';
+        t.style.fontWeight = '500';
+        t.style.borderBottomColor = 'transparent';
+      });
+      el.classList.add('active');
+      el.style.color = '#1677ff';
+      el.style.fontWeight = '600';
+      el.style.borderBottomColor = '#1677ff';
+      document.querySelectorAll('.bd-pane').forEach(function(p) { p.style.display = 'none'; });
+      document.getElementById('bdPane_' + name).style.display = '';
+    }
+
+    function buildBillDayBreakdown(period, d) {
+      // 把 d.usage + d.subs 分布到当月 28~31 天，模拟一条带波动的曲线
+      var parts = period.split('-');
+      var year = parseInt(parts[0]), month = parseInt(parts[1]);
+      var days = new Date(year, month, 0).getDate();
+      // 用账期作种子的伪随机
+      var seed = year * 100 + month;
+      function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+      var raw = [];
+      for (var i = 0; i < days; i++) {
+        // 基础波形 + 工作日权重 + 噪声
+        var dow = new Date(year, month - 1, i + 1).getDay();
+        var weekdayBoost = (dow === 0 || dow === 6) ? 0.4 : 1.0;
+        raw.push(weekdayBoost * (0.6 + rnd() * 0.8));
+      }
+      var sum = raw.reduce(function(a, b) { return a + b; }, 0);
+      var perDaySub = d.subs / days;
+      var rows = raw.map(function(v, i) {
+        var usage = +(v / sum * d.usage).toFixed(1);
+        return { day: i + 1, usage: usage, sub: +perDaySub.toFixed(2), total: +(usage + perDaySub).toFixed(2) };
+      });
+      var maxV = Math.max.apply(null, rows.map(function(r) { return r.total; }));
+      var avg = (rows.reduce(function(a, r) { return a + r.total; }, 0) / rows.length).toFixed(1);
+      var peak = maxV.toFixed(1);
+      document.getElementById('bdDayAvg').textContent = avg;
+      document.getElementById('bdDayPeak').textContent = peak;
+      // 柱图
+      document.getElementById('bdDayChart').innerHTML = rows.map(function(r) {
+        var h = Math.round(r.total / maxV * 100);
+        return '<div title="' + period + '-' + (r.day < 10 ? '0' + r.day : r.day) + ' · ' + r.total + ' Credit" style="flex:1;background:linear-gradient(180deg,#1677ff,#69b1ff);border-radius:2px 2px 0 0;height:' + h + '%;min-width:6px;cursor:default"></div>';
+      }).join('');
+      document.getElementById('bdDayAxis').innerHTML = '<span>1</span><span>' + Math.round(days/4) + '</span><span>' + Math.round(days/2) + '</span><span>' + Math.round(3*days/4) + '</span><span>' + days + '</span>';
+      // 表格
+      document.getElementById('bdTbody_byDay').innerHTML = rows.map(function(r) {
+        return '<tr>'
+          + '<td style="font-family:monospace;font-size:12px">' + period + '-' + (r.day < 10 ? '0' + r.day : r.day) + '</td>'
+          + '<td>' + r.usage.toLocaleString() + '</td>'
+          + '<td style="color:rgba(0,0,0,0.55)">' + r.sub.toFixed(2) + '</td>'
+          + '<td style="font-weight:600">' + r.total.toLocaleString() + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    var currentRegion = 'cn'; // 'cn' or 'intl'
+    var currentPack = { cr: 11800, price: 1000, currency: 'cn' };
+    var currentPayMethod = 'alipay';
+    var currentRechargeType = 'once'; // 'once' or 'monthly'
+
+    // 汇率换算 + 货币显示
+    function curSym(region) { return region === 'intl' ? '$' : '¥'; }
+    function crPerUnit(region) { return region === 'intl' ? 70 : 10; } // 1 USD = 70 Credit / 1 ¥ = 10 Credit
+
+    function switchRegion(region) {
+      currentRegion = region;
+      // Tabs
+      document.getElementById('regionTabCN').classList.toggle('active', region === 'cn');
+      document.getElementById('regionTabIntl').classList.toggle('active', region === 'intl');
+      // Payment methods
+      document.getElementById('payMethodsCN').style.display = region === 'cn' ? '' : 'none';
+      document.getElementById('payMethodsIntl').style.display = region === 'intl' ? '' : 'none';
+      // Packages
+      document.getElementById('packsCN').style.display = region === 'cn' ? 'grid' : 'none';
+      document.getElementById('packsIntl').style.display = region === 'intl' ? 'grid' : 'none';
+      // Default selected pack per region
+      var defaultSel = document.querySelector(region === 'cn' ? '#packsCN .rp.sel' : '#packsIntl .rp.sel');
+      if (defaultSel) {
+        var onclick = defaultSel.getAttribute('onclick') || '';
+        var m = onclick.match(/selPk\(this,(\d+),(\d+),'(\w+)'\)/);
+        if (m) currentPack = { cr: parseInt(m[1]), price: parseInt(m[2]), currency: m[3] };
+      }
+      // Reset payment method (alipay for CN, card for INTL)
+      var defaultPm = document.querySelector(region === 'cn' ? '#payMethodsCN .pay-method.sel' : '#payMethodsIntl .pay-method.sel');
+      if (defaultPm) {
+        var onclickPm = defaultPm.getAttribute('onclick') || '';
+        var m2 = onclickPm.match(/selPayMethod\(this,'(\w+)'\)/);
+        if (m2) currentPayMethod = m2[1];
+      }
+      // Currency symbol in custom amount input
+      document.getElementById('customAmountSymbol').textContent = curSym(region);
+      document.getElementById('customAmountInput').value = '';
+      document.getElementById('customCreditHint').textContent = '';
+      // Reset bank/wire areas
+      document.getElementById('bankTransferArea').style.display = 'none';
+      document.getElementById('wireTransferArea').style.display = 'none';
+      document.getElementById('amountArea').style.display = '';
+      document.getElementById('confirmRechargeBtn').style.display = '';
+      document.getElementById('rechargeTypeTabs').style.display = 'flex';
+      // Update amount hint per region
+      document.getElementById('amountHint').innerHTML = region === 'intl'
+        ? 'Stripe / PayPal 单笔最大 <span style="color:#1677ff">$ 5,000</span>，更高金额请联系 <a href="mailto:billing@matrixorigin.com" style="color:#1677ff;text-decoration:none">billing@matrixorigin.com</a> 走电汇'
+        : '支付宝和微信支付单笔最大可充值 <span style="color:#1677ff">5,000 元</span>，更高金额请对公汇款或<a href="mailto:contact@matrixorigin.cn" style="color:#1677ff;text-decoration:none">联系我们</a>';
+      updateRechargeSummary();
+    }
+
+    function switchRechargeType(type, el) {
+      currentRechargeType = type;
+      document.querySelectorAll('.rch-type-tab').forEach(function(t) {
+        if (t === el) {
+          t.classList.add('active');
+          t.style.background = '#1677ff'; t.style.color = '#fff'; t.style.fontWeight = '600';
+        } else {
+          t.classList.remove('active');
+          t.style.background = '#fff'; t.style.color = 'rgba(0,0,0,0.65)'; t.style.fontWeight = '500';
+        }
+      });
+      var isMonthly = type === 'monthly';
+      var banner = document.getElementById('monthlyInfoBanner');
+      banner.style.display = isMonthly ? 'flex' : 'none';
+      document.getElementById('packLabel').textContent = isMonthly
+        ? '选择月度充值额度（每月自动扣款）'
+        : '选择充值包（购买后永不过期）';
+      document.getElementById('amountHint').innerHTML = isMonthly
+        ? '月度充值将在每月 1 日自动执行，首次开通立即扣款'
+        : (currentRegion === 'intl'
+            ? 'Stripe / PayPal 单笔最大 <span style="color:#1677ff">$ 5,000</span>，更高金额请联系 <a href="mailto:billing@matrixorigin.com" style="color:#1677ff;text-decoration:none">billing@matrixorigin.com</a> 走电汇'
+            : '支付宝和微信支付单笔最大可充值 <span style="color:#1677ff">5,000 元</span>，更高金额请对公汇款或<a href="mailto:contact@matrixorigin.cn" style="color:#1677ff;text-decoration:none">联系我们</a>');
+      document.getElementById('rechargePriceLabel').textContent = isMonthly ? '支付金额（每月）' : '支付金额';
+      document.getElementById('rechargeCreditLabel').textContent = isMonthly ? '获得 Credit（每月）' : '获得 Credit';
+      // Update summary display with /月 suffix
+      updateRechargeSummary();
+    }
+
+    function updateRechargeSummary() {
+      var suffix = currentRechargeType === 'monthly' ? ' /月' : '';
+      var sym = curSym(currentPack.currency || currentRegion);
+      document.getElementById('rechargePrice').textContent = sym + ' ' + currentPack.price.toLocaleString() + suffix;
+      document.getElementById('rechargeCredit').textContent = currentPack.cr.toLocaleString() + ' Credit' + suffix;
+    }
+
+    function selPk(el, cr, price, currency) {
+      // 仅在当前 region 包内 deselect
+      var container = el.closest('.recharge-packs');
+      if (container) container.querySelectorAll('.rp').forEach(function(p) { p.classList.remove('sel'); });
+      el.classList.add('sel');
+      currentPack = { cr: cr, price: price, currency: currency || currentRegion };
+      document.getElementById('customAmountInput').value = '';
+      document.getElementById('customCreditHint').textContent = '';
+      updateRechargeSummary();
+    }
+
+    function selPayMethod(el, method) {
+      // 仅在当前 region 的 pay-method 容器内 deselect
+      var container = el.closest('div[id^="payMethods"]');
+      if (container) container.querySelectorAll('.pay-method').forEach(function(p) { p.classList.remove('sel'); });
+      el.classList.add('sel');
+      currentPayMethod = method;
+      var bankArea = document.getElementById('bankTransferArea');
+      var wireArea = document.getElementById('wireTransferArea');
+      var amountArea = document.getElementById('amountArea');
+      var confirmBtn = document.getElementById('confirmRechargeBtn');
+      var typeTabs = document.getElementById('rechargeTypeTabs');
+      var isOfflinePay = method === 'bank' || method === 'wire';
+      bankArea.style.display = method === 'bank' ? '' : 'none';
+      wireArea.style.display = method === 'wire' ? '' : 'none';
+      amountArea.style.display = isOfflinePay ? 'none' : '';
+      confirmBtn.style.display = isOfflinePay ? 'none' : '';
+      typeTabs.style.display = isOfflinePay ? 'none' : 'flex';
+    }
+
+    // 自定义金额的档位折扣表（与套餐保持一致）
+    // CN: 单笔在线支付上限 ¥5,000（更高走对公）
+    var CN_TIERS = [
+      { min: 100,  off: 0.00 },  // 100~499:   原价
+      { min: 500,  off: 0.10 },  // 500~999:   9 折
+      { min: 1000, off: 0.15 },  // 1000~1999: 8.5 折
+      { min: 2000, off: 0.20 },  // 2000~4999: 8 折
+      { min: 5000, off: 0.25 }   // 5000:      7.5 折（也是单笔上限）
+    ];
+    // INTL: 单笔在线支付上限 $5,000
+    var INTL_TIERS = [
+      { min: 10,   off: 0.00 },  // 10~49:     原价
+      { min: 50,   off: 0.05 },  // 50~199:    9.5 折
+      { min: 200,  off: 0.10 },  // 200~999:   9 折
+      { min: 1000, off: 0.15 },  // 1000~4999: 8.5 折
+      { min: 5000, off: 0.20 }   // 5000:      8 折
+    ];
+    var MAX_AMOUNT = { cn: 5000, intl: 5000 };
+    var MIN_AMOUNT = { cn: 1, intl: 1 };
+
+    function tierFor(region, amount) {
+      var tiers = region === 'intl' ? INTL_TIERS : CN_TIERS;
+      var hit = tiers[0];
+      for (var i = 0; i < tiers.length; i++) {
+        if (amount >= tiers[i].min) hit = tiers[i];
+      }
+      return hit;
+    }
+
+    function onCustomAmount() {
+      var raw = document.getElementById('customAmountInput').value;
+      var val = parseFloat(raw);
+      var hint = document.getElementById('customCreditHint');
+      var max = MAX_AMOUNT[currentRegion];
+      // 实时上限警示（不强制改 value，等 blur 时 clamp）
+      if (val > max) {
+        hint.style.color = '#ff4d4f';
+        hint.textContent = '单笔最多 ' + curSym(currentRegion) + max.toLocaleString();
+        return;
+      }
+      hint.style.color = 'rgba(0,0,0,0.45)';
+      if (!val || val <= 0) { hint.textContent = ''; return; }
+      // 取消选中所有套餐（当前 region 内）
+      var packsId = currentRegion === 'cn' ? 'packsCN' : 'packsIntl';
+      document.querySelectorAll('#' + packsId + ' .rp').forEach(function(p) { p.classList.remove('sel'); });
+      // 按档位折扣换算
+      var baseRate = crPerUnit(currentRegion);
+      var t = tierFor(currentRegion, val);
+      var effRate = baseRate / (1 - t.off);  // 折后单价 = 原价 / (1-折扣率) 给到更多 cr
+      var cr = Math.round(val * effRate);
+      currentPack = { cr: cr, price: val, currency: currentRegion };
+      var offText = t.off === 0
+        ? '原价'
+        : ((10 - t.off * 10).toFixed(t.off * 10 % 1 === 0 ? 0 : 1) + ' 折，多得 ' + Math.round(val * (effRate - baseRate)).toLocaleString() + ' cr');
+      hint.textContent = '≈ ' + cr.toLocaleString() + ' Credit · ' + offText;
+      updateRechargeSummary();
+    }
+
+    function onCustomAmountBlur() {
+      var input = document.getElementById('customAmountInput');
+      var val = parseFloat(input.value);
+      var max = MAX_AMOUNT[currentRegion];
+      var min = MIN_AMOUNT[currentRegion];
+      if (!val || val <= 0) return;
+      if (val > max) { input.value = max; onCustomAmount(); }
+      else if (val < min) { input.value = min; onCustomAmount(); }
+      else { input.value = Math.floor(val); onCustomAmount(); }
+    }
+
+    function confirmRecharge() {
+      if (!currentPack.price) { alert('请选择充值包或输入金额'); return; }
+      var names = {
+        alipay: '支付宝', wechat: '微信支付',
+        card: 'Credit / Debit Card', paypal: 'PayPal', applepay: 'Apple / Google Pay'
+      };
+      var isMonthly = currentRechargeType === 'monthly';
+      var suffix = isMonthly ? ' /月' : '';
+      var sym = curSym(currentPack.currency || currentRegion);
+      var pm = names[currentPayMethod] || currentPayMethod;
+      document.getElementById('step2Title').textContent = pm + (isMonthly ? ' · 月度自动充值' : ' 充值');
+      document.getElementById('step2Amount').textContent = sym + ' ' + currentPack.price.toLocaleString() + suffix;
+
+      // 隐藏全部支付面板
+      ['step2_qr','step2_card','step2_paypal','step2_wallet'].forEach(function(id){
+        document.getElementById(id).style.display = 'none';
+      });
+
+      var confirmBtn = document.getElementById('step2ConfirmBtn');
+      var actions = document.getElementById('step2Actions');
+      actions.style.display = 'flex';
+
+      if (currentPayMethod === 'alipay' || currentPayMethod === 'wechat') {
+        // 扫码支付
+        document.getElementById('step2_qr').style.display = '';
+        document.getElementById('step2QrSubtitle').textContent = isMonthly
+          ? '请使用 ' + pm + ' 扫码完成签约授权，每月 1 日自动扣款。如遇问题，请'
+          : '请使用 ' + pm + ' 扫码完成支付。如遇问题，请';
+        confirmBtn.textContent = isMonthly ? '我已完成签约' : '我已支付完成';
+        confirmBtn.style.background = '#1677ff';
+      } else if (currentPayMethod === 'card') {
+        // Stripe 卡号表单
+        document.getElementById('step2_card').style.display = '';
+        confirmBtn.textContent = isMonthly
+          ? 'Subscribe ' + sym + ' ' + currentPack.price.toLocaleString() + ' /mo'
+          : 'Pay ' + sym + ' ' + currentPack.price.toLocaleString();
+        confirmBtn.style.background = '#635bff'; // Stripe purple
+      } else if (currentPayMethod === 'paypal') {
+        // PayPal 跳转
+        document.getElementById('step2_paypal').style.display = '';
+        confirmBtn.textContent = 'Continue to PayPal →';
+        confirmBtn.style.background = '#ffc439';
+        confirmBtn.style.color = '#003087';
+      } else if (currentPayMethod === 'applepay') {
+        // 钱包浮层 — 单一大按钮，隐藏底部 actions 中的「确认」按钮
+        document.getElementById('step2_wallet').style.display = '';
+        confirmBtn.style.display = 'none';
+      } else {
+        // fallback：扫码
+        document.getElementById('step2_qr').style.display = '';
+        confirmBtn.textContent = '我已支付完成';
+        confirmBtn.style.background = '#1677ff';
+      }
+
+      // 复位按钮 display（applepay 分支会单独 hide）
+      if (currentPayMethod !== 'applepay') confirmBtn.style.display = '';
+      // PayPal 之外把 color 复位
+      if (currentPayMethod !== 'paypal') confirmBtn.style.color = '#fff';
+
+      document.getElementById('rechargeStep1').style.display = 'none';
+      document.getElementById('rechargeStep2').style.display = '';
+    }
+
+    function backToStep1() {
+      document.getElementById('rechargeStep1').style.display = '';
+      document.getElementById('rechargeStep2').style.display = 'none';
+    }
+
+    var currentTrendRange = 'month';
+    var currentTrendDim = 'billing';
+
+    function setTrendRange(range, el) {
+      document.querySelectorAll('.trend-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      currentTrendRange = range;
+      document.getElementById('customStart').style.display = 'none';
+      document.getElementById('customEnd').style.display = 'none';
+      document.getElementById('customRangeSep').style.display = 'none';
+      document.getElementById('customRangeLabel').textContent = '自定义';
+      renderTrendCharts(currentTrendDim);
+    }
+
+    function openCustomRange() {
+      document.querySelectorAll('.trend-tab').forEach(function(t) { t.classList.remove('active'); });
+      currentTrendRange = 'custom';
+      var s = document.getElementById('customStart');
+      var e = document.getElementById('customEnd');
+      var sep = document.getElementById('customRangeSep');
+      s.style.display = ''; e.style.display = ''; sep.style.display = '';
+      if (!s.value) { var d1 = new Date(); d1.setDate(d1.getDate() - 30); s.value = d1.toISOString().slice(0, 10); }
+      if (!e.value) { e.value = new Date().toISOString().slice(0, 10); }
+      document.getElementById('customRangeLabel').textContent = '';
+      applyCustomRange();
+    }
+
+    function applyCustomRange() {
+      var s = document.getElementById('customStart').value;
+      var e = document.getElementById('customEnd').value;
+      if (s && e) renderTrendCharts(currentTrendDim);
+    }
+
+    function switchTrendDim(dim, el) {
+      document.querySelectorAll('.trend-dim-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      currentTrendDim = dim;
+      renderTrendCharts(dim);
+    }
+
+    var billingColors = {
+      compute: '#1677ff', ai: '#722ed1',
+      storage: '#fa8c16', dataio: '#13c2c2', traffic: '#eb2f96', taas: '#52c41a', other: '#8c8c8c'
+    };
+    var billingLabels = {
+      compute: '计算资源', ai: 'AI 服务',
+      storage: '数据存储', dataio: '数据 I/O', traffic: '公网流量', taas: 'Genesis', other: '月费订阅'
+    };
+    var wsColors = { ws1: '#1677ff', ws2: '#722ed1', ws3: '#fa8c16' };
+    var wsLabels = { ws1: '默认工作区', ws2: '数据分析项目', ws3: '智能体实验' };
+
+    function getRangeDays() {
+      var now = new Date();
+      var start, end = new Date(now);
+      if (currentTrendRange === 'week') {
+        start = new Date(now); start.setDate(start.getDate() - 6);
+      } else if (currentTrendRange === 'month') {
+        start = new Date(now); start.setDate(start.getDate() - 29);
+      } else if (currentTrendRange === 'curMonth') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+      } else if (currentTrendRange === 'custom') {
+        var sv = document.getElementById('customStart').value;
+        var ev = document.getElementById('customEnd').value;
+        start = sv ? new Date(sv) : new Date(now.getTime() - 30*86400000);
+        end = ev ? new Date(ev) : now;
+      } else {
+        start = new Date(now); start.setDate(start.getDate() - 29);
+      }
+      var days = [];
+      var cur = new Date(start);
+      while (cur <= end) { days.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+      return days;
+    }
+
+    function renderTrendCharts(dim) {
+      dim = dim || currentTrendDim;
+      var rangeDays = getRangeDays();
+      var colors, labels, data;
+      if (dim === 'billing') {
+        colors = billingColors; labels = billingLabels;
+        data = generateBillingData(rangeDays);
+      } else {
+        colors = wsColors; labels = wsLabels;
+        data = generateWsData(rangeDays);
+      }
+      renderBarChart(data, colors, labels);
+      renderDonutChart(data, colors, labels);
+    }
+
+    function generateBillingData(rangeDays) {
+      return rangeDays.map(function(d) {
+        return {
+          label: (d.getMonth()+1) + '/' + d.getDate(),
+          compute: 12 + Math.round(Math.random() * 30),
+          ai: 8 + Math.round(Math.random() * 20),
+          storage: 2,
+          dataio: Math.round(Math.random() * 2),
+          traffic: Math.round(Math.random() * 3),
+          taas: 3 + Math.round(Math.random() * 10),
+          other: 0
+        };
+      });
+    }
+
+    function generateWsData(rangeDays) {
+      return rangeDays.map(function(d) {
+        return {
+          label: (d.getMonth()+1) + '/' + d.getDate(),
+          ws1: 15 + Math.round(Math.random() * 30),
+          ws2: 5 + Math.round(Math.random() * 15),
+          ws3: 2 + Math.round(Math.random() * 10)
+        };
+      });
+    }
+
+    function renderBarChart(data, colors, labels) {
+      var keys = Object.keys(colors);
+      var mx = 0;
+      data.forEach(function(d) { var t = 0; keys.forEach(function(k) { t += (d[k] || 0); }); if (t > mx) mx = t; });
+      var ct = document.getElementById('trendBars');
+      ct.innerHTML = '';
+      data.forEach(function(d) {
+        var t = 0; keys.forEach(function(k) { t += (d[k] || 0); });
+        var h = Math.round((t / mx) * 160);
+        var col = document.createElement('div'); col.className = 'bar-col';
+        var bar = document.createElement('div'); bar.className = 'bar-stack'; bar.style.height = h + 'px';
+        keys.forEach(function(k) {
+          var v = d[k] || 0; if (!v) return;
+          var sg = document.createElement('div');
+          sg.style.cssText = 'height:' + Math.max(1, Math.round((v/t)*h)) + 'px;background:' + colors[k] + ';flex-shrink:0';
+          bar.appendChild(sg);
+        });
+        col.appendChild(bar);
+        var lb = document.createElement('div'); lb.className = 'bar-label'; lb.textContent = d.label;
+        col.appendChild(lb);
+        ct.appendChild(col);
+      });
+      var legend = document.getElementById('trendLegend');
+      legend.innerHTML = keys.map(function(k) {
+        return '<div class="bar-legend-item"><div class="bar-legend-dot" style="background:' + colors[k] + '"></div>' + labels[k] + '</div>';
+      }).join('');
+    }
+
+    function renderDonutChart(data, colors, labels) {
+      var keys = Object.keys(colors);
+      var totals = {};
+      keys.forEach(function(k) { totals[k] = 0; });
+      data.forEach(function(d) { keys.forEach(function(k) { totals[k] += (d[k] || 0); }); });
+      var grand = 0; keys.forEach(function(k) { grand += totals[k]; });
+      // Donut
+      var segments = []; var pct = 0;
+      keys.forEach(function(k) {
+        var p = grand > 0 ? (totals[k] / grand * 100) : 0;
+        segments.push(colors[k] + ' ' + pct + '% ' + (pct + p) + '%');
+        pct += p;
+      });
+      var donut = document.getElementById('trendDonut');
+      donut.style.background = 'conic-gradient(' + segments.join(',') + ')';
+      donut.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;background:#fff"></div>'
+        + '<div class="donut-center"><div class="donut-center-val">' + grand.toFixed(0) + '</div><div class="donut-center-label">总消耗 Credit</div></div>';
+      // Legend
+      var legendEl = document.getElementById('trendDonutLegend');
+      legendEl.innerHTML = keys.map(function(k) {
+        var p = grand > 0 ? (totals[k] / grand * 100).toFixed(1) : '0.0';
+        return '<div class="dl-item"><div class="dl-dot" style="background:' + colors[k] + '"></div>'
+          + '<span class="dl-name">' + labels[k] + '</span>'
+          + '<span class="dl-val">' + totals[k].toFixed(1) + '</span>'
+          + '<span class="dl-pct">' + p + '%</span></div>';
+      }).join('');
+    }
+
+    // Init
+    renderTrendCharts();
+
+    // Bill detail filters
+    var billPeriod = 'month';
+    var billDim = 'billing';
+    var billTypeFilters = [];
+
+    var billTypeStyles = {
+      '计算资源': 'background:#e6f4ff;color:#1677ff',
+      'AI 服务': 'background:#f9f0ff;color:#722ed1',
+      '数据存储': 'background:#fff7e6;color:#fa8c16',
+      '数据 I/O': 'background:#e6fffb;color:#13c2c2',
+      '公网流量': 'background:#fff0f6;color:#eb2f96',
+      'Genesis': 'background:#f6ffed;color:#52c41a',
+      '自有模型': 'background:#f0f5ff;color:#2f54eb',
+      '专属支持': 'background:#f5f5f5;color:#8c8c8c'
+    };
+
+    var mockBills = [
+      { id: 'B20260409-001', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: '计算资源', credit: 105.00, status: 'pending', children: [
+        { name: 'CG2 (4vCPU 16GB)', price: '30 Credit/h', usage: '2.5 h', credit: 75.00 },
+        { name: 'CG1 (2vCPU 8GB)', price: '15 Credit/h', usage: '2.0 h', credit: 30.00 }
+      ]},
+      { id: 'B20260409-002', period: '2026-04', date: '2026-04-09', hour: '14:00:00', type: 'AI 服务', credit: 28.80, status: 'pending', children: [
+        { name: '智能体对话', price: '0.5 Credit/1K tok', usage: '12.4K tok', credit: 6.20 },
+        { name: '知识库问答', price: '0.5 Credit/1K tok', usage: '18.0K tok', credit: 9.00 },
+        { name: '知识库自动优化', price: '0.5 Credit/1K tok', usage: '15.2K tok', credit: 7.60 },
+        { name: '智能工作流编排', price: '0.5 Credit/1K tok', usage: '12.0K tok', credit: 6.00 }
+      ]},
+      { id: 'B20260409-003', period: '2026-04', date: '2026-04-09', hour: '13:00:00', type: '计算资源', price: 'SQL 算力档 Q1 · 30 Credit/h', usage: '0.08 h', credit: 2.40, status: 'settled' },
+      { id: 'B20260409-004', period: '2026-04', date: '2026-04-09', hour: '11:00:00', type: '数据存储', price: '0.15 Credit/GB', usage: '190 GB', credit: 0.95, status: 'settled' },
+      { id: 'B20260409-007', period: '2026-04', date: '2026-04-09', hour: '11:00:00', type: '数据 I/O', credit: 12.30, status: 'settled', children: [
+        { name: '读取', price: '3 Credit/万次', usage: '3.2 万次', credit: 9.60 },
+        { name: '写入', price: '3 Credit/万次', usage: '0.9 万次', credit: 2.70 }
+      ]},
+      { id: 'B20260409-005', period: '2026-04', date: '2026-04-09', hour: '10:00:00', type: '公网流量', price: '24 Credit/GB', usage: '2.3 GB', credit: 55.20, status: 'settled' },
+      { id: 'B20260409-006', period: '2026-04', date: '2026-04-09', hour: '09:00:00', type: 'Genesis', credit: 9.78, status: 'settled' },
+      { id: 'B20260408-001', period: '2026-04', date: '2026-04-08', hour: '16:00:00', type: '计算资源', credit: 90.00, status: 'settled', children: [
+        { name: 'CG4 (8vCPU 32GB)', price: '60 Credit/h', usage: '1.5 h', credit: 90.00 }
+      ]},
+      { id: 'B20260408-002', period: '2026-04', date: '2026-04-08', hour: '10:00:00', type: 'AI 服务', credit: 14.30, status: 'settled', children: [
+        { name: '智能工作流编排', price: '0.5 Credit/1K tok', usage: '28.6K tok', credit: 14.30 }
+      ]},
+      { id: 'B20260401-M01', period: '2026-04', date: '2026-04-01', hour: '00:00:00', type: '自有模型', price: '99 Credit/月', usage: '1 月', credit: 99.00, status: 'settled' },
+      { id: 'B20260401-M02', period: '2026-04', date: '2026-04-01', hour: '00:00:00', type: '专属支持', price: '199 Credit/月', usage: '1 月', credit: 199.00, status: 'settled' }
+    ];
+    var expandedBills = {};
+    var billStatusFilters = [];
+
+    // '2026-04' → { from: '2026-04-01', to: '2026-04-30' }
+    function periodToDateRange(period) {
+      var p = period.split('-');
+      var year = parseInt(p[0]), month = parseInt(p[1]);
+      var lastDay = new Date(year, month, 0).getDate();
+      var mm = month < 10 ? '0' + month : '' + month;
+      var dd = lastDay < 10 ? '0' + lastDay : '' + lastDay;
+      return { from: year + '-' + mm + '-01', to: year + '-' + mm + '-' + dd };
+    }
+
+    function setBillPeriod(period, el) {
+      el.parentElement.querySelectorAll('.trend-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      billPeriod = period;
+      renderBillTable();
+    }
+    function setBillDim(dim, el) {
+      el.parentElement.querySelectorAll('.trend-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      billDim = dim;
+      renderBillTable();
+    }
+
+    function renderBillTable() {
+      var head = document.getElementById('billTableHead');
+      var body = document.getElementById('billTableBody');
+      var filter = billTypeFilters;
+      // No need to read from DOM anymore — billTypeFilters is the source of truth
+
+      // Header
+      var cols = '<tr><th>账单号</th><th>账期</th>';
+      if (billPeriod === 'day') cols += '<th>消费时间</th>';
+      else if (billPeriod === 'hour') cols += '<th>消费时间</th>';
+      var filterIcon = billTypeFilters.length > 0 ? '#1677ff' : 'rgba(0,0,0,0.35)';
+      var statusFilterIcon = billStatusFilters.length > 0 ? '#1677ff' : 'rgba(0,0,0,0.35)';
+      cols += '<th style="position:relative">计费项 <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,0.2);font-size:9px;color:rgba(0,0,0,0.25);cursor:pointer;vertical-align:middle;margin-left:2px;position:relative" id="billColInfoIcon" onclick="event.stopPropagation();toggleBillingInfo()">?</span> <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:' + (billTypeFilters.length > 0 ? '#e6f4ff' : '#f5f5f5') + ';cursor:pointer;vertical-align:middle;margin-left:2px" onclick="event.stopPropagation();toggleBillFilter()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="' + filterIcon + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th><th>单价</th><th>用量</th><th>消费 (credit)</th><th style="position:relative;white-space:nowrap">状态 <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:' + (billStatusFilters.length > 0 ? '#e6f4ff' : '#f5f5f5') + ';cursor:pointer;vertical-align:middle;margin-left:2px" onclick="event.stopPropagation();toggleStatusFilter()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="' + statusFilterIcon + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span></th></tr>';
+      head.innerHTML = cols;
+
+      // Filter data
+      var data = mockBills;
+      if (filter.length > 0) data = data.filter(function(b) { return filter.indexOf(b.type) !== -1; });
+      if (billStatusFilters.length > 0) data = data.filter(function(b) { return billStatusFilters.indexOf(b.status) !== -1; });
+
+      // Rows
+      body.innerHTML = data.map(function(b) {
+        var timeCol = '';
+        if (billPeriod === 'day') {
+          timeCol = '<td>' + b.date + '</td>';
+        } else if (billPeriod === 'hour') {
+          var hStart = b.hour;
+          var hEnd = (parseInt(hStart) + 1).toString().padStart(2, '0') + ':00:00';
+          timeCol = '<td style="font-size:12px">' + b.date + ' ' + hStart + ' ~ ' + hEnd + '</td>';
+        }
+        var style = billTypeStyles[b.type] || 'background:#f5f5f5;color:#8c8c8c';
+        var hasChildren = b.children && b.children.length > 0;
+        var isExpanded = expandedBills[b.id];
+        var expandIcon = hasChildren ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:' + (isExpanded ? '#e6f4ff' : '#f5f5f5') + ';cursor:pointer;margin-left:4px;color:' + (isExpanded ? '#1677ff' : 'rgba(0,0,0,0.3)') + ';font-size:11px;vertical-align:middle">' + (isExpanded ? '▾' : '▸') + '</span>' : '';
+        // Price/usage columns: show for flat rows, show "—" for expandable rows
+        var priceCol, usageCol;
+        if (hasChildren) {
+          priceCol = '<td style="font-size:12px;color:rgba(0,0,0,0.25)">—</td>';
+          usageCol = '<td style="color:rgba(0,0,0,0.25)">—</td>';
+        } else if (b.type === 'Genesis') {
+          // Genesis：模型多 / 单价多档，跳到 Genesis 用户前台用量页查看
+          priceCol = '<td style="font-size:12px;color:rgba(0,0,0,0.25)">—</td>';
+          var range = periodToDateRange(b.period);
+          usageCol = '<td><a href="../taas/taas.html?tab=usage&from=' + range.from + '&to=' + range.to + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #1677ff;color:#1677ff;border-radius:4px;font-size:12px;text-decoration:none;background:#fff;transition:all 0.15s" onmouseover="this.style.background=\'#e6f4ff\'" onmouseout="this.style.background=\'#fff\'">查看详情<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M9 7h8v8"/></svg></a></td>';
+        } else {
+          priceCol = '<td style="font-size:12px">' + (b.price || '—') + '</td>';
+          usageCol = '<td style="font-size:12px">' + (b.usage || '—') + '</td>';
+        }
+        var row = '<tr style="cursor:' + (hasChildren ? 'pointer' : 'default') + '" ' + (hasChildren ? 'onclick="toggleBillExpand(\'' + b.id + '\')"' : '') + '>'
+          + '<td style="font-family:monospace;font-size:12px;color:rgba(0,0,0,0.55)">' + b.id + '</td>'
+          + '<td>' + b.period + '</td>'
+          + timeCol
+          + '<td><span class="badge" style="' + style + '">' + b.type + '</span>' + expandIcon + '</td>'
+          + priceCol + usageCol
+          + '<td style="font-weight:600">' + b.credit.toFixed(2) + '</td>'
+          + '<td>' + (b.status === 'pending' ? '<span class="bill-status" style="background:#e6f4ff;color:#1677ff">待结算</span>' : '<span class="bill-status" style="background:#f6ffed;color:#52c41a">已结算</span>') + '</td></tr>';
+        // Child rows
+        if (isExpanded && b.children) {
+          b.children.forEach(function(c) {
+            row += '<tr style="background:#fafafa">'
+              + '<td></td>'
+              + '<td></td>'
+              + (billPeriod !== 'month' ? '<td></td>' : '')
+              + '<td style="padding-left:28px;font-size:12px;color:rgba(0,0,0,0.55)">' + c.name + '</td>'
+              + '<td style="font-size:12px">' + c.price + '</td>'
+              + '<td style="font-size:12px">' + c.usage + '</td>'
+              + '<td style="font-size:12px;font-weight:500">' + c.credit.toFixed(2) + '</td>'
+              + '<td></td></tr>';
+          });
+        }
+        return row;
+      }).join('');
+    }
+
+    // Init bill table
+    renderBillTable();
+
+    function toggleBillExpand(id) {
+      expandedBills[id] = !expandedBills[id];
+      renderBillTable();
+    }
+
+    // Bill filter dropdown
+    var billFilterOpen = false;
+    // 通用筛选气泡（position:fixed 脱离父容器 overflow 裁剪）
+    function buildFilterDropV2(opts) {
+      document.querySelectorAll('.user-filter-drop').forEach(function(d) { d.remove(); });
+      var rect = opts.anchor.getBoundingClientRect();
+      var top = rect.bottom + 4;
+      var maxH = Math.min(360, window.innerHeight - top - 12);
+      var drop = document.createElement('div');
+      drop.id = opts.dropId;
+      drop.className = 'user-filter-drop';
+      drop.style.cssText = 'position:fixed;top:' + top + 'px;right:' + Math.max(8, window.innerWidth - rect.right) + 'px;width:' + (opts.width || 200) + 'px;max-height:' + maxH + 'px;background:#fff;border:1px solid #e5e6eb;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.12);z-index:9999;display:flex;flex-direction:column;overflow:hidden';
+      drop.onclick = function(e) { e.stopPropagation(); };
+      var listHtml = '<div style="flex:1 1 auto;overflow-y:auto;padding:8px 4px">';
+      opts.options.forEach(function(o) {
+        var val = typeof o === 'string' ? o : o.val;
+        var label = typeof o === 'string' ? o : o.label;
+        var checked = (opts.currentSelected || []).indexOf(val) !== -1 || ((opts.currentSelected || []).length === 0 && opts.allCheckedWhenEmpty);
+        listHtml += '<label style="display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:13px;color:rgba(0,0,0,0.88);cursor:pointer;border-radius:4px" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'none\'"><input type="checkbox" value="' + val + '"' + (checked ? ' checked' : '') + ' style="accent-color:#1677ff;width:15px;height:15px;cursor:pointer">' + label + '</label>';
+      });
+      listHtml += '</div>';
+      listHtml += '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid #f0f0f0;background:#fafbfc">'
+        + '<span class="user-filter-reset" style="font-size:12px;color:rgba(0,0,0,0.55);cursor:pointer">重置</span>'
+        + '<button class="user-filter-apply" style="padding:4px 16px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;background:#1677ff;color:#fff;border:none">确定</button>'
+        + '</div>';
+      drop.innerHTML = listHtml;
+      document.body.appendChild(drop);
+      drop.querySelector('.user-filter-reset').addEventListener('click', function() { opts.onReset(); });
+      drop.querySelector('.user-filter-apply').addEventListener('click', function() { opts.onApply(); });
+      setTimeout(function() {
+        document.addEventListener('click', function handler(e) {
+          if (!drop.contains(e.target)) { drop.remove(); document.removeEventListener('click', handler); }
+        });
+      }, 0);
+    }
+
+    function toggleBillFilter() {
+      var existing = document.getElementById('billFilterDrop');
+      if (existing) { existing.remove(); return; }
+      buildFilterDropV2({
+        dropId: 'billFilterDrop',
+        anchor: event.target.closest('span'),
+        width: 200,
+        options: ['计算资源','AI 服务','数据存储','数据 I/O','公网流量','Genesis','自有模型','专属支持','企业身份认证'],
+        currentSelected: billTypeFilters,
+        allCheckedWhenEmpty: true,
+        onApply: applyBillFilter,
+        onReset: resetBillFilter
+      });
+    }
+    function applyBillFilter() {
+      var checks = document.querySelectorAll('#billFilterDrop input[type="checkbox"]');
+      var selected = [];
+      checks.forEach(function(c) { if (c.checked) selected.push(c.value); });
+      billTypeFilters = selected.length === 8 ? [] : selected;
+      var drop = document.getElementById('billFilterDrop');
+      if (drop) drop.remove();
+      renderBillTable();
+    }
+    function resetBillFilter() {
+      billTypeFilters = [];
+      var checks = document.querySelectorAll('#billFilterDrop input[type="checkbox"]');
+      checks.forEach(function(c) { c.checked = true; });
+    }
+
+    // Status filter dropdown
+    function toggleStatusFilter() {
+      var existing = document.getElementById('statusFilterDrop');
+      if (existing) { existing.remove(); return; }
+      buildFilterDropV2({
+        dropId: 'statusFilterDrop',
+        anchor: event.target.closest('span'),
+        width: 160,
+        options: [{ val: 'settled', label: '已结算' }, { val: 'pending', label: '待结算' }],
+        currentSelected: billStatusFilters,
+        allCheckedWhenEmpty: true,
+        onApply: applyStatusFilter,
+        onReset: resetStatusFilter
+      });
+    }
+    function applyStatusFilter() {
+      var checks = document.querySelectorAll('#statusFilterDrop input[type="checkbox"]');
+      var selected = [];
+      checks.forEach(function(c) { if (c.checked) selected.push(c.value); });
+      billStatusFilters = selected.length === 2 ? [] : selected;
+      var drop = document.getElementById('statusFilterDrop');
+      if (drop) drop.remove();
+      renderBillTable();
+    }
+    function resetStatusFilter() {
+      billStatusFilters = [];
+      var checks = document.querySelectorAll('#statusFilterDrop input[type="checkbox"]');
+      checks.forEach(function(c) { c.checked = true; });
+    }
+
+    // ===== Transaction (收支明细) =====
+    // 颗粒度：消费按 10 分钟聚合（系统每 10min 结算一次，时间戳为窗口结束时刻）；订阅月初 1 条；充值/赠送每笔 1 条
+    var mockTxns = [
+      // === 2026-04 ===
+      // 4-09 当天密集示例（演示 10min 颗粒度，工作日活跃时段）
+      { id: 'T20260409160000101', time: '2026-04-09 16:00:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 500, period: '2026-04', status: '成功', invoice: false, note: '邀请新用户 138****6621 注册激活（手机注册）' },
+      { id: 'T20260409113000104', time: '2026-04-09 11:30:00', ioType: '收入', txType: '赠送', channel: '反馈奖励', amount: '', credit: 100, period: '2026-04', status: '成功', invoice: false, note: '有效反馈奖励 · FB-20260815-003' },
+      { id: 'T20260409091200102', time: '2026-04-09 09:12:00', ioType: '收入', txType: '赠送', channel: '每日签到', amount: '', credit: 100, period: '2026-04', status: '成功', invoice: false, note: '每日签到 · 本轮第 4 次' },
+      { id: 'T20260408090500103', time: '2026-04-08 09:05:00', ioType: '收入', txType: '赠送', channel: '每日签到', amount: '', credit: 300, period: '2026-04', status: '成功', invoice: false, note: '每日签到 · 本轮累计第 3 次（含里程碑额外 +200）' },
+      { id: 'T20260409154000001', time: '2026-04-09 15:40:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -3.82, period: '2026-04', status: '成功', invoice: false, note: '15:30~15:40 用量' },
+      { id: 'T20260409153000002', time: '2026-04-09 15:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -2.94, period: '2026-04', status: '成功', invoice: false, note: '15:20~15:30 用量' },
+      { id: 'T20260409152000003', time: '2026-04-09 15:20:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -1.86, period: '2026-04', status: '成功', invoice: false, note: '15:10~15:20 用量' },
+      { id: 'T20260409143000004', time: '2026-04-09 14:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -5.12, period: '2026-04', status: '成功', invoice: false, note: '14:20~14:30 用量' },
+      { id: 'T20260409103000005', time: '2026-04-09 10:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -4.66, period: '2026-04', status: '成功', invoice: false, note: '10:20~10:30 用量' },
+      { id: 'T20260409102000006', time: '2026-04-09 10:20:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -2.18, period: '2026-04', status: '成功', invoice: false, note: '10:10~10:20 用量' },
+      // 4-08
+      { id: 'T20260408164000007', time: '2026-04-08 16:40:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -3.40, period: '2026-04', status: '成功', invoice: false, note: '16:30~16:40 用量' },
+      { id: 'T20260408110000008', time: '2026-04-08 11:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -6.78, period: '2026-04', status: '成功', invoice: false, note: '10:50~11:00 用量' },
+      { id: 'T20260408094000009', time: '2026-04-08 09:40:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -1.62, period: '2026-04', status: '成功', invoice: false, note: '09:30~09:40 用量' },
+      // 4-05 充值
+      { id: 'T20260405100000010', time: '2026-04-05 10:00:00', ioType: '收入', txType: '充值', channel: '支付宝', amount: '¥ 400.00', credit: 4000, period: '2026-04', status: '成功', invoice: true },
+      // 4-03 活动赠送
+      { id: 'T20260403163400011', time: '2026-04-03 16:34:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 500, period: '2026-04', status: '成功', invoice: false, note: '春季回归活动' },
+      // 4-01 月费扣费
+      { id: 'T20260401000000012', time: '2026-04-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-04', status: '成功', invoice: false, note: 'Pro 订阅 · 4 月月费' },
+
+      // === 2026-03（少量代表性示例）===
+      { id: 'T20260327150000013', time: '2026-03-27 15:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -4.28, period: '2026-03', status: '成功', invoice: false, note: '14:50~15:00 用量' },
+      { id: 'T20260321140800014', time: '2026-03-21 14:08:00', ioType: '收入', txType: '充值', channel: '微信支付', amount: '¥ 1,000.00', credit: 11765, period: '2026-03', status: '成功', invoice: true },
+      { id: 'T20260318110000015', time: '2026-03-18 11:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -3.16, period: '2026-03', status: '成功', invoice: false, note: '10:50~11:00 用量' },
+      { id: 'T20260315093400016', time: '2026-03-15 09:34:00', ioType: '收入', txType: '赠送', channel: '邀请奖励', amount: '', credit: 500, period: '2026-03', status: '成功', invoice: false, note: '邀请新用户 oc***hub 注册激活（GitHub 注册）' },
+      { id: 'T20260308103400017', time: '2026-03-08 10:34:00', ioType: '收入', txType: '赠送', channel: '管理员发放', amount: '', credit: 1000, period: '2026-03', status: '成功', invoice: false, note: '内部测试额度（admin@matrixorigin.cn）' },
+      { id: 'T20260304102200018', time: '2026-03-04 10:22:00', ioType: '收入', txType: '充值', channel: '支付宝', amount: '¥ 500.00', credit: 5556, period: '2026-03', status: '成功', invoice: true },
+      { id: 'T20260301000000019', time: '2026-03-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-03', status: '成功', invoice: false, note: 'Pro 订阅 · 3 月月费' },
+
+      // === 2026-02 ===
+      { id: 'T20260228160000020', time: '2026-02-28 16:00:00', ioType: '收入', txType: '充值', channel: '对公汇款', amount: '¥ 7,000.00', credit: 70000, period: '2026-02', status: '成功', invoice: true },
+      { id: 'T20260225143000021', time: '2026-02-25 14:30:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -2.45, period: '2026-02', status: '成功', invoice: false, note: '14:20~14:30 用量' },
+      { id: 'T20260218113200022', time: '2026-02-18 11:32:00', ioType: '收入', txType: '充值', channel: '信用卡', amount: '$ 200.00', credit: 15556, period: '2026-02', status: '成功', invoice: true },
+      { id: 'T20260214090000023', time: '2026-02-14 09:00:00', ioType: '收入', txType: '赠送', channel: '运营活动', amount: '', credit: 300, period: '2026-02', status: '成功', invoice: false, note: '情人节扫码赠送' },
+      { id: 'T20260201000000024', time: '2026-02-01 00:00:00', ioType: '支出', txType: '消费', channel: 'MOI 系统', amount: '', credit: -298.00, period: '2026-02', status: '成功', invoice: false, note: 'Pro 订阅 · 2 月月费' },
+      { id: 'T20260201000000025', time: '2026-02-01 00:00:00', ioType: '收入', txType: '赠送', channel: '新人礼包', amount: '', credit: 100, period: '2026-02', status: '成功', invoice: false, note: '注册赠送' }
+    ];
+    var txnFilters = { ioType: [], txType: [], channel: [] };
+    var userTxnPage = 1;
+
+    // 渠道按"类型大类"分组展示
+    var TXN_CHANNELS = [
+      '支付宝','微信支付','对公汇款','信用卡','PayPal','Apple/Google Pay','电汇',  // 充值
+      'MOI 系统',  // 消费
+      '运营活动','邀请奖励','每日签到','反馈奖励','管理员发放','新人礼包'  // 赠送
+    ];
+
+    function renderTxnTable() {
+      var head = document.getElementById('txnTableHead');
+      var body = document.getElementById('txnTableBody');
+      if (!head || !body) return;
+
+      function filterBtn(col, options) {
+        var active = txnFilters[col].length > 0;
+        var ic = active ? '#1677ff' : 'rgba(0,0,0,0.35)';
+        var bg = active ? '#e6f4ff' : '#f5f5f5';
+        return '<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:' + bg + ';cursor:pointer;vertical-align:middle;margin-left:2px" onclick="event.stopPropagation();toggleTxnFilter(\'' + col + '\',' + JSON.stringify(options).replace(/"/g,'&quot;') + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="' + ic + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></span>';
+      }
+
+      head.innerHTML = '<tr><th>交易单号</th><th>交易时间</th>'
+        + '<th style="position:relative;white-space:nowrap">收支类型 ' + filterBtn('ioType', ['收入','支出']) + '</th>'
+        + '<th style="position:relative;white-space:nowrap">交易类型 ' + filterBtn('txType', ['充值','消费','赠送']) + '</th>'
+        + '<th style="position:relative;white-space:nowrap">交易渠道 ' + filterBtn('channel', TXN_CHANNELS) + '</th>'
+        + '<th>说明</th><th>交易金额</th><th>Credit</th><th>账期</th><th>状态</th><th>发票</th></tr>';
+
+      var data = mockTxns;
+      if (txnFilters.ioType.length) data = data.filter(function(t) { return txnFilters.ioType.indexOf(t.ioType) !== -1; });
+      if (txnFilters.txType.length) data = data.filter(function(t) { return txnFilters.txType.indexOf(t.txType) !== -1; });
+      if (txnFilters.channel.length) data = data.filter(function(t) { return txnFilters.channel.indexOf(t.channel) !== -1; });
+
+      var foot = document.getElementById('txnTableFoot');
+      var pager = document.getElementById('txnPager');
+
+      // ===== 总计（基于完整筛选结果）=====
+      if (data.length === 0) {
+        body.innerHTML = '<tr><td colspan="11" style="text-align:center;color:rgba(0,0,0,0.35);padding:40px 0;font-size:13px">无匹配记录</td></tr>';
+        foot.innerHTML = '';
+        pager.style.display = 'none';
+        return;
+      }
+      var sumIn = 0, sumOut = 0;
+      var sumCny = 0, sumUsd = 0;
+      data.forEach(function(t) {
+        if (t.credit > 0) sumIn += t.credit; else sumOut += t.credit;
+        if (t.amount) {
+          var m = t.amount.match(/^\s*([¥$])\s*([\d,.]+)/);
+          if (m) {
+            var v = parseFloat(m[2].replace(/,/g, '')) || 0;
+            if (m[1] === '¥') sumCny += v; else if (m[1] === '$') sumUsd += v;
+          }
+        }
+      });
+      var net = sumIn + sumOut;
+      var netColor = net >= 0 ? '#52c41a' : '#ff4d4f';
+      var amountCellParts = [];
+      if (sumCny > 0) amountCellParts.push('¥ ' + sumCny.toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2}));
+      if (sumUsd > 0) amountCellParts.push('$ ' + sumUsd.toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2}));
+      var amountCell = amountCellParts.length ? amountCellParts.join(' &nbsp;|&nbsp; ') : '<span style="color:rgba(0,0,0,0.25)">—</span>';
+      foot.innerHTML = '<tr style="background:#fafbfc;border-top:2px solid #e5e6eb">'
+        + '<td colspan="6" style="padding:12px 14px;font-weight:600;color:rgba(0,0,0,0.65);font-size:12px">'
+        +   '筛选合计 · 共 ' + data.length + ' 条'
+        +   '<span style="margin-left:14px;color:rgba(0,0,0,0.45);font-weight:400">收入 <span style="color:#52c41a;font-weight:600">+' + sumIn.toLocaleString() + '</span> Credit</span>'
+        +   '<span style="margin-left:10px;color:rgba(0,0,0,0.45);font-weight:400">支出 <span style="color:#ff4d4f;font-weight:600">' + sumOut.toLocaleString() + '</span> Credit</span>'
+        + '</td>'
+        + '<td style="padding:12px 14px;font-weight:700;color:rgba(0,0,0,0.88);font-size:12px;white-space:nowrap">' + amountCell + '</td>'
+        + '<td style="padding:12px 14px;font-weight:700;color:' + netColor + ';font-size:13px">' + (net >= 0 ? '+' : '') + net.toLocaleString() + ' <span style="font-size:11px;color:rgba(0,0,0,0.45);font-weight:400">净额</span></td>'
+        + '<td colspan="3"></td>'
+        + '</tr>';
+
+      // ===== 分页 =====
+      var pageSize = parseInt(document.getElementById('txnPageSize').value) || 20;
+      var totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+      if (userTxnPage > totalPages) userTxnPage = totalPages;
+      if (userTxnPage < 1) userTxnPage = 1;
+      var startIdx = (userTxnPage - 1) * pageSize;
+      var endIdx = Math.min(startIdx + pageSize, data.length);
+      var pageData = data.slice(startIdx, endIdx);
+
+      pager.style.display = 'flex';
+      document.getElementById('txnPagerInfo').textContent = '显示第 ' + (startIdx + 1) + '~' + endIdx + ' 条 / 共 ' + data.length + ' 条';
+      var navHtml = '';
+      navHtml += '<button onclick="userTxnGoPage(' + (userTxnPage - 1) + ')" ' + (userTxnPage === 1 ? 'disabled' : '') + ' style="width:28px;height:28px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;cursor:' + (userTxnPage === 1 ? 'not-allowed' : 'pointer') + ';font-size:12px;color:' + (userTxnPage === 1 ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.65)') + '">‹</button>';
+      var pages = [];
+      if (totalPages <= 7) { for (var i = 1; i <= totalPages; i++) pages.push(i); }
+      else {
+        pages.push(1);
+        if (userTxnPage > 3) pages.push('…');
+        for (var j = Math.max(2, userTxnPage - 1); j <= Math.min(totalPages - 1, userTxnPage + 1); j++) pages.push(j);
+        if (userTxnPage < totalPages - 2) pages.push('…');
+        pages.push(totalPages);
+      }
+      pages.forEach(function(p) {
+        if (p === '…') navHtml += '<span style="padding:0 4px;color:rgba(0,0,0,0.35);font-size:12px">…</span>';
+        else {
+          var cur = p === userTxnPage;
+          navHtml += '<button onclick="userTxnGoPage(' + p + ')" style="min-width:28px;height:28px;padding:0 8px;border:1px solid ' + (cur ? '#1677ff' : '#d9d9d9') + ';background:' + (cur ? '#1677ff' : '#fff') + ';color:' + (cur ? '#fff' : 'rgba(0,0,0,0.65)') + ';border-radius:4px;cursor:pointer;font-size:12px;font-weight:' + (cur ? '600' : '400') + '">' + p + '</button>';
+        }
+      });
+      navHtml += '<button onclick="userTxnGoPage(' + (userTxnPage + 1) + ')" ' + (userTxnPage === totalPages ? 'disabled' : '') + ' style="width:28px;height:28px;border:1px solid #d9d9d9;background:#fff;border-radius:4px;cursor:' + (userTxnPage === totalPages ? 'not-allowed' : 'pointer') + ';font-size:12px;color:' + (userTxnPage === totalPages ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.65)') + '">›</button>';
+      document.getElementById('txnPagerNav').innerHTML = navHtml;
+
+      // 交易类型 / 渠道的徽章配色
+      var typeStyles = { '充值':'background:#e6f4ff;color:#1677ff', '消费':'background:#fff1f0;color:#ff4d4f', '赠送':'background:#fff7e6;color:#fa8c16' };
+
+      body.innerHTML = pageData.map(function(t) {
+        var ioColor = t.ioType === '收入' ? '#52c41a' : '#ff4d4f';
+        var crSign = t.credit >= 0 ? '+' : '';
+        var crColor = t.credit >= 0 ? '#52c41a' : '#ff4d4f';
+        var crDisplay = crSign + t.credit.toLocaleString();
+        var typeStyle = typeStyles[t.txType] || 'background:#f5f5f5;color:#8c8c8c';
+        return '<tr>'
+          + '<td style="font-family:monospace;font-size:12px;color:rgba(0,0,0,0.55)">' + t.id + '</td>'
+          + '<td style="font-size:12px">' + t.time + '</td>'
+          + '<td><span style="color:' + ioColor + ';font-weight:500">' + t.ioType + '</span></td>'
+          + '<td><span class="badge" style="' + typeStyle + '">' + t.txType + '</span></td>'
+          + '<td style="font-size:12px">' + t.channel + '</td>'
+          + '<td style="font-size:12px;color:rgba(0,0,0,0.55)">' + (t.note || '—') + '</td>'
+          + '<td style="font-weight:600">' + (t.amount || '—') + '</td>'
+          + '<td style="font-weight:600;color:' + crColor + '">' + crDisplay + '</td>'
+          + '<td>' + t.period + '</td>'
+          + '<td><span class="bill-status" style="background:#f6ffed;color:#52c41a">' + t.status + '</span></td>'
+          + '<td>' + (t.invoice ? '<span class="bill-link">下载</span>' : '—') + '</td></tr>';
+      }).join('');
+    }
+
+    function toggleTxnFilter(col, options) {
+      var existing = document.getElementById('txnFilterDrop');
+      if (existing) { existing.remove(); return; }
+      buildFilterDropV2({
+        dropId: 'txnFilterDrop',
+        anchor: event.target.closest('span'),
+        width: 200,
+        options: options,
+        currentSelected: txnFilters[col],
+        allCheckedWhenEmpty: true,
+        onApply: function() { applyTxnFilter(col); },
+        onReset: function() {
+          txnFilters[col] = [];
+          document.querySelectorAll('#txnFilterDrop input').forEach(function(c) { c.checked = true; });
+        }
+      });
+    }
+
+    function applyTxnFilter(col) {
+      var checks = document.querySelectorAll('#txnFilterDrop input[type="checkbox"]');
+      var selected = [];
+      checks.forEach(function(c) { if (c.checked) selected.push(c.value); });
+      var allCount = document.querySelectorAll('#txnFilterDrop input[type="checkbox"]').length;
+      txnFilters[col] = selected.length === allCount ? [] : selected;
+      var drop = document.getElementById('txnFilterDrop');
+      if (drop) drop.remove();
+      userTxnPage = 1;
+      renderTxnTable();
+    }
+
+    function userTxnGoPage(p) { userTxnPage = p; renderTxnTable(); }
+
+    // Init txn table when switching to transactions tab
+    var _origSwitchBillingTab = switchBillingTab;
+    switchBillingTab = function(name, el) {
+      _origSwitchBillingTab(name, el);
+      if (name === 'transactions') renderTxnTable();
+    };
+    renderTxnTable();
+
+    // Billing info popover (shared)
+    var PRICING_ROWS = [
+      ['计算资源','#e6f4ff','#1677ff','数据导入导出、工作流、SQL 等任务使用的资源，在计算资源菜单中查看和管理','Credit / 小时，不同规格价格不同'],
+      ['AI 服务','#f9f0ff','#722ed1','平台提供的各类智能服务，例如工作流智能处理、知识问答等','500 Credit / 百万 token'],
+      ['数据存储','#fff7e6','#fa8c16','MOI 平台中所有的数据存储','3 Credit / GB·月'],
+      ['数据 I/O','#e6fffb','#13c2c2','数据存储的读取和写入费用','3 Credit / 万次'],
+      ['公网流量','#fff0f6','#eb2f96','数据导入和导出产生的网络流量','24 Credit / GB'],
+      ['Genesis','#f6ffed','#52c41a','Genesis 产品提供的模型服务','按模型定价，见<a href="../taas/taas.html#models" target="_blank" style="color:#1677ff;text-decoration:none">模型广场</a>'],
+      ['自有模型','#f0f5ff','#2f54eb','您自己接入的模型服务，MOI 收取一定使用费用；使用前需开通月费功能','开通费 99 Credit / 月<br>2 Credit / 百万 token'],
+      ['专属支持','#f5f5f5','#8c8c8c','专属支持通道，24h 响应 SLA','199 Credit / 月'],
+      ['企业身份认证','#f5f5f5','#8c8c8c','SSO / SAML 集成（Azure AD、Okta、LDAP）','99 Credit / 月']
+    ];
+    function buildPricingTable() {
+      return '<div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);margin-bottom:10px">产品定价</div>'
+        + '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="text-align:left;padding:6px 8px;color:rgba(0,0,0,0.45);font-weight:500;border-bottom:1px solid #f0f0f0">计费类型</th><th style="text-align:left;padding:6px 8px;color:rgba(0,0,0,0.45);font-weight:500;border-bottom:1px solid #f0f0f0">计费内容</th><th style="text-align:left;padding:6px 8px;color:rgba(0,0,0,0.45);font-weight:500;border-bottom:1px solid #f0f0f0">单价</th></tr></thead><tbody>'
+        + PRICING_ROWS.map(function(r) {
+          return '<tr><td style="padding:5px 8px;border-bottom:1px solid #f8f8f8;white-space:nowrap"><span class="badge" style="background:' + r[1] + ';color:' + r[2] + '">' + r[0] + '</span></td><td style="padding:5px 8px;border-bottom:1px solid #f8f8f8;color:rgba(0,0,0,0.65)">' + r[3] + '</td><td style="padding:5px 8px;border-bottom:1px solid #f8f8f8;color:rgba(0,0,0,0.55);white-space:nowrap">' + r[4] + '</td></tr>';
+        }).join('') + '</tbody></table>'
+        + '<div style="margin-top:10px;font-size:11px;color:rgba(0,0,0,0.35)">所有价格以 Credit 计；充值折扣影响 Credit 购入价，不影响上表单价。</div>';
+    }
+    function toggleBillingInfo(ev) {
+      var existing = document.getElementById('billingInfoPopover');
+      if (existing) { existing.remove(); return; }
+      var pop = document.createElement('div');
+      pop.id = 'billingInfoPopover';
+      var btn = ev.target.closest('button') || ev.target;
+      var rect = btn.getBoundingClientRect();
+      pop.style.cssText = 'position:fixed;top:' + (rect.bottom + 8) + 'px;right:' + Math.max(12, window.innerWidth - rect.right) + 'px;width:620px;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:1px solid #f0f0f0;padding:16px;z-index:1000;text-align:left;cursor:default;font-weight:400;font-size:12px;color:rgba(0,0,0,0.88)';
+      pop.onclick = function(e) { e.stopPropagation(); };
+      pop.innerHTML = buildPricingTable();
+      document.body.appendChild(pop);
+      setTimeout(function() {
+        document.addEventListener('click', function handler(e) {
+          if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('click', handler); }
+        });
+      }, 0);
+    }
+
+    // === Subscription services ===
+    var subscriptions = {
+      byom: { on: true, price: 99, label: '自有模型', since: '2026-02-01' },
+      support: { on: true, price: 199, label: '专属支持', since: '2026-01-15' },
+      sso: { on: false, price: 0, label: '企业身份认证', since: null }
+    };
+    var ssoPriceWhenOn = 99;
+
+    function toggleSubscription(key, el) {
+      var sub = subscriptions[key];
+      var turning = !sub.on;
+      if (sub.on) {
+        if (!confirm('确定要关闭「' + sub.label + '」吗？\n\n关闭后将在当前计费周期结束时停止服务，已扣费用不退还。')) return;
+        el.classList.remove('on');
+        sub.on = false;
+        sub.price = 0;
+      } else {
+        var price = key === 'sso' ? ssoPriceWhenOn : (key === 'byom' ? 99 : 199);
+        if (!confirm('确定要开通「' + sub.label + '」吗？\n\n开通后立即生效，每月 1 日自动扣除 ' + price + ' credit。')) return;
+        el.classList.add('on');
+        sub.on = true;
+        sub.price = price;
+        sub.since = new Date().toISOString().slice(0, 10);
+      }
+      updateSubscriptionUI(key);
+      updateSubTotal();
+    }
+
+    function updateSubscriptionUI(key) {
+      var sub = subscriptions[key];
+      var badgeEl = document.getElementById(key + 'Badge');
+      if (badgeEl) {
+        if (sub.on) {
+          badgeEl.textContent = '已开通';
+          badgeEl.style.background = '#f6ffed'; badgeEl.style.color = '#52c41a'; badgeEl.style.fontWeight = '600';
+        } else {
+          badgeEl.textContent = '未开通';
+          badgeEl.style.background = '#f5f5f5'; badgeEl.style.color = 'rgba(0,0,0,0.35)'; badgeEl.style.fontWeight = '500';
+        }
+      }
+      // Update price display
+      var row = document.getElementById(key + 'Toggle').closest('div[style*="padding:16px"]');
+      if (row) {
+        var priceEl = row.querySelector('div[style*="text-align:right"] div:first-child');
+        if (priceEl) priceEl.textContent = sub.price;
+      }
+    }
+
+    function updateSubTotal() {
+      var total = 0;
+      Object.keys(subscriptions).forEach(function(k) { total += subscriptions[k].price; });
+      var el = document.getElementById('subTotal');
+      if (el) el.textContent = total.toFixed(2);
+    }
+  </script>
+</body>
+</html>

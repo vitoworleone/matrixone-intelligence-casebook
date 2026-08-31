@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOI - SQL 编辑器</title>
+  <link rel="stylesheet" href="../styles/common.css">
+  <style>
+    .sql-layout { display: flex; height: calc(100vh - 56px - 49px); }
+
+    /* Left: DB Tree Panel */
+    .db-tree-panel {
+      width: 280px; min-width: 280px; background: #fff; border-right: 1px solid #f0f0f0;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    /* Left panel tabs */
+    .left-panel-tabs {
+      display: flex; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; position: relative;
+    }
+    .left-panel-tab {
+      flex: 1; padding: 10px 0; text-align: center; font-size: 14px; font-weight: 600;
+      color: rgba(0,0,0,0.45); cursor: pointer; border-bottom: 2px solid transparent;
+      transition: all 0.15s; user-select: none;
+    }
+    .left-panel-tab:hover { color: rgba(0,0,0,0.88); }
+    .left-panel-tab.active { color: #1677ff; border-bottom-color: #1677ff; }
+    .left-panel-collapse-btn {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      width: 22px; height: 22px; border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; z-index: 2;
+    }
+    .left-panel-collapse-btn:hover { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.65); }
+    .left-panel-collapse-btn svg { width: 14px; height: 14px; }
+    /* Collapsed left panel */
+    .db-tree-panel.collapsed { width: 0; min-width: 0; border-right: none; overflow: hidden; }
+    .left-panel-expand-btn {
+      display: none; width: 20px; min-width: 20px; background: #fff; border-right: 1px solid #f0f0f0;
+      cursor: pointer; align-items: center; justify-content: center; color: rgba(0,0,0,0.3);
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .left-panel-expand-btn:hover { background: #f0f5ff; color: #1677ff; }
+    .left-panel-expand-btn.show { display: flex; }
+    .left-panel-expand-btn svg { width: 14px; height: 14px; }
+    .left-tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .left-tab-content.active { display: flex; }
+    .db-tree-search { padding: 8px 12px; }
+    .db-tree-search input {
+      width: 100%; height: 30px; padding: 4px 30px 4px 10px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 12px; outline: none; transition: all 0.2s;
+    }
+    .db-tree-search input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .db-tree-search input::placeholder { color: rgba(0,0,0,0.25); }
+    .db-tree-search { position: relative; }
+    .db-tree-search .s-icon {
+      position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+      color: rgba(0,0,0,0.35); pointer-events: none;
+    }
+    .db-tree-body { flex: 1; overflow-y: auto; padding: 4px 0; }
+    .db-tree-body::-webkit-scrollbar { width: 4px; }
+    .db-tree-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+
+    /* Workbook panel */
+    .wb-search-row {
+      display: flex; align-items: center; gap: 6px; padding: 8px 12px; flex-shrink: 0;
+    }
+    .wb-search-row input {
+      flex: 1; height: 30px; padding: 4px 30px 4px 10px; border: 1px solid #d9d9d9;
+      border-radius: 6px; font-size: 12px; outline: none; transition: all 0.2s;
+    }
+    .wb-search-row input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(5,145,255,0.1); }
+    .wb-search-row input::placeholder { color: rgba(0,0,0,0.25); }
+    .wb-search-wrap { flex: 1; position: relative; }
+    .wb-search-wrap .s-icon {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      color: rgba(0,0,0,0.35); pointer-events: none;
+    }
+    .wb-add-icon-btn {
+      width: 30px; height: 30px; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: rgba(0,0,0,0.65); transition: all 0.15s; flex-shrink: 0;
+    }
+    .wb-add-icon-btn:hover { border-color: #1677ff; color: #1677ff; background: #f0f5ff; }
+    .wb-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+    .wb-list::-webkit-scrollbar { width: 4px; }
+    .wb-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    .wb-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px;
+      cursor: pointer; transition: all 0.15s; margin-bottom: 2px; position: relative;
+    }
+    .wb-item:hover { background: rgba(0,0,0,0.04); }
+    .wb-item.active { background: #e6f4ff; }
+    .wb-item .wb-icon {
+      width: 28px; height: 28px; border-radius: 6px; background: #f0f5ff;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .wb-item.active .wb-icon { background: #bae0ff; }
+    .wb-item .wb-icon svg { width: 14px; height: 14px; color: #1677ff; }
+    .wb-item .wb-info { flex: 1; min-width: 0; }
+    .wb-item .wb-name {
+      font-size: 13px; color: rgba(0,0,0,0.88); font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .wb-item.active .wb-name { color: #1677ff; }
+    .wb-item .wb-meta { font-size: 11px; color: rgba(0,0,0,0.35); margin-top: 1px; }
+    .wb-item .wb-actions {
+      display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0;
+    }
+    .wb-item:hover .wb-actions { opacity: 1; }
+    .wb-act-btn {
+      width: 22px; height: 22px; border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    }
+    .wb-act-btn:hover { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.65); }
+    .wb-act-btn.danger:hover { color: #ff4d4f; background: #fff2f0; }
+    .wb-act-btn svg { width: 13px; height: 13px; }
+    /* Rename input */
+    .wb-rename-input {
+      font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.88);
+      border: 1px solid #1677ff; border-radius: 4px; outline: none; padding: 1px 6px;
+      width: 100%; box-sizing: border-box; background: #fff;
+    }
+
+    .db-node {
+      display: flex; align-items: center; height: 30px; padding: 0 12px; cursor: pointer;
+      transition: background 0.15s; gap: 4px; font-size: 13px; color: rgba(0,0,0,0.88);
+    }
+    .db-node:hover { background: rgba(0,0,0,0.04); }
+    .db-node.selected { background: #e6f4ff; color: #1677ff; }
+    .db-node .n-arrow {
+      width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: rgba(0,0,0,0.35); transition: transform 0.2s; font-size: 10px;
+    }
+    .db-node .n-arrow.open { transform: rotate(90deg); }
+    .db-node .n-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .db-node .n-icon svg { width: 14px; height: 14px; }
+    .db-node .n-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .db-node .n-badge {
+      font-size: 11px; color: rgba(0,0,0,0.35); background: #f5f5f5; padding: 0 5px;
+      border-radius: 3px; flex-shrink: 0; line-height: 18px;
+    }
+    .db-children { display: none; }
+    .db-children.open { display: block; }
+    .db-children .db-node { padding-left: 36px; }
+
+    /* Table info panel below tree */
+    .table-info-panel {
+      border-top: 1px solid #f0f0f0; background: #fafafa; max-height: 240px;
+      overflow-y: auto; flex-shrink: 0;
+    }
+    .table-info-panel::-webkit-scrollbar { width: 4px; }
+    .table-info-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    .table-info-header {
+      padding: 8px 12px; font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.65);
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #f0f0f0; background: #fff; position: sticky; top: 0; z-index: 1;
+    }
+    .table-info-header .row-count { font-weight: 400; color: rgba(0,0,0,0.45); }
+    .col-row {
+      display: flex; align-items: center; padding: 4px 12px; font-size: 12px;
+      border-bottom: 1px solid #f5f5f5; gap: 8px;
+    }
+    .col-row:last-child { border-bottom: none; }
+    .col-name { flex: 1; color: rgba(0,0,0,0.88); font-family: 'SF Mono','Consolas','Monaco',monospace; }
+    .col-type { color: rgba(0,0,0,0.45); font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 11px; }
+
+    /* Right: SQL Editor Panel */
+    .sql-editor-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f5f5f5; }
+
+    /* Toolbar */
+    .sql-toolbar {
+      display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+      background: #fff; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .sql-toolbar select {
+      height: 30px; padding: 2px 8px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 13px; outline: none; background: #fff; cursor: pointer; min-width: 160px;
+    }
+    .sql-toolbar select:focus { border-color: #1677ff; }
+    /* 三种查询模式切换 */
+    .sql-mode-switch { display: flex; gap: 4px; padding: 10px 10px 0; }
+    .sql-mode-btn { flex: 1; padding: 6px 4px; font-size: 12px; border: 1px solid #e5e6eb; background: #fff; color: rgba(0,0,0,0.6); cursor: pointer; border-radius: 6px; transition: all 0.15s; white-space: nowrap; }
+    .sql-mode-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .sql-mode-btn.active { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .sql-mode-btn.active:hover { color: #fff; }
+    .sql-syntax-badge { font-size: 12px; color: rgba(0,0,0,0.5); padding: 3px 10px; background: #f5f7fa; border: 1px solid #eef0f3; border-radius: 6px; white-space: nowrap; }
+    .btn-run {
+      background: #1677ff; color: #fff; border: none; padding: 0 16px; height: 30px;
+      border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;
+      margin-left: 0; flex-shrink: 0; white-space: nowrap;
+    }
+    .btn-run:hover { background: #4096ff; }
+    .btn-run svg { width: 14px; height: 14px; }
+    /* 工作簿历史版本选择器 */
+    .ver-selector { position: relative; margin-left: auto; }
+    .ver-trigger { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; color: rgba(0,0,0,0.7); max-width: 250px; }
+    .ver-trigger:hover { border-color: #1677ff; color: #1677ff; }
+    .ver-trigger svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
+    .ver-trigger .ver-cur { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'SF Mono', Monaco, monospace; }
+    .ver-dropdown { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; background: #fff; border: 1px solid #e5e6eb; border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); min-width: 290px; padding: 8px; }
+    .ver-dropdown.show { display: block; }
+    .ver-dropdown-title { font-size: 12px; color: rgba(0,0,0,0.4); padding: 4px 8px 8px; }
+    .ver-list { max-height: 340px; overflow-y: auto; }
+    .ver-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .ver-item:hover { background: #f5f7fb; }
+    .ver-item.active { background: #e6f0ff; }
+    .ver-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .ver-dot.formal { background: #52c41a; }
+    .ver-dot.draft { background: #faad14; }
+    .ver-name { flex: 1; font-family: 'SF Mono', Monaco, monospace; color: rgba(0,0,0,0.8); white-space: nowrap; }
+    .ver-item.active .ver-name { color: #1677ff; font-weight: 600; }
+    .ver-check { color: #1677ff; }
+    .ver-empty { padding: 16px; text-align: center; font-size: 12px; color: rgba(0,0,0,0.3); }
+
+    /* Code Area */
+    .code-area-wrap {
+      flex: 1; min-height: 120px; display: flex; background: #fff; border-bottom: 1px solid #e5e6eb;
+      position: relative; overflow: hidden;
+    }
+    .line-numbers {
+      width: 44px; background: #fafafa; border-right: 1px solid #f0f0f0; padding: 10px 0;
+      text-align: right; font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 13px;
+      line-height: 20px; color: rgba(0,0,0,0.25); user-select: none; overflow: hidden;
+      flex-shrink: 0;
+    }
+    .line-numbers div { padding: 0 8px 0 0; }
+    .code-editor-container { flex: 1; position: relative; overflow: hidden; }
+    .code-highlight-layer {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 10px 12px;
+      font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 13px;
+      line-height: 20px; white-space: pre-wrap; word-wrap: break-word;
+      pointer-events: none; color: rgba(0,0,0,0.88); overflow-y: auto;
+    }
+    .code-highlight-layer .hl-active { background: rgba(22,119,255,0.08); border-radius: 2px; }
+    .code-highlight-layer .hl-keyword { color: #0550ae; font-weight: 600; }
+    .code-textarea {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 10px 12px;
+      font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 13px;
+      line-height: 20px; border: none; outline: none; resize: none; background: transparent;
+      color: transparent; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;
+      caret-color: rgba(0,0,0,0.88);
+    }
+    .code-textarea::placeholder { color: rgba(0,0,0,0.25); }
+
+    /* Query History Tabs */
+    .query-history-bar {
+      display: flex; align-items: center; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0; height: 34px; padding: 0 8px; gap: 2px; overflow-x: auto;
+    }
+    .query-history-bar::-webkit-scrollbar { height: 0; }
+    .query-tab {
+      display: flex; align-items: center; gap: 6px; padding: 0 10px; height: 28px;
+      background: #fff; border: 1px solid #e8e8e8; border-radius: 6px; cursor: pointer;
+      font-size: 12px; color: rgba(0,0,0,0.65); white-space: nowrap; max-width: 220px;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .query-tab:hover { border-color: #b3d8ff; background: #f0f5ff; }
+    .query-tab.active { border-color: #1677ff; background: #e6f4ff; color: #1677ff; }
+    .query-tab .qt-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .query-tab .qt-dot.success { background: #52c41a; }
+    .query-tab .qt-dot.error { background: #ff4d4f; }
+    .query-tab .qt-dot.running { background: #faad14; }
+    .query-tab .qt-sql {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;
+    }
+    .query-tab .qt-close {
+      width: 16px; height: 16px; border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.25); border-radius: 3px; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; font-size: 12px; line-height: 1; padding: 0;
+    }
+    .query-tab .qt-close:hover { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.65); }
+    .query-tab.active .qt-close:hover { background: rgba(22,119,255,0.15); color: #1677ff; }
+
+    /* Result Area */
+    .result-area { min-height: 36px; display: flex; flex-direction: column; background: #fff; overflow: hidden; transition: none; }
+    .result-area.minimized { flex: none !important; height: 36px !important; min-height: 36px; }
+    .result-area.maximized { flex: none !important; height: calc(100% - 46px) !important; }
+    .result-area.minimized .result-body,
+    .result-area.minimized .query-history-bar { display: none; }
+    .result-tabs {
+      display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 0 16px;
+      flex-shrink: 0; background: #fff; height: 36px;
+    }
+    .result-tab {
+      padding: 8px 16px; font-size: 13px; color: rgba(0,0,0,0.65); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .result-tab:hover { color: rgba(0,0,0,0.88); }
+    .result-tab.active { color: #1677ff; border-bottom-color: #1677ff; font-weight: 500; }
+    .result-status {
+      margin-left: auto; font-size: 12px; color: rgba(0,0,0,0.45); display: flex; align-items: center; gap: 12px;
+    }
+    .result-status .success { color: #52c41a; }
+    .result-toolbar-btns {
+      display: flex; align-items: center; gap: 4px; margin-left: 12px;
+    }
+    .result-tool-btn {
+      width: 26px; height: 26px; border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.35); border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .result-tool-btn:hover { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.65); }
+    .result-tool-btn svg { width: 14px; height: 14px; }
+    .result-body { flex: 1; overflow: auto; position: relative; }
+    .result-body::-webkit-scrollbar { width: 6px; height: 6px; }
+    .result-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+    /* Chart Builder */
+    .chart-container { display: flex; height: 100%; }
+    .chart-canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+    .chart-canvas-area svg { max-width: 100%; }
+    .chart-config-panel {
+      width: 240px; min-width: 240px; border-left: 1px solid #f0f0f0; padding: 12px;
+      overflow-y: auto; background: #fafafa; flex-shrink: 0;
+    }
+    .chart-config-panel::-webkit-scrollbar { width: 4px; }
+    .chart-config-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+    .cc-section { margin-bottom: 14px; }
+    .cc-label { font-size: 12px; color: rgba(0,0,0,0.45); margin-bottom: 4px; font-weight: 500; }
+    .cc-select {
+      width: 100%; height: 30px; padding: 2px 8px; border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 12px; outline: none; background: #fff; cursor: pointer;
+    }
+    .cc-select:focus { border-color: #1677ff; }
+    .cc-type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .cc-type-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px;
+      border: 1px solid #e8e8e8; border-radius: 6px; cursor: pointer; background: #fff;
+      font-size: 10px; color: rgba(0,0,0,0.55); transition: all 0.15s;
+    }
+    .cc-type-btn:hover { border-color: #b3d8ff; background: #f0f5ff; }
+    .cc-type-btn.active { border-color: #1677ff; background: #e6f4ff; color: #1677ff; }
+    .cc-type-btn svg { width: 20px; height: 20px; }
+    .cc-y-row { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+    .cc-y-row select { flex: 1; }
+    .cc-y-remove {
+      width: 22px; height: 22px; border: none; background: none; cursor: pointer;
+      color: rgba(0,0,0,0.25); border-radius: 4px; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .cc-y-remove:hover { background: #fff2f0; color: #ff4d4f; }
+    .cc-add-y {
+      font-size: 12px; color: #1677ff; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 4px; padding: 2px 0;
+    }
+    .cc-add-y:hover { text-decoration: underline; }
+    .chart-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: rgba(0,0,0,0.25); gap: 8px; font-size: 13px;
+    }
+    .chart-empty svg { width: 48px; height: 48px; color: rgba(0,0,0,0.08); }
+    .result-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .result-table th {
+      text-align: left; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #f0f0f0;
+      font-weight: 500; color: rgba(0,0,0,0.65); white-space: nowrap; position: sticky; top: 0; z-index: 1;
+    }
+    .result-table td {
+      padding: 6px 12px; border-bottom: 1px solid #f5f5f5; color: rgba(0,0,0,0.88); white-space: nowrap;
+    }
+    .result-table tr:hover td { background: #fafafa; }
+    .result-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: rgba(0,0,0,0.25); gap: 8px; font-size: 13px;
+    }
+    .result-empty svg { width: 48px; height: 48px; color: rgba(0,0,0,0.08); }
+
+    /* Splitter */
+    .h-splitter {
+      height: 4px; background: #f0f0f0; cursor: row-resize; flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .h-splitter:hover { background: #1677ff; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+  <div id="addWsModal"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-section">
+      <a class="menu-item" href="dashboard.html">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="3" rx="1"/><rect x="9" y="6" width="6" height="3" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="11" width="6" height="4" rx="1"/></svg></span><span class="label">仪表盘</span>
+      </a>
+      <div class="menu-item" onclick="toggleSubMenu('dataConn', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg></span><span class="label">数据连接</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="dataConn">
+        <a class="sub-item" href="../data-connection/connector.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="12" height="3" rx="1"/><rect x="1" y="8" width="12" height="3" rx="1"/><circle cx="3.5" cy="4.5" r="0.5" fill="currentColor"/><circle cx="3.5" cy="9.5" r="0.5" fill="currentColor"/></svg></span>连接器</a>
+        <a class="sub-item" href="../data-connection/data-import.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8M4 7l3 3 3-3"/><path d="M2 12h10"/></svg></span>数据载入</a>
+        <a class="sub-item" href="../data-connection/data-export.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V2M4 5l3-3 3 3"/><path d="M2 12h10"/></svg></span>数据导出</a>
+      </div>
+      <div class="menu-item active" onclick="toggleSubMenu('dataProc', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="label">数据处理</span><span class="arrow open">›</span>
+      </div>
+      <div class="sub-menu open" id="dataProc">
+        <a class="sub-item" href="workflow.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h4v4H1zM9 2h4v4H9zM9 8h4v4H9z"/><path d="M5 6h4M5 6V4h4"/></svg></span>工作流</a>
+        <a class="sub-item" href="notebook.html" style="display:none"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="10" height="12" rx="1.5"/><path d="M5 4h4M5 7h4M5 10h2"/></svg></span>Notebook</a>
+        <a class="sub-item active" href="sql-editor.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 7h7M2 11h4"/><circle cx="12" cy="10" r="2"/></svg></span>SQL 编辑器</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('resCenter', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6-3 6 3v8l-6 3-6-3z"/><path d="M2 4l6 3 6-3M8 7v8"/></svg></span><span class="label">资源中心</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="resCenter">
+        <a class="sub-item" href="../resource-center/catalog.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="7" cy="4" rx="5" ry="2"/><path d="M2 4v3c0 1.1 2.24 2 5 2s5-.9 5-2V4"/><path d="M2 7v3c0 1.1 2.24 2 5 2s5-.9 5-2V7"/></svg></span>Catalog</a>
+        <a class="sub-item" href="../resource-center/compute.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="6" rx="1"/><rect x="8" y="4" width="5" height="6" rx="1"/><path d="M3.5 2v2M10.5 2v2M3.5 10v2M10.5 10v2"/></svg></span>计算资源</a>
+        <a class="sub-item" href="../resource-center/data-share.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l3 3-3 3"/><path d="M12 5H6"/><path d="M5 12l-3-3 3-3"/><path d="M2 9h6"/></svg></span>数据分享</a>
+        <a class="sub-item" href="../resource-center/knowledge-base.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2h7l3 3v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4 6h6M4 8.5h4"/></svg></span>知识库</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('monitor', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3-4 3 2 4-6"/><path d="M14 4v4h-4"/></svg></span><span class="label">监测</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="monitor">        <a class="sub-item" href="sql-history.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></span>SQL 历史</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="7" rx="1"/></svg></span>作业</a>
+        <a class="sub-item" href="../monitor/audit-log.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10M2 6h10M2 9h7M2 12h4"/></svg></span>日志</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('alertNotif', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a4 4 0 0 1 8 0c0 2 1 3.5 1.5 4.5H2.5C3 10 4 8 4 6z"/><path d="M6 11v.5a2 2 0 0 0 4 0V11"/></svg></span><span class="label">告警</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="alertNotif">
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h10v8H2z"/><path d="M5 6h4M5 9h2"/></svg></span>告警规则</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="3"/><path d="M2 12c0-2.5 2.24-4 5-4s5 1.5 5 4"/></svg></span>通知对象</a>
+        <a class="sub-item" href="#"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M2 5h10"/><path d="M5 2v3"/><path d="M9 2v3"/></svg></span>告警记录</a>
+      </div>
+      <div class="menu-item" onclick="toggleSubMenu('userPerm', this)">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="8" height="6" rx="1.5"/><path d="M6 7V5a2 2 0 0 1 4 0v2"/><circle cx="8" cy="10" r="1"/></svg></span><span class="label">用户权限</span><span class="arrow">›</span>
+      </div>
+      <div class="sub-menu" id="userPerm">
+        <a class="sub-item" href="../user-perm/user-mgmt.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2 1.8-3.5 4-3.5"/><circle cx="10" cy="4" r="2"/><path d="M8 12c0-1.8 1-3 2-3s2 1.2 2 3"/></svg></span>用户管理</a>
+        <a class="sub-item" href="../user-perm/role-perm.html"><span class="sub-icon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1l1.5 3h3.5l-2.8 2 1 3.5L7 7.5 3.8 9.5l1-3.5L2 4h3.5z"/></svg></span>角色权限</a>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="bottom-section">
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.69-5 6-5s6 2 6 5"/></svg></span><span class="label">用户</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h8v8H4z"/><path d="M7 1v3M9 1v3M7 12v3M9 12v3M1 7h3M1 9h3M12 7h3M12 9h3"/></svg></span><span class="label">API 管理</span></a>
+      <a class="menu-item" href="#"><span class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><path d="M4 6v2l4 4M12 6v2l-4 4"/></svg></span><span class="label">MCP</span></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main" style="padding:0;overflow:hidden">
+    <div class="sql-layout">
+      <!-- Left: Database/Table Tree + Workbook -->
+      <div class="db-tree-panel" id="dbTreePanel">
+        <div class="left-panel-tabs">
+          <div class="left-panel-tab active" onclick="switchLeftTab('db',this)">数据库</div>
+          <div class="left-panel-tab" onclick="switchLeftTab('wb',this)">工作簿</div>
+          <button class="left-panel-collapse-btn" title="收起面板" onclick="toggleLeftPanel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+        </div>
+        <!-- DB Tab -->
+        <div class="left-tab-content active" id="leftTabDb">
+          <!-- 三种查询模式 -->
+          <div class="sql-mode-switch">
+            <button class="sql-mode-btn active" data-mode="moi" onclick="setSqlMode('moi')">MOI 表</button>
+            <button class="sql-mode-btn" data-mode="external" onclick="setSqlMode('external')">外部目录</button>
+            <button class="sql-mode-btn" data-mode="federated" onclick="setSqlMode('federated')">联邦查询</button>
+          </div>
+          <div id="sqlExtPicker" style="display:none;padding:8px 10px 0">
+            <div style="font-size:11px;color:rgba(0,0,0,0.4);margin-bottom:4px">选择一个外部目录（查询直发该库）</div>
+            <select id="sqlExtSelect" onchange="setSqlExtCatalog(this.value)" style="width:100%;height:30px;padding:2px 8px;border:1px solid #d9d9d9;border-radius:6px;font-size:12.5px;outline:none;background:#fff;cursor:pointer"></select>
+          </div>
+          <div id="sqlFedBanner" style="display:none;margin:8px 10px 0;padding:8px 10px;background:#e6fffb;border:1px solid #b5f5ec;border-radius:6px;font-size:11.5px;color:rgba(0,0,0,0.55);line-height:1.6">联邦查询：跨所有目录、统一 MySQL 语法（引擎自动下推 + 后计算）。<b style="color:#13c2c2">即将支持</b>，下方为目录预览。</div>
+          <div class="db-tree-search">
+            <input type="text" id="dbSearchInput" placeholder="搜索库或表……" oninput="filterDbTree()">
+            <span class="s-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          </div>
+          <div class="db-tree-body" id="dbTreeBody"></div>
+          <div class="table-info-panel" id="tableInfoPanel" style="display:none"></div>
+        </div>
+        <!-- Workbook Tab -->
+        <div class="left-tab-content" id="leftTabWb">
+          <div class="wb-search-row">
+            <div class="wb-search-wrap">
+              <input type="text" id="wbSearchInput" placeholder="搜索工作簿" oninput="renderWorkbooks()">
+              <span class="s-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+            </div>
+            <button class="wb-add-icon-btn" title="新建工作簿" onclick="addWorkbook()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="wb-list" id="wbList"></div>
+        </div>
+      </div>
+      <!-- Expand strip when left panel is collapsed -->
+      <div class="left-panel-expand-btn" id="leftPanelExpand" onclick="toggleLeftPanel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <!-- Right: SQL Editor -->
+      <div class="sql-editor-panel">
+        <!-- Toolbar -->
+        <div class="sql-toolbar">
+          <select id="dbSelector" onchange="onDbSelectorChange()"></select>
+          <span class="sql-syntax-badge" id="sqlSyntaxBadge">语法：<b>MySQL</b></span>
+          <div style="display:flex;align-items:center;gap:8px;margin-left:12px;flex:1;min-width:0;overflow:hidden">
+            <span style="font-size:12px;color:rgba(0,0,0,0.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="stmtHint"></span>
+          </div>
+          <div class="ver-selector" id="verSelector">
+            <button class="ver-trigger" onclick="toggleVersionDropdown(event)" title="历史版本">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span class="ver-cur" id="verCurLabel">初始</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="ver-dropdown" id="verDropdown" onclick="event.stopPropagation()">
+              <div class="ver-dropdown-title">历史版本（最近 25 个 · 正式/草稿）</div>
+              <div class="ver-list" id="verList"></div>
+            </div>
+          </div>
+          <div id="sqlQueryResWrap" style="display:flex;align-items:center;gap:5px;flex-shrink:0" title="SQL 计算资源——执行 MOI 表 / 联邦查询时在 MOI 引擎里运行 SQL，需 SQL 计算资源；外部目录直查下推源端、不占算力。未选用默认 SQL 资源。">
+            <span style="width:7px;height:7px;border-radius:50%;background:#52c41a;flex:none"></span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);white-space:nowrap">SQL 资源</span>
+            <select id="sqlQueryResource" style="height:28px;font-size:12px;border:1px solid #e5e6eb;border-radius:6px;padding:0 6px;min-width:0">
+              <option value="default" selected>默认 SQL 资源</option>
+              <option value="query-s">query-s（小档）</option>
+              <option value="query-m">query-m（中档）</option>
+              <option value="query-l">query-l（大档 · 常驻）</option>
+            </select>
+          </div>
+          <button id="sqlConnStrBtn" onclick="openSqlConnModal()" title="获取 MOI 表的标准数据库连接串（host / port / 认证），供 BI、SQL 客户端等外部工具直连查询；绑定 SQL 计算资源后生成对应连接串" style="display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border:1px solid #e5e6eb;border-radius:6px;background:#fff;font-size:12px;color:rgba(0,0,0,0.65);cursor:pointer;white-space:nowrap;flex-shrink:0">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            连接串
+          </button>
+          <button class="btn-run" onclick="executeSQL()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/></svg>
+            执行
+          </button>
+        </div>
+
+        <!-- Code Editor -->
+        <div class="code-area-wrap" id="codeAreaWrap">
+          <div class="line-numbers" id="lineNumbers"></div>
+          <div class="code-editor-container">
+            <div class="code-highlight-layer" id="highlightLayer"></div>
+            <textarea class="code-textarea" id="sqlTextarea" placeholder="在此输入 SQL 语句，使用 ; 分隔多条语句……" spellcheck="false"
+              oninput="onSqlInput()" onkeyup="onSqlCursorMove()" onclick="onSqlCursorMove()" onscroll="syncScroll()"></textarea>
+          </div>
+        </div>
+
+        <!-- Splitter -->
+        <div class="h-splitter" id="hSplitter"></div>
+
+        <!-- Result Area -->
+        <div class="result-area" id="resultArea" style="flex:1;min-height:160px">
+          <!-- Query History Tabs -->
+          <div class="query-history-bar" id="queryHistoryBar" style="display:none"></div>
+          <div class="result-tabs">
+            <div class="result-tab active" data-rtab="table" onclick="switchResultTab('table',this)">查询结果</div>
+            <div class="result-tab" data-rtab="chart" onclick="switchResultTab('chart',this)">图表</div>
+            <div class="result-status" id="resultStatus"></div>
+            <div class="result-toolbar-btns">
+              <button class="result-tool-btn" id="btnDownloadResult" title="下载结果 (CSV)" onclick="downloadResultCSV()" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+              <button class="result-tool-btn" id="btnMinResult" title="最小化" onclick="toggleResultMinMax('min')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/></svg>
+              </button>
+              <button class="result-tool-btn" id="btnMaxResult" title="最大化" onclick="toggleResultMinMax('max')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="result-body" id="resultBody">
+            <div class="result-empty">
+              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="8" y="12" width="48" height="40" rx="4"/><path d="M8 22h48"/><path d="M24 22v30"/><path d="M40 22v30"/><path d="M8 34h48"/><path d="M8 46h48"/></svg>
+              <span>点击"执行"运行 SQL 查看结果</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script src="../scripts/common.js"></script>
+  <script>
+    // ===== Mock table schema data (enriched beyond Catalog) =====
+    var TABLE_SCHEMAS = {
+      '用户行为表': {
+        rowCount: 15000,
+        columns: [
+          { name: 'user_id', type: 'INT(32)' },
+          { name: 'event_type', type: 'VARCHAR(50)' },
+          { name: 'event_time', type: 'TIMESTAMP' },
+          { name: 'page_url', type: 'VARCHAR(255)' },
+          { name: 'session_id', type: 'VARCHAR(64)' },
+          { name: 'device', type: 'VARCHAR(30)' },
+          { name: 'os', type: 'VARCHAR(30)' },
+          { name: 'browser', type: 'VARCHAR(30)' },
+          { name: 'ip_address', type: 'VARCHAR(45)' },
+          { name: 'country', type: 'VARCHAR(50)' },
+          { name: 'duration_ms', type: 'INT(32)' },
+          { name: 'is_converted', type: 'BOOLEAN' }
+        ]
+      },
+      'part': {
+        rowCount: 2000000,
+        columns: [
+          { name: 'p_partkey', type: 'INT(32)' },
+          { name: 'p_name', type: 'VARCHAR(65)' },
+          { name: 'p_mfgr', type: 'VARCHAR(30)' },
+          { name: 'p_brand', type: 'VARCHAR(12)' },
+          { name: 'p_type', type: 'VARCHAR(30)' },
+          { name: 'p_size', type: 'INT(32)' },
+          { name: 'p_container', type: 'VARCHAR(12)' },
+          { name: 'p_retailprice', type: 'DECIMAL(15,2)' },
+          { name: 'p_comment', type: 'VARCHAR(25)' }
+        ]
+      },
+      'orders': {
+        rowCount: 6000000,
+        columns: [
+          { name: 'o_orderkey', type: 'INT(64)' },
+          { name: 'o_custkey', type: 'INT(32)' },
+          { name: 'o_orderstatus', type: 'CHAR(1)' },
+          { name: 'o_totalprice', type: 'DECIMAL(15,2)' },
+          { name: 'o_orderdate', type: 'DATE' },
+          { name: 'o_orderpriority', type: 'VARCHAR(15)' },
+          { name: 'o_clerk', type: 'VARCHAR(15)' },
+          { name: 'o_shippriority', type: 'INT(32)' },
+          { name: 'o_comment', type: 'VARCHAR(80)' }
+        ]
+      },
+      'lineitem': {
+        rowCount: 24000000,
+        columns: [
+          { name: 'l_orderkey', type: 'INT(64)' },
+          { name: 'l_partkey', type: 'INT(32)' },
+          { name: 'l_suppkey', type: 'INT(32)' },
+          { name: 'l_linenumber', type: 'INT(32)' },
+          { name: 'l_quantity', type: 'DECIMAL(15,2)' },
+          { name: 'l_extendedprice', type: 'DECIMAL(15,2)' },
+          { name: 'l_discount', type: 'DECIMAL(15,2)' },
+          { name: 'l_tax', type: 'DECIMAL(15,2)' },
+          { name: 'l_shipdate', type: 'DATE' },
+          { name: 'l_commitdate', type: 'DATE' }
+        ]
+      },
+      'customer': {
+        rowCount: 450000,
+        columns: [
+          { name: 'c_custkey', type: 'INT(32)' },
+          { name: 'c_name', type: 'VARCHAR(30)' },
+          { name: 'c_address', type: 'VARCHAR(40)' },
+          { name: 'c_nationkey', type: 'INT(32)' },
+          { name: 'c_phone', type: 'VARCHAR(15)' },
+          { name: 'c_acctbal', type: 'DECIMAL(15,2)' },
+          { name: 'c_mktsegment', type: 'VARCHAR(10)' },
+          { name: 'c_comment', type: 'VARCHAR(120)' }
+        ]
+      }
+    };
+
+    // ===== Database tree data: extract from Catalog + add mock tables =====
+    var DB_TREE = [];
+    var expandedDbs = new Set();
+    var selectedTable = null;
+
+    function loadDbTree() {
+      DB_TREE = [];
+      // Read from Catalog localStorage
+      var catalogData = [];
+      try {
+        var raw = localStorage.getItem('moi_catalog_data');
+        if (raw) catalogData = JSON.parse(raw);
+      } catch(e) {}
+
+      // Extract all databases that contain tables
+      // 外部数据库目录(extcatalog)：其下的 db / schema 也要抽取，并标记 external + source（联邦查询）
+      var dbMap = {}; // key -> { tables, external, source, display }
+      function walk(nodes, extName) {
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          var curExt = (n.type === 'extcatalog') ? n.name : extName;
+          if ((n.type === 'db' || n.type === 'schema') && n.children) {
+            var tables = [];
+            for (var j = 0; j < n.children.length; j++) {
+              if (n.children[j].type === 'table') {
+                tables.push(n.children[j].name);
+              }
+            }
+            if (tables.length > 0) {
+              // 外部库用「源名 · 库/schema」做唯一键，避免与内部同名库冲突；display 只显示库/schema 名
+              var key = curExt ? (curExt + ' · ' + n.name) : n.name;
+              dbMap[key] = { tables: tables, external: !!curExt, source: curExt || null, display: n.name };
+            }
+          }
+          if (n.children) walk(n.children, curExt);
+        }
+      }
+      walk(catalogData, null);
+
+      // Add mock databases with rich table data for demo
+      if (!dbMap['处理数据库']) {
+        dbMap['处理数据库'] = { tables: ['用户行为表'] };
+      }
+      // Ensure TPC-H style tables exist
+      if (!dbMap['tpch_sf1']) {
+        dbMap['tpch_sf1'] = { tables: ['part', 'orders', 'lineitem', 'customer'] };
+      }
+
+      // Build flat DB_TREE（内部库在前、外部联邦库在后）
+      for (var dbName in dbMap) {
+        DB_TREE.push({ name: dbName, tables: dbMap[dbName].tables, external: !!dbMap[dbName].external, source: dbMap[dbName].source || null, display: dbMap[dbName].display || dbName });
+      }
+      // Sort：内部优先，其次按名
+      DB_TREE.sort(function(a, b) {
+        if (!!a.external !== !!b.external) return a.external ? 1 : -1;
+        return (a.display || a.name).localeCompare(b.display || b.name);
+      });
+    }
+
+    // ===== 三种查询模式 =====
+    var sqlMode = 'moi';        // moi | external | federated
+    var sqlExtCatalog = null;   // external 模式下选中的某个外部目录（source 名）
+    function sqlExternalCatalogs() {
+      var seen = {}, list = [];
+      DB_TREE.forEach(function(d){ if (d.external && d.source && !seen[d.source]) { seen[d.source] = 1; list.push(d.source); } });
+      return list;
+    }
+    function sqlExtDialect(source) {
+      var s = source || '';
+      if (/PostgreSQL|Greenplum/i.test(s)) return 'PostgreSQL';
+      if (/Oracle/i.test(s)) return 'Oracle';
+      if (/SQL\s*Server/i.test(s)) return 'SQL Server';
+      if (/ClickHouse/i.test(s)) return 'ClickHouse';
+      if (/Doris/i.test(s)) return 'Doris';
+      if (/Hive/i.test(s)) return 'Hive';
+      if (/MongoDB/i.test(s)) return 'MongoDB';
+      if (/MatrixOne/i.test(s)) return 'MySQL';
+      if (/MySQL/i.test(s)) return 'MySQL';
+      return 'SQL';
+    }
+    // 模式过滤：某个 DB_TREE 条目在当前模式下是否显示
+    function sqlDbVisible(db) {
+      if (sqlMode === 'moi') return !db.external;
+      if (sqlMode === 'external') return db.external && db.source === sqlExtCatalog;
+      return true; // federated：全部
+    }
+    function setSqlMode(mode) {
+      sqlMode = mode;
+      if (mode === 'external' && !sqlExtCatalog) { var cats = sqlExternalCatalogs(); sqlExtCatalog = cats.length ? cats[0] : null; }
+      expandedDbs.clear();
+      renderSqlModeUI(); renderDbTree(); renderDbSelector(); updateSqlSyntaxBadge();
+    }
+    function setSqlExtCatalog(source) {
+      sqlExtCatalog = source; expandedDbs.clear();
+      var es = document.getElementById('sqlExtSelect'); if (es && es.value !== source) es.value = source;
+      renderDbTree(); renderDbSelector(); updateSqlSyntaxBadge();
+    }
+    function renderSqlModeUI() {
+      document.querySelectorAll('.sql-mode-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-mode') === sqlMode); });
+      var picker = document.getElementById('sqlExtPicker');
+      if (sqlMode === 'external') {
+        var cats = sqlExternalCatalogs();
+        document.getElementById('sqlExtSelect').innerHTML = cats.length
+          ? cats.map(function(c){ return '<option value="' + c.replace(/"/g,'&quot;') + '"' + (c === sqlExtCatalog ? ' selected' : '') + '>' + c + '（' + sqlExtDialect(c) + '）</option>'; }).join('')
+          : '<option value="">（无外部目录，请先在 Catalog 接入）</option>';
+        picker.style.display = '';
+      } else { picker.style.display = 'none'; }
+      var fed = document.getElementById('sqlFedBanner');
+      if (fed) fed.style.display = sqlMode === 'federated' ? '' : 'none';
+      // SQL 计算资源选择器：MOI 表 / 联邦查询在 MOI 引擎运行 SQL → 显示；外部目录直查下推源端 → 隐藏
+      var qr = document.getElementById('sqlQueryResWrap');
+      if (qr) qr.style.display = (sqlMode === 'external') ? 'none' : 'flex';
+      // SQL 连接串：仅 MOI 表模式——连接串连的是 MOI 引擎里的表，外部目录数据留源库、联邦查询未开放
+      var connBtn = document.getElementById('sqlConnStrBtn');
+      if (connBtn) connBtn.style.display = (sqlMode === 'moi') ? 'inline-flex' : 'none';
+    }
+    function updateSqlSyntaxBadge() {
+      var b = document.getElementById('sqlSyntaxBadge'); if (!b) return;
+      if (sqlMode === 'moi') b.innerHTML = '语法：<b>MySQL</b>';
+      else if (sqlMode === 'external') b.innerHTML = '语法：<b style="color:#13c2c2">' + sqlExtDialect(sqlExtCatalog) + '</b> · 直发该外部库';
+      else b.innerHTML = '语法：<b>MySQL</b> · 跨目录联邦（即将支持）';
+    }
+
+    function renderDbTree() {
+      var search = (document.getElementById('dbSearchInput').value || '').trim().toLowerCase();
+      var container = document.getElementById('dbTreeBody');
+      var html = '';
+      var dbIcon = '<span class="n-icon" style="color:#52c41a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></span>';
+      var tableIcon = '<span class="n-icon" style="color:#722ed1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 3v18"/></svg></span>';
+      // 外部联邦库图标：数据库柱体 + 外链角标（青色，与 Catalog 的 extcatalog 一致）
+      var extDbIcon = '<span class="n-icon" style="color:#13c2c2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="9" cy="5.5" rx="6" ry="2.5"/><path d="M3 5.5v6c0 1.3 2.7 2.4 6 2.5"/><path d="M3 11.5v6c0 1.4 3 2.5 6.5 2.4"/><path d="M15 9l6-6M21 3v4.5M21 3h-4.5"/></svg></span>';
+
+      for (var i = 0; i < DB_TREE.length; i++) {
+        var db = DB_TREE[i];
+        if (!sqlDbVisible(db)) continue;
+        var isOpen = expandedDbs.has(db.name);
+        var dispName = db.display || db.name;
+        // Filter（外部库可按 库名 / 源名 搜）
+        var matchTables = db.tables.filter(function(t) {
+          return !search || t.toLowerCase().indexOf(search) !== -1;
+        });
+        var dbMatch = !search || dispName.toLowerCase().indexOf(search) !== -1 || (db.source || '').toLowerCase().indexOf(search) !== -1;
+        if (!dbMatch && matchTables.length === 0) continue;
+        var showTables = dbMatch ? db.tables : matchTables;
+        if (search) isOpen = true;
+
+        var dbKey = db.name.replace(/'/g, "\\'");
+        html += '<div class="db-node" onclick="toggleDb(\'' + dbKey + '\')"' + (db.external ? ' title="外部源：' + (db.source || '') + ' · 联邦查询，SQL 下推、数据留源"' : '') + '>'
+          + '<span class="n-arrow' + (isOpen ? ' open' : '') + '">›</span>'
+          + (db.external ? extDbIcon : dbIcon)
+          + '<span class="n-label">' + dispName + '</span>'
+          + (db.external ? '<span style="margin-left:6px;padding:0 6px;font-size:10px;line-height:16px;color:#13c2c2;background:#e6fffb;border:1px solid #b5f5ec;border-radius:8px;flex-shrink:0">联邦</span>' : '')
+          + '<span class="n-badge">' + db.tables.length + '</span>'
+          + '</div>';
+        html += '<div class="db-children' + (isOpen ? ' open' : '') + '" id="dbChildren_' + i + '">';
+        for (var j = 0; j < showTables.length; j++) {
+          var tName = showTables[j];
+          var sel = selectedTable === tName ? ' selected' : '';
+          html += '<div class="db-node' + sel + '" onclick="event.stopPropagation();selectTable(\'' + tName + '\',\'' + db.name + '\')">'
+            + '<span class="n-arrow" style="visibility:hidden">›</span>'
+            + tableIcon
+            + '<span class="n-label">' + tName + '</span>'
+            + '</div>';
+        }
+        html += '</div>';
+      }
+      if (!html) {
+        html = '<div style="text-align:center;padding:40px 12px;color:rgba(0,0,0,0.25);font-size:13px">暂无包含表的数据库</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function toggleDb(name) {
+      if (expandedDbs.has(name)) expandedDbs.delete(name);
+      else expandedDbs.add(name);
+      renderDbTree();
+    }
+
+    function selectTable(tableName, dbName) {
+      selectedTable = tableName;
+      renderDbTree();
+      showTableInfo(tableName);
+      // Also set db selector
+      var sel = document.getElementById('dbSelector');
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === dbName) { sel.selectedIndex = i; break; }
+      }
+    }
+
+    function showTableInfo(tableName) {
+      var panel = document.getElementById('tableInfoPanel');
+      var schema = TABLE_SCHEMAS[tableName];
+      if (!schema) {
+        // Generate mock schema for unknown tables
+        schema = { rowCount: Math.floor(Math.random() * 100000) + 100, columns: [
+          { name: 'id', type: 'INT(32)' }, { name: 'name', type: 'VARCHAR(100)' },
+          { name: 'created_at', type: 'TIMESTAMP' }
+        ]};
+      }
+      var rowStr = schema.rowCount >= 1000000
+        ? (schema.rowCount / 1000000).toFixed(0) + ',000,000'
+        : schema.rowCount.toLocaleString();
+      // 外部联邦表提示（含三段式引用名，呼应"统一方言、引擎下推"）
+      var dbEntry = null;
+      for (var di = 0; di < DB_TREE.length; di++) { if (DB_TREE[di].tables.indexOf(tableName) >= 0) { dbEntry = DB_TREE[di]; break; } }
+      var fedBanner = '';
+      if (dbEntry && dbEntry.external) {
+        fedBanner = '<div style="margin:0 0 10px;padding:8px 10px;background:#e6fffb;border:1px solid #b5f5ec;border-radius:6px;font-size:11.5px;color:rgba(0,0,0,0.62);line-height:1.65">'
+          + '<span style="color:#13c2c2;font-weight:600">外部联邦表</span> · 源：' + (dbEntry.source || '') + '<br>'
+          + '引用 <code style="color:#13c2c2;background:#fff;padding:1px 4px;border-radius:3px">' + (dbEntry.display || '') + '.' + tableName + '</code>，统一方言查询，引擎下推到源库，<b>数据不落地</b>'
+          + '</div>';
+      }
+      var html = '<div class="table-info-header">'
+        + '<span>' + tableName + '</span>'
+        + '<span class="row-count">' + rowStr + ' 行</span>'
+        + '</div>'
+        + fedBanner;
+      for (var i = 0; i < schema.columns.length; i++) {
+        var c = schema.columns[i];
+        html += '<div class="col-row">'
+          + '<span class="col-name">' + c.name + '</span>'
+          + '<span class="col-type">' + c.type + '</span>'
+          + '</div>';
+      }
+      panel.innerHTML = html;
+      panel.style.display = 'block';
+    }
+
+    function filterDbTree() { renderDbTree(); }
+
+    // ===== DB Selector dropdown =====
+    function renderDbSelector() {
+      var sel = document.getElementById('dbSelector');
+      sel.innerHTML = '';
+      for (var i = 0; i < DB_TREE.length; i++) {
+        if (!sqlDbVisible(DB_TREE[i])) continue;
+        var opt = document.createElement('option');
+        opt.value = DB_TREE[i].name;
+        opt.textContent = DB_TREE[i].display || DB_TREE[i].name;
+        sel.appendChild(opt);
+      }
+      if (!sel.options.length) { var o = document.createElement('option'); o.textContent = '（无可用库）'; sel.appendChild(o); }
+    }
+    function onDbSelectorChange() {}
+
+    // ===== SQL Editor: line numbers, highlighting, cursor tracking =====
+    var currentStmtRange = null; // { start, end } char indices
+
+    function onSqlInput() {
+      updateLineNumbers();
+      updateHighlight();
+      onSqlCursorMove();
+      wbOnEdit();
+    }
+
+    function updateLineNumbers() {
+      var ta = document.getElementById('sqlTextarea');
+      var lines = ta.value.split('\n');
+      var nums = document.getElementById('lineNumbers');
+      var html = '';
+      for (var i = 0; i < lines.length; i++) {
+        html += '<div>' + (i + 1) + '</div>';
+      }
+      nums.innerHTML = html;
+    }
+
+    function onSqlCursorMove() {
+      var ta = document.getElementById('sqlTextarea');
+      var pos = ta.selectionStart;
+      var text = ta.value;
+
+      // Find which statement the cursor is in (delimited by ";")
+      var stmts = parseStatements(text);
+      currentStmtRange = null;
+      for (var i = 0; i < stmts.length; i++) {
+        if (pos >= stmts[i].start && pos <= stmts[i].end) {
+          currentStmtRange = stmts[i];
+          break;
+        }
+      }
+      // If cursor is after last ";", pick last statement
+      if (!currentStmtRange && stmts.length > 0) {
+        currentStmtRange = stmts[stmts.length - 1];
+      }
+
+      updateHighlight();
+      // Update hint
+      var hint = document.getElementById('stmtHint');
+      if (currentStmtRange) {
+        var stmtText = text.substring(currentStmtRange.start, currentStmtRange.end).trim();
+        if (stmtText) {
+          hint.textContent = '当前语句： ' + (stmtText.length > 40 ? stmtText.substring(0, 40) + '...' : stmtText);
+        } else {
+          hint.textContent = '';
+        }
+      } else {
+        hint.textContent = '';
+      }
+    }
+
+    function parseStatements(text) {
+      var stmts = [];
+      var start = 0;
+      for (var i = 0; i <= text.length; i++) {
+        if (i === text.length || text[i] === ';') {
+          var chunk = text.substring(start, i).trim();
+          if (chunk) {
+            stmts.push({ start: start, end: i, text: chunk });
+          }
+          start = i + 1;
+        }
+      }
+      return stmts;
+    }
+
+    function updateHighlight() {
+      var ta = document.getElementById('sqlTextarea');
+      var text = ta.value;
+      var layer = document.getElementById('highlightLayer');
+
+      if (!currentStmtRange) {
+        layer.innerHTML = syntaxHighlight(escHtml(text));
+        return;
+      }
+
+      var before = text.substring(0, currentStmtRange.start);
+      var active = text.substring(currentStmtRange.start, currentStmtRange.end);
+      var after = text.substring(currentStmtRange.end);
+
+      // Include the trailing ";" in highlight if present
+      if (after.charAt(0) === ';') {
+        active += ';';
+        after = after.substring(1);
+      }
+
+      layer.innerHTML = syntaxHighlight(escHtml(before))
+        + '<span class="hl-active">' + syntaxHighlight(escHtml(active)) + '</span>'
+        + syntaxHighlight(escHtml(after));
+    }
+
+    function syntaxHighlight(escapedSql) {
+      var keywords = ['SELECT','FROM','WHERE','ORDER','BY','LIMIT','INSERT','UPDATE','DELETE',
+        'CREATE','DROP','ALTER','TABLE','INTO','VALUES','SET','JOIN','LEFT','RIGHT','INNER',
+        'OUTER','ON','AND','OR','NOT','IN','LIKE','AS','GROUP','HAVING','DISTINCT','COUNT',
+        'SUM','AVG','MIN','MAX','BETWEEN','EXISTS','UNION','ALL','IS','NULL','TRUE','FALSE',
+        'CASE','WHEN','THEN','ELSE','END','ASC','DESC','WITH','OVER','PARTITION','ROW_NUMBER',
+        'RANK','DENSE_RANK','OFFSET','FETCH','NEXT','ROWS','ONLY'];
+      var result = escapedSql;
+      for (var i = 0; i < keywords.length; i++) {
+        var re = new RegExp('\\b(' + keywords[i] + ')\\b', 'gi');
+        result = result.replace(re, '<span class="hl-keyword">$1</span>');
+      }
+      return result;
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function syncScroll() {
+      var ta = document.getElementById('sqlTextarea');
+      var layer = document.getElementById('highlightLayer');
+      var nums = document.getElementById('lineNumbers');
+      layer.scrollTop = ta.scrollTop;
+      layer.scrollLeft = ta.scrollLeft;
+      nums.scrollTop = ta.scrollTop;
+    }
+
+    // ===== Execute SQL =====
+    var queryHistory = []; // { id, sql, result, status, time }
+    var activeQueryId = null;
+    var activeResultTab = 'table'; // 'table' | 'chart'
+
+    // Chart config state
+    var chartConfig = { type: 'bar', xCol: '', ySeries: [{ col: '', agg: 'SUM' }] };
+
+    function executeSQL() {
+      var ta = document.getElementById('sqlTextarea');
+      var text = ta.value;
+      if (!currentStmtRange) {
+        alert('请先在编辑器中输入 SQL 语句');
+        return;
+      }
+      var sql = text.substring(currentStmtRange.start, currentStmtRange.end).trim();
+      if (!sql) { alert('当前语句为空'); return; }
+
+      // 执行触发：当前草稿转正式 / 或生成新正式版本（时间戳命名）
+      wbOnRun();
+
+      // Mock execution result
+      var result = generateMockResult(sql);
+      var qEntry = {
+        id: 'q_' + Date.now(),
+        sql: sql,
+        result: result,
+        status: 'success',
+        time: new Date().toLocaleTimeString()
+      };
+      queryHistory.push(qEntry);
+      activeQueryId = qEntry.id;
+      lastResult = result;
+
+      renderQueryTabs();
+      showQueryResult(qEntry);
+      // Show download button
+      document.getElementById('btnDownloadResult').style.display = '';
+      // Restore from minimized if needed
+      var ra = document.getElementById('resultArea');
+      if (ra.classList.contains('minimized')) {
+        toggleResultMinMax('min');
+      }
+    }
+
+    function renderQueryTabs() {
+      var bar = document.getElementById('queryHistoryBar');
+      if (queryHistory.length === 0) {
+        bar.style.display = 'none';
+        return;
+      }
+      bar.style.display = 'flex';
+      var html = '';
+      for (var i = 0; i < queryHistory.length; i++) {
+        var q = queryHistory[i];
+        var isActive = q.id === activeQueryId;
+        var dotClass = q.status === 'success' ? 'success' : 'error';
+        var sqlSnippet = q.sql.replace(/\s+/g, ' ');
+        if (sqlSnippet.length > 30) sqlSnippet = sqlSnippet.substring(0, 30) + '...';
+        html += '<div class="query-tab' + (isActive ? ' active' : '') + '" onclick="switchQueryTab(\'' + q.id + '\')">'
+          + '<span class="qt-dot ' + dotClass + '"></span>'
+          + '<span class="qt-sql" title="' + escHtml(q.sql) + '">' + escHtml(sqlSnippet) + '</span>'
+          + '<button class="qt-close" onclick="event.stopPropagation();closeQueryTab(\'' + q.id + '\')" title="关闭">✕</button>'
+          + '</div>';
+      }
+      bar.innerHTML = html;
+      // Scroll to active tab
+      var activeEl = bar.querySelector('.query-tab.active');
+      if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+
+    function switchQueryTab(id) {
+      activeQueryId = id;
+      var q = queryHistory.find(function(h) { return h.id === id; });
+      if (q) {
+        lastResult = q.result;
+        showQueryResult(q);
+      }
+      renderQueryTabs();
+    }
+
+    function closeQueryTab(id) {
+      var idx = queryHistory.findIndex(function(h) { return h.id === id; });
+      if (idx === -1) return;
+      queryHistory.splice(idx, 1);
+      if (activeQueryId === id) {
+        if (queryHistory.length > 0) {
+          var newIdx = Math.min(idx, queryHistory.length - 1);
+          activeQueryId = queryHistory[newIdx].id;
+          lastResult = queryHistory[newIdx].result;
+          showQueryResult(queryHistory[newIdx]);
+        } else {
+          activeQueryId = null;
+          lastResult = null;
+          document.getElementById('resultStatus').innerHTML = '';
+          document.getElementById('resultBody').innerHTML = '<div class="result-empty"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="8" y="12" width="48" height="40" rx="4"/><path d="M8 22h48"/><path d="M24 22v30"/><path d="M40 22v30"/><path d="M8 34h48"/><path d="M8 46h48"/></svg><span>点击"执行"运行 SQL 查看结果</span></div>';
+          document.getElementById('btnDownloadResult').style.display = 'none';
+        }
+      }
+      renderQueryTabs();
+    }
+
+    function showQueryResult(q) {
+      var result = q.result;
+      var status = document.getElementById('resultStatus');
+      status.innerHTML = '<span class="success">✓ 执行成功</span>'
+        + '<span>返回 ' + result.rowCount + ' 行</span>'
+        + '<span>耗时 ' + result.time + '</span>';
+
+      // Reset chart config for new data
+      if (result.columns.length > 0) {
+        chartConfig.xCol = result.columns[0];
+        chartConfig.ySeries = [{ col: result.columns.length > 1 ? result.columns[1] : result.columns[0], agg: 'SUM' }];
+      }
+
+      if (activeResultTab === 'table') {
+        renderResultTable(result);
+      } else {
+        renderChartView(result);
+      }
+    }
+
+    function generateMockResult(sql) {
+      var upper = sql.toUpperCase();
+      // Detect table name from SQL
+      if (upper.indexOf('用户行为表') !== -1 || upper.indexOf('USER') !== -1) {
+        return {
+          columns: ['user_id', 'event_type', 'event_time', 'page_url', 'device', 'duration_ms'],
+          rows: [
+            [1001, 'page_view', '2026-03-14 10:23:15', '/dashboard', 'Desktop', 342],
+            [1002, 'click', '2026-03-14 10:23:18', '/products/123', 'Mobile', 128],
+            [1003, 'page_view', '2026-03-14 10:24:01', '/settings', 'Desktop', 567],
+            [1001, 'purchase', '2026-03-14 10:25:33', '/checkout', 'Desktop', 1203],
+            [1004, 'page_view', '2026-03-14 10:26:10', '/home', 'Tablet', 89],
+            [1002, 'click', '2026-03-14 10:27:45', '/products/456', 'Mobile', 201],
+            [1005, 'signup', '2026-03-14 10:28:00', '/register', 'Desktop', 4521],
+            [1003, 'page_view', '2026-03-14 10:29:12', '/reports', 'Desktop', 678]
+          ],
+          time: '0.23s',
+          rowCount: 8
+        };
+      }
+      if (upper.indexOf('PART') !== -1) {
+        return {
+          columns: ['p_partkey', 'p_name', 'p_type', 'p_brand', 'p_size', 'p_retailprice'],
+          rows: [
+            [1, 'goldenrod lavender spring chocolate lace', 'PROMO BURNISHED BRASS', 'Brand#13', 7, 901.00],
+            [2, 'blush thistle blue yellow saddle', 'LARGE BRUSHED BRASS', 'Brand#13', 1, 902.00],
+            [15, 'dim lace moccasin green powder', 'SMALL PLATED BRASS', 'Brand#44', 45, 915.00],
+            [22, 'aquamarine rose maroon antique', 'MEDIUM ANODIZED BRASS', 'Brand#32', 19, 922.00],
+            [31, 'almond aquamarine pink moccasin thistle', 'ECONOMY BURNISHED BRASS', 'Brand#54', 6, 931.00]
+          ],
+          time: '1.87s',
+          rowCount: 5
+        };
+      }
+      if (upper.indexOf('ORDER') !== -1) {
+        return {
+          columns: ['o_orderkey', 'o_custkey', 'o_orderstatus', 'o_totalprice', 'o_orderdate'],
+          rows: [
+            [1, 370, 'O', 172799.49, '1996-01-02'],
+            [2, 781, 'O', 38426.09, '1996-12-01'],
+            [3, 1234, 'F', 205654.30, '1993-10-14'],
+            [4, 1369, 'O', 56000.91, '1995-10-11'],
+            [5, 445, 'F', 105367.67, '1994-07-30']
+          ],
+          time: '3.12s',
+          rowCount: 5
+        };
+      }
+      // Default
+      return {
+        columns: ['col1', 'col2', 'col3'],
+        rows: [
+          ['value1', 'value2', 'value3'],
+          ['value4', 'value5', 'value6'],
+          ['value7', 'value8', 'value9']
+        ],
+        time: '0.05s',
+        rowCount: 3
+      };
+    }
+
+    var lastResult = null;
+
+    // ===== Render result as table =====
+    function renderResultTable(result) {
+      var body = document.getElementById('resultBody');
+      var html = '<table class="result-table"><thead><tr>';
+      for (var i = 0; i < result.columns.length; i++) {
+        html += '<th>' + escHtml(String(result.columns[i])) + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+      for (var r = 0; r < result.rows.length; r++) {
+        html += '<tr>';
+        for (var c = 0; c < result.rows[r].length; c++) {
+          html += '<td>' + escHtml(String(result.rows[r][c])) + '</td>';
+        }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      body.innerHTML = html;
+    }
+
+    // ===== Chart rendering =====
+    var CHART_COLORS = ['#1677ff','#52c41a','#faad14','#ff4d4f','#722ed1','#13c2c2','#eb2f96','#fa8c16'];
+    var AGG_FUNCS = {
+      'SUM': function(vals) { return vals.reduce(function(a,b){return a+b;},0); },
+      'AVG': function(vals) { return vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : 0; },
+      'COUNT': function(vals) { return vals.length; },
+      'MAX': function(vals) { return Math.max.apply(null, vals); },
+      'MIN': function(vals) { return Math.min.apply(null, vals); }
+    };
+
+    function getNumericColumns(result) {
+      if (!result || !result.rows || result.rows.length === 0) return [];
+      var cols = [];
+      for (var c = 0; c < result.columns.length; c++) {
+        var isNum = true;
+        for (var r = 0; r < Math.min(result.rows.length, 5); r++) {
+          var v = result.rows[r][c];
+          if (v !== null && v !== '' && isNaN(Number(v))) { isNum = false; break; }
+        }
+        if (isNum) cols.push(result.columns[c]);
+      }
+      return cols;
+    }
+
+    function aggregateData(result) {
+      var xIdx = result.columns.indexOf(chartConfig.xCol);
+      if (xIdx === -1) xIdx = 0;
+      // Group by x
+      var groups = {};
+      var xLabels = [];
+      for (var r = 0; r < result.rows.length; r++) {
+        var xVal = String(result.rows[r][xIdx]);
+        if (!groups[xVal]) { groups[xVal] = {}; xLabels.push(xVal); }
+        for (var s = 0; s < chartConfig.ySeries.length; s++) {
+          var yCol = chartConfig.ySeries[s].col;
+          var yIdx = result.columns.indexOf(yCol);
+          if (yIdx === -1) continue;
+          if (!groups[xVal][s]) groups[xVal][s] = [];
+          var v = Number(result.rows[r][yIdx]);
+          if (!isNaN(v)) groups[xVal][s].push(v);
+        }
+      }
+      // Apply aggregation
+      var series = [];
+      for (var s = 0; s < chartConfig.ySeries.length; s++) {
+        var data = [];
+        var aggFn = AGG_FUNCS[chartConfig.ySeries[s].agg] || AGG_FUNCS['SUM'];
+        for (var i = 0; i < xLabels.length; i++) {
+          var vals = (groups[xLabels[i]] && groups[xLabels[i]][s]) || [];
+          data.push(aggFn(vals));
+        }
+        series.push({ label: chartConfig.ySeries[s].col + ' (' + chartConfig.ySeries[s].agg + ')', data: data });
+      }
+      return { xLabels: xLabels, series: series };
+    }
+
+    function renderChartSVG(result) {
+      var agg = aggregateData(result);
+      var xLabels = agg.xLabels;
+      var series = agg.series;
+      if (xLabels.length === 0 || series.length === 0) {
+        return '<div class="chart-empty"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="8" y="32" width="10" height="20" rx="2"/><rect x="22" y="20" width="10" height="32" rx="2"/><rect x="36" y="26" width="10" height="26" rx="2"/><rect x="50" y="14" width="10" height="38" rx="2"/></svg><span>无可用数据生成图表</span></div>';
+      }
+      var allVals = [];
+      for (var s = 0; s < series.length; s++) allVals = allVals.concat(series[s].data);
+      var maxVal = Math.max.apply(null, allVals);
+      var minVal = Math.min.apply(null, allVals.concat([0]));
+      if (maxVal === minVal) maxVal = minVal + 1;
+
+      var W = 560, H = 320, padL = 60, padR = 20, padT = 20, padB = 60;
+      var cW = W - padL - padR, cH = H - padT - padB;
+
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:' + W + 'px;height:auto">';
+      // Grid lines
+      var gridCount = 5;
+      for (var g = 0; g <= gridCount; g++) {
+        var gy = padT + cH - (g / gridCount) * cH;
+        var gVal = minVal + (g / gridCount) * (maxVal - minVal);
+        svg += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="#f0f0f0" stroke-width="1"/>';
+        svg += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="rgba(0,0,0,0.45)">' + formatChartVal(gVal) + '</text>';
+      }
+      // Axes
+      svg += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (H - padB) + '" stroke="#d9d9d9" stroke-width="1"/>';
+      svg += '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="#d9d9d9" stroke-width="1"/>';
+
+      var type = chartConfig.type;
+      if (type === 'bar') {
+        var groupW = cW / xLabels.length;
+        var barW = Math.max(4, Math.min(40, (groupW - 8) / series.length));
+        for (var i = 0; i < xLabels.length; i++) {
+          var gx = padL + i * groupW + groupW / 2;
+          // X label
+          svg += '<text x="' + gx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="11" fill="rgba(0,0,0,0.65)">' + truncLabel(xLabels[i], 10) + '</text>';
+          for (var s = 0; s < series.length; s++) {
+            var val = series[s].data[i];
+            var barH = ((val - minVal) / (maxVal - minVal)) * cH;
+            var bx = gx - (series.length * barW) / 2 + s * barW;
+            var by = padT + cH - barH;
+            svg += '<rect x="' + bx + '" y="' + by + '" width="' + barW + '" height="' + barH + '" fill="' + CHART_COLORS[s % CHART_COLORS.length] + '" rx="2" opacity="0.85"><title>' + escHtml(series[s].label) + ': ' + formatChartVal(val) + '</title></rect>';
+          }
+        }
+      } else if (type === 'line') {
+        for (var s = 0; s < series.length; s++) {
+          var points = [];
+          for (var i = 0; i < xLabels.length; i++) {
+            var px = padL + (i / (xLabels.length - 1 || 1)) * cW;
+            var py = padT + cH - ((series[s].data[i] - minVal) / (maxVal - minVal)) * cH;
+            points.push(px + ',' + py);
+          }
+          svg += '<polyline points="' + points.join(' ') + '" fill="none" stroke="' + CHART_COLORS[s % CHART_COLORS.length] + '" stroke-width="2"/>';
+          for (var i = 0; i < points.length; i++) {
+            var pp = points[i].split(',');
+            svg += '<circle cx="' + pp[0] + '" cy="' + pp[1] + '" r="3.5" fill="#fff" stroke="' + CHART_COLORS[s % CHART_COLORS.length] + '" stroke-width="2"><title>' + escHtml(series[s].label) + ': ' + formatChartVal(series[s].data[i]) + '</title></circle>';
+          }
+        }
+        for (var i = 0; i < xLabels.length; i++) {
+          var lx = padL + (i / (xLabels.length - 1 || 1)) * cW;
+          svg += '<text x="' + lx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="11" fill="rgba(0,0,0,0.65)">' + truncLabel(xLabels[i], 10) + '</text>';
+        }
+      } else if (type === 'scatter') {
+        for (var s = 0; s < series.length; s++) {
+          for (var i = 0; i < xLabels.length; i++) {
+            var px = padL + (i / (xLabels.length - 1 || 1)) * cW;
+            var py = padT + cH - ((series[s].data[i] - minVal) / (maxVal - minVal)) * cH;
+            svg += '<circle cx="' + px + '" cy="' + py + '" r="5" fill="' + CHART_COLORS[s % CHART_COLORS.length] + '" opacity="0.7"><title>' + escHtml(xLabels[i]) + ' → ' + escHtml(series[s].label) + ': ' + formatChartVal(series[s].data[i]) + '</title></circle>';
+          }
+        }
+        for (var i = 0; i < xLabels.length; i++) {
+          var lx = padL + (i / (xLabels.length - 1 || 1)) * cW;
+          svg += '<text x="' + lx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="11" fill="rgba(0,0,0,0.65)">' + truncLabel(xLabels[i], 10) + '</text>';
+        }
+      } else if (type === 'area') {
+        for (var s = 0; s < series.length; s++) {
+          var pts = [];
+          for (var i = 0; i < xLabels.length; i++) {
+            var px = padL + (i / (xLabels.length - 1 || 1)) * cW;
+            var py = padT + cH - ((series[s].data[i] - minVal) / (maxVal - minVal)) * cH;
+            pts.push({ x: px, y: py });
+          }
+          var areaPath = 'M' + pts[0].x + ',' + pts[0].y;
+          for (var i = 1; i < pts.length; i++) areaPath += 'L' + pts[i].x + ',' + pts[i].y;
+          areaPath += 'L' + pts[pts.length - 1].x + ',' + (padT + cH) + 'L' + pts[0].x + ',' + (padT + cH) + 'Z';
+          svg += '<path d="' + areaPath + '" fill="' + CHART_COLORS[s % CHART_COLORS.length] + '" opacity="0.15"/>';
+          var linePts = pts.map(function(p) { return p.x + ',' + p.y; }).join(' ');
+          svg += '<polyline points="' + linePts + '" fill="none" stroke="' + CHART_COLORS[s % CHART_COLORS.length] + '" stroke-width="2"/>';
+        }
+        for (var i = 0; i < xLabels.length; i++) {
+          var lx = padL + (i / (xLabels.length - 1 || 1)) * cW;
+          svg += '<text x="' + lx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="11" fill="rgba(0,0,0,0.65)">' + truncLabel(xLabels[i], 10) + '</text>';
+        }
+      }
+      // Legend
+      if (series.length > 1) {
+        for (var s = 0; s < series.length; s++) {
+          var lx = padL + s * 140;
+          svg += '<rect x="' + lx + '" y="' + (H - 14) + '" width="10" height="10" rx="2" fill="' + CHART_COLORS[s % CHART_COLORS.length] + '"/>';
+          svg += '<text x="' + (lx + 14) + '" y="' + (H - 5) + '" font-size="11" fill="rgba(0,0,0,0.65)">' + escHtml(series[s].label) + '</text>';
+        }
+      }
+      svg += '</svg>';
+      return svg;
+    }
+
+    function formatChartVal(v) {
+      if (Math.abs(v) >= 1000000) return (v / 1000000).toFixed(1) + 'M';
+      if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + 'K';
+      return Number(v.toFixed(2)).toString();
+    }
+    function truncLabel(s, max) { return s.length > max ? s.substring(0, max) + '..' : s; }
+
+    function renderChartConfigPanel(result) {
+      var numCols = getNumericColumns(result);
+      var allCols = result.columns;
+      var html = '';
+      // Chart type
+      html += '<div class="cc-section"><div class="cc-label">图表类型</div><div class="cc-type-grid">';
+      var types = [
+        { id:'bar', label:'柱状图', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="17" y="9" width="4" height="11" rx="1"/></svg>' },
+        { id:'line', label:'折线图', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 17 9 11 13 15 21 7"/><circle cx="9" cy="11" r="1.5" fill="currentColor"/><circle cx="13" cy="15" r="1.5" fill="currentColor"/><circle cx="21" cy="7" r="1.5" fill="currentColor"/></svg>' },
+        { id:'scatter', label:'散点图', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="14" r="2" fill="currentColor"/><circle cx="12" cy="8" r="2" fill="currentColor"/><circle cx="17" cy="12" r="2" fill="currentColor"/><circle cx="9" cy="18" r="1.5" fill="currentColor"/><circle cx="19" cy="6" r="1.5" fill="currentColor"/></svg>' },
+        { id:'area', label:'面积图', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 18L9 12L13 15L21 8V18H3Z" fill="currentColor" opacity="0.15"/><polyline points="3 18 9 12 13 15 21 8"/></svg>' }
+      ];
+      for (var t = 0; t < types.length; t++) {
+        html += '<div class="cc-type-btn' + (chartConfig.type === types[t].id ? ' active' : '') + '" onclick="setChartType(\'' + types[t].id + '\')">' + types[t].icon + '<span>' + types[t].label + '</span></div>';
+      }
+      html += '</div></div>';
+      // X axis
+      html += '<div class="cc-section"><div class="cc-label">X 轴</div><select class="cc-select" onchange="setChartX(this.value)">';
+      for (var i = 0; i < allCols.length; i++) {
+        html += '<option value="' + escHtml(allCols[i]) + '"' + (chartConfig.xCol === allCols[i] ? ' selected' : '') + '>' + escHtml(allCols[i]) + '</option>';
+      }
+      html += '</select></div>';
+      // Y axis series
+      html += '<div class="cc-section"><div class="cc-label">Y 轴</div>';
+      for (var s = 0; s < chartConfig.ySeries.length; s++) {
+        html += '<div class="cc-y-row"><select class="cc-select" onchange="setChartYCol(' + s + ',this.value)">';
+        for (var i = 0; i < numCols.length; i++) {
+          html += '<option value="' + escHtml(numCols[i]) + '"' + (chartConfig.ySeries[s].col === numCols[i] ? ' selected' : '') + '>' + escHtml(numCols[i]) + '</option>';
+        }
+        html += '</select><select class="cc-select" style="width:80px;flex:none" onchange="setChartYAgg(' + s + ',this.value)">';
+        var aggs = ['SUM','AVG','COUNT','MAX','MIN'];
+        for (var a = 0; a < aggs.length; a++) {
+          html += '<option' + (chartConfig.ySeries[s].agg === aggs[a] ? ' selected' : '') + '>' + aggs[a] + '</option>';
+        }
+        html += '</select>';
+        if (chartConfig.ySeries.length > 1) {
+          html += '<button class="cc-y-remove" onclick="removeChartY(' + s + ')">✕</button>';
+        }
+        html += '</div>';
+      }
+      if (numCols.length > 1) {
+        html += '<div class="cc-add-y" onclick="addChartY()">+ 添加 Y 轴</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderChartView(result) {
+      if (!result || !result.columns || result.columns.length === 0) {
+        document.getElementById('resultBody').innerHTML = '<div class="chart-empty"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="8" y="32" width="10" height="20" rx="2"/><rect x="22" y="20" width="10" height="32" rx="2"/><rect x="36" y="26" width="10" height="26" rx="2"/><rect x="50" y="14" width="10" height="38" rx="2"/></svg><span>请先执行查询以生成图表</span></div>';
+        return;
+      }
+      var html = '<div class="chart-container">';
+      html += '<div class="chart-canvas-area" id="chartCanvas">' + renderChartSVG(result) + '</div>';
+      html += '<div class="chart-config-panel" id="chartConfigPanel">' + renderChartConfigPanel(result) + '</div>';
+      html += '</div>';
+      document.getElementById('resultBody').innerHTML = html;
+    }
+
+    function setChartType(type) { chartConfig.type = type; if (lastResult) renderChartView(lastResult); }
+    function setChartX(col) { chartConfig.xCol = col; if (lastResult) renderChartView(lastResult); }
+    function setChartYCol(idx, col) { chartConfig.ySeries[idx].col = col; if (lastResult) renderChartView(lastResult); }
+    function setChartYAgg(idx, agg) { chartConfig.ySeries[idx].agg = agg; if (lastResult) renderChartView(lastResult); }
+    function addChartY() {
+      var numCols = getNumericColumns(lastResult);
+      var used = chartConfig.ySeries.map(function(s){return s.col;});
+      var next = numCols.find(function(c){return used.indexOf(c)===-1;}) || numCols[0];
+      chartConfig.ySeries.push({ col: next, agg: 'SUM' });
+      if (lastResult) renderChartView(lastResult);
+    }
+    function removeChartY(idx) {
+      if (chartConfig.ySeries.length <= 1) return;
+      chartConfig.ySeries.splice(idx, 1);
+      if (lastResult) renderChartView(lastResult);
+    }
+
+    function switchResultTab(tab, el) {
+      document.querySelectorAll('.result-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      activeResultTab = tab;
+      if (lastResult) {
+        if (tab === 'table') {
+          renderResultTable(lastResult);
+        } else {
+          renderChartView(lastResult);
+        }
+      }
+    }
+
+    // ===== Result panel minimize / maximize =====
+    var resultPanelState = 'normal'; // 'normal' | 'minimized' | 'maximized'
+    var savedCodeH = null;
+    var savedResultH = null;
+
+    function toggleResultMinMax(action) {
+      var ra = document.getElementById('resultArea');
+      var codeWrap = document.getElementById('codeAreaWrap');
+      var splitter = document.getElementById('hSplitter');
+
+      if (action === 'min') {
+        if (resultPanelState === 'minimized') {
+          // Restore
+          ra.classList.remove('minimized');
+          ra.style.flex = '1';
+          ra.style.height = '';
+          codeWrap.style.flex = '1';
+          codeWrap.style.height = '';
+          splitter.style.display = '';
+          resultPanelState = 'normal';
+        } else {
+          // Minimize
+          if (resultPanelState === 'maximized') {
+            ra.classList.remove('maximized');
+          }
+          ra.classList.add('minimized');
+          ra.style.flex = 'none';
+          codeWrap.style.flex = '1';
+          codeWrap.style.height = '';
+          splitter.style.display = 'none';
+          resultPanelState = 'minimized';
+        }
+      } else if (action === 'max') {
+        if (resultPanelState === 'maximized') {
+          // Restore
+          ra.classList.remove('maximized');
+          ra.style.flex = '1';
+          ra.style.height = '';
+          codeWrap.style.flex = '1';
+          codeWrap.style.height = '';
+          splitter.style.display = '';
+          resultPanelState = 'normal';
+        } else {
+          // Maximize
+          if (resultPanelState === 'minimized') {
+            ra.classList.remove('minimized');
+          }
+          ra.classList.add('maximized');
+          ra.style.flex = 'none';
+          codeWrap.style.flex = 'none';
+          codeWrap.style.height = '0px';
+          splitter.style.display = 'none';
+          resultPanelState = 'maximized';
+        }
+      }
+      updateMinMaxIcons();
+    }
+
+    function updateMinMaxIcons() {
+      var btnMin = document.getElementById('btnMinResult');
+      var btnMax = document.getElementById('btnMaxResult');
+      btnMin.title = resultPanelState === 'minimized' ? '恢复' : '最小化';
+      btnMax.title = resultPanelState === 'maximized' ? '恢复' : '最大化';
+    }
+
+    // ===== Download result as CSV =====
+    function downloadResultCSV() {
+      if (!lastResult) return;
+      var csv = lastResult.columns.join(',') + '\n';
+      for (var r = 0; r < lastResult.rows.length; r++) {
+        var row = lastResult.rows[r].map(function(cell) {
+          var s = String(cell);
+          if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
+            return '"' + s.replace(/"/g, '""') + '"';
+          }
+          return s;
+        });
+        csv += row.join(',') + '\n';
+      }
+      var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'query_result_' + new Date().toISOString().slice(0,19).replace(/[:-]/g,'') + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ===== Splitter drag =====
+    (function() {
+      var splitter = document.getElementById('hSplitter');
+      var codeWrap = document.getElementById('codeAreaWrap');
+      var resultArea = document.getElementById('resultArea');
+      var startY, startCodeH, startResultH;
+      splitter.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        // Reset min/max state on manual drag
+        var ra = document.getElementById('resultArea');
+        ra.classList.remove('minimized', 'maximized');
+        resultPanelState = 'normal';
+        updateMinMaxIcons();
+        startY = e.clientY;
+        startCodeH = codeWrap.offsetHeight;
+        startResultH = resultArea.offsetHeight;
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', onUp);
+      });
+      function onDrag(e) {
+        var dy = e.clientY - startY;
+        var newCodeH = Math.max(80, startCodeH + dy);
+        var newResultH = Math.max(80, startResultH - dy);
+        codeWrap.style.flex = 'none';
+        codeWrap.style.height = newCodeH + 'px';
+        resultArea.style.flex = 'none';
+        resultArea.style.height = newResultH + 'px';
+      }
+      function onUp() {
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', onUp);
+      }
+    })();
+
+    // ===== Left panel tab switch =====
+    function switchLeftTab(tab, el) {
+      document.querySelectorAll('.left-panel-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      document.getElementById('leftTabDb').classList.toggle('active', tab === 'db');
+      document.getElementById('leftTabWb').classList.toggle('active', tab === 'wb');
+    }
+
+    // ===== Left panel collapse/expand =====
+    function toggleLeftPanel() {
+      var panel = document.getElementById('dbTreePanel');
+      var expand = document.getElementById('leftPanelExpand');
+      if (panel.classList.contains('collapsed')) {
+        panel.classList.remove('collapsed');
+        expand.classList.remove('show');
+      } else {
+        panel.classList.add('collapsed');
+        expand.classList.add('show');
+      }
+    }
+
+    // ===== Workbook management =====
+    var workbooks = [];
+    var activeWbId = null;
+    var renamingWbId = null;
+    var WB_VERSION = 1;
+    var verSeq = 0;
+
+    // 预置示例工作簿：每个外部目录一本，SQL 用该目录真实表 + 对应方言；打开时自动切到该外部目录
+    function defaultWorkbooks() {
+      var now = new Date().toISOString();
+      return [
+        { id: 'wb_default', name: '示例 · MOI 表', mode: 'moi', createdAt: now,
+          sql: `-- MOI 内部表（MySQL 语法）
+SELECT * FROM 用户行为表 LIMIT 100;
+
+SELECT p_partkey, p_name, p_type
+FROM part
+WHERE p_type LIKE '%BRASS%'
+ORDER BY p_partkey
+LIMIT 50;` },
+
+        { id: 'wb_ext_pg', name: '财务报表 · PostgreSQL', mode: 'external', extCatalog: '财务报表库 PostgreSQL（外部）', createdAt: now,
+          sql: `-- 财务报表库 · PostgreSQL 语法 · 直发该外部库
+-- 三层结构 finance(库) → public/reporting(schema) → table，引用需带 schema 前缀
+
+-- 1) 各 BU 近 30 天营收/成本/利润
+SELECT business_unit,
+       SUM(revenue)::numeric(18,2) AS revenue,
+       SUM(cost)::numeric(18,2)    AS cost,
+       SUM(profit)::numeric(18,2)  AS profit
+FROM reporting.daily_financial_summary
+WHERE report_date >= CURRENT_DATE - INTERVAL '30 days'
+GROUP BY business_unit
+ORDER BY profit DESC;
+
+-- 2) 按月利润趋势（date_trunc + TO_CHAR）
+SELECT TO_CHAR(date_trunc('month', report_date), 'YYYY-MM') AS ym,
+       SUM(profit) AS monthly_profit
+FROM reporting.daily_financial_summary
+GROUP BY 1
+ORDER BY 1;
+
+-- 3) 月度损益环比（窗口函数 LAG + NULLIF）
+SELECT bu, month, net_profit,
+       ROUND(net_profit * 100.0 / NULLIF(gross_profit, 0), 1) AS net_margin_pct,
+       net_profit - LAG(net_profit) OVER (PARTITION BY bu ORDER BY month) AS mom_delta
+FROM reporting.monthly_pnl
+ORDER BY bu, month
+LIMIT 100;
+
+-- 4) 科目表模糊查询（ILIKE 是 PostgreSQL 专有）
+SELECT code, name
+FROM public.accounts
+WHERE name ILIKE '%收入%'
+ORDER BY code;` },
+
+        { id: 'wb_ext_oracle', name: '总账 ERP · Oracle', mode: 'external', extCatalog: '武汉新芯 Oracle ERP（外部）', createdAt: now,
+          sql: `-- 武汉新芯 Oracle ERP · Oracle 语法 · 直发该外部库
+-- Oracle 的 schema = user，无独立 database；引用用 SCHEMA.TABLE
+
+-- 1) 近一年总账分录借贷汇总（FETCH FIRST，不用 LIMIT）
+SELECT TO_CHAR(EFFECTIVE_DATE, 'YYYY-MM') AS period,
+       SUM(ENTERED_DR) AS total_dr,
+       SUM(ENTERED_CR) AS total_cr,
+       SUM(NVL(ENTERED_DR,0) - NVL(ENTERED_CR,0)) AS net
+FROM GL_PROD.GL_JE_LINES
+WHERE EFFECTIVE_DATE >= ADD_MONTHS(TRUNC(SYSDATE), -12)
+GROUP BY TO_CHAR(EFFECTIVE_DATE, 'YYYY-MM')
+ORDER BY period;
+
+-- 2) 科目组合借方 Top 20（ROWNUM 取前 N）
+SELECT * FROM (
+  SELECT CODE_COMBINATION_ID, SUM(ENTERED_DR) AS dr_amount
+  FROM GL_PROD.GL_JE_LINES
+  GROUP BY CODE_COMBINATION_ID
+  ORDER BY dr_amount DESC
+) WHERE ROWNUM <= 20;
+
+-- 3) 总账余额期初/期末/变动
+SELECT PERIOD_NAME,
+       SUM(BEGIN_BALANCE) AS begin_bal,
+       SUM(END_BALANCE)   AS end_bal,
+       SUM(END_BALANCE - BEGIN_BALANCE) AS change_bal
+FROM GL_PROD.GL_BALANCES
+GROUP BY PERIOD_NAME
+ORDER BY PERIOD_NAME
+FETCH FIRST 50 ROWS ONLY;
+
+-- 4) 系统时间（Oracle 必须 FROM dual）
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') AS now_ts FROM dual;` },
+
+        { id: 'wb_ext_ck', name: '行情 Tick · ClickHouse', mode: 'external', extCatalog: '芯联汉得 ClickHouse（外部）', createdAt: now,
+          sql: `-- 芯联汉得 ClickHouse · ClickHouse 语法 · 直发该外部库
+-- 列式 OLAP，库.表 两层；善用 ClickHouse 专有聚合函数
+
+-- 1) 每只股票当日 VWAP 与成交量
+SELECT symbol,
+       toDate(ts) AS d,
+       sum(price * volume) / sum(volume) AS vwap,
+       sum(volume) AS total_vol
+FROM market.hkex_tick
+WHERE ts >= toStartOfDay(now())
+GROUP BY symbol, d
+ORDER BY total_vol DESC
+LIMIT 50;
+
+-- 2) 开/收盘价用 argMin/argMax（ClickHouse 专有）
+SELECT symbol,
+       toDate(ts) AS d,
+       argMin(price, ts) AS open_px,
+       argMax(price, ts) AS close_px,
+       max(price) AS high_px,
+       min(price) AS low_px
+FROM market.hkex_tick
+GROUP BY symbol, d
+ORDER BY d DESC
+LIMIT 100;
+
+-- 3) 价格分位数（quantile，列式高速）
+SELECT symbol,
+       quantile(0.5)(price)  AS p50,
+       quantile(0.95)(price) AS p95
+FROM market.hkex_tick
+WHERE ts >= now() - INTERVAL 1 HOUR
+GROUP BY symbol;
+
+-- 4) 日 K 线 20 日均线（窗口）
+SELECT symbol, trade_date, close,
+       avg(close) OVER (PARTITION BY symbol ORDER BY trade_date
+                        ROWS BETWEEN 19 PRECEDING AND CURRENT ROW) AS ma20
+FROM market.daily_ohlc
+ORDER BY symbol, trade_date DESC
+LIMIT 200;` },
+
+        { id: 'wb_ext_mssql', name: '报价单 · SQL Server', mode: 'external', extCatalog: '汉得 Topcast SQL Server（外部）', createdAt: now,
+          sql: `-- 汉得 Topcast · SQL Server (T-SQL) · 直发该外部库
+-- 三层 TopcastDB(库) → dbo/sales(schema) → table；T-SQL 用 TOP，不用 LIMIT
+
+-- 1) 近 90 天各状态报价单（TOP + DATEADD/GETDATE）
+SELECT TOP 100
+       Status,
+       COUNT(*)      AS order_cnt,
+       SUM(Amount)   AS total_amount
+FROM sales.quote_orders
+WHERE CreatedAt >= DATEADD(DAY, -90, GETDATE())
+GROUP BY Status
+ORDER BY total_amount DESC;
+
+-- 2) 客户维度报价汇总（JOIN dbo.Customers，ISNULL 兜底）
+SELECT c.CustomerID, c.Name,
+       ISNULL(c.Region, '未知') AS region,
+       SUM(q.Amount) AS amount
+FROM sales.quote_orders q
+JOIN dbo.Customers c ON c.CustomerID = q.CustomerID
+GROUP BY c.CustomerID, c.Name, c.Region
+ORDER BY amount DESC;
+
+-- 3) 按月汇总（FORMAT 是 T-SQL 专有）
+SELECT FORMAT(CreatedAt, 'yyyy-MM') AS ym,
+       COUNT(*)    AS cnt,
+       SUM(Amount) AS gmv
+FROM sales.quote_orders
+GROUP BY FORMAT(CreatedAt, 'yyyy-MM')
+ORDER BY ym;
+
+-- 4) 当前时间
+SELECT GETDATE() AS now_ts;` },
+
+        { id: 'wb_ext_doris', name: '实时指标 · Doris', mode: 'external', extCatalog: '业务实时 Doris（外部）', createdAt: now,
+          sql: `-- 业务实时 Doris · Doris（MySQL 兼容语法）· 直发该外部库
+-- 实时 OLAP，库.表 两层；语法兼容 MySQL，底层 MPP 列存
+
+-- 1) 今日各业务单元核心指标
+SELECT biz_unit, metric_key, value, updated_at
+FROM rt_metrics.rt_business_metrics
+WHERE dt = CURDATE()
+ORDER BY biz_unit, metric_key
+LIMIT 200;
+
+-- 2) 近 7 日 GMV 趋势（按渠道）
+SELECT order_date, channel,
+       SUM(order_cnt) AS orders,
+       SUM(gmv)       AS gmv
+FROM rt_metrics.rt_order_summary
+WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+GROUP BY order_date, channel
+ORDER BY order_date DESC, gmv DESC;
+
+-- 3) 渠道 GMV 占比（窗口）
+SELECT channel,
+       SUM(gmv) AS channel_gmv,
+       ROUND(SUM(gmv) * 100.0 / SUM(SUM(gmv)) OVER (), 2) AS pct
+FROM rt_metrics.rt_order_summary
+WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+GROUP BY channel
+ORDER BY channel_gmv DESC;` },
+
+        { id: 'wb_ext_hive', name: '油井 KPI · Hive', mode: 'external', extCatalog: 'NESR 数据仓库 Hive（外部）', createdAt: now,
+          sql: `-- NESR 数据仓库 Hive · HiveQL · 直发该外部库
+-- HDFS 列存，务必带分区列过滤，避免全表扫描
+
+-- 1) 指定统计周的油井 KPI（命中 stat_week 分区）
+SELECT well_id, production, uptime_pct, npt_hours
+FROM dw_dwd.dwd_well_kpi_weekly
+WHERE stat_week = '2026-W22'
+ORDER BY production DESC
+LIMIT 100;
+
+-- 2) 周产量趋势（多分区聚合）
+SELECT stat_week,
+       COUNT(DISTINCT well_id) AS wells,
+       SUM(production)         AS total_production,
+       AVG(uptime_pct)         AS avg_uptime
+FROM dw_dwd.dwd_well_kpi_weekly
+WHERE stat_week BETWEEN '2026-W01' AND '2026-W22'
+GROUP BY stat_week
+ORDER BY stat_week;
+
+-- 3) 小时级流量：必须带 dt 分区裁剪
+SELECT well_id, dt, hr, rate
+FROM dw_dwd.dwd_well_kpi_hourly
+WHERE dt = '2026-06-01' AND hr BETWEEN '08' AND '18'
+ORDER BY well_id, hr
+LIMIT 200;` }
+      ];
+    }
+
+    function loadWorkbooks() {
+      try {
+        var raw = localStorage.getItem('moi_sql_workbooks');
+        if (raw) workbooks = JSON.parse(raw);
+      } catch(e) {}
+      var storedV = parseInt(localStorage.getItem('moi_sql_workbooks_v') || '0', 10);
+      if (!workbooks || workbooks.length === 0) {
+        workbooks = defaultWorkbooks();
+      } else if (storedV < WB_VERSION) {
+        // 版本升级：补齐缺失的示例工作簿（按 id），保留用户自建的
+        defaultWorkbooks().forEach(function(ex) {
+          if (!workbooks.some(function(w) { return w.id === ex.id; })) workbooks.push(ex);
+        });
+      }
+      localStorage.setItem('moi_sql_workbooks_v', String(WB_VERSION));
+      if (!activeWbId || !workbooks.find(function(w) { return w.id === activeWbId; })) {
+        activeWbId = workbooks[0].id;
+      }
+      // 版本初始化：无版本的工作簿种一个正式版本作为基线（新建的工作簿首次编辑才生成草稿）
+      workbooks.forEach(function(wb) {
+        if (!wb.versions) wb.versions = [];
+        if (wb.versions.length === 0) {
+          var ts = Date.now();
+          if (wb.createdAt) { var t = new Date(wb.createdAt).getTime(); if (!isNaN(t)) ts = t; }
+          var v = { id: 'v_' + ts + '_' + (++verSeq), ts: ts, type: 'formal', sql: wb.sql || '' };
+          wb.versions.push(v); wb.activeVer = v.id;
+        } else if (!wb.activeVer || !wbActiveVersion(wb)) {
+          wb.activeVer = wb.versions[wb.versions.length - 1].id;
+        }
+      });
+      saveWorkbooks();
+    }
+
+    function saveWorkbooks() {
+      localStorage.setItem('moi_sql_workbooks', JSON.stringify(workbooks));
+    }
+
+    function renderWorkbooks() {
+      var list = document.getElementById('wbList');
+      var search = (document.getElementById('wbSearchInput').value || '').trim().toLowerCase();
+      var html = '';
+      var fileIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 13l-2 2 2 2"/><path d="M14 13l2 2-2 2"/></svg>';
+      for (var i = 0; i < workbooks.length; i++) {
+        var wb = workbooks[i];
+        if (search && wb.name.toLowerCase().indexOf(search) === -1) continue;
+        var isActive = wb.id === activeWbId;
+        var canDelete = workbooks.length > 1;
+        var isRenaming = renamingWbId === wb.id;
+        html += '<div class="wb-item' + (isActive ? ' active' : '') + '" onclick="selectWorkbook(\'' + wb.id + '\')" data-wbid="' + wb.id + '">';
+        html += '<div class="wb-icon">' + fileIcon + '</div>';
+        html += '<div class="wb-info">';
+        if (isRenaming) {
+          html += '<input class="wb-rename-input" id="wbRenameInput" value="' + escHtml(wb.name) + '" onclick="event.stopPropagation()" onkeydown="onWbRenameKey(event,\'' + wb.id + '\')" onblur="confirmRenameWb(\'' + wb.id + '\')">';
+        } else {
+          html += '<div class="wb-name">' + escHtml(wb.name) + '</div>';
+        }
+        var lines = (wb.sql || '').split('\n').length;
+        html += '<div class="wb-meta">' + lines + ' 行</div>';
+        html += '</div>';
+        html += '<div class="wb-actions">';
+        html += '<button class="wb-act-btn" title="重命名" onclick="event.stopPropagation();startRenameWb(\'' + wb.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+        if (canDelete) {
+          html += '<button class="wb-act-btn danger" title="删除" onclick="event.stopPropagation();deleteWorkbook(\'' + wb.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+        }
+        html += '</div></div>';
+      }
+      list.innerHTML = html;
+      // Focus rename input if renaming
+      if (renamingWbId) {
+        var inp = document.getElementById('wbRenameInput');
+        if (inp) { inp.focus(); inp.select(); }
+      }
+    }
+
+    function selectWorkbook(id) {
+      if (renamingWbId) return;
+      // Save current workbook content first
+      saveCurrentWbContent();
+      activeWbId = id;
+      loadWbContent();
+      applyWbMode();
+      renderWorkbooks();
+    }
+
+    // 打开工作簿时，按其绑定的查询模式/外部目录自动切换（方言徽章随之变化）
+    function applyWbMode() {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      if (!wb || !wb.mode) return;
+      if (wb.mode === 'external' && wb.extCatalog) {
+        sqlMode = 'external';
+        sqlExtCatalog = wb.extCatalog;
+      } else {
+        sqlMode = wb.mode;
+      }
+      expandedDbs.clear();
+      renderSqlModeUI(); renderDbTree(); renderDbSelector(); updateSqlSyntaxBadge();
+    }
+
+    function saveCurrentWbContent() {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      if (wb) {
+        wb.sql = document.getElementById('sqlTextarea').value;
+        var cur = wbActiveVersion(wb);
+        if (cur && cur.type === 'draft') cur.sql = wb.sql; // 草稿实时保存
+        saveWorkbooks();
+      }
+    }
+
+    function loadWbContent() {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      if (wb) {
+        document.getElementById('sqlTextarea').value = wb.sql || '';
+        onSqlInput();
+        renderVersionDropdown();
+      }
+    }
+
+    function addWorkbook() {
+      var idx = workbooks.length + 1;
+      var name = '工作簿 ' + idx;
+      // Ensure unique name
+      while (workbooks.some(function(w) { return w.name === name; })) {
+        idx++;
+        name = '工作簿 ' + idx;
+      }
+      var wb = { id: 'wb_' + Date.now(), name: name, sql: '', createdAt: new Date().toISOString(), versions: [], activeVer: null };
+      workbooks.push(wb);
+      saveWorkbooks();
+      selectWorkbook(wb.id);
+    }
+
+    // ===== 工作簿历史版本 =====
+    function formatVerTs(ts) {
+      var d = new Date(ts);
+      function p(n) { return (n < 10 ? '0' : '') + n; }
+      return d.getFullYear() + '/' + p(d.getMonth() + 1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+    function verLabel(v) { return formatVerTs(v.ts) + (v.type === 'draft' ? ' （草稿）' : ''); }
+    function wbActiveVersion(wb) {
+      if (!wb || !wb.versions) return null;
+      for (var i = 0; i < wb.versions.length; i++) { if (wb.versions[i].id === wb.activeVer) return wb.versions[i]; }
+      return null;
+    }
+    function wbTrimVersions(wb) {
+      if (!wb.versions || wb.versions.length <= 25) return;
+      wb.versions.sort(function(a, b) { return b.ts - a.ts; });
+      var keep = wb.versions.slice(0, 25);
+      if (wb.activeVer && !keep.some(function(v) { return v.id === wb.activeVer; })) {
+        var av = wbActiveVersion(wb); if (av) keep.push(av);
+      }
+      wb.versions = keep;
+    }
+    // 编辑器内容变化：正式/初始 → 生成草稿；草稿 → 原地更新
+    function wbOnEdit() {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      if (!wb) return;
+      var content = document.getElementById('sqlTextarea').value;
+      wb.sql = content;
+      if (!wb.versions) wb.versions = [];
+      var cur = wbActiveVersion(wb);
+      if (!cur) {
+        var d0 = { id: 'v_' + Date.now() + '_' + (++verSeq), ts: Date.now(), type: 'draft', sql: content };
+        wb.versions.push(d0); wb.activeVer = d0.id; wbTrimVersions(wb); renderVersionDropdown(); saveWorkbooks(); return;
+      }
+      if (cur.type === 'formal') {
+        if (content === cur.sql) return;
+        var d = { id: 'v_' + Date.now() + '_' + (++verSeq), ts: Date.now(), type: 'draft', sql: content };
+        wb.versions.push(d); wb.activeVer = d.id; wbTrimVersions(wb); renderVersionDropdown(); saveWorkbooks(); return;
+      }
+      cur.sql = content; // 草稿原地更新（3 秒自动保存负责落盘）
+    }
+    // 执行：当前草稿转正式（去草稿、时间戳更新为执行时间）；否则生成新正式版本
+    function wbOnRun() {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      if (!wb) return;
+      var content = document.getElementById('sqlTextarea').value;
+      wb.sql = content;
+      if (!wb.versions) wb.versions = [];
+      var cur = wbActiveVersion(wb);
+      if (cur && cur.type === 'draft') {
+        cur.type = 'formal'; cur.ts = Date.now(); cur.sql = content;
+      } else {
+        var f = { id: 'v_' + Date.now() + '_' + (++verSeq), ts: Date.now(), type: 'formal', sql: content };
+        wb.versions.push(f); wb.activeVer = f.id;
+      }
+      wbTrimVersions(wb); renderVersionDropdown(); saveWorkbooks();
+    }
+    function selectVersion(id) {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      if (!wb) return;
+      var v = null;
+      for (var i = 0; i < wb.versions.length; i++) { if (wb.versions[i].id === id) v = wb.versions[i]; }
+      if (!v) return;
+      wb.activeVer = id; wb.sql = v.sql;
+      document.getElementById('sqlTextarea').value = v.sql;
+      updateLineNumbers(); updateHighlight(); onSqlCursorMove();
+      renderVersionDropdown(); saveWorkbooks();
+      var dd = document.getElementById('verDropdown'); if (dd) dd.classList.remove('show');
+    }
+    function renderVersionDropdown() {
+      var wb = workbooks.find(function(w) { return w.id === activeWbId; });
+      var labelEl = document.getElementById('verCurLabel');
+      if (!labelEl) return;
+      var cur = wb ? wbActiveVersion(wb) : null;
+      labelEl.textContent = cur ? verLabel(cur) : '初始（未保存）';
+      var list = document.getElementById('verList');
+      if (!list) return;
+      var versions = (wb && wb.versions ? wb.versions : []).slice().sort(function(a, b) { return b.ts - a.ts; });
+      if (!versions.length) { list.innerHTML = '<div class="ver-empty">暂无历史版本，编辑或执行后生成</div>'; return; }
+      list.innerHTML = versions.map(function(v) {
+        var active = v.id === wb.activeVer;
+        return '<div class="ver-item' + (active ? ' active' : '') + '" onclick="selectVersion(\'' + v.id + '\')">'
+          + '<span class="ver-dot ' + v.type + '"></span>'
+          + '<span class="ver-name">' + verLabel(v) + '</span>'
+          + (active ? '<span class="ver-check">✓</span>' : '') + '</div>';
+      }).join('');
+    }
+    function toggleVersionDropdown(e) {
+      if (e) e.stopPropagation();
+      var dd = document.getElementById('verDropdown');
+      if (!dd) return;
+      var show = !dd.classList.contains('show');
+      dd.classList.toggle('show', show);
+      if (show) renderVersionDropdown();
+    }
+    document.addEventListener('click', function(e) {
+      var sel = document.getElementById('verSelector');
+      var dd = document.getElementById('verDropdown');
+      if (dd && dd.classList.contains('show') && sel && !sel.contains(e.target)) dd.classList.remove('show');
+    });
+
+    function deleteWorkbook(id) {
+      if (workbooks.length <= 1) return;
+      if (!confirm('确定删除该工作簿？')) return;
+      var idx = workbooks.findIndex(function(w) { return w.id === id; });
+      if (idx === -1) return;
+      workbooks.splice(idx, 1);
+      if (activeWbId === id) {
+        activeWbId = workbooks[0].id;
+        loadWbContent();
+      }
+      saveWorkbooks();
+      renderWorkbooks();
+    }
+
+    function startRenameWb(id) {
+      renamingWbId = id;
+      renderWorkbooks();
+    }
+
+    function confirmRenameWb(id) {
+      var inp = document.getElementById('wbRenameInput');
+      if (!inp) { renamingWbId = null; return; }
+      var newName = inp.value.trim();
+      if (newName) {
+        var wb = workbooks.find(function(w) { return w.id === id; });
+        if (wb) { wb.name = newName; saveWorkbooks(); }
+      }
+      renamingWbId = null;
+      renderWorkbooks();
+    }
+
+    function onWbRenameKey(e, id) {
+      if (e.key === 'Enter') { e.target.blur(); }
+      if (e.key === 'Escape') { renamingWbId = null; renderWorkbooks(); }
+    }
+
+    // Auto-save workbook content periodically
+    setInterval(function() { saveCurrentWbContent(); }, 3000);
+
+    // ===== Init =====
+    loadWorkbooks();
+    loadDbTree();
+    renderSqlModeUI();
+    updateSqlSyntaxBadge();
+    renderDbTree();
+    renderDbSelector();
+    applyWbMode();
+    renderWorkbooks();
+    loadWbContent();
+    updateLineNumbers();
+    // Expand first db by default
+    if (DB_TREE.length > 0) {
+      expandedDbs.add(DB_TREE[0].name);
+      renderDbTree();
+    }
+    onSqlInput();
+  </script>
+</body>
+</html>
