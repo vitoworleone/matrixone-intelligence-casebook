@@ -474,7 +474,7 @@ function buildTopBar() {
   // Admin pages get a minimal top bar
   if (isAdminPage) {
     topBar.innerHTML = ''
-      + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi.svg" alt="MatrixOne Intelligence"></div>'
+      + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi-wordmark.svg" alt="MatrixOne Intelligence"></div>'
       + '<div class="spacer"></div>'
       + '<div class="right-actions">'
       +   '<div class="user-avatar-wrap" id="consoleAvatarWrap">'
@@ -489,7 +489,7 @@ function buildTopBar() {
   }
 
   topBar.innerHTML = ''
-    + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi.svg" alt="MatrixOne Intelligence"></div>'
+    + '<div class="logo" role="img" aria-label="MatrixOne Intelligence"><img src="' + basePath + 'images/logo-moi-wordmark.svg" alt="MatrixOne Intelligence"></div>'
     + (isAccountPage || isTaasPage || isMatrixOnePage ? '' : '<div class="ws-mode-group">'
     +   '<div class="ws-selector">'
     +     '<div class="ws-trigger" onclick="toggleWsPanel()">'
