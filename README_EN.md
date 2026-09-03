@@ -8,6 +8,27 @@
 >
 > <a href="README.md">中文</a> · <strong>English</strong>
 
+<p align="center">
+  <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ Explore the MOI platform prototype</strong></a>
+</p>
+
+<details>
+<summary><strong>Prototype previews (click to expand)</strong></summary>
+
+<br />
+
+<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="100%" />
+
+<em>Agent workbench: conversation entry point and resource center.</em>
+
+<br /><br />
+
+<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="100%" />
+
+<em>Data workbench: an overview of data objects, workflows, compute resources, and knowledge bases.</em>
+
+</details>
+
 ## Contents
 
 ### [MOI Platform PRDs](docs/prd/)

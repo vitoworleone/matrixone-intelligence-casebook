@@ -5,6 +5,7 @@ This folder stores only assets recreated for public use:
 - architecture diagrams;
 - workflow diagrams;
 - synthetic-data screenshots;
+- MOI platform prototype screenshots;
 - recorded demos;
 - editable diagram source files.
 

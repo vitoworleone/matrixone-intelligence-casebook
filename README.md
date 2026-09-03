@@ -8,6 +8,27 @@
 >
 > <strong>中文</strong> · <a href="README_EN.md">English</a>
 
+<p align="center">
+  <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ 在线体验 MOI 平台原型</strong></a>
+</p>
+
+<details>
+<summary><strong>原型界面预览（点击展开）</strong></summary>
+
+<br />
+
+<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="100%" />
+
+<em>智能体工作台：首页对话入口与资源中心。</em>
+
+<br /><br />
+
+<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="100%" />
+
+<em>数据工作台：数据对象、工作流、计算资源与知识库概览。</em>
+
+</details>
+
 ## 内容导航
 
 ### [MOI Platform PRD](docs/prd/)
