@@ -29,6 +29,12 @@
 
 </details>
 
+## Start here: product overview and my work
+
+[Product overview and internship work (Chinese)](docs/product-overview.md)
+
+My work focused on workflow and knowledge-base product design, with participation in agent and Astra integration planning, alongside scenario acceptance design, product documentation, and remote demos. The overview connects concrete product rules to public design cases and explains the scope of each type of material.
+
 ## Contents
 
 ### [MOI Platform PRDs](docs/prd/)
