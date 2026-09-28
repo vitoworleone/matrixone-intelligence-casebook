@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
+  <img src="assets/architecture/casebook-banner-compact.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -28,17 +28,11 @@ See how Astra keeps context for a long CLI task, explains what it cut, and shows
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
-## Prototype previews
+## Product interface
 
-<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="100%" />
+<img src="assets/screenshots/moi-platform/product-showcase.png" alt="MOI Platform agent application creation and workflow management interfaces" width="850" />
 
-<em>Agent workbench: conversation entry point and resource center.</em>
-
-<br /><br />
-
-<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="100%" />
-
-<em>Data workbench: an overview of data objects, workflows, compute resources, and knowledge bases.</em>
+Agent application creation and workflow management from the [interactive platform prototype](product/moi-platform-prototype/), focused on the actual entry points.
 
 ## Start here: product overview and my work
 

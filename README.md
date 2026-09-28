@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
+  <img src="assets/architecture/casebook-banner-compact.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -28,17 +28,11 @@ https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
-## 原型界面预览
+## 产品界面
 
-<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="100%" />
+<img src="assets/screenshots/moi-platform/product-showcase.png" alt="MOI 平台的智能体应用创建与工作流管理界面" width="850" />
 
-<em>智能体工作台：首页对话入口与资源中心。</em>
-
-<br /><br />
-
-<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="100%" />
-
-<em>数据工作台：数据对象、工作流、计算资源与知识库概览。</em>
+智能体应用创建与工作流管理来自[可交互平台原型](product/moi-platform-prototype/)；画面聚焦在实际操作入口。
 
 ## 先读：产品全景与我的工作
 
