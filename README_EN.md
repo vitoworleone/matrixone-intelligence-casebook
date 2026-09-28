@@ -33,15 +33,11 @@ Knowledge bases manage the sources, processing state, and query scope of documen
 
 <a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview-preview.png" alt="MOI data workbench overview" width="560" /></a>
 
-- [**Data workbench**](product/moi-platform-prototype/) — Entry points for data objects, workflows, compute resources, and knowledge bases. Click the image for full resolution.
-
 ## Agents and Astra: configuration and execution
 
 Agents combine a task goal, knowledge bases, skills, tools, and external connections in an editable application configuration. Users can inspect candidate settings and resource permissions, monitor progress and tool results, and save or publish versions. The [agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) covers task interaction, resource binding, and outputs.
 
 <a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home-preview.png" alt="MOI Agent workbench home" width="560" /></a>
-
-- [**Agent workbench**](product/moi-platform-prototype/) — Start a task from the conversation entry point and access agents and resources. Click the image for full resolution.
 
 ### Astra runtime demo
 
@@ -50,16 +46,14 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 > [!NOTE]
 > Read more: [Astra runtime architecture and design](docs/architecture/astra-runtime/) · [MOI product overview](docs/product-overview.md)
 
-## My work and deliverables
+## Explore the casebook
 
-My main product design work focused on workflows and knowledge bases. I also contributed to agent and Astra product integration, then carried the design into scenario acceptance, product guidance, and a remote demo.
-
-| Area | My work and material to explore |
+| Area | What to explore |
 | --- | --- |
-| ![Workflow](assets/icons/workflow.svg) **Workflow design** | I defined the creation and editing flow, parsing configuration, node input/output bindings, and run diagnostics, including the distinction between a workflow definition, a published version, and an individual run. [Workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) |
-| ![Knowledge base](assets/icons/knowledge.svg) **Knowledge-base design** | I organized file and business-table management and developed the Agentic RAG, NL2SQL, and semantic-configuration paths, including source scope, citations, and maintenance actions for incorrect answers. [Knowledge-base architecture](docs/architecture/knowledge-base/) |
-| ![Agent](assets/icons/agent.svg) **Agent and Astra integration** | I helped define how knowledge bases, skills, tools, and permissions enter an agent task, and how progress, failures, and outputs return to the product interface. [Integration requirements](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) |
-| ![Scenario acceptance](assets/icons/storybook.svg) **Storybook scenarios** | I designed prerequisites, fixed inputs, actions, assertions, failure evidence, and cleanup rules so key tasks have reviewable acceptance paths. [Scenario index](storybook/INDEX.md) |
-| ![Guide and demo](assets/icons/delivery.svg) **Product guide and demo** | I wrote usage guidance and built a remote demo that connects configuration, task actions, and troubleshooting; resume screening is one example from input material to results. [Work overview](docs/product-overview.md) |
+| ![Workflow](assets/icons/workflow.svg) **Workflow design** | Flow creation, parsing settings, node data bindings, execution, and troubleshooting. [Design document](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) |
+| ![Knowledge base](assets/icons/knowledge.svg) **Knowledge-base design** | Files and business tables, Agentic RAG, semantic configuration, and citation checks. [Architecture](docs/architecture/knowledge-base/) |
+| ![Agent](assets/icons/agent.svg) **Agent and Astra integration** | How knowledge, skills, tools, and permissions enter a task, and how execution feedback returns to the product interface. [Product integration](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) |
+| ![Scenario acceptance](assets/icons/storybook.svg) **Storybook scenarios** | Fixed inputs, action paths, assertions, failure evidence, and cleanup. [Scenario index](storybook/INDEX.md) |
+| ![Product guide](assets/icons/product-manual.svg) **Product manual** | Concepts, configuration, operation, and common troubleshooting across workflows, knowledge bases, and agents. [Public overview](docs/product-overview.md) |
 
-See the [documentation index](docs/) for research, PoCs, and evaluation. These pages present design and acceptance materials; run conclusions depend on recorded evidence. [Publication scope](DISCLAIMER.md)
+[Documentation index](docs/) · [Publication scope](DISCLAIMER.md)
