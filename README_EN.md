@@ -12,11 +12,17 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT license" /></a>
 </p>
 
-> From enterprise data to verifiable agent tasks: process source material, organize knowledge, call capabilities, and inspect results.
+> Enterprise files and business data → workflow processing → knowledge and business semantics → agent tasks → verifiable results.
 
-This product design casebook centers on **workflows and knowledge bases**. It brings together requirements, architecture, prototypes, acceptance scenarios, and evaluation materials, alongside agent and Astra integration planning. The [product overview and work scope](docs/product-overview.md) explain how the pieces fit together and the scope of participation.
+## What is MOI?
 
-## Demo videos
+MatrixOne Intelligence (MOI) connects data processing, knowledge management, business semantics, and task execution for enterprise agent applications. Files, spreadsheets, and business data are processed and organized into resources that agents can query or call. Users can inspect results through their sources, processing steps, and task outputs.
+
+MOI also includes data ingestion, API integration, and platform governance. This casebook follows the product path through workflows, knowledge bases, agents, and Astra runtime integration. The prototypes, design documents, and scenarios below show the interaction model, product rules, and validation methods for each part.
+
+## Workflows: processing data and running flows
+
+Workflows organize parsing, cleaning, extraction, and other processing steps into definitions that can be saved and reused. A definition specifies nodes, parameters, and input/output bindings; each run produces job status, node results, and logs so users can inspect outputs or locate failures. The [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) covers creation, editing, execution, and troubleshooting.
 
 ### Workflow interaction demo
 
@@ -25,34 +31,43 @@ The 1080p video shows goal entry, plan formation, and canvas node creation and e
 https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
 
 > [!NOTE]
-> **Explore the workflow design:** The [original archive](docs/architecture/canvasflow-workflow/) retains the interaction principles, architecture decisions, state machine, contracts, prompts, and observed runs in full. The [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) defines the platform's creation, editing, and run behavior.
+> The [original CanvasFlow workflow design archive](docs/architecture/canvasflow-workflow/) is a complete record from an independent case. It retains the interaction principles, architecture decisions, state machine, contracts, prompts, and observed runs for comparison with the MOI workflow PRD.
+
+## Knowledge bases: sources, tables, and semantics
+
+Knowledge bases manage the sources, processing state, and query scope of documents and structured business tables. Documents need traceable parsed content, chunks, index versions, and citations; business semantics define metrics, field meanings, and table relationships. Agentic RAG finds and organizes document evidence for a question, while NL2SQL turns a natural-language question into a query constrained by business definitions. Results should be checkable against source material or SQL. The [knowledge management PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md), [Agentic RAG architecture](docs/architecture/knowledge-base/agentic-rag-query.md), and [NL2SQL semantic layer design](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md) develop these areas.
+
+<a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="560" /></a>
+
+- [**Data workbench**](product/moi-platform-prototype/) — Entry points for data objects, workflows, compute resources, and knowledge bases. Click the image for full resolution.
+
+## Agents and Astra: configuration and execution
+
+Agents combine a task goal, knowledge bases, skills, tools, and external connections in an editable application configuration. Users can inspect candidate settings and resource permissions, monitor progress and tool results, and save or publish versions. The [agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) covers task interaction, resource binding, and outputs.
+
+<a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="560" /></a>
+
+- [**Agent workbench**](product/moi-platform-prototype/) — Start a task from the conversation entry point and access agents and resources. Click the image for full resolution.
 
 ### Astra runtime demo
 
-The video shows Astra managing context, execution, and run analysis for a long task in the CLI.
+Astra provides runtime capabilities for agent tasks, including context management, tool access, and execution records. The video shows a long task running and being analyzed in the CLI.
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> This video comes from the [official Astra repository](https://github.com/matrixorigin/Astra). The [Astra integration discussion](docs/product-overview.md) in this casebook focuses on how MOI platform configuration connects to runtime capabilities.
+> This video comes from the [official Astra repository](https://github.com/matrixorigin/Astra). The [product overview](docs/product-overview.md) discusses how MOI configuration connects to Astra runtime capabilities.
 
-## Prototype interface previews
+## Validation and repository guide
 
-<a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="560" /></a>
+[Storybook](storybook/INDEX.md) turns user tasks into reviewable scenarios with prerequisites, fixed inputs, actions, assertions, failure evidence, and cleanup requirements. [Evaluation](docs/eval/README.md) defines quality measures for answers and processing results; [PoC plans](docs/poc/README.md) combine capabilities around specific business problems. PRDs and architecture describe design requirements, prototypes show pages and interactions, and Storybook defines acceptance checks; run conclusions depend on recorded evidence.
 
-- [**Agent workbench**](product/moi-platform-prototype/) — Start a conversation and enter the agent and resource centers from the home page. Click the image to view it at full resolution.
+| Repository entry | Contents |
+| --- | --- |
+| [Product requirements](docs/prd/) | Product rules for data ingestion, workflows, knowledge retrieval, agents, APIs, and governance |
+| [Architecture](docs/architecture/) | Capability boundaries, knowledge-base architecture, and the independent workflow design archive |
+| [Interactive prototype](product/moi-platform-prototype/) | Interactive MOI workbench and management-page previews |
+| [Scenario acceptance](storybook/) | Storybook contracts and checks organized by product area |
+| [Research](docs/research/) · [PoCs](docs/poc/) · [Evaluation](docs/eval/) | Research material, business validation plans, and quality methods |
 
-<a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="560" /></a>
-
-- [**Data workbench**](product/moi-platform-prototype/) — Review data objects, workflows, compute resources, and knowledge bases together, then open the relevant management flow. Click the image to view it at full resolution.
-
-## Design documents and validation
-
-Start with the [product overview](docs/product-overview.md), then follow the original design, product rules, and acceptance scenarios for the area you want to inspect:
-
-- **Workflows and data processing:** The [original design archive](docs/architecture/canvasflow-workflow/) retains the full design process, contracts, prompts, and observations. The [workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) defines creation, editing, and run behavior; the [safe preview scenario](storybook/workflow/safe-workflow-review-and-qa-package.md) provides a reproducible acceptance path.
-- **Knowledge and business queries:** The [knowledge-base architecture](docs/architecture/knowledge-base/) and [management PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md) cover files and business tables. [Agentic RAG](docs/architecture/knowledge-base/agentic-rag-query.md) and the [NL2SQL semantic layer](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md) detail evidence retrieval, business definitions, and query verification.
-- **Agents and runtime:** The [agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) covers task clarification, resource binding, candidate configurations, and publishing. The [product overview](docs/product-overview.md) describes the scope of the Astra integration discussion; see the [official Astra repository](https://github.com/matrixorigin/Astra) for its code and implementation.
-- **Scenarios and quality:** [Storybook](storybook/INDEX.md) organizes business scenarios through prerequisites, actions, assertions, and failure evidence. [Evaluation](docs/eval/README.md) and [PoC plans](docs/poc/README.md) provide validation methods and delivery criteria.
-
-Full directory: [Product requirements](docs/prd/) · [Architecture](docs/architecture/) · [Research](docs/research/) · [Prototype](product/moi-platform-prototype/) · [Publication scope](DISCLAIMER.md)
+[Read the product overview](docs/product-overview.md) · [Publication scope](DISCLAIMER.md)

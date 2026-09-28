@@ -12,47 +12,62 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT 许可证" /></a>
 </p>
 
-> 从企业数据到可验证的智能体任务：加工资料、组织知识、调用能力并检查结果。
+> 企业文件与业务数据 → 工作流加工 → 知识与业务语义 → 智能体任务 → 可核验结果。
 
-这份产品设计案例集以**工作流和知识库**为主线，收录需求、架构、原型、场景验收与评测材料，也记录智能体和 Astra 的产品适配。[产品全景与工作范围](docs/product-overview.md)说明各部分的关系及参与范围。
+## MOI 是什么
 
-## 演示视频
+MatrixOne Intelligence（MOI）面向企业智能体应用，连接数据处理、知识管理、业务语义和任务执行。企业的文件、表格与业务数据先被解析和组织，再成为智能体可以查询或调用的资源；用户能够沿着数据来源、处理过程和任务产物检查结果。
+
+MOI 还包含数据接入、API 集成与平台治理等能力。本案例集沿着工作流、知识库、智能体及 Astra 运行衔接这条产品链路展开；下方的原型、设计文档和场景材料分别展示交互方式、产品规则与验证方法。
+
+## 工作流：数据加工与流程运行
+
+工作流把解析、清洗、提取等处理步骤组织成可保存、可复用的流程。流程定义包含节点、参数及输入输出绑定；每次运行则产生作业状态、节点结果和日志，帮助用户检查产物或定位失败。[MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)记录创建、编辑、运行与排障的产品规则。
 
 ### 工作流交互演示
 
-1080p 视频展示目标输入、流程方案形成，以及画布节点的生成与修改。
+1080p 视频展示从目标描述到流程方案形成，再到画布节点生成和修改的交互过程。
 
 https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
 
 > [!NOTE]
-> **阅读工作流设计**：[原始资料](docs/architecture/canvasflow-workflow/)保留交互理念、架构取舍、状态机、契约、提示词与实测记录；[MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)说明平台侧的创建、编辑和运行规则。
+> [CanvasFlow 工作流设计原始资料](docs/architecture/canvasflow-workflow/)是独立案例的完整档案，保留交互理念、架构取舍、状态机、契约、提示词和实测记录，可与 MOI 工作流 PRD 对照阅读。
+
+## 知识库：资料、业务表与语义
+
+知识库管理文件和结构化业务表的来源、处理状态与可查询范围。文档需要保留解析内容、分段、索引版本和引用位置；业务语义则维护指标定义、字段含义与表关联。Agentic RAG 围绕问题寻找和组织文档证据，NL2SQL 将自然语言问题转为受业务口径约束的查询，让结果能回到原始资料或 SQL 核对。[知识管理 PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md)、[Agentic RAG 架构](docs/architecture/knowledge-base/agentic-rag-query.md)和 [NL2SQL 语义层方案](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)分别展开这些设计。
+
+<a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="560" /></a>
+
+- [**数据工作台**](product/moi-platform-prototype/) — 汇集数据对象、工作流、计算资源与知识库的管理入口；点击图片查看原尺寸界面。
+
+## 智能体与 Astra：配置与执行
+
+智能体把任务目标、知识库、Skill、工具及外部连接组合为可编辑的应用配置。用户可以检查候选配置和资源授权，运行时查看进度、工具结果与产物，并按版本保存和发布。[智能体工作台 PRD](docs/prd/04-agent-applications/agent-workbench-prd.md)说明任务交互、资源绑定和成果管理。
+
+<a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="560" /></a>
+
+- [**智能体工作台**](product/moi-platform-prototype/) — 从对话入口进入任务，并使用智能体与资源中心；点击图片查看原尺寸界面。
 
 ### Astra 运行时演示
 
-视频展示 Astra 在 CLI 中执行长任务时的上下文管理、执行过程与运行分析。
+Astra 为智能体任务提供上下文管理、工具接入和执行记录等运行能力。视频展示一项长任务在 CLI 中的执行与分析。
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> 视频来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)。本案例集中的[Astra 适配讨论](docs/product-overview.md)聚焦 MOI 平台配置如何与运行能力衔接。
+> 视频来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)。[产品全景](docs/product-overview.md)进一步讨论 MOI 配置与 Astra 运行能力如何衔接。
 
-## 原型界面预览
+## 如何验证与阅读材料
 
-<a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="560" /></a>
+[Storybook](storybook/INDEX.md)将用户任务写成可审查的场景：明确前置条件、固定输入、操作路径、结果断言、失败证据和清理要求。[评测与质量](docs/eval/README.md)关注答案与处理结果的质量口径，[PoC 方案](docs/poc/README.md)则把能力组合到具体业务问题中。PRD 与架构说明设计要求，原型展示页面和操作，Storybook 定义验收方式；具体运行结论以相应记录为准。
 
-- [**智能体工作台**](product/moi-platform-prototype/) — 在首页发起对话，进入智能体与资源中心；点击图片可查看原尺寸界面。
+| 仓库入口 | 主要内容 |
+| --- | --- |
+| [产品需求](docs/prd/) | 数据接入、工作流、知识检索、智能体、API 与治理等产品规则 |
+| [产品架构](docs/architecture/) | 能力边界、知识库架构及工作流独立案例原始资料 |
+| [交互原型](product/moi-platform-prototype/) | MOI 各工作台与管理页面的交互展示 |
+| [场景验收](storybook/) | 按产品域组织的 Storybook 合同与检查路径 |
+| [研究](docs/research/) · [PoC](docs/poc/) · [评测](docs/eval/) | 研究材料、业务验证方案和质量方法 |
 
-<a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="560" /></a>
-
-- [**数据工作台**](product/moi-platform-prototype/) — 集中查看数据对象、工作流、计算资源与知识库，进入相应的管理流程；点击图片可查看原尺寸界面。
-
-## 设计资料与验证
-
-建议先读[产品全景](docs/product-overview.md)，再按关心的环节进入原始设计、产品规则和场景验收：
-
-- **工作流与数据加工**：[原始设计资料](docs/architecture/canvasflow-workflow/)保留完整的设计过程、契约、提示词和观察记录；[工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)说明创建、编辑和运行规则；[安全预览与验收场景](storybook/workflow/safe-workflow-review-and-qa-package.md)给出可复现的检查路径。
-- **知识库与业务问数**：[知识库架构](docs/architecture/knowledge-base/)与[管理 PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md)覆盖资料和业务表的维护；[Agentic RAG](docs/architecture/knowledge-base/agentic-rag-query.md)与[NL2SQL 语义层](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)展开证据检索、业务口径和查询核验。
-- **智能体与运行能力**：[智能体工作台 PRD](docs/prd/04-agent-applications/agent-workbench-prd.md)记录任务澄清、资源绑定、候选配置与发布流程；[产品全景](docs/product-overview.md)说明 Astra 与平台的衔接范围，Astra 的代码与实现请参阅[官方仓库](https://github.com/matrixorigin/Astra)。
-- **场景与质量验证**：[Storybook](storybook/INDEX.md)用前置条件、操作、断言和失败证据组织业务场景；[评测与质量](docs/eval/README.md)及 [PoC 方案](docs/poc/README.md)提供验证方法与交付依据。
-
-完整目录：[产品需求](docs/prd/) · [产品架构](docs/architecture/) · [产品研究](docs/research/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)
+[阅读产品全景](docs/product-overview.md) · [查看公开边界](DISCLAIMER.md)
