@@ -56,7 +56,7 @@ Astra provides runtime capabilities for agent tasks, including context managemen
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> This video comes from the [official Astra repository](https://github.com/matrixorigin/Astra). The [product overview](docs/product-overview.md) discusses how MOI configuration connects to Astra runtime capabilities.
+> [Astra runtime architecture and design](docs/architecture/astra-runtime/) covers context, model and tool access, task lifecycle, and execution boundaries. The [product overview](docs/product-overview.md) discusses how MOI configuration connects to runtime capabilities.
 
 ## Validation and repository guide
 
@@ -65,7 +65,7 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 | Repository entry | Contents |
 | --- | --- |
 | [Product requirements](docs/prd/) | Product rules for data ingestion, workflows, knowledge retrieval, agents, APIs, and governance |
-| [Architecture](docs/architecture/) | Capability boundaries, knowledge-base architecture, and the independent workflow design archive |
+| [Architecture](docs/architecture/) | Capability boundaries, knowledge-base architecture, workflow design, and Astra runtime design |
 | [Interactive prototype](product/moi-platform-prototype/) | Interactive MOI workbench and management-page previews |
 | [Scenario acceptance](storybook/) | Storybook contracts and checks organized by product area |
 | [Research](docs/research/) · [PoCs](docs/poc/) · [Evaluation](docs/eval/) | Research material, business validation plans, and quality methods |

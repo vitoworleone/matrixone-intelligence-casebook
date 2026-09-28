@@ -56,7 +56,7 @@ Astra 为智能体任务提供上下文管理、工具接入和执行记录等�
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> 视频来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)。[产品全景](docs/product-overview.md)进一步讨论 MOI 配置与 Astra 运行能力如何衔接。
+> [Astra 运行时架构与设计](docs/architecture/astra-runtime/)展开上下文、模型与工具接入、任务生命周期及执行边界。[产品全景](docs/product-overview.md)讨论 MOI 配置与运行能力如何衔接。
 
 ## 如何验证与阅读材料
 
@@ -65,7 +65,7 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 | 仓库入口 | 主要内容 |
 | --- | --- |
 | [产品需求](docs/prd/) | 数据接入、工作流、知识检索、智能体、API 与治理等产品规则 |
-| [产品架构](docs/architecture/) | 能力边界、知识库架构及工作流独立案例原始资料 |
+| [产品架构](docs/architecture/) | 能力边界、知识库架构、工作流设计和 Astra 运行时设计 |
 | [交互原型](product/moi-platform-prototype/) | MOI 各工作台与管理页面的交互展示 |
 | [场景验收](storybook/) | 按产品域组织的 Storybook 合同与检查路径 |
 | [研究](docs/research/) · [PoC](docs/poc/) · [评测](docs/eval/) | 研究材料、业务验证方案和质量方法 |

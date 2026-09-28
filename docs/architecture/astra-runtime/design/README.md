@@ -1,0 +1,69 @@
+# Design documentation index
+
+
+The design docs are organized by orthogonal ownership boundaries. If a topic appears to belong in multiple places, write the invariant in the owning domain and reference it elsewhere instead of duplicating it.
+
+These documents describe target contracts. They should not be read as proof that the current implementation already satisfies every requirement.
+
+## Canonical domains
+
+| Domain | Canonical document | Owns |
+| --- | --- | --- |
+| System architecture | [architecture.md](architecture.md) | Runtime shape, state layers, system-wide invariants. |
+| Authentication | [authentication.md](authentication.md) | Issuer-scoped identity, scoped credentials, session revocation and login discovery. |
+| Documentation architecture | [documentation-architecture.md](documentation-architecture.md) | Documentation class rules, domain ownership, and migration policy. |
+| Agent/provider model | [agent-backbone-capacity-provider.md](agent-backbone-capacity-provider.md) | Shared backbone semantics and capacity provider contract. |
+| Runtime lifecycle | [runtime-lifecycle.md](runtime-lifecycle.md) | Session, run, turn, task, plan, cancel, resume, recovery. |
+| Multi-session scale | [multi-session-scale.md](multi-session-scale.md) | Capacity budgets, admission alignment, and multi-server rollout invariants. |
+| Durable runs | [durable-agent-runs.md](durable-agent-runs.md) | Lease, checkpoint, resume, terminal outcome, crash recovery details. |
+| Background work journey | [background-work-user-journey.md](background-work-user-journey.md) | Foreground fan-in, explicit background handoff, visible states, and recovery UX. |
+| Durable Work journey | [durable-work-user-journey.md](durable-work-user-journey.md) | Cross-surface Work identity and observation; separates client control handoff, Edge provider changes, and Server Run recovery. |
+| Capabilities | [capability-system.md](capability-system.md) | Tools, skills, MCP, provider decisions, admission, fallback. |
+| Capability provider runtime | [capability-provider-runtime.md](capability-provider-runtime.md) | Provider adapters, discovery snapshots, internal tool identity, invocation and typed outcome contracts. |
+| Skills and tools | [skills-and-tools.md](skills-and-tools.md) | Skill maturity, packaging, lifecycle, compatibility, discovery, evaluation, and rollout. |
+| Context/prompt | [context-and-prompt.md](context-and-prompt.md) | Context assembly, prompt cache, compaction, dynamic state, memory injection. |
+| Prompt lifecycle | [prompt-lifecycle.md](prompt-lifecycle.md) | Prompt assembly, versioning, stable prefix, cache and evolution boundary. |
+| Context window | [context-window-management.md](context-window-management.md) | Token budgets, compaction, eviction, and context preservation. |
+| Observation | [observation-plane.md](observation-plane.md) | Trace, audit, introspect, reflect, status, diagnostics. |
+| Explain mode | [explain-mode.md](explain-mode.md) | Execution-graph projection, metric definitions, and Explain product experience; runtime facts and durable replay remain with their canonical owners. |
+| Artifacts/debug bundles | [artifacts-and-debug-bundles.md](artifacts-and-debug-bundles.md) | Artifact manifests, large output handling, raw diagnostic bundle lifecycle. |
+| Introspect/reflect | [introspect-and-reflect.md](introspect-and-reflect.md) | Agent self-observation, reflection boundaries, and introspection dimensions. |
+| Session observability | [session-observability.md](session-observability.md) | User/support visible status, stream projection, stuck diagnosis, reconnect. |
+| Tool result quality | [tool-result-quality-firewall.md](tool-result-quality-firewall.md) | Tool output validation, quality annotation, retry/fallback hints. |
+| Edge/cloud execution | [edge-cloud-execution.md](edge-cloud-execution.md) | Edge local capacity and server-safe fallback. |
+| Runtime tool boundary | [edge-runtime-tool-boundary.md](edge-runtime-tool-boundary.md) | Runtime authority domains, workspace isolation, side effects, and result containment. |
+| Cloud-edge sync | [../architecture/edge-cloud-sync-architecture.md](../architecture/edge-cloud-sync-architecture.md) | Durable outbox, sync facts, repair, retention. |
+| Orchestration | [orchestration.md](orchestration.md) | Multi-agent delegation, model selection per agent, coordination. |
+| Model access and inference | [model-access-and-inference.md](model-access-and-inference.md) | Cloud/Workspace/Device model access, TaaS bindings, Offerings, connections, provider request capabilities, parameter emission, inference placement, invocation, usage, and billing boundaries. |
+| Model routing | [model-routing.md](model-routing.md) | Model/provider selection, escalation, fallback chains, and traceability. |
+| Multi-agent runtime | [multi-agent-runtime.md](multi-agent-runtime.md) | Durable child runs, fanout/fanin, delegation lineage, and bounded parallelism. |
+| Memory | [memory.md](memory.md) | Cross-session and in-session memory semantics. |
+| Safety | [safety-and-permissions.md](safety-and-permissions.md) | Permission, sandbox, side-effect, policy, trust boundaries. |
+| Permission sync | [permission-sync.md](permission-sync.md) | Cross-surface scoped approvals, revocation, expiration, and audit. |
+| Stop hooks | [stop-hooks.md](stop-hooks.md) | Controlled stop/pause/checkpoint hook points and outcomes. |
+| Trust and safety | [trust-and-safety.md](trust-and-safety.md) | Evidence, claim support, trust levels, and audit obligations. |
+| Data/storage | [data-and-storage.md](data-and-storage.md) | MatrixOne usage, state layering, retention. |
+| MatrixOne-native paradigm | [matrixone-native-paradigm.md](matrixone-native-paradigm.md) | Database-native facts, analytics, replay, and governance leverage. |
+| Data versioning | [data-versioning.md](data-versioning.md) | Reproducible decision inputs, snapshots, branching, and replay. |
+| Evaluation/learning | [evaluation-and-learning.md](evaluation-and-learning.md) | Eval, feedback, learning artifacts, quality gates. |
+| Evaluation | [evaluation.md](evaluation.md) | Case structure, replay modes, regression gates, and behavioral metrics. |
+| Feedback control loop | [feedback-control-loop.md](feedback-control-loop.md) | Feedback collection, classification, proposal, activation, and monitoring. |
+| Tuning jobs | [tuning-jobs.md](tuning-jobs.md) | Controlled prompt/skill/routing/memory/model improvement workflows. |
+| Client/deployment | [client-surfaces-and-deployment.md](client-surfaces-and-deployment.md) | Web/CLI/TUI client boundaries and deployment topology. |
+| Web Agent runner | [web-agent-runner.md](web-agent-runner.md) | Web-specific stream, reconnect, provider-state, and diagnostic experience. |
+
+## Anti-duplication rules
+
+- Tool visibility belongs to capability system, not prompt lifecycle.
+- Tool execution routing belongs to capability system, not Web Agent runner.
+- Plan mode belongs to runtime lifecycle, not a separate agent architecture.
+- Introspection and reflection belong to observation plane, not context pipeline.
+- Prompt cache belongs to context/prompt, not provider routing.
+- Model eligibility, account binding, credential placement, and billing ownership belong to model access and inference; routing only chooses among eligible Offerings.
+- Edge local filesystem and shell authority belong to edge-cloud execution and safety, not Web Agent docs.
+- Sync durability belongs to cloud-edge sync, not session lifecycle.
+- Learning data belongs to evaluation/learning, not raw debug or audit docs.
+
+## Deprecated document pattern
+
+Historical implementation notes should not live in `docs/design/`. If a deleted document contained a still-valid invariant, it should now be represented in one of the canonical documents above.

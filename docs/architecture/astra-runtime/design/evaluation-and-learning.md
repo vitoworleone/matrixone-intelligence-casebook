@@ -1,0 +1,115 @@
+# Learning pipeline
+
+> Status: target design contract.
+
+Learning pipeline defines how Astra converts approved runtime evidence into durable learning artifacts. Evaluation, feedback, and tuning are upstream systems; learning owns consent, redaction, quality, lineage, dataset construction, and deletion propagation.
+
+## Ownership
+
+This document owns:
+
+- C5 learning artifact semantics;
+- consent and privacy boundary;
+- redaction and quality gate requirements;
+- dataset lineage;
+- deletion propagation;
+- activation boundary between data and behavior.
+
+It does not own:
+
+- evaluation case execution, owned by [evaluation.md](evaluation.md);
+- feedback collection and classification, owned by [feedback-control-loop.md](feedback-control-loop.md);
+- candidate improvement lifecycle, owned by [tuning-jobs.md](tuning-jobs.md);
+- raw debug bundles, owned by [observation-plane.md](observation-plane.md).
+
+## Principle
+
+```text
+Runtime traces are evidence. They become learning data only after consent, redaction, quality, and lineage gates.
+```
+
+## Allowed sources
+
+Allowed by default when policy permits:
+
+- explicit user feedback;
+- redacted transcript excerpts;
+- C2 audit facts;
+- C3 trace facts;
+- eval labels;
+- tool-result quality annotations.
+
+Opt-in only:
+
+- raw debug bundles;
+- private workspace snippets;
+- sensitive external API results;
+- raw tool output containing user data;
+- personally identifying or regulated data.
+
+## Learning artifact
+
+A learning artifact should record:
+
+```text
+artifact_id
+source_refs
+consent_scope
+redaction_version
+quality_score
+dataset_id
+target_use
+lineage
+created_at
+expires_at
+```
+
+## Dataset lifecycle
+
+```text
+candidate -> redacted -> quality_checked -> approved -> active -> deprecated -> deleted
+```
+
+A dataset must be invalidated or rebuilt when source consent is revoked or source data is deleted.
+
+## Quality gate
+
+Learning data must be filtered for:
+
+- task relevance;
+- correctness or label confidence;
+- safety compliance;
+- duplication;
+- provider/tool failure contamination;
+- private data leakage;
+- prompt injection contamination.
+
+## Activation boundary
+
+Datasets do not change runtime behavior by themselves. Behavior changes go through tuning jobs, evaluation gates, and rollout/rollback policy.
+
+## Offline routing artifacts
+
+The implemented stage-4 router importer lives under the existing evaluation
+owner and enforces explicit per-owner source-hash approvals, redaction revision,
+expiry, lineage, outcome separation and related-group time splits. It exports
+only typed structural evidence and produces offline candidates, with no
+production activation. It does not reuse the session-summary exporter as a
+routing corpus. Approved local evidence/authorization files are operator
+attestations; automatic consent collection and deletion of already exported
+files are not implemented. Operators must invalidate those files through their
+source lineage when consent is revoked. Router lineage includes the containing
+envelope and referenced feedback, execution, verifier evidence and replay
+snapshot IDs. Explicit dependency revocations invalidate containing envelopes
+and exported datasets even when their top-level approvals remain present. See
+[model-routing.md](model-routing.md#offline-router-datasets-and-candidates-stage-4)
+and the [offline workflow](../guides/model-router-offline.md).
+
+Router candidates now have a preregistered qualification and offline shadow
+workflow. The gate uses current source authorization, held-out independent-group
+comparisons, prespecified strata and conservative paired quality/cost bounds.
+Unknown/incomplete groups remain in coverage denominators. Passing qualifies only
+for observational scoring; production qualification remains false. Services owns
+the tuning record, and turn-core shares the trainer, grouping and baseline policy.
+See [the routing contract](model-routing.md#qualification-and-offline-shadow-scoring-stage-5)
+for assumptions, rejection conditions and remaining rollout prerequisites.
