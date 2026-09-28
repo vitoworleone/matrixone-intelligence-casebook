@@ -61,4 +61,37 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-zh.svg" width="245" alt="产品手册：配置、操作、常见问题"></a>
 </p>
 
+## 仓库结构
+
+```text
+.
+├── .github/                GitHub 模板与工作流配置预留目录
+├── assets/                 封面、图标、架构图与截图
+├── docs/                   产品设计与验证文档
+│   ├── research/           产品、技术与场景研究
+│   ├── prd/                各产品域的需求和交互规则
+│   ├── architecture/       工作流、知识库与运行时架构
+│   ├── poc/                业务场景验证方案
+│   └── eval/               质量度量与评测口径
+├── product/                MOI 可交互原型、视频与说明
+├── storybook/              按产品域组织的场景验收 Case
+└── scripts/                预览图生成与原型同步工具
+```
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/?repos=vitoworleone%2Fmatrixone-intelligence-casebook&amp;type=date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=vitoworleone/matrixone-intelligence-casebook&amp;type=date&amp;theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=vitoworleone/matrixone-intelligence-casebook&amp;type=date" />
+      <img src="https://api.star-history.com/chart?repos=vitoworleone/matrixone-intelligence-casebook&amp;type=date" alt="Star History" width="680" />
+    </picture>
+  </a>
+</p>
+
+## License
+
+本项目采用 [MIT License](LICENSE)。
+
 <p align="center"><a href="docs/">文档目录</a>　<a href="DISCLAIMER.md">公开边界</a></p>

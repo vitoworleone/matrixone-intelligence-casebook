@@ -61,4 +61,37 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-en.svg" width="245" alt="Product manual: configure, operate, troubleshoot"></a>
 </p>
 
+## Repository structure
+
+```text
+.
+├── .github/                Placeholder for GitHub templates and workflows
+├── assets/                 Cover art, icons, diagrams, and screenshots
+├── docs/                   Product design and validation documents
+│   ├── research/           Product, technical, and scenario research
+│   ├── prd/                Requirements and interaction rules by product area
+│   ├── architecture/       Workflow, knowledge-base, and runtime architecture
+│   ├── poc/                Business-scenario validation plans
+│   └── eval/               Quality measures and evaluation criteria
+├── product/                Interactive MOI prototype, video, and guides
+├── storybook/              Scenario acceptance cases by product area
+└── scripts/                Preview rendering and prototype sync tools
+```
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/?repos=vitoworleone%2Fmatrixone-intelligence-casebook&amp;type=date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=vitoworleone/matrixone-intelligence-casebook&amp;type=date&amp;theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=vitoworleone/matrixone-intelligence-casebook&amp;type=date" />
+      <img src="https://api.star-history.com/chart?repos=vitoworleone/matrixone-intelligence-casebook&amp;type=date" alt="Star History" width="680" />
+    </picture>
+  </a>
+</p>
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
 <p align="center"><a href="docs/">Documentation index</a>　<a href="DISCLAIMER.md">Publication scope</a></p>
