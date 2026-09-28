@@ -95,6 +95,8 @@ Agent 辅助编排的设计路径进一步展开为：描述目标、发现可�
 
 **相关公开材料：**[复杂工作流管理](prd/02-workflow-processing/complex-workflow-management-prd.md) · [文档表格解析](prd/02-workflow-processing/document-table-parsing-prd.md) · [工作流安全预览与验收场景](../storybook/workflow/safe-workflow-review-and-qa-package.md)。前两项展示设计要求，后一项展示验收方案。
 
+**工作流交互演示：**[观看视频](../product/moi-platform-prototype/videos/workflow-interaction-demo.mp4)。视频录自同事 Bai-009 的 [CanvasFlow 项目](https://github.com/Bai-009/canvas-first-workflow)，展示目标输入、方案形成、节点生成和节点修改的交互过程。
+
 ## 4. 知识库：知识管理、Agentic RAG 与业务问数
 
 ### 需要解决的问题

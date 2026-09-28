@@ -29,6 +29,14 @@
 
 </details>
 
+## 工作流交互演示
+
+<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
+  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="工作流交互演示" width="900" />
+</a>
+
+[播放视频](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [CanvasFlow 项目与作者 Bai-009](https://github.com/Bai-009/canvas-first-workflow)
+
 ## 先读：产品全景与我的工作
 
 [从企业数据到业务智能体：产品全景与实习工作说明](docs/product-overview.md)

@@ -12,6 +12,12 @@
       display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;
     }
     .btn-primary:hover { background: #4096ff; }
+    .demo-link {
+      height: 32px; padding: 0 12px; border: 1px solid #1677ff; border-radius: 6px;
+      color: #1677ff; background: #fff; font-size: 14px; text-decoration: none;
+      display: inline-flex; align-items: center; white-space: nowrap;
+    }
+    .demo-link:hover { background: #e6f4ff; }
 
     .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; }
     .data-table th {
@@ -196,6 +202,7 @@
           <button class="refresh-btn" onclick="refreshData(this)" title="刷新">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M2.5 22v-6h6"/><path d="M2.5 11.5a10 10 0 0 1 17.3-5.7L21.5 8"/><path d="M21.5 12.5a10 10 0 0 1-17.3 5.7L2.5 16"/></svg>
           </button>
+          <a class="demo-link" href="workflow-demo.html">工作流交互演示</a>
           <button class="btn-primary" onclick="openCreateModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             新建工作流

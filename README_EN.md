@@ -29,6 +29,14 @@
 
 </details>
 
+## Workflow interaction demo
+
+<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
+  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="Workflow interaction demo" width="900" />
+</a>
+
+[Play video](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [CanvasFlow by Bai-009](https://github.com/Bai-009/canvas-first-workflow)
+
 ## Start here: product overview and my work
 
 [Product overview and internship work (Chinese)](docs/product-overview.md)

@@ -14,6 +14,7 @@ Serve this directory with any static HTTP server, then open `index.html`. The pr
 - `account/`, `admin/`, `monitor/`, `user-perm/` — platform management surfaces
 - `website/` — public product-site screens
 - `images/`, `styles/`, `scripts/` — static resources used by the prototype
+- `data-processing/workflow-demo.html`, `videos/` — workflow interaction video and its poster
 
 The original offline research and document-editing scripts are intentionally not included: they are not needed to run this prototype.
 

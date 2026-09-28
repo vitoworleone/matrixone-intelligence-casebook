@@ -5,6 +5,7 @@ This folder holds the public product artifacts that accompany the casebook.
 ## Included
 
 - [MOI Platform Prototype](moi-platform-prototype/) — a static, interactive prototype covering the data platform, workflow, knowledge, Agent, governance, and application surfaces.
+- [Workflow interaction demo](moi-platform-prototype/videos/workflow-interaction-demo.mp4) — a video walkthrough of CanvasFlow by Bai-009.
 - [Prototype synchronization guide](moi-platform-prototype-sync.md) — how to check for and merge updates from `moi-prototype/html`.
 
 ## Conventions
