@@ -1,10 +1,12 @@
 <p align="center">
-  <img src="assets/architecture/casebook-banner-compact.png" alt="MatrixOne Intelligence Casebook" width="900" />
+  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
 # MatrixOne Intelligence Casebook
 
-> 企业级 AI 数据产品案例集：从文档理解、任务执行，到可验证的交付。
+这份案例集记录 MatrixOne Intelligence（MOI）从企业数据到业务智能体的产品设计：文件与业务表如何加工为可用知识，智能体如何调用知识与工具完成任务，以及结果如何被检查和复现。仓库收录产品需求、架构、交互原型、场景验收与评测材料；[产品全景与工作范围](docs/product-overview.md)说明各部分之间的关系。
+
+我的工作集中在**工作流和知识库产品设计**，并参与智能体与 Astra 的产品适配梳理；Storybook 场景、产品手册和远程演示用于把设计落到可操作、可验证的任务中。
 
 <p><strong>中文</strong> | <a href="README_EN.md">English</a></p>
 
@@ -14,71 +16,41 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT 许可证" /></a>
 </p>
 
-## 工作流交互演示
+## 演示视频
 
-1080p 视频展示目标输入、方案形成和节点修改。
+### 工作流交互演示
+
+1080p 视频沿一次任务展示目标输入、流程方案形成、画布节点生成与修改。对应的[工作流设计原始资料](docs/architecture/canvasflow-workflow/)完整保留交互理念、架构取舍、状态机、契约、提示词与实测记录；[MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)描述平台侧的产品规则。
 
 https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
 
-[阅读工作流设计原始资料](docs/architecture/canvasflow-workflow/)
+### Astra 运行时演示
 
-## Astra 运行时演示
-
-长任务在 CLI 中执行时，Astra 如何保留上下文、说明取舍，并展示执行分析。视频来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)，时长约 90 秒。
+这段来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)的视频展示长任务在 CLI 中的执行过程，包括上下文保留、执行取舍与运行分析。案例集中的[Astra 适配讨论](docs/product-overview.md)关注 MOI 平台配置与运行能力的衔接。
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
-## 产品界面
+## 原型界面预览
 
-<img src="assets/screenshots/moi-platform/product-showcase.png" alt="MOI 平台的智能体应用创建与工作流管理界面" width="850" />
+下面保留原有的 MOI 原型截图，分别呈现智能体工作台和数据工作台。可交互页面与相关工程材料位于[产品原型目录](product/moi-platform-prototype/)。
 
-智能体应用创建与工作流管理来自[可交互平台原型](product/moi-platform-prototype/)；画面聚焦在实际操作入口。
+<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="100%" />
 
-## 先读：产品全景与我的工作
+*智能体工作台：首页对话入口、智能体使用入口与资源中心。*
 
-[从企业数据到业务智能体：产品全景与实习工作说明](docs/product-overview.md)
+<br />
 
-我的工作以**工作流与知识库产品设计**为主，参与智能体与 Astra 能力适配梳理，并负责 Storybook 场景设计、产品手册和远程 Demo。详细版通过模块关系、具体产品规则与公开案例链接，说明从数据加工到业务任务的完整链路。
+<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="100%" />
 
-首次访问可先读详细版的职责概览，再进入四个模块的设计与场景验收。各材料的设计、原型和运行证据范围在文末统一说明。
+*数据工作台：数据对象、工作流、计算资源与知识库的统一入口。*
 
-## 内容导航
+## 设计资料与验证
 
-### [MOI Platform PRD](docs/prd/)
+建议先读[产品全景](docs/product-overview.md)，再按关心的环节进入原始设计、产品规则和场景验收：
 
-数据接入、工作流处理、知识检索、Agent 应用、API 集成与平台治理的产品需求集合。
+- **工作流与数据加工**：[原始设计资料](docs/architecture/canvasflow-workflow/)保留完整的设计过程、契约、提示词和观察记录；[工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)说明创建、编辑和运行规则；[安全预览与验收场景](storybook/workflow/safe-workflow-review-and-qa-package.md)给出可复现的检查路径。
+- **知识库与业务问数**：[知识库架构](docs/architecture/knowledge-base/)与[管理 PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md)覆盖资料和业务表的维护；[Agentic RAG](docs/architecture/knowledge-base/agentic-rag-query.md)与[NL2SQL 语义层](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)展开证据检索、业务口径和查询核验。
+- **智能体与运行能力**：[智能体工作台 PRD](docs/prd/04-agent-applications/agent-workbench-prd.md)记录任务澄清、资源绑定、候选配置与发布流程；[产品全景](docs/product-overview.md)说明 Astra 与平台的衔接范围，Astra 的代码与实现请参阅[官方仓库](https://github.com/matrixorigin/Astra)。
+- **场景与质量验证**：[Storybook](storybook/INDEX.md)用前置条件、操作、断言和失败证据组织业务场景；[评测与质量](docs/eval/README.md)及 [PoC 方案](docs/poc/README.md)提供验证方法与交付依据。
 
-### [RAG 产品研究](docs/research/rag/)
-
-围绕企业知识检索、复杂文档理解与可追溯证据的研究与设计判断。
-
-### [POC 方案集](docs/poc/)
-
-从场景澄清、验证范围到验收与复盘的交付方法。
-
-### [产品架构](docs/architecture/)
-
-MOI 的公开产品架构、能力分层与关键协作链路。
-
-[工作流设计原始资料](docs/architecture/canvasflow-workflow/)保留完整的设计论证、契约与实测记录。
-
-### [评测与质量](docs/eval/)
-
-RAG、Agent、文档解析与产品验证的质量度量方法和脱敏证据。
-
-### [MOI Storybook](storybook/)
-
-以可复现业务场景组织的产品演示与端到端验收设计。
-
-## 仓库内容
-
-```text
-docs/       产品文档、架构与评测方法
-product/    可交互原型、可运行产品代码和工程文档
-storybook/  场景化产品演示与验证设计
-assets/     公开可用的架构图、工作流图与研究配图
-```
-
-## 延伸阅读
-
-[产品调研](docs/research/) · [平台 PRD](docs/prd/) · [产品架构](docs/architecture/) · [评测与质量](docs/eval/) · [MOI Storybook](storybook/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)
+完整目录：[产品需求](docs/prd/) · [产品架构](docs/architecture/) · [产品研究](docs/research/) · [产品原型](product/moi-platform-prototype/) · [公开边界](DISCLAIMER.md)
