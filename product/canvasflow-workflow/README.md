@@ -1,6 +1,6 @@
 # 工作流设计原始资料
 
-[工作流交互演示](../moi-platform-prototype/data-processing/workflow-demo.html) · [MOI 工作流产品设计](../../docs/product-overview.md#3-工作流从能力配置到运行结果)
+[工作流交互演示](../moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [MOI 工作流产品设计](../../docs/product-overview.md#3-工作流从能力配置到运行结果)
 
 这里迁入 CanvasFlow 的工作流设计文档、契约、提示词与实测记录，保留原有论证、修订过程和未完成事项。文档正文基本保持原文，仅对个人姓名与迁移后失效的文件链接做必要处理。阶段性记录可能与后来的实现不同，请先读[架构](docs/架构.md)和[取舍](docs/取舍.md)，再按时间阅读历史记录。
 

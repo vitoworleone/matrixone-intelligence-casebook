@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="product/moi-platform-prototype/data-processing/workflow-demo.html"><img src="product/canvasflow-workflow/docs/assets/canvasflow-restored-en.png" alt="Workflow interaction demo" width="900" /></a>
+  <a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4"><img src="product/canvasflow-workflow/docs/assets/canvasflow-restored-en.png" alt="Workflow interaction demo" width="900" /></a>
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="product/moi-platform-prototype/data-processing/workflow-demo.html"><strong>▶ Workflow interaction demo</strong></a> · <a href="product/canvasflow-workflow/"><strong>Read the original workflow design documents</strong></a>
+  <a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4"><strong>▶ Workflow interaction demo</strong></a> · <a href="product/canvasflow-workflow/"><strong>Read the original workflow design documents</strong></a>
 </p>
 
 <details>
