@@ -50,16 +50,16 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 > [!NOTE]
 > 延伸阅读：[Astra 运行时架构与设计](docs/architecture/astra-runtime/) · [MOI 产品全景](docs/product-overview.md)
 
-## 如何验证与阅读材料
+## 我的工作与交付
 
-[Storybook](storybook/INDEX.md)将用户任务写成可审查的场景：明确前置条件、固定输入、操作路径、结果断言、失败证据和清理要求。[评测与质量](docs/eval/README.md)关注答案与处理结果的质量口径，[PoC 方案](docs/poc/README.md)则把能力组合到具体业务问题中。PRD 与架构说明设计要求，原型展示页面和操作，Storybook 定义验收方式；具体运行结论以相应记录为准。
+工作流和知识库是我负责的产品设计重点；智能体与 Astra 部分侧重产品适配。场景验收、产品手册和远程 Demo 则把设计延伸到使用与验证。
 
-| 仓库入口 | 主要内容 |
+| 方向 | 我做的工作与可查看的材料 |
 | --- | --- |
-| [产品需求](docs/prd/) | 数据接入、工作流、知识检索、智能体、API 与治理等产品规则 |
-| [产品架构](docs/architecture/) | 能力边界、知识库架构、工作流设计和 Astra 运行时设计 |
-| [交互原型](product/moi-platform-prototype/) | MOI 各工作台与管理页面的交互展示 |
-| [场景验收](storybook/) | 按产品域组织的 Storybook 合同与检查路径 |
-| [研究](docs/research/) · [PoC](docs/poc/) · [评测](docs/eval/) | 研究材料、业务验证方案和质量方法 |
+| ![工作流](assets/icons/workflow.svg) **工作流设计** | 我梳理创建与编辑、解析能力配置、节点输入输出绑定，以及运行与异常定位；明确流程定义、发布版本和单次运行的关系。[工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) |
+| ![知识库](assets/icons/knowledge.svg) **知识库设计** | 我组织文件与业务表的管理流程，展开 Agentic RAG、NL2SQL 和语义配置，并将资料范围、引用依据与答案偏差的维护入口纳入设计。[知识库架构](docs/architecture/knowledge-base/) |
+| ![智能体](assets/icons/agent.svg) **智能体与 Astra 适配** | 我参与梳理知识库、Skill、工具和授权如何进入智能体任务，以及运行进度、异常和产物如何回到产品界面。[适配要求](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) |
+| ![场景验收](assets/icons/storybook.svg) **Storybook 场景** | 我设计前置条件、固定输入、操作路径、结果断言、失败证据与清理要求，让关键任务有可审查的验收路径。[场景目录](storybook/INDEX.md) |
+| ![手册与演示](assets/icons/delivery.svg) **产品手册与 Demo** | 我撰写使用指引并搭建远程 Demo，把配置、任务操作和排障串成完整路径；简历筛选等场景用于展示从资料输入到结果查看的过程。[工作说明](docs/product-overview.md) |
 
-[阅读产品全景](docs/product-overview.md) · [查看公开边界](DISCLAIMER.md)
+更多研究、PoC 与评测材料见[文档目录](docs/)。本页展示设计与验收材料，具体运行结论以相应记录为准。[公开边界](DISCLAIMER.md)

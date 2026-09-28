@@ -50,16 +50,16 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 > [!NOTE]
 > Read more: [Astra runtime architecture and design](docs/architecture/astra-runtime/) · [MOI product overview](docs/product-overview.md)
 
-## Validation and repository guide
+## My work and deliverables
 
-[Storybook](storybook/INDEX.md) turns user tasks into reviewable scenarios with prerequisites, fixed inputs, actions, assertions, failure evidence, and cleanup requirements. [Evaluation](docs/eval/README.md) defines quality measures for answers and processing results; [PoC plans](docs/poc/README.md) combine capabilities around specific business problems. PRDs and architecture describe design requirements, prototypes show pages and interactions, and Storybook defines acceptance checks; run conclusions depend on recorded evidence.
+My main product design work focused on workflows and knowledge bases. I also contributed to agent and Astra product integration, then carried the design into scenario acceptance, product guidance, and a remote demo.
 
-| Repository entry | Contents |
+| Area | My work and material to explore |
 | --- | --- |
-| [Product requirements](docs/prd/) | Product rules for data ingestion, workflows, knowledge retrieval, agents, APIs, and governance |
-| [Architecture](docs/architecture/) | Capability boundaries, knowledge-base architecture, workflow design, and Astra runtime design |
-| [Interactive prototype](product/moi-platform-prototype/) | Interactive MOI workbench and management-page previews |
-| [Scenario acceptance](storybook/) | Storybook contracts and checks organized by product area |
-| [Research](docs/research/) · [PoCs](docs/poc/) · [Evaluation](docs/eval/) | Research material, business validation plans, and quality methods |
+| ![Workflow](assets/icons/workflow.svg) **Workflow design** | I defined the creation and editing flow, parsing configuration, node input/output bindings, and run diagnostics, including the distinction between a workflow definition, a published version, and an individual run. [Workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) |
+| ![Knowledge base](assets/icons/knowledge.svg) **Knowledge-base design** | I organized file and business-table management and developed the Agentic RAG, NL2SQL, and semantic-configuration paths, including source scope, citations, and maintenance actions for incorrect answers. [Knowledge-base architecture](docs/architecture/knowledge-base/) |
+| ![Agent](assets/icons/agent.svg) **Agent and Astra integration** | I helped define how knowledge bases, skills, tools, and permissions enter an agent task, and how progress, failures, and outputs return to the product interface. [Integration requirements](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) |
+| ![Scenario acceptance](assets/icons/storybook.svg) **Storybook scenarios** | I designed prerequisites, fixed inputs, actions, assertions, failure evidence, and cleanup rules so key tasks have reviewable acceptance paths. [Scenario index](storybook/INDEX.md) |
+| ![Guide and demo](assets/icons/delivery.svg) **Product guide and demo** | I wrote usage guidance and built a remote demo that connects configuration, task actions, and troubleshooting; resume screening is one example from input material to results. [Work overview](docs/product-overview.md) |
 
-[Read the product overview](docs/product-overview.md) · [Publication scope](DISCLAIMER.md)
+See the [documentation index](docs/) for research, PoCs, and evaluation. These pages present design and acceptance materials; run conclusions depend on recorded evidence. [Publication scope](DISCLAIMER.md)
