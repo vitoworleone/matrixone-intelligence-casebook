@@ -14,7 +14,8 @@
     .back:hover, .credit a:hover { text-decoration: underline; }
     main { width: min(1200px, calc(100% - 40px)); margin: 42px auto 64px; }
     h1 { margin: 0 0 22px; font-size: clamp(25px, 4vw, 36px); letter-spacing: -.02em; }
-    video { display: block; width: 100%; aspect-ratio: 8 / 5; background: #e9edf3; border-radius: 14px; box-shadow: 0 20px 48px rgba(25, 49, 91, .12); }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #e9edf3; border-radius: 14px; box-shadow: 0 20px 48px rgba(25, 49, 91, .12); }
+    .view-hint { margin: 18px 0 0; color: #475467; font-size: 14px; }
     .credit { margin: 20px 0 0; color: #667085; font-size: 14px; }
     .credit a { color: #1677ff; text-decoration: none; }
   </style>
@@ -23,10 +24,11 @@
   <header><div class="bar"><strong>CanvasFlow</strong><a class="back" href="workflow.html">返回工作流</a></div></header>
   <main>
     <h1>工作流交互演示</h1>
-    <video controls playsinline preload="metadata" poster="../videos/workflow-interaction-poster.jpg" aria-label="工作流交互演示">
-      <source src="../videos/workflow-interaction-demo.mp4" type="video/mp4">
+    <video controls playsinline preload="metadata" poster="../videos/workflow-interaction-poster.jpg?v=20260928-1080p" aria-label="工作流交互演示">
+      <source src="../videos/workflow-interaction-demo.mp4?v=20260928-1080p" type="video/mp4">
       <a href="../videos/workflow-interaction-demo.mp4">播放视频</a>
     </video>
+    <p class="view-hint">查看节点细节可点击播放器右下角全屏。</p>
     <p class="credit">CanvasFlow 项目与作者：<a href="https://github.com/Bai-009/canvas-first-workflow" target="_blank" rel="noopener noreferrer">Bai-009</a></p>
   </main>
 </body>
