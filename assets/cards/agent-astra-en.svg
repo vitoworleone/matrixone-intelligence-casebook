@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="245" height="128" viewBox="0 0 245 128" role="img" aria-labelledby="title desc">
+  <title id="title">Agent and Astra</title>
+  <desc id="desc">Resources · permissions · feedback</desc>
+  <rect width="245" height="128" rx="15" fill="#f1ecfa"/>
+  <g transform="translate(105.5 14) scale(1.2142857)">
+    <rect width="28" height="28" rx="7" fill="#7053bc"/>
+  <g fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5.5" y="9" width="17" height="13" rx="3"/>
+    <path d="M14 9V6.5M11 6.5h6M3.5 14v3M24.5 14v3M10 18h8"/>
+    <circle cx="10" cy="14" r="1" fill="#fff" stroke="none"/>
+    <circle cx="18" cy="14" r="1" fill="#fff" stroke="none"/>
+  </g>
+  </g>
+  <text x="122.5" y="74" text-anchor="middle" dominant-baseline="middle" fill="#24292f" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700">Agent and Astra</text>
+  <text x="122.5" y="103" text-anchor="middle" dominant-baseline="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11.5">Resources · permissions · feedback</text>
+</svg>

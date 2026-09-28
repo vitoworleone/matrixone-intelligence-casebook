@@ -51,14 +51,14 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 ## Explore the casebook
 
-| Area | What to explore |
-| --- | --- |
-| <a href="docs/prd/02-workflow-processing/complex-workflow-management-prd.md"><img src="assets/icons/workflow.svg" width="28" height="28" align="middle" alt=""> <strong>Workflow design</strong></a> | Flow creation, parsing settings, node data bindings, execution, and troubleshooting. |
-| <a href="docs/architecture/knowledge-base/"><img src="assets/icons/knowledge.svg" width="28" height="28" align="middle" alt=""> <strong>Knowledge-base design</strong></a> | Files and business tables, Agentic RAG, semantic configuration, and citation checks. |
-| <a href="docs/product-overview.md#6-astra平台能力如何进入-agent-运行时"><img src="assets/icons/agent.svg" width="28" height="28" align="middle" alt=""> <strong>Agent and Astra integration</strong></a> | How knowledge, skills, tools, and permissions enter a task, and how execution feedback returns to the product interface. |
-| <a href="storybook/INDEX.md"><img src="assets/icons/storybook.svg" width="28" height="28" align="middle" alt=""> <strong>Storybook scenarios</strong></a> | Fixed inputs, action paths, assertions, failure evidence, and cleanup. |
-| <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/icons/product-manual.svg" width="28" height="28" align="middle" alt=""> <strong>Product manual</strong></a> | Concepts, configuration, operation, and common troubleshooting across workflows, knowledge bases, and agents. |
+<p align="center">
+  <a href="docs/prd/02-workflow-processing/complex-workflow-management-prd.md"><img src="assets/cards/workflow-design-en.svg" width="245" alt="Workflow design: create, configure, run"></a>
+  <a href="docs/architecture/knowledge-base/"><img src="assets/cards/knowledge-base-en.svg" width="245" alt="Knowledge-base design: sources, retrieval, semantics"></a>
+  <a href="docs/product-overview.md#6-astra平台能力如何进入-agent-运行时"><img src="assets/cards/agent-astra-en.svg" width="245" alt="Agent and Astra integration: resources, permissions, feedback"></a>
+</p>
+<p align="center">
+  <a href="storybook/INDEX.md"><img src="assets/cards/storybook-en.svg" width="245" alt="Storybook scenarios: inputs, assertions, evidence"></a>
+  <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-en.svg" width="245" alt="Product manual: configure, operate, troubleshoot"></a>
+</p>
 
----
-
-**More resources** · [Documentation index](docs/) · [Publication scope](DISCLAIMER.md)
+<p align="center"><a href="docs/">Documentation index</a> · <a href="DISCLAIMER.md">Publication scope</a></p>

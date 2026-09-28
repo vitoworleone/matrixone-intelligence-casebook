@@ -51,14 +51,14 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 ## 作品导览
 
-| 主题 | 可查看的内容 |
-| --- | --- |
-| <a href="docs/prd/02-workflow-processing/complex-workflow-management-prd.md"><img src="assets/icons/workflow.svg" width="28" height="28" align="middle" alt=""> <strong>工作流设计</strong></a> | 流程创建、解析配置、节点数据绑定、运行与排障。 |
-| <a href="docs/architecture/knowledge-base/"><img src="assets/icons/knowledge.svg" width="28" height="28" align="middle" alt=""> <strong>知识库设计</strong></a> | 文件与业务表管理、Agentic RAG、语义配置和引用核验。 |
-| <a href="docs/product-overview.md#6-astra平台能力如何进入-agent-运行时"><img src="assets/icons/agent.svg" width="28" height="28" align="middle" alt=""> <strong>智能体与 Astra 适配</strong></a> | 知识、Skill、工具和授权进入任务，以及运行反馈回到产品界面的设计。 |
-| <a href="storybook/INDEX.md"><img src="assets/icons/storybook.svg" width="28" height="28" align="middle" alt=""> <strong>Storybook 场景</strong></a> | 固定输入、操作路径、结果断言、失败证据和清理要求。 |
-| <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/icons/product-manual.svg" width="28" height="28" align="middle" alt=""> <strong>产品手册</strong></a> | 工作流、知识库和智能体的概念、配置、操作与常见异常处理。 |
+<p align="center">
+  <a href="docs/prd/02-workflow-processing/complex-workflow-management-prd.md"><img src="assets/cards/workflow-design-zh.svg" width="245" alt="工作流设计：创建、配置、运行排障"></a>
+  <a href="docs/architecture/knowledge-base/"><img src="assets/cards/knowledge-base-zh.svg" width="245" alt="知识库设计：资料、检索、业务语义"></a>
+  <a href="docs/product-overview.md#6-astra平台能力如何进入-agent-运行时"><img src="assets/cards/agent-astra-zh.svg" width="245" alt="智能体与 Astra 适配：资源绑定、授权、执行反馈"></a>
+</p>
+<p align="center">
+  <a href="storybook/INDEX.md"><img src="assets/cards/storybook-zh.svg" width="245" alt="Storybook 场景：输入、断言、证据"></a>
+  <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-zh.svg" width="245" alt="产品手册：配置、操作、常见问题"></a>
+</p>
 
----
-
-**更多资料** · [文档目录](docs/) · [公开边界](DISCLAIMER.md)
+<p align="center"><a href="docs/">文档目录</a> · <a href="DISCLAIMER.md">公开边界</a></p>
