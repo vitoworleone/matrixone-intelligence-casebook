@@ -7,18 +7,14 @@
 <p><strong>中文</strong> | <a href="README_EN.md">English</a></p>
 
 <p>
-  <a href="docs/architecture/canvasflow-workflow/"><img src="https://img.shields.io/badge/Workflow-Design%20Docs-5945a3?style=flat-square" alt="工作流设计原始资料" /></a>
-  <a href="#工作流交互演示"><img src="https://img.shields.io/badge/Video-1080p-1266b2?style=flat-square" alt="1080p 工作流视频" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT 许可证" /></a>
+  <a href="docs/architecture/canvasflow-workflow/"><img src="assets/badges/workflow-design.svg" alt="工作流设计资料" height="26" /></a>
+  <a href="#工作流交互演示"><img src="assets/badges/video-1080p.svg" alt="1080p 工作流视频" height="26" /></a>
+  <a href="LICENSE"><img src="assets/badges/license-mit.svg" alt="MIT 许可证" height="26" /></a>
 </p>
-
-> 企业文件与业务数据 → 工作流加工 → 知识与业务语义 → 智能体任务 → 可核验结果。
 
 ## MOI 是什么
 
-MatrixOne Intelligence（MOI）面向企业智能体应用，连接数据处理、知识管理、业务语义和任务执行。企业的文件、表格与业务数据先被解析和组织，再成为智能体可以查询或调用的资源；用户能够沿着数据来源、处理过程和任务产物检查结果。
-
-MOI 还包含数据接入、API 集成与平台治理等能力。本案例集沿着工作流、知识库、智能体及 Astra 运行衔接这条产品链路展开；下方的原型、设计文档和场景材料分别展示交互方式、产品规则与验证方法。
+MatrixOne Intelligence（MOI）连接企业数据加工、知识管理与智能体任务。本案例集展示工作流、知识库、智能体及 Astra 运行衔接的交互原型、产品规则和验证场景。
 
 ## 工作流：数据加工与流程运行
 

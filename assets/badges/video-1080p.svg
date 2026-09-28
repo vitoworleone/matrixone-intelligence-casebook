@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="137" height="26" viewBox="0 0 137 26" role="img" aria-labelledby="title">
+  <title id="title">Video 1080p</title>
+  <defs><clipPath id="shape"><rect width="137" height="26" rx="4"/></clipPath></defs>
+  <g clip-path="url(#shape)">
+    <rect width="75" height="26" fill="#55595e"/>
+    <rect x="75" width="62" height="26" fill="#1266b2"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="7" width="17" height="12" rx="2"/>
+    <path d="m15 10 4 3-4 3z" fill="#fff" stroke="none"/>
+  </g>
+  <g fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="12.5" dominant-baseline="middle">
+    <text x="31" y="13">Video</text>
+    <text x="84" y="13">1080p</text>
+  </g>
+</svg>

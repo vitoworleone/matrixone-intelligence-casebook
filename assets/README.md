@@ -8,6 +8,7 @@ This folder stores only assets recreated for public use:
 - MOI platform prototype screenshots;
 - recorded demos;
 - editable diagram source files.
+- locally drawn README badges and icons.
 
 For the casebook overview diagram:
 
@@ -17,5 +18,6 @@ For the casebook overview diagram:
 - `architecture/casebook-overview.mcp.json` is the element source sent to the Excalidraw MCP.
 - `architecture/matrixflow-rag-architecture.png` is the full-resolution, clickable Matrixflow RAG architecture diagram used by the RAG README.
 - `architecture/casebook-banner.png` is the full-width README banner.
+- `badges/` contains the workflow, video, and license badges shown on both README covers.
 
 Do not copy internal screenshots or customer-facing materials here.

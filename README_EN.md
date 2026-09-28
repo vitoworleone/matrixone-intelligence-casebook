@@ -7,18 +7,14 @@
 <p><a href="README.md">中文</a> | <strong>English</strong></p>
 
 <p>
-  <a href="docs/architecture/canvasflow-workflow/"><img src="https://img.shields.io/badge/Workflow-Design%20Docs-5945a3?style=flat-square" alt="Original workflow design documents" /></a>
-  <a href="#workflow-interaction-demo"><img src="https://img.shields.io/badge/Video-1080p-1266b2?style=flat-square" alt="1080p workflow video" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT license" /></a>
+  <a href="docs/architecture/canvasflow-workflow/"><img src="assets/badges/workflow-design.svg" alt="Workflow design documents" height="26" /></a>
+  <a href="#workflow-interaction-demo"><img src="assets/badges/video-1080p.svg" alt="1080p workflow video" height="26" /></a>
+  <a href="LICENSE"><img src="assets/badges/license-mit.svg" alt="MIT license" height="26" /></a>
 </p>
-
-> Enterprise files and business data → workflow processing → knowledge and business semantics → agent tasks → verifiable results.
 
 ## What is MOI?
 
-MatrixOne Intelligence (MOI) connects data processing, knowledge management, business semantics, and task execution for enterprise agent applications. Files, spreadsheets, and business data are processed and organized into resources that agents can query or call. Users can inspect results through their sources, processing steps, and task outputs.
-
-MOI also includes data ingestion, API integration, and platform governance. This casebook follows the product path through workflows, knowledge bases, agents, and Astra runtime integration. The prototypes, design documents, and scenarios below show the interaction model, product rules, and validation methods for each part.
+MatrixOne Intelligence (MOI) connects enterprise data processing, knowledge management, and agent tasks. This casebook presents interaction prototypes, product rules, and validation scenarios for workflows, knowledge bases, agents, and Astra runtime integration.
 
 ## Workflows: processing data and running flows
 

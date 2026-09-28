@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="194" height="26" viewBox="0 0 194 26" role="img" aria-labelledby="title">
+  <title id="title">Workflow Design Docs</title>
+  <defs><clipPath id="shape"><rect width="194" height="26" rx="4"/></clipPath></defs>
+  <g clip-path="url(#shape)">
+    <rect width="108" height="26" fill="#55595e"/>
+    <rect x="108" width="86" height="26" fill="#5945a3"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 8h5l4 5-4 5H9M18 13h5"/>
+    <circle cx="8" cy="8" r="2" fill="#fff" stroke="none"/>
+    <circle cx="8" cy="18" r="2" fill="#fff" stroke="none"/>
+    <circle cx="24" cy="13" r="2" fill="#fff" stroke="none"/>
+  </g>
+  <g fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="12.5" dominant-baseline="middle">
+    <text x="32" y="13">Workflow</text>
+    <text x="117" y="13">Design Docs</text>
+  </g>
+</svg>
