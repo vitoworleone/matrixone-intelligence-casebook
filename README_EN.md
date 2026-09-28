@@ -64,7 +64,7 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 ## 📁 Repository structure
 
 > [!IMPORTANT]
-> The repository keeps design materials, prototypes, and acceptance scenarios in separate places. `docs/` records product rules from research and requirements through architecture, PoCs, and evaluation criteria. `product/` contains the interactive prototype and demo videos, while `storybook/` organizes key tasks as repeatable acceptance scenarios. `assets/` holds presentation images, and `scripts/` generates previews and synchronizes the prototype.
+> The repository presents MOI through product design, interactive prototypes, and scenario acceptance. The directory tree below shows where each type of material lives and what it covers.
 
 ```text
 .
