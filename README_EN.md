@@ -18,7 +18,7 @@ MatrixOne Intelligence (MOI) connects enterprise data processing, knowledge mana
 
 ## Workflows: processing data and running flows
 
-Workflows organize parsing, cleaning, extraction, and other processing steps into definitions that can be saved and reused. A definition specifies nodes, parameters, and input/output bindings; each run produces job status, node results, and logs so users can inspect outputs or locate failures. The [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) covers creation, editing, execution, and troubleshooting.
+Workflows organize parsing, cleaning, extraction, and other processing steps into definitions that can be saved and reused. A definition specifies nodes, parameters, and input/output bindings; each run produces job status, node results, and logs so users can inspect outputs or locate failures.
 
 ### Workflow interaction demo
 
@@ -29,13 +29,16 @@ https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 ## Knowledge bases: sources, tables, and semantics
 
-Knowledge bases manage the sources, processing state, and query scope of documents and structured business tables. Documents need traceable parsed content, chunks, index versions, and citations; business semantics define metrics, field meanings, and table relationships. Agentic RAG finds and organizes document evidence for a question, while NL2SQL turns a natural-language question into a query constrained by business definitions. Results should be checkable against source material or SQL. The [knowledge management PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md), [Agentic RAG architecture](docs/architecture/knowledge-base/agentic-rag-query.md), and [NL2SQL semantic layer design](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md) develop these areas.
+Knowledge bases manage the sources, processing state, and query scope of documents and structured business tables. Documents retain parsed content, chunks, index versions, and citations; business semantics define metrics, field meanings, and table relationships. Agentic RAG organizes document evidence, while NL2SQL queries data using business definitions so results can be checked against source material or SQL.
 
 <a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview-preview.png" alt="MOI data workbench overview" width="560" /></a>
 
+> [!NOTE]
+> Read more: [Knowledge management PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md) · [NL2SQL semantic layer](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)
+
 ## Agents and Astra: configuration and execution
 
-Agents combine a task goal, knowledge bases, skills, tools, and external connections in an editable application configuration. Users can inspect candidate settings and resource permissions, monitor progress and tool results, and save or publish versions. The [agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) covers task interaction, resource binding, and outputs.
+Agents combine a task goal, knowledge bases, skills, tools, and external connections in an editable application configuration. Users can inspect candidate settings and resource permissions, monitor progress and tool results, and save or publish versions.
 
 <a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home-preview.png" alt="MOI Agent workbench home" width="560" /></a>
 
@@ -44,16 +47,18 @@ Agents combine a task goal, knowledge bases, skills, tools, and external connect
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> Read more: [Astra runtime architecture and design](docs/architecture/astra-runtime/) · [MOI product overview](docs/product-overview.md)
+> Read more: [Agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) · [Astra runtime architecture and design](docs/architecture/astra-runtime/)
 
 ## Explore the casebook
 
 | Area | What to explore |
 | --- | --- |
-| ![Workflow](assets/icons/workflow.svg) **Workflow design**<br>[Design document →](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) | Flow creation, parsing settings, node data bindings, execution, and troubleshooting. |
-| ![Knowledge base](assets/icons/knowledge.svg) **Knowledge-base design**<br>[Architecture →](docs/architecture/knowledge-base/) | Files and business tables, Agentic RAG, semantic configuration, and citation checks. |
-| ![Agent](assets/icons/agent.svg) **Agent and Astra integration**<br>[Product integration →](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) | How knowledge, skills, tools, and permissions enter a task, and how execution feedback returns to the product interface. |
-| ![Scenario acceptance](assets/icons/storybook.svg) **Storybook scenarios**<br>[Scenario index →](storybook/INDEX.md) | Fixed inputs, action paths, assertions, failure evidence, and cleanup. |
-| ![Product guide](assets/icons/product-manual.svg) **Product manual**<br>[Public overview →](docs/product-overview.md#产品手册把概念操作和异常处理连起来) | Concepts, configuration, operation, and common troubleshooting across workflows, knowledge bases, and agents. |
+| <a href="docs/prd/02-workflow-processing/complex-workflow-management-prd.md"><img src="assets/icons/workflow.svg" width="28" height="28" align="middle" alt=""> <strong>Workflow design</strong></a> | Flow creation, parsing settings, node data bindings, execution, and troubleshooting. |
+| <a href="docs/architecture/knowledge-base/"><img src="assets/icons/knowledge.svg" width="28" height="28" align="middle" alt=""> <strong>Knowledge-base design</strong></a> | Files and business tables, Agentic RAG, semantic configuration, and citation checks. |
+| <a href="docs/product-overview.md#6-astra平台能力如何进入-agent-运行时"><img src="assets/icons/agent.svg" width="28" height="28" align="middle" alt=""> <strong>Agent and Astra integration</strong></a> | How knowledge, skills, tools, and permissions enter a task, and how execution feedback returns to the product interface. |
+| <a href="storybook/INDEX.md"><img src="assets/icons/storybook.svg" width="28" height="28" align="middle" alt=""> <strong>Storybook scenarios</strong></a> | Fixed inputs, action paths, assertions, failure evidence, and cleanup. |
+| <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/icons/product-manual.svg" width="28" height="28" align="middle" alt=""> <strong>Product manual</strong></a> | Concepts, configuration, operation, and common troubleshooting across workflows, knowledge bases, and agents. |
 
-[Documentation index](docs/) · [Publication scope](DISCLAIMER.md)
+---
+
+**More resources** · [Documentation index](docs/) · [Publication scope](DISCLAIMER.md)
