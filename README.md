@@ -50,10 +50,10 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 | 主题 | 可查看的内容 |
 | --- | --- |
-| ![工作流](assets/icons/workflow.svg) **工作流设计** | 流程创建、解析配置、节点数据绑定、运行与排障。[设计文档](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) |
-| ![知识库](assets/icons/knowledge.svg) **知识库设计** | 文件与业务表管理、Agentic RAG、语义配置和引用核验。[架构专题](docs/architecture/knowledge-base/) |
-| ![智能体](assets/icons/agent.svg) **智能体与 Astra 适配** | 知识、Skill、工具和授权进入任务，以及运行反馈回到产品界面的设计。[产品衔接说明](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) |
-| ![场景验收](assets/icons/storybook.svg) **Storybook 场景** | 固定输入、操作路径、结果断言、失败证据和清理要求。[场景目录](storybook/INDEX.md) |
-| ![产品手册](assets/icons/product-manual.svg) **产品手册** | 工作流、知识库和智能体的概念、配置、操作与常见异常处理。[公开梳理](docs/product-overview.md) |
+| ![工作流](assets/icons/workflow.svg) **工作流设计**<br>[设计文档 →](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) | 流程创建、解析配置、节点数据绑定、运行与排障。 |
+| ![知识库](assets/icons/knowledge.svg) **知识库设计**<br>[架构专题 →](docs/architecture/knowledge-base/) | 文件与业务表管理、Agentic RAG、语义配置和引用核验。 |
+| ![智能体](assets/icons/agent.svg) **智能体与 Astra 适配**<br>[产品衔接 →](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) | 知识、Skill、工具和授权进入任务，以及运行反馈回到产品界面的设计。 |
+| ![场景验收](assets/icons/storybook.svg) **Storybook 场景**<br>[场景目录 →](storybook/INDEX.md) | 固定输入、操作路径、结果断言、失败证据和清理要求。 |
+| ![产品手册](assets/icons/product-manual.svg) **产品手册**<br>[公开梳理 →](docs/product-overview.md#产品手册把概念操作和异常处理连起来) | 工作流、知识库和智能体的概念、配置、操作与常见异常处理。 |
 
 [文档目录](docs/) · [公开边界](DISCLAIMER.md)

@@ -50,10 +50,10 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 | Area | What to explore |
 | --- | --- |
-| ![Workflow](assets/icons/workflow.svg) **Workflow design** | Flow creation, parsing settings, node data bindings, execution, and troubleshooting. [Design document](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) |
-| ![Knowledge base](assets/icons/knowledge.svg) **Knowledge-base design** | Files and business tables, Agentic RAG, semantic configuration, and citation checks. [Architecture](docs/architecture/knowledge-base/) |
-| ![Agent](assets/icons/agent.svg) **Agent and Astra integration** | How knowledge, skills, tools, and permissions enter a task, and how execution feedback returns to the product interface. [Product integration](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) |
-| ![Scenario acceptance](assets/icons/storybook.svg) **Storybook scenarios** | Fixed inputs, action paths, assertions, failure evidence, and cleanup. [Scenario index](storybook/INDEX.md) |
-| ![Product guide](assets/icons/product-manual.svg) **Product manual** | Concepts, configuration, operation, and common troubleshooting across workflows, knowledge bases, and agents. [Public overview](docs/product-overview.md) |
+| ![Workflow](assets/icons/workflow.svg) **Workflow design**<br>[Design document →](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) | Flow creation, parsing settings, node data bindings, execution, and troubleshooting. |
+| ![Knowledge base](assets/icons/knowledge.svg) **Knowledge-base design**<br>[Architecture →](docs/architecture/knowledge-base/) | Files and business tables, Agentic RAG, semantic configuration, and citation checks. |
+| ![Agent](assets/icons/agent.svg) **Agent and Astra integration**<br>[Product integration →](docs/product-overview.md#6-astra平台能力如何进入-agent-运行时) | How knowledge, skills, tools, and permissions enter a task, and how execution feedback returns to the product interface. |
+| ![Scenario acceptance](assets/icons/storybook.svg) **Storybook scenarios**<br>[Scenario index →](storybook/INDEX.md) | Fixed inputs, action paths, assertions, failure evidence, and cleanup. |
+| ![Product guide](assets/icons/product-manual.svg) **Product manual**<br>[Public overview →](docs/product-overview.md#产品手册把概念操作和异常处理连起来) | Concepts, configuration, operation, and common troubleshooting across workflows, knowledge bases, and agents. |
 
 [Documentation index](docs/) · [Publication scope](DISCLAIMER.md)
