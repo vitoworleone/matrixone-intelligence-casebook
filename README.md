@@ -28,7 +28,7 @@ MOI 还包含数据接入、API 集成与平台治理等能力。本案例集沿
 
 1080p 视频展示从目标描述到流程方案形成，再到画布节点生成和修改的交互过程。
 
-https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
+https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 > [!NOTE]
 > [CanvasFlow 工作流设计原始资料](docs/architecture/canvasflow-workflow/)是独立案例的完整档案，保留交互理念、架构取舍、状态机、契约、提示词和实测记录，可与 MOI 工作流 PRD 对照阅读。

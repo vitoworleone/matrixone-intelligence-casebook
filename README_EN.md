@@ -28,7 +28,7 @@ Workflows organize parsing, cleaning, extraction, and other processing steps int
 
 The 1080p video shows goal entry, plan formation, and canvas node creation and edits.
 
-https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
+https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 > [!NOTE]
 > The [original CanvasFlow workflow design archive](docs/architecture/canvasflow-workflow/) is a complete record from an independent case. It retains the interaction principles, architecture decisions, state machine, contracts, prompts, and observed runs for comparison with the MOI workflow PRD.
