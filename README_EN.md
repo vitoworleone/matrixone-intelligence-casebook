@@ -5,20 +5,22 @@
 # MatrixOne Intelligence Casebook
 
 > An enterprise AI product casebook: from document understanding and task execution to verifiable delivery.
->
-> <a href="README.md">中文</a> · <strong>English</strong>
 
-<p align="center">
-  <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ Explore the MOI platform prototype</strong></a>
+<p><a href="README.md">中文</a> | <strong>English</strong></p>
+
+<p>
+  <a href="docs/architecture/canvasflow-workflow/"><img src="https://img.shields.io/badge/Workflow-Design%20Docs-5945a3?style=flat-square" alt="Original workflow design documents" /></a>
+  <a href="https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049"><img src="https://img.shields.io/badge/Video-1080p-1266b2?style=flat-square" alt="1080p workflow video" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT license" /></a>
 </p>
 
 ## Workflow interaction demo
 
-<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
-  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="Workflow interaction video preview" width="900" />
-</a>
+This 1080p video shows goal entry, plan formation, and node edits.
 
-[Watch the 1080p video](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [Read the original workflow design documents](docs/architecture/canvasflow-workflow/)
+https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
+
+[Read the original workflow design documents](docs/architecture/canvasflow-workflow/)
 
 ## Astra runtime demo
 

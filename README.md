@@ -5,20 +5,22 @@
 # MatrixOne Intelligence Casebook
 
 > 企业级 AI 数据产品案例集：从文档理解、任务执行，到可验证的交付。
->
-> <strong>中文</strong> · <a href="README_EN.md">English</a>
 
-<p align="center">
-  <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ 在线体验 MOI 平台原型</strong></a>
+<p><strong>中文</strong> | <a href="README_EN.md">English</a></p>
+
+<p>
+  <a href="docs/architecture/canvasflow-workflow/"><img src="https://img.shields.io/badge/Workflow-Design%20Docs-5945a3?style=flat-square" alt="工作流设计原始资料" /></a>
+  <a href="https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049"><img src="https://img.shields.io/badge/Video-1080p-1266b2?style=flat-square" alt="1080p 工作流视频" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT 许可证" /></a>
 </p>
 
 ## 工作流交互演示
 
-<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
-  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="工作流交互演示视频预览" width="900" />
-</a>
+1080p 视频展示目标输入、方案形成和节点修改。
 
-[观看 1080p 视频](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [阅读工作流设计原始资料](docs/architecture/canvasflow-workflow/)
+https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
+
+[阅读工作流设计原始资料](docs/architecture/canvasflow-workflow/)
 
 ## Astra 运行时演示
 
