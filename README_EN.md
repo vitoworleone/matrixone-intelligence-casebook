@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4"><img src="product/canvasflow-workflow/docs/assets/canvasflow-restored-en.png" alt="Workflow interaction demo" width="900" /></a>
+  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -12,14 +12,15 @@
   <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ Explore the MOI platform prototype</strong></a>
 </p>
 
-<p align="center">
-  <a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4"><strong>▶ Workflow interaction demo</strong></a> · <a href="product/canvasflow-workflow/"><strong>Read the original workflow design documents</strong></a>
-</p>
+## Workflow interaction demo
 
-<details>
-<summary><strong>Prototype previews (click to expand)</strong></summary>
+<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
+  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="Workflow interaction video preview" width="900" />
+</a>
 
-<br />
+[Watch the 1080p video](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [Read the original workflow design documents](docs/architecture/canvasflow-workflow/)
+
+## Prototype previews
 
 <img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="100%" />
 
@@ -30,8 +31,6 @@
 <img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="100%" />
 
 <em>Data workbench: an overview of data objects, workflows, compute resources, and knowledge bases.</em>
-
-</details>
 
 ## Start here: product overview and my work
 
@@ -44,6 +43,8 @@ My work focused on workflow and knowledge-base product design, with participatio
 ### [MOI Platform PRDs](docs/prd/)
 
 Product requirements spanning data ingestion, workflow processing, knowledge retrieval, Agent applications, API integration, and platform governance.
+
+[Workflow design source documents](docs/architecture/canvasflow-workflow/) preserve the original decisions, contracts, and observed runs.
 
 ### [RAG Research](docs/research/rag/)
 

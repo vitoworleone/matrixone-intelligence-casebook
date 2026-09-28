@@ -8,6 +8,7 @@ Start here: [产品全景与实习工作说明（中文）](product-overview.md)
 - [PRD](prd/): product framing, requirements, and design artifacts.
 - [PoC](poc/): validation plans, acceptance criteria, and delivery retrospectives.
 - [Architecture](architecture/): public product architecture and capability boundaries.
+- [Workflow design archive](architecture/canvasflow-workflow/): original interaction design, state machine, contracts, and observed runs.
 - [Evaluation](eval/): quality measurement methods and sanitized evaluation evidence.
 
 Runnable prototypes, code, and engineering documentation will live in [`../product/`](../product/) when they exist.

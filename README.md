@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4"><img src="product/canvasflow-workflow/docs/assets/canvasflow-restored-zh-CN.png" alt="工作流交互演示" width="900" /></a>
+  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -12,14 +12,15 @@
   <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ 在线体验 MOI 平台原型</strong></a>
 </p>
 
-<p align="center">
-  <a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4"><strong>▶ 工作流交互演示</strong></a> · <a href="product/canvasflow-workflow/"><strong>阅读工作流设计原始资料</strong></a>
-</p>
+## 工作流交互演示
 
-<details>
-<summary><strong>原型界面预览（点击展开）</strong></summary>
+<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
+  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="工作流交互演示视频预览" width="900" />
+</a>
 
-<br />
+[观看 1080p 视频](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [阅读工作流设计原始资料](docs/architecture/canvasflow-workflow/)
+
+## 原型界面预览
 
 <img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="100%" />
 
@@ -30,8 +31,6 @@
 <img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="100%" />
 
 <em>数据工作台：数据对象、工作流、计算资源与知识库概览。</em>
-
-</details>
 
 ## 先读：产品全景与我的工作
 
@@ -58,6 +57,8 @@
 ### [产品架构](docs/architecture/)
 
 MOI 的公开产品架构、能力分层与关键协作链路。
+
+[工作流设计原始资料](docs/architecture/canvasflow-workflow/)保留完整的设计论证、契约与实测记录。
 
 ### [评测与质量](docs/eval/)
 
