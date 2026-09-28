@@ -25,7 +25,7 @@ MatrixOne Intelligence（MOI）连接企业数据加工、知识管理与智能�
 https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 > [!NOTE]
-> 延伸阅读：[工作流设计资料](docs/architecture/canvasflow-workflow/) · [MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)
+> 延伸阅读：[工作流设计资料](docs/architecture/canvasflow-workflow/)　[MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)
 
 ## 知识库：资料、业务表与语义
 
@@ -34,7 +34,7 @@ https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 <a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview-preview.png" alt="MOI 数据工作台概览" width="560" /></a>
 
 > [!NOTE]
-> 延伸阅读：[知识管理 PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md) · [NL2SQL 语义层方案](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)
+> 延伸阅读：[知识管理 PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md)　[NL2SQL 语义层方案](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)
 
 ## 智能体与 Astra：配置与执行
 
@@ -47,7 +47,7 @@ https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> 延伸阅读：[智能体工作台 PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) · [Astra 运行时架构与设计](docs/architecture/astra-runtime/)
+> 延伸阅读：[智能体工作台 PRD](docs/prd/04-agent-applications/agent-workbench-prd.md)　[Astra 运行时架构与设计](docs/architecture/astra-runtime/)
 
 ## 作品导览
 
@@ -61,4 +61,4 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-zh.svg" width="245" alt="产品手册：配置、操作、常见问题"></a>
 </p>
 
-<p align="center"><a href="docs/">文档目录</a> · <a href="DISCLAIMER.md">公开边界</a></p>
+<p align="center"><a href="docs/">文档目录</a>　<a href="DISCLAIMER.md">公开边界</a></p>

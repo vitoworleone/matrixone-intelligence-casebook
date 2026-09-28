@@ -25,7 +25,7 @@ Workflows organize parsing, cleaning, extraction, and other processing steps int
 https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 > [!NOTE]
-> Read more: [Workflow design documents](docs/architecture/canvasflow-workflow/) · [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)
+> Read more: [Workflow design documents](docs/architecture/canvasflow-workflow/)　[MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)
 
 ## Knowledge bases: sources, tables, and semantics
 
@@ -34,7 +34,7 @@ Knowledge bases manage the sources, processing state, and query scope of documen
 <a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview-preview.png" alt="MOI data workbench overview" width="560" /></a>
 
 > [!NOTE]
-> Read more: [Knowledge management PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md) · [NL2SQL semantic layer](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)
+> Read more: [Knowledge management PRD](docs/prd/03-knowledge-search/knowledge-management-prd.md)　[NL2SQL semantic layer](docs/prd/03-knowledge-search/nl2sql-semantic-layer-prd.md)
 
 ## Agents and Astra: configuration and execution
 
@@ -47,7 +47,7 @@ Agents combine a task goal, knowledge bases, skills, tools, and external connect
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> Read more: [Agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md) · [Astra runtime architecture and design](docs/architecture/astra-runtime/)
+> Read more: [Agent workbench PRD](docs/prd/04-agent-applications/agent-workbench-prd.md)　[Astra runtime architecture and design](docs/architecture/astra-runtime/)
 
 ## Explore the casebook
 
@@ -61,4 +61,4 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-en.svg" width="245" alt="Product manual: configure, operate, troubleshoot"></a>
 </p>
 
-<p align="center"><a href="docs/">Documentation index</a> · <a href="DISCLAIMER.md">Publication scope</a></p>
+<p align="center"><a href="docs/">Documentation index</a>　<a href="DISCLAIMER.md">Publication scope</a></p>
