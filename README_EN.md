@@ -61,9 +61,10 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-en.svg" width="245" alt="Product manual: configure, operate, troubleshoot"></a>
 </p>
 
-## 🗂️ Repository structure
+## 📁 Repository structure
 
-The repository keeps design materials, prototypes, and acceptance scenarios in separate places. `docs/` records product rules from research and requirements through architecture, PoCs, and evaluation criteria. `product/` contains the interactive prototype and demo videos, while `storybook/` organizes key tasks as repeatable acceptance scenarios. `assets/` holds presentation images, and `scripts/` generates previews and synchronizes the prototype.
+> [!IMPORTANT]
+> The repository keeps design materials, prototypes, and acceptance scenarios in separate places. `docs/` records product rules from research and requirements through architecture, PoCs, and evaluation criteria. `product/` contains the interactive prototype and demo videos, while `storybook/` organizes key tasks as repeatable acceptance scenarios. `assets/` holds presentation images, and `scripts/` generates previews and synchronizes the prototype.
 
 ```text
 .

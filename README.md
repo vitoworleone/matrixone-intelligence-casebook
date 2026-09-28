@@ -61,9 +61,10 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-zh.svg" width="245" alt="产品手册：配置、操作、常见问题"></a>
 </p>
 
-## 🗂️ 仓库结构
+## 📁 仓库结构
 
-这里把设计资料、原型和验收场景分开保存。`docs/` 从研究、需求、架构到 PoC 和评测口径记录产品规则；`product/` 提供可交互原型和演示视频；`storybook/` 将关键任务组织成可复核的场景。`assets/` 收纳展示用图像，`scripts/` 用于生成预览图和同步原型。
+> [!IMPORTANT]
+> 这里把设计资料、原型和验收场景分开保存。`docs/` 从研究、需求、架构到 PoC 和评测口径记录产品规则；`product/` 提供可交互原型和演示视频；`storybook/` 将关键任务组织成可复核的场景。`assets/` 收纳展示用图像，`scripts/` 用于生成预览图和同步原型。
 
 ```text
 .
