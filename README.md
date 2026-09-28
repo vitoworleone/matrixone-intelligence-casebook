@@ -61,7 +61,7 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-zh.svg" width="245" alt="产品手册：配置、操作、常见问题"></a>
 </p>
 
-## 仓库结构
+## <img src="assets/icons/folder.svg" width="28" height="28" align="top" alt=""> 仓库结构
 
 > [!IMPORTANT]
 > 这里按产品设计、交互原型和场景验收组织 MOI 的主要材料。下方目录树标明各类内容的位置与用途，方便按主题查阅。

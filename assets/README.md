@@ -19,7 +19,7 @@ For the casebook overview diagram:
 - `architecture/matrixflow-rag-architecture.png` is the full-resolution, clickable Matrixflow RAG architecture diagram used by the RAG README.
 - `architecture/casebook-banner.png` is the full-width README banner.
 - `badges/` contains the workflow, video, and license badges shown on both README covers.
-- `icons/` contains the five topic icons used in the README guide cards.
+- `icons/` contains the five topic icons used in the README guide cards and the folder icon used in the repository heading.
 - `cards/` contains centered Chinese and English SVG guide cards for the README covers.
 
 Do not copy internal screenshots or customer-facing materials here.
