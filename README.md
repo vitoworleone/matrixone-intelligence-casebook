@@ -26,12 +26,10 @@ MOI 还包含数据接入、API 集成与平台治理等能力。本案例集沿
 
 ### 工作流交互演示
 
-1080p 视频展示从目标描述到流程方案形成，再到画布节点生成和修改的交互过程。
-
 https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 > [!NOTE]
-> [CanvasFlow 工作流设计原始资料](docs/architecture/canvasflow-workflow/)是独立案例的完整档案，保留交互理念、架构取舍、状态机、契约、提示词和实测记录，可与 MOI 工作流 PRD 对照阅读。
+> 延伸阅读：[工作流设计资料](docs/architecture/canvasflow-workflow/) · [MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)
 
 ## 知识库：资料、业务表与语义
 
@@ -51,12 +49,10 @@ https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 ### Astra 运行时演示
 
-Astra 为智能体任务提供上下文管理、工具接入和执行记录等运行能力。视频展示一项长任务在 CLI 中的执行与分析。
-
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> [Astra 运行时架构与设计](docs/architecture/astra-runtime/)展开上下文、模型与工具接入、任务生命周期及执行边界。[产品全景](docs/product-overview.md)讨论 MOI 配置与运行能力如何衔接。
+> 延伸阅读：[Astra 运行时架构与设计](docs/architecture/astra-runtime/) · [MOI 产品全景](docs/product-overview.md)
 
 ## 如何验证与阅读材料
 

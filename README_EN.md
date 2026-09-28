@@ -26,12 +26,10 @@ Workflows organize parsing, cleaning, extraction, and other processing steps int
 
 ### Workflow interaction demo
 
-The 1080p video shows goal entry, plan formation, and canvas node creation and edits.
-
 https://github.com/user-attachments/assets/22bb82d2-bb80-4fc4-8a91-1febaeabbd1e
 
 > [!NOTE]
-> The [original CanvasFlow workflow design archive](docs/architecture/canvasflow-workflow/) is a complete record from an independent case. It retains the interaction principles, architecture decisions, state machine, contracts, prompts, and observed runs for comparison with the MOI workflow PRD.
+> Read more: [Workflow design documents](docs/architecture/canvasflow-workflow/) · [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)
 
 ## Knowledge bases: sources, tables, and semantics
 
@@ -51,12 +49,10 @@ Agents combine a task goal, knowledge bases, skills, tools, and external connect
 
 ### Astra runtime demo
 
-Astra provides runtime capabilities for agent tasks, including context management, tool access, and execution records. The video shows a long task running and being analyzed in the CLI.
-
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
 > [!NOTE]
-> [Astra runtime architecture and design](docs/architecture/astra-runtime/) covers context, model and tool access, task lifecycle, and execution boundaries. The [product overview](docs/product-overview.md) discusses how MOI configuration connects to runtime capabilities.
+> Read more: [Astra runtime architecture and design](docs/architecture/astra-runtime/) · [MOI product overview](docs/product-overview.md)
 
 ## Validation and repository guide
 
