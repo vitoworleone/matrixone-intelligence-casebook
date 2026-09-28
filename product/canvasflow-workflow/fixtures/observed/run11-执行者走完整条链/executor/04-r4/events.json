@@ -1,0 +1,496 @@
+[
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.postgres"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.postgres",
+      "displayName": "Postgres",
+      "description": "Get, add and update data in Postgres",
+      "version": 2.7,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [
+        {
+          "name": "postgres",
+          "required": true
+        }
+      ],
+      "operations": [
+        {
+          "value": "deleteTable",
+          "name": "Delete",
+          "description": "Delete an entire table or rows in a table"
+        },
+        {
+          "value": "executeQuery",
+          "name": "Execute Query",
+          "description": "Execute an SQL query"
+        },
+        {
+          "value": "insert",
+          "name": "Insert",
+          "description": "Insert rows in a table"
+        },
+        {
+          "value": "upsert",
+          "name": "Insert or Update",
+          "description": "Insert or update rows in a table"
+        },
+        {
+          "value": "select",
+          "name": "Select",
+          "description": "Select rows from a table"
+        },
+        {
+          "value": "update",
+          "name": "Update",
+          "description": "Update rows in a table"
+        }
+      ],
+      "hint": "这个节点分操作。选定操作后再查一次,带上 operation,才给那种操作的参数。",
+      "properties": []
+    }
+  },
+  {
+    "round": 2,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.postgres",
+      "operation": "insert"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.postgres",
+      "displayName": "Postgres",
+      "description": "Get, add and update data in Postgres",
+      "version": 2.7,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [
+        {
+          "name": "postgres",
+          "required": true
+        }
+      ],
+      "properties": [
+        {
+          "displayName": "Operation",
+          "name": "operation",
+          "type": "options",
+          "default": "insert",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "database"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Insert",
+              "value": "insert",
+              "description": "Insert rows in a table"
+            }
+          ]
+        },
+        {
+          "displayName": "Schema",
+          "name": "schema",
+          "type": "resourceLocator",
+          "default": {
+            "mode": "list",
+            "value": "public"
+          },
+          "required": true,
+          "description": "The schema that contains the table you want to work on",
+          "placeholder": "e.g. public",
+          "displayOptions": {
+            "hide": {
+              "operation": [
+                "executeQuery"
+              ]
+            }
+          },
+          "modes": [
+            "list",
+            "name"
+          ]
+        },
+        {
+          "displayName": "Table",
+          "name": "table",
+          "type": "resourceLocator",
+          "default": {
+            "mode": "list",
+            "value": ""
+          },
+          "required": true,
+          "description": "The table you want to work on",
+          "displayOptions": {
+            "hide": {
+              "operation": [
+                "executeQuery"
+              ]
+            }
+          },
+          "modes": [
+            "list",
+            "name"
+          ]
+        },
+        {
+          "displayName": "Data Mode",
+          "name": "dataMode",
+          "type": "options",
+          "default": "autoMapInputData",
+          "description": "Whether to map node input properties and the table data automatically or manually",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2,
+                2.1
+              ],
+              "resource": [
+                "database"
+              ],
+              "operation": [
+                "insert"
+              ]
+            },
+            "hide": {
+              "table": [
+                ""
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Auto-Map Input Data to Columns",
+              "value": "autoMapInputData",
+              "description": "Use when node input properties names exactly match the table column names"
+            },
+            {
+              "name": "Map Each Column Manually",
+              "value": "defineBelow",
+              "description": "Set the value for each destination column manually"
+            }
+          ]
+        },
+        {
+          "displayName": "Values to Send",
+          "name": "valuesToSend",
+          "type": "fixedCollection",
+          "default": {},
+          "placeholder": "Add Value",
+          "displayOptions": {
+            "show": {
+              "dataMode": [
+                "defineBelow"
+              ],
+              "@version": [
+                2,
+                2.1
+              ],
+              "resource": [
+                "database"
+              ],
+              "operation": [
+                "insert"
+              ]
+            },
+            "hide": {
+              "table": [
+                ""
+              ]
+            }
+          },
+          "multipleValues": true,
+          "options": [
+            {
+              "displayName": "Values",
+              "name": "values",
+              "values": [
+                {
+                  "displayName": "Column",
+                  "name": "column",
+                  "type": "options",
+                  "default": [],
+                  "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\" target=\"_blank\">expression</a>"
+                },
+                {
+                  "displayName": "Value",
+                  "name": "value",
+                  "type": "string",
+                  "default": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayName": "Columns",
+          "name": "columns",
+          "type": "resourceMapper",
+          "default": {
+            "mappingMode": "defineBelow",
+            "value": null
+          },
+          "required": true,
+          "displayOptions": {
+            "show": {
+              "@version": [
+                {
+                  "_cnd": {
+                    "gte": 2.2
+                  }
+                }
+              ],
+              "resource": [
+                "database"
+              ],
+              "operation": [
+                "insert"
+              ]
+            },
+            "hide": {
+              "table": [
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Options",
+          "name": "options",
+          "type": "collection",
+          "default": {},
+          "placeholder": "Add option",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "database"
+              ],
+              "operation": [
+                "insert"
+              ]
+            },
+            "hide": {
+              "table": [
+                ""
+              ]
+            }
+          },
+          "options": [
+            {
+              "displayName": "Cascade",
+              "name": "cascade",
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to drop all objects that depend on the table, such as views and sequences",
+              "displayOptions": {
+                "show": {
+                  "/operation": [
+                    "deleteTable"
+                  ]
+                },
+                "hide": {
+                  "/deleteCommand": [
+                    "delete"
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Connection Timeout",
+              "name": "connectionTimeout",
+              "type": "number",
+              "default": 30,
+              "description": "Number of seconds reserved for connecting to the database"
+            },
+            {
+              "displayName": "Delay Closing Idle Connection",
+              "name": "delayClosingIdleConnection",
+              "type": "number",
+              "default": 0,
+              "description": "Number of seconds to wait before idle connection would be eligible for closing"
+            },
+            {
+              "displayName": "Query Batching",
+              "name": "queryBatching",
+              "type": "options",
+              "default": "single",
+              "description": "The way queries should be sent to the database",
+              "options": [
+                {
+                  "name": "Single Query",
+                  "value": "single",
+                  "description": "A single query for all incoming items"
+                },
+                {
+                  "name": "Independent",
+                  "value": "independently",
+                  "description": "Execute one query per incoming item of the run"
+                },
+                {
+                  "name": "Transaction",
+                  "value": "transaction",
+                  "description": "Execute all queries in a transaction, if a failure occurs, all changes are rolled back"
+                }
+              ]
+            },
+            {
+              "displayName": "Query Parameters",
+              "name": "queryReplacement",
+              "type": "string",
+              "default": "",
+              "description": "Comma-separated list of the values you want to use as query parameters. <a href=\"https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.postgres/#use-query-parameters\" target=\"_blank\">More info</a>.",
+              "placeholder": "e.g. value1,value2,value3",
+              "displayOptions": {
+                "show": {
+                  "/operation": [
+                    "executeQuery"
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Treat query parameters in single quotes as text",
+              "name": "treatQueryParametersInSingleQuotesAsText",
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to treat query parameters enclosed in single quotes as text e.g. '$1'",
+              "displayOptions": {
+                "show": {
+                  "queryReplacement": [
+                    {
+                      "_cnd": {
+                        "exists": true
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Output Columns",
+              "name": "outputColumns",
+              "type": "multiOptions",
+              "default": [],
+              "description": "Choose from the list, or specify IDs using an <a href=\"https://docs.n8n.io/code/expressions/\" target=\"_blank\">expression</a>",
+              "displayOptions": {
+                "show": {
+                  "/operation": [
+                    "select",
+                    "insert",
+                    "update",
+                    "upsert"
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Output Large-Format Numbers As",
+              "name": "largeNumbersOutput",
+              "type": "options",
+              "default": "text",
+              "options": [
+                {
+                  "name": "Numbers",
+                  "value": "numbers"
+                },
+                {
+                  "name": "Text",
+                  "value": "text",
+                  "description": "Use this if you expect numbers longer than 16 digits (otherwise numbers may be incorrect)"
+                }
+              ]
+            },
+            {
+              "displayName": "Skip on Conflict",
+              "name": "skipOnConflict",
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to skip the row and do not throw error if a unique constraint or exclusion constraint is violated",
+              "displayOptions": {
+                "show": {
+                  "/operation": [
+                    "insert"
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Replace Empty Strings with NULL",
+              "name": "replaceEmptyStrings",
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to replace empty strings with NULL in input, could be useful when data come from spreadsheet",
+              "displayOptions": {
+                "show": {
+                  "/operation": [
+                    "insert",
+                    "update",
+                    "upsert",
+                    "executeQuery"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "round": 3,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "写入数据库",
+          "type": "n8n-nodes-base.postgres",
+          "params": {
+            "operation": "insert",
+            "schema": {
+              "mode": "list",
+              "value": "public"
+            },
+            "table": {
+              "mode": "list",
+              "value": ""
+            },
+            "columns": {
+              "mappingMode": "defineBelow",
+              "value": {}
+            }
+          },
+          "blanks": [
+            "postgres",
+            "table",
+            "columns"
+          ],
+          "note": "目标库表还没确认（q4），所以先用平台里的 Postgres 节点做 Insert，把上一步抽出的结构化字段落库；数据库凭据、表名和字段映射我都留空，等你的库和表定下来后填。schema 先按默认 public，若不是 public 顺手改一下。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "抽取关键字段",
+          "to": "写入数据库"
+        }
+      ]
+    }
+  }
+]

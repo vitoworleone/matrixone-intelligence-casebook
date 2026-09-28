@@ -1,0 +1,28 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "OCR 提取合同文本",
+      "type": "n8n-nodes-base.mistralAi",
+      "params": {
+        "resource": "document",
+        "operation": "extractText",
+        "model": "mistral-ocr-latest",
+        "documentType": "document_url",
+        "inputType": "binary",
+        "binaryProperty": "data"
+      },
+      "blanks": [
+        "mistralCloudApi"
+      ],
+      "note": "合同 PDF 是扫描件、没有文字层，所以用 Mistral 的 OCR 模型把每份扫描件识别成全文；binaryProperty 保持 data，接住上一步读出的文件。Mistral 凭据是你的账号信息，我留空给你填。",
+      "step": "r2"
+    }
+  ],
+  "edges": [
+    {
+      "from": "圈出昨天落库的文件",
+      "to": "OCR 提取合同文本"
+    }
+  ]
+}

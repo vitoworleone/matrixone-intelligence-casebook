@@ -1,0 +1,26 @@
+[
+  {
+    "round": 1,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "文本块向量化",
+          "type": "embedText",
+          "params": {
+            "model": "BGE-M3"
+          },
+          "blanks": [],
+          "note": "切分后的每个文本块过一次向量模型，原文随向量继续往下走，供写向量库时保留。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "按段落切分",
+          "to": "文本块向量化"
+        }
+      ]
+    }
+  }
+]

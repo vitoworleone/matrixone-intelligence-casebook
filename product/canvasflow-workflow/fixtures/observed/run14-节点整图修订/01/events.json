@@ -1,0 +1,85 @@
+[
+  {
+    "round": 1,
+    "kind": "submitted",
+    "submission": {
+      "addEdges": [],
+      "kind": "patch",
+      "removeEdges": [],
+      "removeNodes": [],
+      "review": [
+        {
+          "step": "s1",
+          "summary": "读取合同 PDF 环节只负责把带文本层的 PDF 纳入链路，与 amount 的存储单位无关，保持不变。"
+        },
+        {
+          "step": "s2",
+          "summary": "解析文本环节只把 PDF 文字层读成纯文本，不涉及金额字段，保持不变。"
+        },
+        {
+          "step": "s3",
+          "summary": "本请求的发起环节：amount 字段名不变，但语义改为整数型、单位为分；更新 outputSchema 的类型与描述，并改写 prompt，让模型把金额换算为分后取整填写，无法确定时仍填 null。"
+        },
+        {
+          "step": "s4",
+          "summary": "校验条件为 typeof input.amount == \"number\" 且非 null，整数分仍是 number，过滤逻辑天然兼容，节点定义无需改动；过滤口径（contract_id 为空或 amount 非数值剔除）不受影响。"
+        },
+        {
+          "step": "s5",
+          "summary": "上游 amount 已变为分，汇总代码先在分单位下按 currency 求和，再除以 100 输出以元展示的 total_amount，保证最终展示口径不变。"
+        }
+      ],
+      "summary": "已把抽取环节的 amount 改为整数分存储（字段名不变）：S3 的输出结构改为 integer/null、描述与 prompt 改为“换算为分后取整填写”；S5 汇总代码先在分单位下按币种求和，再除以 100 输出以元展示的 total_amount；S4 的数值校验条件对整数分天然兼容，其余环节和连线不变。",
+      "upsertNodes": [
+        {
+          "blanks": [],
+          "name": "抽取字段",
+          "note": "字段口径改为：amount 仍为同名字段，但以整数分存储；取不到 contract_id 的留空、amount 无法确定的填 null，由后续校验环节剔除。",
+          "params": {
+            "model": "DeepSeek V4 Pro",
+            "outputSchema": {
+              "properties": {
+                "amount": {
+                  "description": "合同金额，整数型，单位为分；原文为其他单位或其他币种金额时，先换算为元再乘 100 取整后填写",
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "contract_id": {
+                  "description": "合同编号",
+                  "type": "string"
+                },
+                "currency": {
+                  "description": "币种代码，如 CNY、USD",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "contract_id",
+                "amount",
+                "currency"
+              ],
+              "type": "object"
+            },
+            "prompt": "从下面的合同文本中抽取三个字段，并按输出结构返回一条记录：\n1. contract_id：合同编号；文本中找不到时留空字符串。\n2. amount：合同金额，整数型，单位为分；先确定金额是多少元（文本中单位不是元时先换算为元），再乘 100 取整后只填整数数值，不要带小数、千分位或货币符号；无法确定数值时填 null。\n3. currency：币种代码（如 CNY、USD），按合同标价的币种填写。\n\n合同文本：\n{{ input.text }}"
+          },
+          "step": "s3",
+          "type": "llm"
+        },
+        {
+          "blanks": [],
+          "name": "按币种汇总",
+          "note": "上游 amount 为整数分：先在分单位下按 currency 分组求和，再除以 100 得到以元展示的 total_amount，每个币种输出一条；只接校验通过的那一路。",
+          "params": {
+            "code": "const totals = {};\nfor (const item of items) {\n  const cur = item.currency;\n  if (!totals[cur]) totals[cur] = 0;\n  totals[cur] += item.amount; // amount 为整数分\n}\nreturn Object.entries(totals).map(([currency, totalCents]) => ({\n  currency,\n  total_amount: totalCents / 100 // 分换算回元展示\n}));",
+            "language": "JavaScript",
+            "outputKind": "JSON"
+          },
+          "step": "s5",
+          "type": "code"
+        }
+      ]
+    }
+  }
+]

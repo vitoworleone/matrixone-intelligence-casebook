@@ -1,0 +1,19 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "电子版提取文本",
+      "type": "parseDocument",
+      "params": {},
+      "blanks": [],
+      "note": "电子版走解析文档正式取全文；表格内容随文字层进入文本，图片不会被提取。"
+    }
+  ],
+  "edges": [
+    {
+      "from": "有文字层？",
+      "to": "电子版提取文本",
+      "output": "true"
+    }
+  ]
+}

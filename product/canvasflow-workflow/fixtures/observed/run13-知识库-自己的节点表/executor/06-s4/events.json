@@ -1,0 +1,27 @@
+[
+  {
+    "round": 1,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "写入向量库",
+          "type": "writeVectorStore",
+          "params": {},
+          "blanks": [
+            "connection",
+            "collection"
+          ],
+          "note": "这是把文本块和向量落成可语义检索索引的唯一节点；向量库连接和集合属于用户自己的资源，所以留空待选。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "文本块向量化",
+          "to": "写入向量库"
+        }
+      ]
+    }
+  }
+]

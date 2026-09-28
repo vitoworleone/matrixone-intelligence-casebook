@@ -1,0 +1,41 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "抽取合同关键字段",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "params": {
+        "text": "={{ $json.text }}",
+        "schemaType": "fromAttributes",
+        "attributes": {}
+      },
+      "blanks": [
+        "attributes"
+      ],
+      "note": "用 Information Extractor 从 OCR 文本里抽结构化字段；关键字段是哪几个你还没定，我把 attributes 留空给你按合同字段填（名称/类型/描述）。输入取上一节点 OCR 产出的 text。",
+      "step": "r3"
+    },
+    {
+      "name": "DeepSeek Chat 模型",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "params": {
+        "model": "deepseek-chat"
+      },
+      "blanks": [
+        "deepSeekApi"
+      ],
+      "note": "Information Extractor 的模型子节点，凭据 deepSeekApi 留空给你填；模型用默认 deepseek-chat。",
+      "step": "r3"
+    }
+  ],
+  "edges": [
+    {
+      "from": "OCR 识别扫描件文本",
+      "to": "抽取合同关键字段"
+    },
+    {
+      "from": "DeepSeek Chat 模型",
+      "to": "抽取合同关键字段"
+    }
+  ]
+}

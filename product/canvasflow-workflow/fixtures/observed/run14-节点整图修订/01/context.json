@@ -1,0 +1,267 @@
+{
+  "plan": {
+    "goal": "在画布上搭一条五环节合同金额工作流：从带文本层的合同 PDF 读出文本，抽取 contract_id/amount/currency，滤掉无效记录，按币种汇总出 total_amount（元）；只生成画布，不实际运行。",
+    "readiness": "partial",
+    "understanding": [
+      {
+        "quote": "请搭一条用于画布交互验证的合同金额工作流……这里只生成工作流画布，不实际运行数据处理",
+        "reading": "交付物是画布上的工作流结构本身，用于交互验证；本次不触发真实的数据处理执行",
+        "ref": "u1"
+      },
+      {
+        "quote": "共五个环节：读取合同 PDF → 解析文本 → 抽取字段 → 校验记录 → 按币种汇总",
+        "reading": "链路固定为这五步，顺序不变，每步对应一次数据形态转变",
+        "ref": "u2"
+      },
+      {
+        "quote": "PDF 都有文本层",
+        "reading": "输入是带文本层的合同 PDF，文本可直接读出，链路中不需要 OCR 环节",
+        "ref": "u3"
+      },
+      {
+        "quote": "抽取 contract_id、amount（数值，单位为元）、currency（币种代码）",
+        "reading": "抽取环节产出含这三个字段的结构化记录，amount 为数值类型、单位元，currency 为币种代码",
+        "ref": "u4"
+      },
+      {
+        "quote": "校验环节只过滤 contract_id 为空或 amount 非数值的记录，字段和单位保持不变",
+        "reading": "校验只做记录级过滤，命中任一条件的整条记录剔除，不做字段修改、单位换算或格式修复",
+        "ref": "u5"
+      },
+      {
+        "quote": "汇总环节按 currency 汇总 amount，输出 total_amount，单位仍为元",
+        "reading": "按币种分组对 amount 求和，输出每组一条的 currency + total_amount，单位保持元",
+        "ref": "u6"
+      },
+      {
+        "quote": "目录暂时留作待配置项，不需要追问",
+        "reading": "PDF 所在目录作为读取环节的待填参数留空，其余口径均已确定",
+        "ref": "u7"
+      }
+    ],
+    "steps": [
+      {
+        "ref": "s1",
+        "title": "读取合同 PDF",
+        "intent": "把目录下的合同文件逐个纳入链路",
+        "input": "待配置目录下的合同 PDF 文件，均带文本层",
+        "output": "逐份的 PDF 文件对象",
+        "dependsOn": []
+      },
+      {
+        "ref": "s2",
+        "title": "解析文本",
+        "intent": "把每份 PDF 的文本层内容读成可处理的纯文本",
+        "input": "逐份的 PDF 文件对象",
+        "output": "每份合同对应的纯文本",
+        "dependsOn": [
+          "s1"
+        ]
+      },
+      {
+        "ref": "s3",
+        "title": "抽取字段",
+        "intent": "从合同文本中取出结构化字段",
+        "input": "每份合同对应的纯文本",
+        "output": "结构化记录，含 contract_id、amount（数值型，单位元）、currency（币种代码），每份合同一条",
+        "dependsOn": [
+          "s2"
+        ]
+      },
+      {
+        "ref": "s4",
+        "title": "校验记录",
+        "intent": "剔除无效记录，保证进入汇总的数据可用",
+        "input": "含 contract_id、amount、currency 的结构化记录",
+        "output": "过滤后的记录集：contract_id 为空或 amount 非数值的整条剔除，其余记录字段与单位原样保留",
+        "dependsOn": [
+          "s3"
+        ]
+      },
+      {
+        "ref": "s5",
+        "title": "按币种汇总",
+        "intent": "按币种聚合金额，得到各币种总额",
+        "input": "校验后的记录集",
+        "output": "按 currency 分组的汇总结果，每组一条：currency + total_amount（amount 求和，单位元）",
+        "dependsOn": [
+          "s4"
+        ]
+      }
+    ],
+    "openQuestions": [
+      {
+        "ref": "q1",
+        "question": "合同 PDF 所在目录是哪个路径？",
+        "reason": "读取环节的输入来源未定，画布上该环节只能以占位参数存在；不阻塞链路搭建，执行前填上即可",
+        "affects": [
+          "s1"
+        ]
+      }
+    ]
+  },
+  "canvas": {
+    "nodes": [
+      {
+        "blanks": [
+          "folder"
+        ],
+        "name": "读取合同 PDF",
+        "note": "PDF 均带文本层，目录由用户在卡片上补填；这里只需逐个把合同文件纳入链路。",
+        "params": {
+          "pattern": "*.pdf"
+        },
+        "type": "readFile",
+        "step": "s1"
+      },
+      {
+        "blanks": [],
+        "name": "解析文本",
+        "params": {},
+        "type": "parseDocument",
+        "note": "合同 PDF 均带文本层，用解析文档直接取文字即可，无需 OCR。",
+        "step": "s2"
+      },
+      {
+        "blanks": [],
+        "name": "抽取字段",
+        "note": "抽取的字段和口径计划已明确，因此直接给出输出结构；取不到 contract_id 的留空、amount 无法确定的填 null，由后续校验环节剔除。",
+        "params": {
+          "model": "DeepSeek V4 Pro",
+          "outputSchema": {
+            "properties": {
+              "amount": {
+                "description": "合同金额，数值型，单位为元；原文为其他单位时换算为元后填数值",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "contract_id": {
+                "description": "合同编号",
+                "type": "string"
+              },
+              "currency": {
+                "description": "币种代码，如 CNY、USD",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contract_id",
+              "amount",
+              "currency"
+            ],
+            "type": "object"
+          },
+          "prompt": "从下面的合同文本中抽取三个字段，并按输出结构返回一条记录：\n1. contract_id：合同编号；文本中找不到时留空字符串。\n2. amount：合同金额，数值型，单位为元；若文本中的金额单位不是元，换算为元后只填数值，不要带千分位或货币符号；无法确定数值时填 null。\n3. currency：币种代码（如 CNY、USD），按合同标价的币种填写。\n\n合同文本：\n{{ input.text }}"
+        },
+        "type": "llm",
+        "step": "s3"
+      },
+      {
+        "blanks": [],
+        "name": "校验记录",
+        "note": "用条件节点做记录级过滤：contract_id 为空或 amount 非数值的走 false 出口不接，整条自然剔除，其余记录字段与单位原样保留。",
+        "params": {
+          "condition": "input.contract_id != \"\" && typeof input.amount == \"number\" && input.amount != null"
+        },
+        "type": "condition",
+        "step": "s4"
+      },
+      {
+        "blanks": [],
+        "name": "按币种汇总",
+        "note": "平台没有现成聚合节点，用代码节点按 currency 分组求和，每个币种输出一条 total_amount；只接校验通过的那一路。",
+        "params": {
+          "code": "const totals = {};\nfor (const item of items) {\n  const cur = item.currency;\n  if (!totals[cur]) totals[cur] = 0;\n  totals[cur] += item.amount;\n}\nreturn Object.entries(totals).map(([currency, total_amount]) => ({\n  currency,\n  total_amount\n}));",
+          "language": "JavaScript",
+          "outputKind": "JSON"
+        },
+        "type": "code",
+        "step": "s5"
+      }
+    ],
+    "edges": [
+      {
+        "from": "读取合同 PDF",
+        "to": "解析文本"
+      },
+      {
+        "from": "解析文本",
+        "to": "抽取字段"
+      },
+      {
+        "from": "抽取字段",
+        "to": "校验记录"
+      },
+      {
+        "from": "校验记录",
+        "output": "true",
+        "to": "按币种汇总"
+      }
+    ],
+    "version": 5
+  },
+  "target": {
+    "node": "抽取字段",
+    "step": "s3"
+  },
+  "instruction": {
+    "id": "edit-1",
+    "text": "这里的 amount 改成用整数分存储，字段名不变；最终 total_amount 仍以元展示。保持五个环节和其他字段、配置，结合整条工作流处理关联影响。"
+  },
+  "requirements": [],
+  "annotations": [],
+  "history": {
+    "runs": [
+      {
+        "revision": 1,
+        "steps": [
+          {
+            "ref": "s1",
+            "outcome": "done",
+            "canvasVersion": 1,
+            "nodes": [
+              "读取合同 PDF"
+            ]
+          },
+          {
+            "ref": "s2",
+            "outcome": "done",
+            "canvasVersion": 2,
+            "nodes": [
+              "解析文本"
+            ]
+          },
+          {
+            "ref": "s3",
+            "outcome": "done",
+            "canvasVersion": 3,
+            "nodes": [
+              "抽取字段"
+            ]
+          },
+          {
+            "ref": "s4",
+            "outcome": "done",
+            "canvasVersion": 4,
+            "nodes": [
+              "校验记录"
+            ]
+          },
+          {
+            "ref": "s5",
+            "outcome": "done",
+            "canvasVersion": 5,
+            "nodes": [
+              "按币种汇总"
+            ]
+          }
+        ],
+        "endedBy": "finished",
+        "problems": []
+      }
+    ],
+    "edits": []
+  }
+}

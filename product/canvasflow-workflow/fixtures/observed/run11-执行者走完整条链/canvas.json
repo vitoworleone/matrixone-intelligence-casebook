@@ -1,0 +1,144 @@
+{
+  "nodes": [
+    {
+      "name": "每天定时",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "params": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 0,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "blanks": [],
+      "note": "按天自动启动，默认午夜触发；要改到别的点，直接调触发小时/分钟。",
+      "step": "r1"
+    },
+    {
+      "name": "读取合同扫描件",
+      "type": "n8n-nodes-base.readWriteFile",
+      "params": {
+        "operation": "read",
+        "fileSelector": ""
+      },
+      "blanks": [
+        "fileSelector"
+      ],
+      "note": "从磁盘读取合同 PDF；具体目录/文件匹配模式是你的存储路径，我留空给你填。",
+      "step": "r1"
+    },
+    {
+      "name": "圈出昨天落库的文件",
+      "type": "n8n-nodes-base.code",
+      "params": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst now = new Date();\nconst start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);\nconst end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1, 0, 0, 0, 0);\n\nreturn items.filter((item) => {\n  const json = item.json || {};\n  const bin = (item.binary && item.binary.data) || {};\n  const directory = json.directory || bin.directory || '';\n  const fileName = json.fileName || bin.fileName || '';\n  if (!directory || !fileName) return false;\n  const filePath = path.join(directory, fileName);\n  try {\n    const stat = fs.statSync(filePath);\n    return stat.mtimeMs >= start.getTime() && stat.mtimeMs < end.getTime();\n  } catch (e) {\n    return false;\n  }\n});"
+      },
+      "blanks": [],
+      "note": "按文件的修改时间（即写入存储的落库时间）过滤，只留下昨天 0 点到今天 0 点之间的 PDF。",
+      "step": "r1"
+    },
+    {
+      "name": "OCR 提取合同文本",
+      "type": "n8n-nodes-base.mistralAi",
+      "params": {
+        "resource": "document",
+        "operation": "extractText",
+        "model": "mistral-ocr-latest",
+        "documentType": "document_url",
+        "inputType": "binary",
+        "binaryProperty": "data"
+      },
+      "blanks": [
+        "mistralCloudApi"
+      ],
+      "note": "合同 PDF 是扫描件、没有文字层，所以用 Mistral 的 OCR 模型把每份扫描件识别成全文；binaryProperty 保持 data，接住上一步读出的文件。Mistral 凭据是你的账号信息，我留空给你填。",
+      "step": "r2"
+    },
+    {
+      "name": "抽取关键字段",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "params": {
+        "text": "={{ $json.text }}",
+        "schemaType": "fromAttributes",
+        "attributes": {}
+      },
+      "blanks": [
+        "attributes"
+      ],
+      "note": "关键字段清单还没确认，所以 attributes 留空由你填；text 接上一步 OCR 输出的全文，用 DeepSeek 把每份合同抽成结构化记录。",
+      "step": "r3"
+    },
+    {
+      "name": "DeepSeek 模型",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "params": {
+        "model": "deepseek-chat"
+      },
+      "blanks": [
+        "deepSeekApi"
+      ],
+      "note": "给抽取节点当模型用，默认 deepseek-chat；DeepSeek 凭据是你的账号，留空给你填。",
+      "step": "r3"
+    },
+    {
+      "name": "写入数据库",
+      "type": "n8n-nodes-base.postgres",
+      "params": {
+        "operation": "insert",
+        "schema": {
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        }
+      },
+      "blanks": [
+        "postgres",
+        "table",
+        "columns"
+      ],
+      "note": "目标库表还没确认（q4），所以先用平台里的 Postgres 节点做 Insert，把上一步抽出的结构化字段落库；数据库凭据、表名和字段映射我都留空，等你的库和表定下来后填。schema 先按默认 public，若不是 public 顺手改一下。",
+      "step": "r4"
+    }
+  ],
+  "edges": [
+    {
+      "from": "每天定时",
+      "to": "读取合同扫描件"
+    },
+    {
+      "from": "读取合同扫描件",
+      "to": "圈出昨天落库的文件"
+    },
+    {
+      "from": "圈出昨天落库的文件",
+      "to": "OCR 提取合同文本"
+    },
+    {
+      "from": "OCR 提取合同文本",
+      "to": "抽取关键字段"
+    },
+    {
+      "from": "DeepSeek 模型",
+      "to": "抽取关键字段"
+    },
+    {
+      "from": "抽取关键字段",
+      "to": "写入数据库"
+    }
+  ],
+  "version": 4
+}

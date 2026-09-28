@@ -1,0 +1,28 @@
+[
+  {
+    "round": 1,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "按段落切分",
+          "type": "splitText",
+          "params": {},
+          "blanks": [],
+          "note": "两路文本汇到同一个切分节点；切分粒度还没定，先用默认 500 字块，来源文件路径会随条目保留作定位。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "电子版提取文本",
+          "to": "按段落切分"
+        },
+        {
+          "from": "扫描件 OCR",
+          "to": "按段落切分"
+        }
+      ]
+    }
+  }
+]

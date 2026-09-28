@@ -1,0 +1,42 @@
+{
+  "revision": 2,
+  "steps": [
+    {
+      "ref": "r1",
+      "outcome": "done",
+      "canvasVersion": 1,
+      "nodes": [
+        "每天定时",
+        "读取合同扫描件",
+        "圈出昨天落库的文件"
+      ]
+    },
+    {
+      "ref": "r2",
+      "outcome": "done",
+      "canvasVersion": 2,
+      "nodes": [
+        "OCR 提取合同文本"
+      ]
+    },
+    {
+      "ref": "r3",
+      "outcome": "done",
+      "canvasVersion": 3,
+      "nodes": [
+        "抽取关键字段",
+        "DeepSeek 模型"
+      ]
+    },
+    {
+      "ref": "r4",
+      "outcome": "done",
+      "canvasVersion": 4,
+      "nodes": [
+        "写入数据库"
+      ]
+    }
+  ],
+  "endedBy": "finished",
+  "problems": []
+}

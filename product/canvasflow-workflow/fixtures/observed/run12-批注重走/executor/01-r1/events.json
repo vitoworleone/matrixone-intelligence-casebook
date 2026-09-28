@@ -1,0 +1,933 @@
+[
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.scheduleTrigger"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "displayName": "Schedule Trigger",
+      "description": "Triggers the workflow on a given schedule",
+      "version": 1.4,
+      "inputs": [],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "properties": [
+        {
+          "displayName": "Trigger Rules",
+          "name": "rule",
+          "type": "fixedCollection",
+          "default": {
+            "interval": [
+              {
+                "field": "days"
+              }
+            ]
+          },
+          "placeholder": "Add Rule",
+          "multipleValues": true,
+          "options": [
+            {
+              "displayName": "Trigger Interval",
+              "name": "interval",
+              "values": [
+                {
+                  "displayName": "Trigger Interval",
+                  "name": "field",
+                  "type": "options",
+                  "default": "days",
+                  "options": [
+                    {
+                      "name": "Seconds",
+                      "value": "seconds"
+                    },
+                    {
+                      "name": "Minutes",
+                      "value": "minutes"
+                    },
+                    {
+                      "name": "Hours",
+                      "value": "hours"
+                    },
+                    {
+                      "name": "Days",
+                      "value": "days"
+                    },
+                    {
+                      "name": "Weeks",
+                      "value": "weeks"
+                    },
+                    {
+                      "name": "Months",
+                      "value": "months"
+                    },
+                    {
+                      "name": "Custom (Cron)",
+                      "value": "cronExpression"
+                    }
+                  ]
+                },
+                {
+                  "displayName": "Seconds Between Triggers",
+                  "name": "secondsInterval",
+                  "type": "number",
+                  "default": 30,
+                  "description": "Number of seconds between each workflow trigger",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "seconds"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Minutes Between Triggers",
+                  "name": "minutesInterval",
+                  "type": "number",
+                  "default": 5,
+                  "description": "Number of minutes between each workflow trigger",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "minutes"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Hours Between Triggers",
+                  "name": "hoursInterval",
+                  "type": "number",
+                  "default": 1,
+                  "description": "Number of hours between each workflow trigger",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "hours"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Days Between Triggers",
+                  "name": "daysInterval",
+                  "type": "number",
+                  "default": 1,
+                  "description": "Number of days between each workflow trigger",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "days"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Weeks Between Triggers",
+                  "name": "weeksInterval",
+                  "type": "number",
+                  "default": 1,
+                  "description": "Would run every week unless specified otherwise",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "weeks"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Months Between Triggers",
+                  "name": "monthsInterval",
+                  "type": "number",
+                  "default": 1,
+                  "description": "Would run every month unless specified otherwise",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "months"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Trigger at Day of Month",
+                  "name": "triggerAtDayOfMonth",
+                  "type": "number",
+                  "default": 1,
+                  "description": "The day of the month to trigger (1-31)",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "months"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Trigger on Weekdays",
+                  "name": "triggerAtDay",
+                  "type": "multiOptions",
+                  "default": [
+                    0
+                  ],
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "weeks"
+                      ]
+                    }
+                  },
+                  "options": [
+                    {
+                      "name": "Monday",
+                      "value": 1
+                    },
+                    {
+                      "name": "Tuesday",
+                      "value": 2
+                    },
+                    {
+                      "name": "Wednesday",
+                      "value": 3
+                    },
+                    {
+                      "name": "Thursday",
+                      "value": 4
+                    },
+                    {
+                      "name": "Friday",
+                      "value": 5
+                    },
+                    {
+                      "name": "Saturday",
+                      "value": 6
+                    },
+                    {
+                      "name": "Sunday",
+                      "value": 0
+                    }
+                  ]
+                },
+                {
+                  "displayName": "Trigger at Hour",
+                  "name": "triggerAtHour",
+                  "type": "options",
+                  "default": 0,
+                  "description": "The hour of the day to trigger",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "days",
+                        "weeks",
+                        "months"
+                      ]
+                    }
+                  },
+                  "options": [
+                    {
+                      "name": "Midnight",
+                      "value": 0
+                    },
+                    {
+                      "name": "1am",
+                      "value": 1
+                    },
+                    {
+                      "name": "2am",
+                      "value": 2
+                    },
+                    {
+                      "name": "3am",
+                      "value": 3
+                    },
+                    {
+                      "name": "4am",
+                      "value": 4
+                    },
+                    {
+                      "name": "5am",
+                      "value": 5
+                    },
+                    {
+                      "name": "6am",
+                      "value": 6
+                    },
+                    {
+                      "name": "7am",
+                      "value": 7
+                    },
+                    {
+                      "name": "8am",
+                      "value": 8
+                    },
+                    {
+                      "name": "9am",
+                      "value": 9
+                    },
+                    {
+                      "name": "10am",
+                      "value": 10
+                    },
+                    {
+                      "name": "11am",
+                      "value": 11
+                    },
+                    {
+                      "name": "Noon",
+                      "value": 12
+                    },
+                    {
+                      "name": "1pm",
+                      "value": 13
+                    },
+                    {
+                      "name": "2pm",
+                      "value": 14
+                    },
+                    {
+                      "name": "3pm",
+                      "value": 15
+                    },
+                    {
+                      "name": "4pm",
+                      "value": 16
+                    },
+                    {
+                      "name": "5pm",
+                      "value": 17
+                    },
+                    {
+                      "name": "6pm",
+                      "value": 18
+                    },
+                    {
+                      "name": "7pm",
+                      "value": 19
+                    },
+                    {
+                      "name": "8pm",
+                      "value": 20
+                    },
+                    {
+                      "name": "9pm",
+                      "value": 21
+                    },
+                    {
+                      "name": "10pm",
+                      "value": 22
+                    },
+                    {
+                      "name": "11pm",
+                      "value": 23
+                    }
+                  ]
+                },
+                {
+                  "displayName": "Trigger at Minute",
+                  "name": "triggerAtMinute",
+                  "type": "number",
+                  "default": 0,
+                  "description": "The minute past the hour to trigger (0-59)",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "hours",
+                        "days",
+                        "weeks",
+                        "months"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "displayName": "Expression",
+                  "name": "expression",
+                  "type": "string",
+                  "default": "",
+                  "placeholder": "eg. 0 15 * 1 sun",
+                  "displayOptions": {
+                    "show": {
+                      "field": [
+                        "cronExpression"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayName": "If Execution Is Missed",
+          "name": "misfirePolicy",
+          "type": "options",
+          "default": "skip",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                {
+                  "_cnd": {
+                    "gte": 1.4
+                  }
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Run the Most Recent Missed Execution Per Rule",
+              "value": "coalesce"
+            },
+            {
+              "name": "Run the Most Recent Missed Execution",
+              "value": "coalesce_owner"
+            },
+            {
+              "name": "Don't Run Missed Executions",
+              "value": "skip"
+            }
+          ]
+        },
+        {
+          "displayName": "Missed Execution Grace Period (Seconds)",
+          "name": "misfireGraceSeconds",
+          "type": "number",
+          "default": 0,
+          "description": "How late an execution may start before it counts as missed. Set to 0 to use the instance setting.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                {
+                  "_cnd": {
+                    "gte": 1.4
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Skip Durable Scheduler",
+          "name": "skipDurableScheduler",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to run this trigger through the legacy in-memory scheduler instead of the durable scheduler"
+        }
+      ]
+    }
+  },
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.readWriteFile"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.readWriteFile",
+      "displayName": "Read/Write Files from Disk",
+      "description": "Read or write files from the computer that runs n8n",
+      "version": 1.1,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "operations": [
+        {
+          "value": "read",
+          "name": "Read File(s) From Disk",
+          "description": "Retrieve one or more files from the computer that runs n8n"
+        },
+        {
+          "value": "write",
+          "name": "Write File to Disk",
+          "description": "Create a binary file on the computer that runs n8n"
+        }
+      ],
+      "hint": "这个节点分操作。选定操作后再查一次,带上 operation,才给那种操作的参数。",
+      "properties": []
+    }
+  },
+  {
+    "round": 2,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.readWriteFile",
+      "operation": "read"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.readWriteFile",
+      "displayName": "Read/Write Files from Disk",
+      "description": "Read or write files from the computer that runs n8n",
+      "version": 1.1,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "properties": [
+        {
+          "displayName": "Operation",
+          "name": "operation",
+          "type": "options",
+          "default": "read",
+          "options": [
+            {
+              "name": "Read File(s) From Disk",
+              "value": "read",
+              "description": "Retrieve one or more files from the computer that runs n8n"
+            }
+          ]
+        },
+        {
+          "displayName": "File(s) Selector",
+          "name": "fileSelector",
+          "type": "string",
+          "default": "",
+          "required": true,
+          "description": "Specify a file's path or path pattern to read multiple files. Always use forward-slashes for path separator even on Windows.",
+          "placeholder": "e.g. /home/user/Pictures/**/*.png",
+          "displayOptions": {
+            "show": {
+              "operation": [
+                "read"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Options",
+          "name": "options",
+          "type": "collection",
+          "default": {},
+          "placeholder": "Add option",
+          "displayOptions": {
+            "show": {
+              "operation": [
+                "read"
+              ]
+            }
+          },
+          "options": [
+            {
+              "displayName": "File Extension",
+              "name": "fileExtension",
+              "type": "string",
+              "default": "",
+              "description": "Extension of the file in the output binary",
+              "placeholder": "e.g. zip"
+            },
+            {
+              "displayName": "File Name",
+              "name": "fileName",
+              "type": "string",
+              "default": "",
+              "description": "Name of the file in the output binary",
+              "placeholder": "e.g. data.zip"
+            },
+            {
+              "displayName": "Mime Type",
+              "name": "mimeType",
+              "type": "string",
+              "default": "",
+              "description": "Mime type of the file in the output binary",
+              "placeholder": "e.g. application/zip"
+            },
+            {
+              "displayName": "Put Output File in Field",
+              "name": "dataPropertyName",
+              "type": "string",
+              "default": "data",
+              "description": "By default 'data' is used",
+              "placeholder": "e.g. data"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "round": 3,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "file metadata modification time filter"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.filter",
+        "displayName": "Filter",
+        "description": "Keep only items matching a condition",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.dateTime",
+        "displayName": "Date & Time",
+        "description": "Manipulate date and time values",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.extractFromFile",
+        "displayName": "Extract from File",
+        "description": "Convert binary data to JSON",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertToFile",
+        "displayName": "Convert to File",
+        "description": "Convert JSON data to binary data",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.timeSaved",
+        "displayName": "Track Time Saved",
+        "description": "Dynamically track time saved based on the workflow’s execution path and the number of items processed",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.localFileTrigger",
+        "displayName": "Local File Trigger",
+        "description": "Triggers a workflow on file system changes",
+        "kind": "trigger"
+      }
+    ]
+  },
+  {
+    "round": 3,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "list files S3 object storage"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.s3",
+        "displayName": "S3",
+        "description": "Sends data to any S3-compatible service",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.googleCloudStorage",
+        "displayName": "Google Cloud Storage",
+        "description": "Use the Google Cloud Storage API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.awsS3",
+        "displayName": "AWS S3",
+        "description": "Sends data to AWS S3",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.azureStorage",
+        "displayName": "Azure Storage",
+        "description": "Interact with Azure Storage API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.readWriteFile",
+        "displayName": "Read/Write Files from Disk",
+        "description": "Read or write files from the computer that runs n8n",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.outputParserItemList",
+        "displayName": "Item List Output Parser",
+        "description": "Return the results as separate items",
+        "kind": "sub-node"
+      }
+    ]
+  },
+  {
+    "round": 4,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "list directory file modified time"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.dateTime",
+        "displayName": "Date & Time",
+        "description": "Manipulate date and time values",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertToFile",
+        "displayName": "Convert to File",
+        "description": "Convert JSON data to binary data",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.timeSaved",
+        "displayName": "Track Time Saved",
+        "description": "Dynamically track time saved based on the workflow’s execution path and the number of items processed",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.extractFromFile",
+        "displayName": "Extract from File",
+        "description": "Convert binary data to JSON",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.localFileTrigger",
+        "displayName": "Local File Trigger",
+        "description": "Triggers a workflow on file system changes",
+        "kind": "trigger"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.outputParserItemList",
+        "displayName": "Item List Output Parser",
+        "description": "Return the results as separate items",
+        "kind": "sub-node"
+      }
+    ]
+  },
+  {
+    "round": 5,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.code"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.code",
+      "displayName": "Code",
+      "description": "Run custom JavaScript or Python code",
+      "version": 2,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "properties": [
+        {
+          "displayName": "Mode",
+          "name": "mode",
+          "type": "options",
+          "default": "runOnceForAllItems",
+          "options": [
+            {
+              "name": "Run Once for All Items",
+              "value": "runOnceForAllItems",
+              "description": "Run this code only once, no matter how many input items there are"
+            },
+            {
+              "name": "Run Once for Each Item",
+              "value": "runOnceForEachItem",
+              "description": "Run this code as many times as there are input items"
+            }
+          ]
+        },
+        {
+          "displayName": "Language",
+          "name": "language",
+          "type": "options",
+          "default": "javaScript",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "JavaScript",
+              "value": "javaScript"
+            },
+            {
+              "name": "Python",
+              "value": "pythonNative"
+            }
+          ]
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                1
+              ],
+              "mode": [
+                "runOnceForAllItems"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                1
+              ],
+              "mode": [
+                "runOnceForEachItem"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2
+              ],
+              "language": [
+                "javaScript"
+              ],
+              "mode": [
+                "runOnceForAllItems"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2
+              ],
+              "language": [
+                "javaScript"
+              ],
+              "mode": [
+                "runOnceForEachItem"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Python",
+          "name": "pythonCode",
+          "type": "string",
+          "default": "",
+          "description": "Python code to execute.<br><br>Tip: You can use built-in methods and variables like <code>_today</code> for dates and <code>_jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/code/builtin/\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "language": [
+                "python",
+                "pythonNative"
+              ],
+              "mode": [
+                "runOnceForAllItems"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Python",
+          "name": "pythonCode",
+          "type": "string",
+          "default": "",
+          "description": "Python code to execute.<br><br>Tip: You can use built-in methods and variables like <code>_today</code> for dates and <code>_jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/code/builtin/\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "language": [
+                "python",
+                "pythonNative"
+              ],
+              "mode": [
+                "runOnceForEachItem"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "round": 6,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "每天零点触发",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "params": {
+            "rule": {
+              "interval": [
+                {
+                  "field": "days",
+                  "daysInterval": 1,
+                  "triggerAtHour": 0,
+                  "triggerAtMinute": 0
+                }
+              ]
+            }
+          },
+          "blanks": [],
+          "note": "每天零点跑一次，触发整条链路；如果要改运行时间，在 Trigger Rules 里调。"
+        },
+        {
+          "name": "读取合同 PDF",
+          "type": "n8n-nodes-base.readWriteFile",
+          "params": {
+            "operation": "read",
+            "fileSelector": ""
+          },
+          "blanks": [
+            "fileSelector"
+          ],
+          "note": "读取合同 PDF 目录，fileSelector 留空给你填路径模式；因为后面按落库时间筛选，模式请覆盖全部 PDF（例如 /data/contracts/**/*.pdf），别只圈昨天的。"
+        },
+        {
+          "name": "筛选昨天落库的 PDF",
+          "type": "n8n-nodes-base.code",
+          "params": {
+            "mode": "runOnceForAllItems",
+            "language": "javaScript",
+            "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst now = new Date();\nconst yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);\nconst yesterdayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);\n\nreturn $input.all().filter((item) => {\n  const filePath = item.json.fileName;\n  if (!filePath) return false;\n  try {\n    const stat = fs.statSync(path.resolve(filePath));\n    return stat.mtime >= yesterdayStart && stat.mtime < yesterdayEnd;\n  } catch (error) {\n    return false;\n  }\n});"
+          },
+          "blanks": [],
+          "note": "按文件 mtime 作为落库时间，只留下昨天 00:00 到今天的 PDF；二进制内容原样保留，给下一步 OCR 用。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "每天零点触发",
+          "to": "读取合同 PDF"
+        },
+        {
+          "from": "读取合同 PDF",
+          "to": "筛选昨天落库的 PDF"
+        }
+      ]
+    }
+  }
+]

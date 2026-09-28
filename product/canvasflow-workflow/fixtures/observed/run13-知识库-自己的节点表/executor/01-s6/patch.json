@@ -1,0 +1,43 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "读入手册",
+      "type": "readFile",
+      "params": {},
+      "blanks": [
+        "folder"
+      ],
+      "note": "手册所在的文件夹还没定，留给用户填。",
+      "step": "s6"
+    },
+    {
+      "name": "提取文字层",
+      "type": "parseDocument",
+      "params": {},
+      "blanks": [],
+      "note": "用解析文档能否取到文字层来区分形态：电子版取得到，扫描件取不到。",
+      "step": "s6"
+    },
+    {
+      "name": "有文字层？",
+      "type": "condition",
+      "params": {
+        "condition": "(input.text || \"\").trim() != \"\""
+      },
+      "blanks": [],
+      "note": "取到文字的是电子版走 true，取不到的是扫描件走 false，文件仍随条目保留供后续 OCR 用。",
+      "step": "s6"
+    }
+  ],
+  "edges": [
+    {
+      "from": "读入手册",
+      "to": "提取文字层"
+    },
+    {
+      "from": "提取文字层",
+      "to": "有文字层？"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "round": 1,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "扫描件 OCR",
+          "type": "ocr",
+          "params": {
+            "engine": "Mistral OCR"
+          },
+          "blanks": [],
+          "note": "取不到文字层的手册走「有文字层？」的 false 出口接 OCR；OCR 只产出文本，图片内容自然不会被提取，表格也随文本保留。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "有文字层？",
+          "to": "扫描件 OCR",
+          "output": "false"
+        }
+      ]
+    }
+  }
+]

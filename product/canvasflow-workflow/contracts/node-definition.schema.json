@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bai-009/canvas-first-workflow/contracts/node-definition.schema.json",
+  "title": "一个节点的定义",
+  "description": "我们自己定义的节点,一个节点一个文件(nodes/*.json)。一张表喂三处:执行者照它填,闸门照它查,卡照它画。写下来的只有卡上灰的那部分:卡类型、格子表、进来什么(要什么)、出去什么(加什么、按什么算一条);名字、旁白、格子里的值是执行者每次填的,不在这里。",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*$",
+      "description": "机器用的标识,画布节点的 type 写它,全表唯一。例:llm"
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1,
+      "description": "卡右上角的类型标签,用行业叫法。例:LLM"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "一句话:这个节点做什么、什么时候用。常驻在执行者的提示词里,是它挑节点的依据;不上卡"
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/slot"
+      },
+      "description": "格子表,按卡上从上到下的顺序"
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "needs": {
+          "enum": [
+            "Event",
+            "File",
+            "Text",
+            "JSON",
+            "Vector",
+            "Result",
+            null
+          ],
+          "description": "进来的流里必须有什么(File、Text、JSON、Vector)。null 是什么都接(条件分岔、写代码)"
+        }
+      },
+      "required": [
+        "needs"
+      ],
+      "additionalProperties": false,
+      "description": "进来什么。不写=不进数据,是链的起点(定时触发、读文件);起点前面接一根触发的线也行,那根线上流的照样带过去"
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "adds": {
+          "anyOf": [
+            {
+              "enum": [
+                "Event",
+                "File",
+                "Text",
+                "JSON",
+                "Vector",
+                "Result",
+                null
+              ]
+            },
+            {
+              "type": "string",
+              "pattern": "^slot:[a-z][a-zA-Z0-9]*$"
+            }
+          ],
+          "description": "往流里加什么。数据往下走前面的都带着,所以写的是这个节点加的那一样,不是流里的全部:OCR 加 Text,向量化加 Vector。null 是原样带过去(条件分岔)。slot:xxx 是看这个节点自己填的那一格(写代码)"
+        },
+        "per": {
+          "type": "string",
+          "minLength": 1,
+          "description": "出去的按什么算一条:same 是跟进来的一样;起点和改单位的写单位——文件、块、次"
+        }
+      },
+      "required": [
+        "adds",
+        "per"
+      ],
+      "additionalProperties": false,
+      "description": "出去什么。线上印的、闸门查的、改动往下传时比的,都从这儿推"
+    },
+    "ports": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 2,
+      "description": "多出口节点才写:出口名,线上的 output 写它(条件分岔是 true / false)。单出口不写"
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^#[0-9a-f]{6}$",
+      "description": "卡上这类节点的颜色:图标底色、空位底色、卡的外圈都取它。画卡的人不另立一张配色表,加一个节点只改这一个文件"
+    }
+  },
+  "required": [
+    "type",
+    "kind",
+    "color",
+    "summary",
+    "slots",
+    "output"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "slot": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "params 里的键,执行者按它填,闸门按它查"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "卡上这一格的名字,用行业叫法。例:Model、Output Schema、Prompt"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "source",
+            "credential",
+            "pick",
+            "number",
+            "body",
+            "conditions",
+            "text",
+            "upload"
+          ],
+          "description": "人怎么给这一格值,八种:source 接数据源(目录、表);credential 接连接——只给用户自己的系统(数据库、存储、邮箱),从已接入的连接里挑,平台自带的能力(模型、OCR、向量化)不出这一格,平台有账号;pick 挑一个;number 填个数;body 正文(prompt、代码、SQL,成块显示);conditions 给条件;正文和条件一律 AI 写,信息够就写完整,只在用户那边的值单独开一格;text 真打字;upload 上传一份(JSON Schema 这类文件)"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "description": "kind 是 pick 时必须给:能挑的值,用卡上印的叫法(模型印产品名 DeepSeek V4 Pro,不印接口别名 deepseek-chat);对应的接口标识归里子的配置"
+        },
+        "default": {
+          "description": "平台给的默认值。有默认值、不填也能跑的格不算空位"
+        },
+        "empty": {
+          "type": "string",
+          "minLength": 1,
+          "description": "这一格没定时,卡上那个入口写什么。例:上传 JSON Schema。不写就按格子种类的通用说法"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "跑起来必须有值。没值又没默认值,就得在 blanks 里"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "kind"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

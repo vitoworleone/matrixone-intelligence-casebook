@@ -1,0 +1,37 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "写入数据库",
+      "type": "n8n-nodes-base.postgres",
+      "params": {
+        "operation": "insert",
+        "schema": {
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        }
+      },
+      "blanks": [
+        "postgres",
+        "table",
+        "columns"
+      ],
+      "note": "目标库表还没确认（q4），所以先用平台里的 Postgres 节点做 Insert，把上一步抽出的结构化字段落库；数据库凭据、表名和字段映射我都留空，等你的库和表定下来后填。schema 先按默认 public，若不是 public 顺手改一下。",
+      "step": "r4"
+    }
+  ],
+  "edges": [
+    {
+      "from": "抽取关键字段",
+      "to": "写入数据库"
+    }
+  ]
+}

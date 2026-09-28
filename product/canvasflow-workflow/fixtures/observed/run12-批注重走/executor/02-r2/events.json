@@ -1,0 +1,272 @@
+[
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.mistralAi"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.mistralAi",
+      "displayName": "Mistral AI",
+      "description": "Consume Mistral AI API",
+      "version": 1,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [
+        {
+          "name": "mistralCloudApi",
+          "required": true
+        }
+      ],
+      "properties": [
+        {
+          "displayName": "Resource",
+          "name": "resource",
+          "type": "options",
+          "default": "document",
+          "options": [
+            {
+              "name": "Document",
+              "value": "document"
+            }
+          ]
+        },
+        {
+          "displayName": "Operation",
+          "name": "operation",
+          "type": "options",
+          "default": "extractText",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Extract Text",
+              "value": "extractText",
+              "description": "Extract text from document using OCR"
+            }
+          ]
+        },
+        {
+          "displayName": "Model",
+          "name": "model",
+          "type": "options",
+          "default": "mistral-ocr-latest",
+          "required": true,
+          "description": "The OCR model to use",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "mistral-ocr-latest",
+              "value": "mistral-ocr-latest"
+            }
+          ]
+        },
+        {
+          "displayName": "Document Type",
+          "name": "documentType",
+          "type": "options",
+          "default": "document_url",
+          "required": true,
+          "description": "The type of document to process",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Document",
+              "value": "document_url"
+            },
+            {
+              "name": "Image",
+              "value": "image_url"
+            }
+          ]
+        },
+        {
+          "displayName": "Input Type",
+          "name": "inputType",
+          "type": "options",
+          "default": "binary",
+          "required": true,
+          "description": "How the document will be provided",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Binary Data",
+              "value": "binary"
+            },
+            {
+              "name": "URL",
+              "value": "url"
+            }
+          ]
+        },
+        {
+          "displayName": "Input Binary Field",
+          "name": "binaryProperty",
+          "type": "string",
+          "default": "data",
+          "required": true,
+          "description": "Name of the input binary field that contains the file to process",
+          "placeholder": "e.g. data",
+          "displayOptions": {
+            "show": {
+              "inputType": [
+                "binary"
+              ],
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "URL",
+          "name": "url",
+          "type": "string",
+          "default": "",
+          "required": true,
+          "description": "URL of the document or image to process",
+          "placeholder": "e.g. https://example.com/document.pdf",
+          "displayOptions": {
+            "show": {
+              "inputType": [
+                "url"
+              ],
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Options",
+          "name": "options",
+          "type": "collection",
+          "default": {},
+          "placeholder": "Add Option",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "displayName": "Enable Batch Processing",
+              "name": "batch",
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to process multiple documents in a single API call (more cost-efficient)"
+            },
+            {
+              "displayName": "Batch Size",
+              "name": "batchSize",
+              "type": "number",
+              "default": 50,
+              "required": true,
+              "description": "Maximum number of documents to process in a single batch",
+              "displayOptions": {
+                "show": {
+                  "batch": [
+                    true
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Delete Files After Processing",
+              "name": "deleteFiles",
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to delete the files on Mistral Cloud after processing",
+              "displayOptions": {
+                "show": {
+                  "batch": [
+                    true
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "round": 2,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "OCR 识别扫描件文本",
+          "type": "n8n-nodes-base.mistralAi",
+          "params": {
+            "resource": "document",
+            "operation": "extractText",
+            "model": "mistral-ocr-latest",
+            "documentType": "document_url",
+            "inputType": "binary",
+            "binaryProperty": "data"
+          },
+          "blanks": [
+            "mistralCloudApi"
+          ],
+          "note": "用 Mistral 的 OCR 模型把上一节点筛出的扫描 PDF 逐份识别成纯文本；凭据 mistralCloudApi 留空给你填，输入沿用读取文件的二进制字段 data。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "筛选昨天落库的 PDF",
+          "to": "OCR 识别扫描件文本"
+        }
+      ]
+    }
+  }
+]

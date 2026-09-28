@@ -1,0 +1,44 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "id": "每天定时触发",
+      "step": "s1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "params": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 0,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "blanks": []
+    },
+    {
+      "id": "读取昨天落库的合同 PDF",
+      "step": "s1",
+      "type": "n8n-nodes-base.readWriteFile",
+      "params": {
+        "operation": "read",
+        "fileSelector": "",
+        "options": {
+          "fileExtension": "pdf"
+        }
+      },
+      "blanks": [
+        "fileSelector"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "每天定时触发",
+      "to": "读取昨天落库的合同 PDF"
+    }
+  ]
+}

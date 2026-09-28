@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bai-009/canvas-first-workflow/contracts/step-submission.schema.json",
+  "title": "执行者交回一步的东西",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "patch",
+        "covered"
+      ],
+      "description": "patch: the full set of nodes and edges for this step. covered: the step's existing nodes on the canvas still hold; omit nodes and edges."
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Node name shown on the canvas and used as an edge endpoint. Unique across the canvas. When rebuilding a step, reuse the existing names so downstream edges stay attached."
+          },
+          "type": {
+            "type": "string",
+            "description": "One of the node types in the node table, e.g. llm"
+          },
+          "params": {
+            "type": "object",
+            "description": "Slot values keyed by the slot keys in the node's row of the table. A slot left for the user is omitted here and named in blanks."
+          },
+          "blanks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Slot keys left for the user to fill: folders, tables, connections, schemas. Empty when nothing is left open."
+          },
+          "note": {
+            "type": "string",
+            "description": "One sentence to the user, in the language the user wrote in: the one judgement the card does not show (why this node, why this value, or why a slot is blank). The card already shows the slot values; a note that repeats them tells the user nothing."
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "params",
+          "blanks"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source node name"
+          },
+          "to": {
+            "type": "string",
+            "description": "Target node name; at least one end is a node of this step"
+          },
+          "output": {
+            "type": "string",
+            "description": "Only when the source node has several outputs (condition: \"true\" or \"false\"). Omit otherwise."
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,212 @@
+一行一轮,直接打字就是对 Plan Agent 说话。
+/start          按开始:从 s1 起一步一步交给执行者
+/note s1 文字   在 s1 上批注,下次 /start 时执行者会看到
+/canvas         看画布现在的样子
+/help           这份说明
+正在跑的时候 Ctrl-C 停掉这一轮;没在跑的时候 Ctrl-C 退出。
+执行者插的是:src/executor/executor.mjs
+
+你:每天定时把新增的合同 PDF 解析出关键字段，写进数据库
+…模型在推
+
+我按"合同 PDF 带文字层"来画这条链。如果你的合同里混着扫描件，那在提取文本这一步之前得多插一步 OCR，整条链就变成五环——这个我在待确认里标出来了，你回一句我就能改。
+
+方案 v1 · partial · 4 步 · 4 项待确认
+目标:每天定时把新增的合同 PDF 解析出关键字段，写进数据库
+理解
+  u1  「每天定时」→ 每天定时触发一次处理，不是实时监听
+  u2  「新增的合同 PDF」→ 只处理当天新到的合同 PDF，不重复处理历史文件；「新增」按什么口径算还没说明
+  u3  「解析出关键字段」→ 从合同内容里抽出一份合同对应的关键字段，形成结构化记录；具体是哪些字段还没说明
+  u4  「写进数据库」→ 把结构化字段落到目标表；落到哪个数据库哪张表还没说明
+路线
+  r1  识别当天新增的合同 PDF
+      进:存放合同 PDF 的位置（文件夹或对象存储），由每日定时信号触发
+      出:当天新增合同 PDF 的清单
+  r2  提取 PDF 文本
+      进:当天新增的合同 PDF 文件
+      出:每份合同的纯文本
+  r3  抽取关键字段
+      进:每份合同的纯文本
+      出:每份合同的结构化字段（一条记录）
+  r4  写入数据库
+      进:每份合同的结构化字段
+      出:数据库中的合同字段记录
+待确认
+  q1  「新增」按什么口径算？
+      为什么:决定了 r1 怎么筛文件，口径错了要么漏处理、要么重复处理
+      备选:按文件落库/上传时间 / 按文件名规则 / 与已处理过的记录比对
+  q2  合同 PDF 是扫描件还是带文字层？
+      为什么:扫描件需要多一步 OCR，整条链会多一环
+      备选:带文字层 / 扫描件 / 两种都有
+  q3  关键字段是哪几个？
+      为什么:决定 r3 从文本里抽什么，也决定落库记录的结构
+  q4  写到哪个数据库的哪张表？
+      为什么:决定 r4 落库的目标位置
+
+你:PDF 都是扫描件。「新增」按文件落库时间算，每天处理昨天落库的。
+…模型在推
+
+方案 v2 · partial · 4 步 · 2 项待确认
+目标:每天定时把新增的合同 PDF 解析出关键字段，写进数据库
+理解
+  u1  「PDF 都是扫描件」→ 合同 PDF 没有文字层，得靠 OCR 识别出文本，链路里要多一环 OCR  ← 原地改
+  u2  「「新增」按文件落库时间算」→ 筛文件的口径是落库时间，不是文件名或别的  ← 原地改
+  u3  「每天处理昨天落库的」→ 定时任务每天跑一次，处理前一天落库的合同 PDF  ← 原地改
+路线
+  r1  识别昨天落库的合同 PDF  ← 原地改
+      进:存放合同 PDF 的位置（文件夹或对象存储），由每日定时信号触发
+      出:昨天落库的合同 PDF 清单
+  r2  OCR 识别扫描件文本  ← 原地改
+      进:昨天落库的合同 PDF 文件（扫描件）
+      出:每份合同的纯文本
+  r3  抽取关键字段
+      进:每份合同的纯文本
+      出:每份合同的结构化字段（一条记录）
+  r4  写入数据库
+      进:每份合同的结构化字段
+      出:数据库中的合同字段记录
+待确认
+  q3  关键字段是哪几个？
+      为什么:决定 r3 从文本里抽什么，也决定落库记录的结构
+  q4  写到哪个数据库的哪张表？
+      为什么:决定 r4 落库的目标位置
+上一版里消失的:q1(答掉了)、q2(答掉了)、u4
+
+你:/start
+…走步中
+  [r1 1] 查 n8n-nodes-base.scheduleTrigger → 4 格:rule, misfirePolicy, misfireGraceSeconds, skipDurableScheduler
+  [r1 1] 查 n8n-nodes-base.readWriteFile → 菜单 2 项
+  [r1 2] 查 n8n-nodes-base.readWriteFile · read → 3 格:operation, fileSelector, options
+  [r1 3] 搜 "file metadata modification time filter" → Filter、Date & Time、Extract from File、Convert to File、Track Time Saved、Local File Trigger
+  [r1 3] 搜 "list files S3 object storage" → S3、Google Cloud Storage、AWS S3、Azure Storage、Read/Write Files from Disk、Item List Output Parser
+  [r1 4] 搜 "list directory file modified time" → Date & Time、Convert to File、Track Time Saved、Extract from File、Local File Trigger、Item List Output Parser
+  [r1 5] 查 n8n-nodes-base.code → 8 格:mode, language, jsCode, jsCode, jsCode, jsCode, pythonCode, pythonCode
+  [r1 6] 交:3 个节点
+  每天零点触发 · n8n-nodes-base.scheduleTrigger
+    「每天零点跑一次，触发整条链路；如果要改运行时间，在 Trigger Rules 里调。」
+  读取合同 PDF · n8n-nodes-base.readWriteFile · 空格:fileSelector
+    「读取合同 PDF 目录，fileSelector 留空给你填路径模式；因为后面按落库时间筛选，模式请覆盖全部 PDF（例如 /data/contracts/**/*.pdf），别只圈昨天的。」
+  筛选昨天落库的 PDF · n8n-nodes-base.code
+    「按文件 mtime 作为落库时间，只留下昨天 00:00 到今天的 PDF；二进制内容原样保留，给下一步 OCR 用。」
+  每天零点触发 → 读取合同 PDF
+  读取合同 PDF → 筛选昨天落库的 PDF
+  [r2 1] 查 n8n-nodes-base.mistralAi → 8 格:resource, operation, model, documentType, inputType, binaryProperty, url, options
+  [r2 2] 交:1 个节点
+  OCR 识别扫描件文本 · n8n-nodes-base.mistralAi · 空格:mistralCloudApi
+    「用 Mistral 的 OCR 模型把上一节点筛出的扫描 PDF 逐份识别成纯文本；凭据 mistralCloudApi 留空给你填，输入沿用读取文件的二进制字段 data。」
+  筛选昨天落库的 PDF → OCR 识别扫描件文本
+  [r3 1] 查 @n8n/n8n-nodes-langchain.informationExtractor → 6 格:text, schemaType, jsonSchemaExample, inputSchema, attributes, options
+  [r3 1] 查 @n8n/n8n-nodes-langchain.lmChatDeepSeek → 2 格:model, options
+  [r3 2] 查 n8n-nodes-base.mistralAi · document · extractText → 8 格:resource, operation, model, documentType, inputType, binaryProperty, url, options
+  [r3 3] 交:2 个节点
+  抽取合同关键字段 · @n8n/n8n-nodes-langchain.informationExtractor · 空格:attributes
+    「用 Information Extractor 从 OCR 文本里抽结构化字段；关键字段是哪几个你还没定，我把 attributes 留空给你按合同字段填（名称/类型/描述）。输入取上一节点 OCR 产出的 text。」
+  DeepSeek Chat 模型 · @n8n/n8n-nodes-langchain.lmChatDeepSeek · 空格:deepSeekApi
+    「Information Extractor 的模型子节点，凭据 deepSeekApi 留空给你填；模型用默认 deepseek-chat。」
+  OCR 识别扫描件文本 → 抽取合同关键字段
+  DeepSeek Chat 模型 → 抽取合同关键字段
+  [r4 1] 查 n8n-nodes-base.postgres → 菜单 6 项
+  [r4 2] 查 n8n-nodes-base.postgres · insert → 7 格:operation, schema, table, dataMode, valuesToSend, columns, options
+  [r4 3] 交:1 个节点
+  写入数据库 · n8n-nodes-base.postgres · 空格:postgres, table, columns
+    「用 Postgres Insert 把 r3 抽出的每份合同字段逐条写成表里的一行；数据库凭据、目标表和字段到列的映射都取决于你还没定的答案，所以这三处留空给你填，schema 先默认 public（可改）。」
+  抽取合同关键字段 → 写入数据库
+
+第 1 次走步 · 按的是方案 v2
+  r1  做完 → 画布 v1 · 节点 每天零点触发、读取合同 PDF、筛选昨天落库的 PDF
+  r2  做完 → 画布 v2 · 节点 OCR 识别扫描件文本
+  r3  做完 → 画布 v3 · 节点 抽取合同关键字段、DeepSeek Chat 模型
+  r4  做完 → 画布 v4 · 节点 写入数据库
+  跑完,轮到你
+  整张画布查了一遍,线都接上了
+画布 v4 · 7 个节点 · 6 条线
+  每天零点触发  [r1] n8n-nodes-base.scheduleTrigger
+      「每天零点跑一次，触发整条链路；如果要改运行时间，在 Trigger Rules 里调。」
+  读取合同 PDF  [r1] n8n-nodes-base.readWriteFile · 留空:fileSelector
+      「读取合同 PDF 目录，fileSelector 留空给你填路径模式；因为后面按落库时间筛选，模式请覆盖全部 PDF（例如 /data/contracts/**/*.pdf），别只圈昨天的。」
+  筛选昨天落库的 PDF  [r1] n8n-nodes-base.code
+      「按文件 mtime 作为落库时间，只留下昨天 00:00 到今天的 PDF；二进制内容原样保留，给下一步 OCR 用。」
+  OCR 识别扫描件文本  [r2] n8n-nodes-base.mistralAi · 留空:mistralCloudApi
+      「用 Mistral 的 OCR 模型把上一节点筛出的扫描 PDF 逐份识别成纯文本；凭据 mistralCloudApi 留空给你填，输入沿用读取文件的二进制字段 data。」
+  抽取合同关键字段  [r3] @n8n/n8n-nodes-langchain.informationExtractor · 留空:attributes
+      「用 Information Extractor 从 OCR 文本里抽结构化字段；关键字段是哪几个你还没定，我把 attributes 留空给你按合同字段填（名称/类型/描述）。输入取上一节点 OCR 产出的 text。」
+  DeepSeek Chat 模型  [r3] @n8n/n8n-nodes-langchain.lmChatDeepSeek · 留空:deepSeekApi
+      「Information Extractor 的模型子节点，凭据 deepSeekApi 留空给你填；模型用默认 deepseek-chat。」
+  写入数据库  [r4] n8n-nodes-base.postgres · 留空:postgres、table、columns
+      「用 Postgres Insert 把 r3 抽出的每份合同字段逐条写成表里的一行；数据库凭据、目标表和字段到列的映射都取决于你还没定的答案，所以这三处留空给你填，schema 先默认 public（可改）。」
+  每天零点触发 → 读取合同 PDF
+  读取合同 PDF → 筛选昨天落库的 PDF
+  筛选昨天落库的 PDF → OCR 识别扫描件文本
+  OCR 识别扫描件文本 → 抽取合同关键字段
+  DeepSeek Chat 模型 → 抽取合同关键字段
+  抽取合同关键字段 → 写入数据库
+
+你:/note r1 PDF 太大，先拆成单页图片再往下送
+批注挂在 r1 上了。现在挂着的:
+  r1  PDF 太大，先拆成单页图片再往下送
+
+你:/note s1 PDF 太大，先拆成单页图片再往下送
+方案里没有 s1 这一步
+
+你:/start
+…走步中
+  [r1 1] 搜 "split pdf into images" → Loop Over Items (Split in Batches)、Split Out、Token Splitter、Character Text Splitter、Recursive Character Text Splitter、Ollama
+  [r1 2] 搜 "pdf to image convert" → Edit Image、Convert to File、ConvertKit、ConvertKit Trigger、Ollama、MiniMax
+  [r1 3] 搜 "pdf pages render image" → Edit Image、Ollama、MiniMax、Anthropic、Qwen Cloud、Moonshot Kimi
+  [r1 4] 搜 "pdf" → Chargebee、APITemplate.io、One Simple API、Extract from File
+  [r1 5] 搜 "split pdf pages" → Loop Over Items (Split in Batches)、Split Out、Token Splitter、Character Text Splitter、Recursive Character Text Splitter、Airtop
+  [r1 6] 搜 "execute command shell" → Execute Command、Execute Sub-workflow、Execute Workflow Trigger、SSH、AI Agent、AI Agent Tool
+  [r1 7] 查 n8n-nodes-base.executeCommand → 2 格:executeOnce, command
+  [r1 8] 查 n8n-nodes-base.code → 8 格:mode, language, jsCode, jsCode, jsCode, jsCode, pythonCode, pythonCode
+  [r1 9] 搜 "convert pdf image" → Edit Image、Convert to File、ConvertKit、ConvertKit Trigger、Ollama、MiniMax
+  [r1 10] 搜 "pdf co split" → Loop Over Items (Split in Batches)、Split Out、Token Splitter、Character Text Splitter、Recursive Character Text Splitter、Coda
+  [r1 11] 搜 "pdf split convert service" → ServiceNow、Convert to File、ConvertKit、ConvertKit Trigger、Loop Over Items (Split in Batches)、Split Out
+  [r1 12] 搜 "pdfbox" →
+
+第 2 次走步 · 按的是方案 v2
+  r1  出错,停在这一步 · 执行者来回 12 次没交,这一步作废
+  执行者出错,轮到你
+画布 v4 · 7 个节点 · 6 条线
+  每天零点触发  [r1] n8n-nodes-base.scheduleTrigger
+      「每天零点跑一次，触发整条链路；如果要改运行时间，在 Trigger Rules 里调。」
+  读取合同 PDF  [r1] n8n-nodes-base.readWriteFile · 留空:fileSelector
+      「读取合同 PDF 目录，fileSelector 留空给你填路径模式；因为后面按落库时间筛选，模式请覆盖全部 PDF（例如 /data/contracts/**/*.pdf），别只圈昨天的。」
+  筛选昨天落库的 PDF  [r1] n8n-nodes-base.code
+      「按文件 mtime 作为落库时间，只留下昨天 00:00 到今天的 PDF；二进制内容原样保留，给下一步 OCR 用。」
+  OCR 识别扫描件文本  [r2] n8n-nodes-base.mistralAi · 留空:mistralCloudApi
+      「用 Mistral 的 OCR 模型把上一节点筛出的扫描 PDF 逐份识别成纯文本；凭据 mistralCloudApi 留空给你填，输入沿用读取文件的二进制字段 data。」
+  抽取合同关键字段  [r3] @n8n/n8n-nodes-langchain.informationExtractor · 留空:attributes
+      「用 Information Extractor 从 OCR 文本里抽结构化字段；关键字段是哪几个你还没定，我把 attributes 留空给你按合同字段填（名称/类型/描述）。输入取上一节点 OCR 产出的 text。」
+  DeepSeek Chat 模型  [r3] @n8n/n8n-nodes-langchain.lmChatDeepSeek · 留空:deepSeekApi
+      「Information Extractor 的模型子节点，凭据 deepSeekApi 留空给你填；模型用默认 deepseek-chat。」
+  写入数据库  [r4] n8n-nodes-base.postgres · 留空:postgres、table、columns
+      「用 Postgres Insert 把 r3 抽出的每份合同字段逐条写成表里的一行；数据库凭据、目标表和字段到列的映射都取决于你还没定的答案，所以这三处留空给你填，schema 先默认 public（可改）。」
+  每天零点触发 → 读取合同 PDF
+  读取合同 PDF → 筛选昨天落库的 PDF
+  筛选昨天落库的 PDF → OCR 识别扫描件文本
+  OCR 识别扫描件文本 → 抽取合同关键字段
+  DeepSeek Chat 模型 → 抽取合同关键字段
+  抽取合同关键字段 → 写入数据库
+
+你:/canvas
+画布 v4 · 7 个节点 · 6 条线
+  每天零点触发  [r1] n8n-nodes-base.scheduleTrigger
+      「每天零点跑一次，触发整条链路；如果要改运行时间，在 Trigger Rules 里调。」
+  读取合同 PDF  [r1] n8n-nodes-base.readWriteFile · 留空:fileSelector
+      「读取合同 PDF 目录，fileSelector 留空给你填路径模式；因为后面按落库时间筛选，模式请覆盖全部 PDF（例如 /data/contracts/**/*.pdf），别只圈昨天的。」
+  筛选昨天落库的 PDF  [r1] n8n-nodes-base.code
+      「按文件 mtime 作为落库时间，只留下昨天 00:00 到今天的 PDF；二进制内容原样保留，给下一步 OCR 用。」
+  OCR 识别扫描件文本  [r2] n8n-nodes-base.mistralAi · 留空:mistralCloudApi
+      「用 Mistral 的 OCR 模型把上一节点筛出的扫描 PDF 逐份识别成纯文本；凭据 mistralCloudApi 留空给你填，输入沿用读取文件的二进制字段 data。」
+  抽取合同关键字段  [r3] @n8n/n8n-nodes-langchain.informationExtractor · 留空:attributes
+      「用 Information Extractor 从 OCR 文本里抽结构化字段；关键字段是哪几个你还没定，我把 attributes 留空给你按合同字段填（名称/类型/描述）。输入取上一节点 OCR 产出的 text。」
+  DeepSeek Chat 模型  [r3] @n8n/n8n-nodes-langchain.lmChatDeepSeek · 留空:deepSeekApi
+      「Information Extractor 的模型子节点，凭据 deepSeekApi 留空给你填；模型用默认 deepseek-chat。」
+  写入数据库  [r4] n8n-nodes-base.postgres · 留空:postgres、table、columns
+      「用 Postgres Insert 把 r3 抽出的每份合同字段逐条写成表里的一行；数据库凭据、目标表和字段到列的映射都取决于你还没定的答案，所以这三处留空给你填，schema 先默认 public（可改）。」
+  每天零点触发 → 读取合同 PDF
+  读取合同 PDF → 筛选昨天落库的 PDF
+  筛选昨天落库的 PDF → OCR 识别扫描件文本
+  OCR 识别扫描件文本 → 抽取合同关键字段
+  DeepSeek Chat 模型 → 抽取合同关键字段
+  抽取合同关键字段 → 写入数据库

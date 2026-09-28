@@ -1,0 +1,266 @@
+{
+  "plan": {
+    "readiness": "partial",
+    "goal": "每天定时把前一天落库的合同扫描件解析出关键字段并写进数据库。",
+    "understanding": [
+      {
+        "quote": "每天定时",
+        "reading": "按天定时自动跑，不需要每次人工启动。",
+        "ref": "u1"
+      },
+      {
+        "quote": "把新增的合同 PDF",
+        "reading": "处理对象是合同 PDF，只处理“新增”的那部分。",
+        "ref": "u2"
+      },
+      {
+        "quote": "解析出关键字段",
+        "reading": "从每份合同里抽出关键字段，形成结构化结果。",
+        "ref": "u3"
+      },
+      {
+        "quote": "写进数据库",
+        "reading": "抽出的字段最终落到数据库的表里。",
+        "ref": "u4"
+      },
+      {
+        "quote": "PDF 都是扫描件",
+        "reading": "合同 PDF 全是扫描件，没有文字层，提取文本要走 OCR。",
+        "ref": "u5"
+      },
+      {
+        "quote": "「新增」按文件落库时间算",
+        "reading": "“新增”口径是文件落进存储的时间。",
+        "ref": "u6"
+      },
+      {
+        "quote": "每天处理昨天落库的",
+        "reading": "每天定时处理前一天落库的那批文件。",
+        "ref": "u7"
+      }
+    ],
+    "steps": [
+      {
+        "dependsOn": [],
+        "input": "由每天定时触发，不接收上游数据；按文件落库时间圈出前一天落库的合同 PDF（扫描件）",
+        "intent": "每天到点自动启动，圈出前一天落库、当天要处理的合同扫描件",
+        "output": "前一天落库的合同扫描件文件清单",
+        "ref": "r1",
+        "title": "定时圈出昨天落库的合同"
+      },
+      {
+        "dependsOn": [
+          "r1"
+        ],
+        "input": "前一天落库的合同扫描件（图片，无文字层）",
+        "intent": "把每份扫描件里的文字识别成可供后续抽取的全文文本",
+        "output": "每份合同的全文文本",
+        "ref": "r2",
+        "title": "提取合同文本"
+      },
+      {
+        "dependsOn": [
+          "r2"
+        ],
+        "input": "每份合同的全文文本",
+        "intent": "从全文文本里抽出约定的关键字段，形成结构化记录",
+        "output": "每份合同的结构化关键字段（字段清单待确认）",
+        "ref": "r3",
+        "title": "抽取关键字段"
+      },
+      {
+        "dependsOn": [
+          "r3"
+        ],
+        "input": "每份合同的结构化关键字段",
+        "intent": "把结构化关键字段落成数据库里的记录",
+        "output": "数据库中的合同关键字段记录（目标库表待确认）",
+        "ref": "r4",
+        "title": "写入数据库"
+      }
+    ],
+    "openQuestions": [
+      {
+        "affects": [
+          "r3"
+        ],
+        "question": "要抽哪些关键字段？",
+        "reason": "决定从全文里抽什么、结构化结果长什么样。",
+        "ref": "q3"
+      },
+      {
+        "affects": [
+          "r4"
+        ],
+        "question": "写进哪个数据库、哪张表？",
+        "reason": "决定字段落到哪里、按什么结构存。",
+        "ref": "q4"
+      }
+    ]
+  },
+  "step": {
+    "dependsOn": [
+      "r2"
+    ],
+    "input": "每份合同的全文文本",
+    "intent": "从全文文本里抽出约定的关键字段，形成结构化记录",
+    "output": "每份合同的结构化关键字段（字段清单待确认）",
+    "ref": "r3",
+    "title": "抽取关键字段"
+  },
+  "canvas": {
+    "nodes": [
+      {
+        "name": "每天定时",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "params": {
+          "rule": {
+            "interval": [
+              {
+                "field": "days",
+                "daysInterval": 1,
+                "triggerAtHour": 0,
+                "triggerAtMinute": 0
+              }
+            ]
+          }
+        },
+        "blanks": [],
+        "note": "按天自动启动，默认午夜触发；要改到别的点，直接调触发小时/分钟。",
+        "step": "r1"
+      },
+      {
+        "name": "读取合同扫描件",
+        "type": "n8n-nodes-base.readWriteFile",
+        "params": {
+          "operation": "read",
+          "fileSelector": ""
+        },
+        "blanks": [
+          "fileSelector"
+        ],
+        "note": "从磁盘读取合同 PDF；具体目录/文件匹配模式是你的存储路径，我留空给你填。",
+        "step": "r1"
+      },
+      {
+        "name": "圈出昨天落库的文件",
+        "type": "n8n-nodes-base.code",
+        "params": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst now = new Date();\nconst start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);\nconst end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1, 0, 0, 0, 0);\n\nreturn items.filter((item) => {\n  const json = item.json || {};\n  const bin = (item.binary && item.binary.data) || {};\n  const directory = json.directory || bin.directory || '';\n  const fileName = json.fileName || bin.fileName || '';\n  if (!directory || !fileName) return false;\n  const filePath = path.join(directory, fileName);\n  try {\n    const stat = fs.statSync(filePath);\n    return stat.mtimeMs >= start.getTime() && stat.mtimeMs < end.getTime();\n  } catch (e) {\n    return false;\n  }\n});"
+        },
+        "blanks": [],
+        "note": "按文件的修改时间（即写入存储的落库时间）过滤，只留下昨天 0 点到今天 0 点之间的 PDF。",
+        "step": "r1"
+      },
+      {
+        "name": "OCR 提取合同文本",
+        "type": "n8n-nodes-base.mistralAi",
+        "params": {
+          "resource": "document",
+          "operation": "extractText",
+          "model": "mistral-ocr-latest",
+          "documentType": "document_url",
+          "inputType": "binary",
+          "binaryProperty": "data"
+        },
+        "blanks": [
+          "mistralCloudApi"
+        ],
+        "note": "合同 PDF 是扫描件、没有文字层，所以用 Mistral 的 OCR 模型把每份扫描件识别成全文；binaryProperty 保持 data，接住上一步读出的文件。Mistral 凭据是你的账号信息，我留空给你填。",
+        "step": "r2"
+      },
+      {
+        "name": "抽取关键字段",
+        "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+        "params": {
+          "text": "={{ $json.text }}",
+          "schemaType": "fromAttributes",
+          "attributes": {}
+        },
+        "blanks": [
+          "attributes"
+        ],
+        "note": "关键字段清单还没确认，所以 attributes 留空由你填；text 接上一步 OCR 输出的全文，用 DeepSeek 把每份合同抽成结构化记录。",
+        "step": "r3"
+      },
+      {
+        "name": "DeepSeek 模型",
+        "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+        "params": {
+          "model": "deepseek-chat"
+        },
+        "blanks": [
+          "deepSeekApi"
+        ],
+        "note": "给抽取节点当模型用，默认 deepseek-chat；DeepSeek 凭据是你的账号，留空给你填。",
+        "step": "r3"
+      },
+      {
+        "name": "写入数据库",
+        "type": "n8n-nodes-base.postgres",
+        "params": {
+          "operation": "insert",
+          "schema": {
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "mode": "list",
+            "value": ""
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {}
+          }
+        },
+        "blanks": [
+          "postgres",
+          "table",
+          "columns"
+        ],
+        "note": "目标库表还没确认（q4），所以先用平台里的 Postgres 节点做 Insert，把上一步抽出的结构化字段落库；数据库凭据、表名和字段映射我都留空，等你的库和表定下来后填。schema 先按默认 public，若不是 public 顺手改一下。",
+        "step": "r4"
+      }
+    ],
+    "edges": [
+      {
+        "from": "每天定时",
+        "to": "读取合同扫描件"
+      },
+      {
+        "from": "读取合同扫描件",
+        "to": "圈出昨天落库的文件"
+      },
+      {
+        "from": "圈出昨天落库的文件",
+        "to": "OCR 提取合同文本"
+      },
+      {
+        "from": "OCR 提取合同文本",
+        "to": "抽取关键字段"
+      },
+      {
+        "from": "DeepSeek 模型",
+        "to": "抽取关键字段"
+      },
+      {
+        "from": "抽取关键字段",
+        "to": "写入数据库"
+      }
+    ],
+    "version": 4
+  },
+  "openQuestions": [
+    {
+      "affects": [
+        "r3"
+      ],
+      "question": "要抽哪些关键字段？",
+      "reason": "决定从全文里抽什么、结构化结果长什么样。",
+      "ref": "q3"
+    }
+  ],
+  "instructions": []
+}

@@ -1,0 +1,67 @@
+{
+  "kind": "patch",
+  "summary": "已按澄清修正 S3 抽取环节的表述：amount 仍以整数分存储、字段名不变，但只允许同币种内的单位换算（如万元→元后乘 100 取整），明确禁止任何汇率换算、不得改变 currency；删除了 outputSchema 描述和 prompt 中“其他币种金额先换算为元”这类可能被理解为换汇的表述。S5 的分组求和与除以 100 以元展示规则保持不变，其余环节不受影响。",
+  "review": [
+    {
+      "step": "s1",
+      "summary": "读取合同 PDF 环节只负责把带文本层的 PDF 纳入链路，与金额口径和币种处理无关，保持不变。"
+    },
+    {
+      "step": "s2",
+      "summary": "解析文本环节只把 PDF 文字层读成纯文本，不涉及金额字段或币种，保持不变。"
+    },
+    {
+      "step": "s3",
+      "summary": "本请求的发起环节：保留整数分存储口径，但改写 outputSchema 中 amount 的描述和 prompt，删除“其他币种金额先换算为元”的表述，明确只做同币种单位换算（乘 100 取整）、不做任何汇率换算、currency 按合同标价币种原样填写。"
+    },
+    {
+      "step": "s4",
+      "summary": "校验条件（contract_id 非空且 amount 为数值）对整数分天然兼容，本次澄清不改变过滤口径，节点无需改动。"
+    },
+    {
+      "step": "s5",
+      "summary": "汇总环节本来就按 currency 分组、在分单位下求和后除以 100 以元展示，不涉及任何跨币种换算，与本次澄清一致，代码与连线保持不变。"
+    }
+  ],
+  "upsertNodes": [
+    {
+      "name": "抽取字段",
+      "step": "s3",
+      "type": "llm",
+      "params": {
+        "model": "DeepSeek V4 Pro",
+        "outputSchema": {
+          "properties": {
+            "amount": {
+              "description": "合同金额，整数型，单位为分；按合同标价币种的原金额做同币种单位换算（如万元换算为元）后乘 100 取整填写，不做任何币种或汇率换算",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "contract_id": {
+              "description": "合同编号",
+              "type": "string"
+            },
+            "currency": {
+              "description": "币种代码，如 CNY、USD，按合同标价币种原样填写",
+              "type": "string"
+            }
+          },
+          "required": [
+            "contract_id",
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "prompt": "从下面的合同文本中抽取三个字段，并按输出结构返回一条记录：\n1. contract_id：合同编号；文本中找不到时留空字符串。\n2. amount：合同金额，整数型，单位为分；按合同标价币种的原金额填写——文本中单位不是元时只做同币种单位换算（如万元换算为元），再乘 100 取整后只填整数数值，不要带小数、千分位或货币符号；严禁任何汇率换算或跨币种折算；无法确定数值时填 null。\n3. currency：币种代码（如 CNY、USD），按合同标价的币种原样填写，不得因为金额处理而改变。\n\n合同文本：\n{{ input.text }}"
+      },
+      "blanks": [],
+      "note": "字段口径：amount 以整数分存储（仅同币种单位换算后乘 100 取整），不做任何汇率换算、不改变 currency；取不到 contract_id 的留空、amount 无法确定的填 null，由后续校验环节剔除。"
+    }
+  ],
+  "removeNodes": [],
+  "addEdges": [],
+  "removeEdges": []
+}

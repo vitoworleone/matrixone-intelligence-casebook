@@ -1,0 +1,13 @@
+{
+  "revision": 2,
+  "steps": [
+    {
+      "ref": "r1",
+      "outcome": "failed",
+      "canvasVersion": 4,
+      "error": "执行者来回 12 次没交,这一步作废"
+    }
+  ],
+  "endedBy": "error",
+  "problems": []
+}

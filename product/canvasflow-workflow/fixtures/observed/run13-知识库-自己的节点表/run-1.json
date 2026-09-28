@@ -1,0 +1,67 @@
+{
+  "revision": 2,
+  "steps": [
+    {
+      "ref": "s6",
+      "outcome": "done",
+      "canvasVersion": 1,
+      "nodes": [
+        "读入手册",
+        "提取文字层",
+        "有文字层？"
+      ]
+    },
+    {
+      "ref": "s1",
+      "outcome": "done",
+      "canvasVersion": 2,
+      "nodes": [
+        "电子版提取文本"
+      ]
+    },
+    {
+      "ref": "s7",
+      "outcome": "done",
+      "canvasVersion": 3,
+      "nodes": [
+        "扫描件 OCR"
+      ]
+    },
+    {
+      "ref": "s2",
+      "outcome": "done",
+      "canvasVersion": 4,
+      "nodes": [
+        "按段落切分"
+      ]
+    },
+    {
+      "ref": "s3",
+      "outcome": "done",
+      "canvasVersion": 5,
+      "nodes": [
+        "文本块向量化"
+      ]
+    },
+    {
+      "ref": "s4",
+      "outcome": "done",
+      "canvasVersion": 6,
+      "nodes": [
+        "写入向量库"
+      ]
+    },
+    {
+      "ref": "s5",
+      "outcome": "done",
+      "canvasVersion": 7,
+      "nodes": [
+        "语义检索"
+      ]
+    }
+  ],
+  "endedBy": "finished",
+  "problems": [
+    "s5 接在 s4 后面,画布上却没有一条线从 s4 接到 s5"
+  ]
+}

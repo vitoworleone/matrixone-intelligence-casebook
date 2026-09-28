@@ -1,0 +1,56 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "每天零点触发",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "params": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 0,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "blanks": [],
+      "note": "每天零点跑一次，触发整条链路；如果要改运行时间，在 Trigger Rules 里调。"
+    },
+    {
+      "name": "读取合同 PDF",
+      "type": "n8n-nodes-base.readWriteFile",
+      "params": {
+        "operation": "read",
+        "fileSelector": ""
+      },
+      "blanks": [
+        "fileSelector"
+      ],
+      "note": "读取合同 PDF 目录，fileSelector 留空给你填路径模式；因为后面按落库时间筛选，模式请覆盖全部 PDF（例如 /data/contracts/**/*.pdf），别只圈昨天的。"
+    },
+    {
+      "name": "筛选昨天落库的 PDF",
+      "type": "n8n-nodes-base.code",
+      "params": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst now = new Date();\nconst yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);\nconst yesterdayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);\n\nreturn $input.all().filter((item) => {\n  const filePath = item.json.fileName;\n  if (!filePath) return false;\n  try {\n    const stat = fs.statSync(path.resolve(filePath));\n    return stat.mtime >= yesterdayStart && stat.mtime < yesterdayEnd;\n  } catch (error) {\n    return false;\n  }\n});"
+      },
+      "blanks": [],
+      "note": "按文件 mtime 作为落库时间，只留下昨天 00:00 到今天的 PDF；二进制内容原样保留，给下一步 OCR 用。"
+    }
+  ],
+  "edges": [
+    {
+      "from": "每天零点触发",
+      "to": "读取合同 PDF"
+    },
+    {
+      "from": "读取合同 PDF",
+      "to": "筛选昨天落库的 PDF"
+    }
+  ]
+}

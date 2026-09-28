@@ -1,0 +1,27 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "OCR 识别扫描件文本",
+      "type": "n8n-nodes-base.mistralAi",
+      "params": {
+        "resource": "document",
+        "operation": "extractText",
+        "model": "mistral-ocr-latest",
+        "documentType": "document_url",
+        "inputType": "binary",
+        "binaryProperty": "data"
+      },
+      "blanks": [
+        "mistralCloudApi"
+      ],
+      "note": "用 Mistral 的 OCR 模型把上一节点筛出的扫描 PDF 逐份识别成纯文本；凭据 mistralCloudApi 留空给你填，输入沿用读取文件的二进制字段 data。"
+    }
+  ],
+  "edges": [
+    {
+      "from": "筛选昨天落库的 PDF",
+      "to": "OCR 识别扫描件文本"
+    }
+  ]
+}

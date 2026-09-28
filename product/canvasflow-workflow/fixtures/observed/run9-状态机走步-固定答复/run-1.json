@@ -1,0 +1,39 @@
+{
+  "revision": 2,
+  "steps": [
+    {
+      "ref": "s1",
+      "outcome": "done",
+      "canvasVersion": 1,
+      "nodes": [
+        "s1-固定答复"
+      ]
+    },
+    {
+      "ref": "s2",
+      "outcome": "done",
+      "canvasVersion": 2,
+      "nodes": [
+        "s2-固定答复"
+      ]
+    },
+    {
+      "ref": "s3",
+      "outcome": "done",
+      "canvasVersion": 3,
+      "nodes": [
+        "s3-固定答复"
+      ]
+    },
+    {
+      "ref": "s4",
+      "outcome": "done",
+      "canvasVersion": 4,
+      "nodes": [
+        "s4-固定答复"
+      ]
+    }
+  ],
+  "endedBy": "finished",
+  "problems": []
+}

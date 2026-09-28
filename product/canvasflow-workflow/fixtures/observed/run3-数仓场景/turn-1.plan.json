@@ -1,0 +1,60 @@
+{
+  "readiness": "partial",
+  "goal": "每天凌晨把 ODS 层订单明细清洗进 DWD，再按门店聚合到 DWS，供报表使用。",
+  "understanding": [
+    {
+      "ref": "u1",
+      "quote": "我们数仓每天凌晨要把 ODS 层的订单明细清洗进 DWD",
+      "reading": "每天凌晨由时间触发，从 ODS 层原始订单明细出发，经过清洗得到 DWD 层明细。"
+    },
+    {
+      "ref": "u2",
+      "quote": "再按门店聚合到 DWS",
+      "reading": "把 DWD 层明细按门店维度聚合成汇总表，落到 DWS 层。"
+    },
+    {
+      "ref": "u3",
+      "quote": "给报表用",
+      "reading": "DWS 是报表的数据来源，属于消费端，不构成一次形态转变。"
+    }
+  ],
+  "steps": [
+    {
+      "ref": "ods_to_dwd",
+      "title": "清洗订单明细进 DWD",
+      "intent": "把 ODS 层原始订单明细清洗成规范、可用的订单明细",
+      "input": "ODS 层订单明细（原始，每天凌晨待处理）",
+      "output": "DWD 层订单明细（已清洗、规范）",
+      "dependsOn": []
+    },
+    {
+      "ref": "dwd_to_dws",
+      "title": "按门店聚合到 DWS",
+      "intent": "把 DWD 层订单明细按门店聚合成报表需要的汇总指标",
+      "input": "DWD 层订单明细",
+      "output": "DWS 层门店汇总表（供报表使用）",
+      "dependsOn": [
+        "ods_to_dwd"
+      ]
+    }
+  ],
+  "openQuestions": [
+    {
+      "ref": "q1",
+      "question": "DWS 按门店聚合要出哪些指标（订单量、销售额、件数、客单价等），时间粒度是按日还是月/周？",
+      "reason": "决定 DWD 聚合到 DWS 时输出的字段和汇总口径，缺了这张汇总表就定义不全。",
+      "affects": [
+        "dwd_to_dws"
+      ]
+    },
+    {
+      "ref": "q2",
+      "question": "每天凌晨处理的是 ODS 里昨天新增的增量，还是全量重跑？如果是增量，DWS 是每日快照还是滚动累计？",
+      "reason": "决定第一步的输入范围，以及 DWS 汇总表的更新语义是覆盖当日还是跨日累加。",
+      "affects": [
+        "ods_to_dwd",
+        "dwd_to_dws"
+      ]
+    }
+  ]
+}

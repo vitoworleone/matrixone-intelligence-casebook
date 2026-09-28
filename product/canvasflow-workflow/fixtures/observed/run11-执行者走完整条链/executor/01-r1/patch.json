@@ -1,0 +1,59 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "每天定时",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "params": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 0,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "blanks": [],
+      "note": "按天自动启动，默认午夜触发；要改到别的点，直接调触发小时/分钟。",
+      "step": "r1"
+    },
+    {
+      "name": "读取合同扫描件",
+      "type": "n8n-nodes-base.readWriteFile",
+      "params": {
+        "operation": "read",
+        "fileSelector": ""
+      },
+      "blanks": [
+        "fileSelector"
+      ],
+      "note": "从磁盘读取合同 PDF；具体目录/文件匹配模式是你的存储路径，我留空给你填。",
+      "step": "r1"
+    },
+    {
+      "name": "圈出昨天落库的文件",
+      "type": "n8n-nodes-base.code",
+      "params": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst now = new Date();\nconst start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);\nconst end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1, 0, 0, 0, 0);\n\nreturn items.filter((item) => {\n  const json = item.json || {};\n  const bin = (item.binary && item.binary.data) || {};\n  const directory = json.directory || bin.directory || '';\n  const fileName = json.fileName || bin.fileName || '';\n  if (!directory || !fileName) return false;\n  const filePath = path.join(directory, fileName);\n  try {\n    const stat = fs.statSync(filePath);\n    return stat.mtimeMs >= start.getTime() && stat.mtimeMs < end.getTime();\n  } catch (e) {\n    return false;\n  }\n});"
+      },
+      "blanks": [],
+      "note": "按文件的修改时间（即写入存储的落库时间）过滤，只留下昨天 0 点到今天 0 点之间的 PDF。",
+      "step": "r1"
+    }
+  ],
+  "edges": [
+    {
+      "from": "每天定时",
+      "to": "读取合同扫描件"
+    },
+    {
+      "from": "读取合同扫描件",
+      "to": "圈出昨天落库的文件"
+    }
+  ]
+}

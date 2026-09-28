@@ -1,0 +1,626 @@
+[
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "split pdf into images"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.splitInBatches",
+        "displayName": "Loop Over Items (Split in Batches)",
+        "description": "Split data into batches and iterate over each batch",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.splitOut",
+        "displayName": "Split Out",
+        "description": "Turn a list inside item(s) into separate items",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+        "displayName": "Token Splitter",
+        "description": "Split text into chunks by tokens",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+        "displayName": "Character Text Splitter",
+        "description": "Split text into chunks by characters",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "displayName": "Recursive Character Text Splitter",
+        "description": "Split text into chunks by characters recursively, recommended for most use cases",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.ollama",
+        "displayName": "Ollama",
+        "description": "Message local models and analyze images with Ollama",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 2,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "pdf to image convert"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.editImage",
+        "displayName": "Edit Image",
+        "description": "Edits an image like blur, resize or adding border and text",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertToFile",
+        "displayName": "Convert to File",
+        "description": "Convert JSON data to binary data",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertKit",
+        "displayName": "ConvertKit",
+        "description": "Consume ConvertKit API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertKitTrigger",
+        "displayName": "ConvertKit Trigger",
+        "description": "Handle ConvertKit events via webhooks",
+        "kind": "trigger"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.ollama",
+        "displayName": "Ollama",
+        "description": "Message local models and analyze images with Ollama",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.minimax",
+        "displayName": "MiniMax",
+        "description": "Message MiniMax, generate speech, images, and video",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 3,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "pdf pages render image"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.editImage",
+        "displayName": "Edit Image",
+        "description": "Edits an image like blur, resize or adding border and text",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.ollama",
+        "displayName": "Ollama",
+        "description": "Message local models and analyze images with Ollama",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.minimax",
+        "displayName": "MiniMax",
+        "description": "Message MiniMax, generate speech, images, and video",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.anthropic",
+        "displayName": "Anthropic",
+        "description": "Message Claude, analyze documents and images, manage files, and work with prompts",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.alibabaCloud",
+        "displayName": "Qwen Cloud",
+        "description": "Message Qwen models, analyze images, and generate images and video",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.moonshot",
+        "displayName": "Moonshot Kimi",
+        "description": "Message Kimi and analyze images with Moonshot models",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 4,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "pdf"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.chargebee",
+        "displayName": "Chargebee",
+        "description": "Retrieve data from Chargebee API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.apiTemplateIo",
+        "displayName": "APITemplate.io",
+        "description": "Consume the APITemplate.io API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.oneSimpleApi",
+        "displayName": "One Simple API",
+        "description": "A toolbox of no-code utilities",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.extractFromFile",
+        "displayName": "Extract from File",
+        "description": "Convert binary data to JSON",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 5,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "split pdf pages"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.splitInBatches",
+        "displayName": "Loop Over Items (Split in Batches)",
+        "description": "Split data into batches and iterate over each batch",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.splitOut",
+        "displayName": "Split Out",
+        "description": "Turn a list inside item(s) into separate items",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+        "displayName": "Token Splitter",
+        "description": "Split text into chunks by tokens",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+        "displayName": "Character Text Splitter",
+        "description": "Split text into chunks by characters",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "displayName": "Recursive Character Text Splitter",
+        "description": "Split text into chunks by characters recursively, recommended for most use cases",
+        "kind": "sub-node"
+      },
+      {
+        "type": "n8n-nodes-base.airtop",
+        "displayName": "Airtop",
+        "description": "Scrape and control any site with Airtop",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 6,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "execute command shell"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.executeCommand",
+        "displayName": "Execute Command",
+        "description": "Executes a command on the host",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.executeWorkflow",
+        "displayName": "Execute Sub-workflow",
+        "description": "Execute another workflow",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "displayName": "Execute Workflow Trigger",
+        "description": "Helpers for calling other n8n workflows. Used for designing modular, microservice-like workflows.",
+        "kind": "trigger"
+      },
+      {
+        "type": "n8n-nodes-base.ssh",
+        "displayName": "SSH",
+        "description": "Execute commands via SSH",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "displayName": "AI Agent",
+        "description": "Generates an action plan and executes it. Can use external tools.",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.agentTool",
+        "displayName": "AI Agent Tool",
+        "description": "Generates an action plan and executes it. Can use external tools.",
+        "kind": "sub-node"
+      }
+    ]
+  },
+  {
+    "round": 7,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.executeCommand"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.executeCommand",
+      "displayName": "Execute Command",
+      "description": "Executes a command on the host",
+      "version": 1,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "properties": [
+        {
+          "displayName": "Execute Once",
+          "name": "executeOnce",
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to execute only once instead of once for each entry"
+        },
+        {
+          "displayName": "Command",
+          "name": "command",
+          "type": "string",
+          "default": "",
+          "required": true,
+          "description": "The command to execute",
+          "placeholder": "echo \"test\""
+        }
+      ]
+    }
+  },
+  {
+    "round": 8,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.code"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.code",
+      "displayName": "Code",
+      "description": "Run custom JavaScript or Python code",
+      "version": 2,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "properties": [
+        {
+          "displayName": "Mode",
+          "name": "mode",
+          "type": "options",
+          "default": "runOnceForAllItems",
+          "options": [
+            {
+              "name": "Run Once for All Items",
+              "value": "runOnceForAllItems",
+              "description": "Run this code only once, no matter how many input items there are"
+            },
+            {
+              "name": "Run Once for Each Item",
+              "value": "runOnceForEachItem",
+              "description": "Run this code as many times as there are input items"
+            }
+          ]
+        },
+        {
+          "displayName": "Language",
+          "name": "language",
+          "type": "options",
+          "default": "javaScript",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "JavaScript",
+              "value": "javaScript"
+            },
+            {
+              "name": "Python",
+              "value": "pythonNative"
+            }
+          ]
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                1
+              ],
+              "mode": [
+                "runOnceForAllItems"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                1
+              ],
+              "mode": [
+                "runOnceForEachItem"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2
+              ],
+              "language": [
+                "javaScript"
+              ],
+              "mode": [
+                "runOnceForAllItems"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "JavaScript",
+          "name": "jsCode",
+          "type": "string",
+          "default": "",
+          "description": "JavaScript code to execute.<br><br>Tip: You can use luxon vars like <code>$today</code> for dates and <code>$jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/nodes/n8n-nodes-base.function\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "@version": [
+                2
+              ],
+              "language": [
+                "javaScript"
+              ],
+              "mode": [
+                "runOnceForEachItem"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Python",
+          "name": "pythonCode",
+          "type": "string",
+          "default": "",
+          "description": "Python code to execute.<br><br>Tip: You can use built-in methods and variables like <code>_today</code> for dates and <code>_jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/code/builtin/\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "language": [
+                "python",
+                "pythonNative"
+              ],
+              "mode": [
+                "runOnceForAllItems"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Python",
+          "name": "pythonCode",
+          "type": "string",
+          "default": "",
+          "description": "Python code to execute.<br><br>Tip: You can use built-in methods and variables like <code>_today</code> for dates and <code>_jmespath</code> for querying JSON structures. <a href=\"https://docs.n8n.io/code/builtin/\">Learn more</a>.",
+          "displayOptions": {
+            "show": {
+              "language": [
+                "python",
+                "pythonNative"
+              ],
+              "mode": [
+                "runOnceForEachItem"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "round": 9,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "convert pdf image"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.editImage",
+        "displayName": "Edit Image",
+        "description": "Edits an image like blur, resize or adding border and text",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertToFile",
+        "displayName": "Convert to File",
+        "description": "Convert JSON data to binary data",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertKit",
+        "displayName": "ConvertKit",
+        "description": "Consume ConvertKit API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertKitTrigger",
+        "displayName": "ConvertKit Trigger",
+        "description": "Handle ConvertKit events via webhooks",
+        "kind": "trigger"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.ollama",
+        "displayName": "Ollama",
+        "description": "Message local models and analyze images with Ollama",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.minimax",
+        "displayName": "MiniMax",
+        "description": "Message MiniMax, generate speech, images, and video",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 10,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "pdf co split"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.splitInBatches",
+        "displayName": "Loop Over Items (Split in Batches)",
+        "description": "Split data into batches and iterate over each batch",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.splitOut",
+        "displayName": "Split Out",
+        "description": "Turn a list inside item(s) into separate items",
+        "kind": "action"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+        "displayName": "Token Splitter",
+        "description": "Split text into chunks by tokens",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+        "displayName": "Character Text Splitter",
+        "description": "Split text into chunks by characters",
+        "kind": "sub-node"
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "displayName": "Recursive Character Text Splitter",
+        "description": "Split text into chunks by characters recursively, recommended for most use cases",
+        "kind": "sub-node"
+      },
+      {
+        "type": "n8n-nodes-base.coda",
+        "displayName": "Coda",
+        "description": "Consume Coda API",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 11,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "pdf split convert service"
+    },
+    "answer": [
+      {
+        "type": "n8n-nodes-base.serviceNow",
+        "displayName": "ServiceNow",
+        "description": "Consume ServiceNow API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertToFile",
+        "displayName": "Convert to File",
+        "description": "Convert JSON data to binary data",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertKit",
+        "displayName": "ConvertKit",
+        "description": "Consume ConvertKit API",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.convertKitTrigger",
+        "displayName": "ConvertKit Trigger",
+        "description": "Handle ConvertKit events via webhooks",
+        "kind": "trigger"
+      },
+      {
+        "type": "n8n-nodes-base.splitInBatches",
+        "displayName": "Loop Over Items (Split in Batches)",
+        "description": "Split data into batches and iterate over each batch",
+        "kind": "action"
+      },
+      {
+        "type": "n8n-nodes-base.splitOut",
+        "displayName": "Split Out",
+        "description": "Turn a list inside item(s) into separate items",
+        "kind": "action"
+      }
+    ]
+  },
+  {
+    "round": 12,
+    "kind": "tool",
+    "tool": "search_nodes",
+    "args": {
+      "query": "pdfbox"
+    },
+    "answer": []
+  }
+]

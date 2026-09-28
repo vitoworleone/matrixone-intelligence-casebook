@@ -1,0 +1,18 @@
+s1 · 筛出昨天落库的合同 PDF
+[1] 搜 "list files directory disk" → Read/Write Files from Disk、Item List Output Parser、Anthropic、Databricks、Convert to File、FTP
+[1] 查 n8n-nodes-base.scheduleTrigger → 4 格:rule, misfirePolicy, misfireGraceSeconds, skipDurableScheduler
+[1] 查 n8n-nodes-base.readWriteFile → 菜单 2 项
+[2] 查 n8n-nodes-base.readWriteFile · read → 3 格:operation, fileSelector, options
+[3] 搜 "watch filesystem new file" → Convert to File、Extract from File、Local File Trigger、FileMaker、Read/Write Files from Disk、FTP
+[3] 搜 "file trigger directory" → Local File Trigger、LoneScale Trigger、E2E Test Polling Trigger、Microsoft OneDrive Trigger、Convert to File、Extract from File
+[4] 搜 "list files folder metadata" → Read/Write Files from Disk、Item List Output Parser、Anthropic、FTP、Git、Dropbox
+[4] 搜 "read directory file list" → Read/Write Files from Disk、Convert to File、Extract from File、Local File Trigger、RSS Read、Item List Output Parser
+[5] 搜 "file stat metadata modified time" → Date & Time、Extract from File、Convert to File、Track Time Saved、Local File Trigger、FileMaker
+[5] 搜 "filter files by date" → Filter、Date & Time、Read/Write Files from Disk、Convert to File、Anthropic、Compression
+[6] 查 n8n-nodes-base.code → 8 格:mode, language, jsCode, jsCode, jsCode, jsCode, pythonCode, pythonCode
+[7] 查 n8n-nodes-base.set → 14 格:mode, duplicateItem, duplicateCount, jsonOutput, fields, assignments, include, includeOtherFields, include, includeFields, excludeFields, includeFields, excludeFields, options
+[8] 交:2 个节点
+  每天定时触发 · n8n-nodes-base.scheduleTrigger
+  读取昨天落库的合同 PDF · n8n-nodes-base.readWriteFile · 空格:fileSelector
+  每天定时触发 → 读取昨天落库的合同 PDF
+8 个回合交了

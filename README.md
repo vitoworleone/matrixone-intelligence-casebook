@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
+  <a href="product/moi-platform-prototype/data-processing/workflow-demo.html"><img src="product/canvasflow-workflow/docs/assets/canvasflow-restored-zh-CN.png" alt="工作流交互演示" width="900" /></a>
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -10,6 +10,10 @@
 
 <p align="center">
   <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ 在线体验 MOI 平台原型</strong></a>
+</p>
+
+<p align="center">
+  <a href="product/moi-platform-prototype/data-processing/workflow-demo.html"><strong>▶ 工作流交互演示</strong></a> · <a href="product/canvasflow-workflow/"><strong>阅读工作流设计原始资料</strong></a>
 </p>
 
 <details>
@@ -28,14 +32,6 @@
 <em>数据工作台：数据对象、工作流、计算资源与知识库概览。</em>
 
 </details>
-
-## 工作流交互演示
-
-<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
-  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="工作流交互演示" width="900" />
-</a>
-
-[播放视频](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [工作流设计与实现梳理](product/canvasflow-workflow/) · [CanvasFlow 项目与作者 Bai-009](https://github.com/Bai-009/canvas-first-workflow)
 
 ## 先读：产品全景与我的工作
 

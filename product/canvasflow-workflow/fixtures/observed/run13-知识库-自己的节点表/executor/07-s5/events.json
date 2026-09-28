@@ -1,0 +1,22 @@
+[
+  {
+    "round": 1,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "语义检索",
+          "type": "code",
+          "params": {
+            "language": "JavaScript",
+            "code": "// 平台没有“语义检索”节点，也没有接收外部自然语言查询的节点；\n// 这里先用代码占位：查询原样保留并标记未检索。\n// 待平台提供向量库查询能力后，在此实现：向量化查询 -> 检索向量库 -> 返回命中段落/表格及来源。\nreturn items.map(item => {\n  const query = (item.input && item.input.text) || \"\";\n  return { ...item, query, hits: [], retrieved: false };\n});"
+          },
+          "blanks": [],
+          "note": "平台只有写入向量库的节点，没有查询向量库或接收外部查询的节点，代码节点也调不到你的向量库，这一步只能先占位。"
+        }
+      ],
+      "edges": []
+    }
+  }
+]

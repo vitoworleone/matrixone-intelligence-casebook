@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bai-009/canvas-first-workflow/contracts/workflow-revision.schema.json",
+  "title": "执行 Agent 提交整图修订候选",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": ["patch", "unchanged", "needs_plan"],
+      "description": "patch: a necessary canvas diff after reviewing the whole workflow. unchanged: the current canvas already satisfies the request. needs_plan: satisfying it requires changing the plan or removing the initiating node; explain without changing the canvas."
+    },
+    "summary": { "type": "string", "minLength": 1, "description": "Explain the result and any remaining limitation in the user's language." },
+    "review": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": "string", "minLength": 1 },
+          "summary": { "type": "string", "minLength": 1, "description": "The effect of this request on this step, and why it changes or remains valid. An impact explanation, not a claim of machine verification." }
+        },
+        "required": ["step", "summary"],
+        "additionalProperties": false
+      },
+      "description": "Exactly one impact explanation for every step in the current plan, including steps whose nodes do not change."
+    },
+    "upsertNodes": { "type": "array", "items": { "$ref": "#/$defs/node" }, "description": "Only new or changed nodes. Each is a complete replacement, including its existing plan step. Keep existing names and confirmed settings unless the request requires a change." },
+    "removeNodes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true, "description": "Existing nodes no longer needed. Never remove the initiating target node." },
+    "addEdges": { "type": "array", "items": { "$ref": "#/$defs/edge" }, "description": "Only edges to add to the current canvas." },
+    "removeEdges": { "type": "array", "items": { "$ref": "#/$defs/edge" }, "description": "Only current edges to remove, identified by from, to, and output when present." }
+  },
+  "required": ["kind", "summary", "review"],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "kind": { "const": "patch" },
+        "upsertNodes": {}, "removeNodes": {}, "addEdges": {}, "removeEdges": {}
+      },
+      "required": ["upsertNodes", "removeNodes", "addEdges", "removeEdges"]
+    },
+    {
+      "properties": {
+        "kind": { "enum": ["unchanged", "needs_plan"] },
+        "upsertNodes": false, "removeNodes": false, "addEdges": false, "removeEdges": false
+      }
+    }
+  ],
+  "$defs": {
+    "node": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "description": "Canvas identity and visible label. Reuse the name of a node being changed." },
+        "step": { "type": "string", "minLength": 1, "description": "An existing plan step ref. A revision can affect any existing step, not just the initiating step." },
+        "type": { "type": "string", "minLength": 1, "description": "A type from the node table." },
+        "params": { "type": "object", "description": "The complete set of explicit slot values; use only slots defined by this node type." },
+        "blanks": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true, "description": "Defined slots still requiring values from the user; preserve values already confirmed." },
+        "note": { "type": "string", "description": "A concise explanation of the choice that is not already visible in the slot values." }
+      },
+      "required": ["name", "step", "type", "params", "blanks", "note"],
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "output": { "type": "string", "minLength": 1, "description": "Required for a source with multiple outputs, such as condition's true/false. Omit for a single-output source." }
+      },
+      "required": ["from", "to"],
+      "additionalProperties": false
+    }
+  }
+}

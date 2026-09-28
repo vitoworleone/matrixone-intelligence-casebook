@@ -1,0 +1,28 @@
+{
+  "kind": "patch",
+  "nodes": [
+    {
+      "name": "写入数据库",
+      "type": "n8n-nodes-base.postgres",
+      "params": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "",
+        "columns": {}
+      },
+      "blanks": [
+        "postgres",
+        "table",
+        "columns"
+      ],
+      "note": "用 Postgres Insert 把 r3 抽出的每份合同字段逐条写成表里的一行；数据库凭据、目标表和字段到列的映射都取决于你还没定的答案，所以这三处留空给你填，schema 先默认 public（可改）。",
+      "step": "r4"
+    }
+  ],
+  "edges": [
+    {
+      "from": "抽取合同关键字段",
+      "to": "写入数据库"
+    }
+  ]
+}

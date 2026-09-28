@@ -1,0 +1,27 @@
+{
+  "revision": 2,
+  "steps": [
+    {
+      "ref": "r1",
+      "outcome": "covered",
+      "canvasVersion": 4
+    },
+    {
+      "ref": "r2",
+      "outcome": "covered",
+      "canvasVersion": 4
+    },
+    {
+      "ref": "r3",
+      "outcome": "covered",
+      "canvasVersion": 4
+    },
+    {
+      "ref": "r4",
+      "outcome": "covered",
+      "canvasVersion": 4
+    }
+  ],
+  "endedBy": "finished",
+  "problems": []
+}

@@ -1,0 +1,127 @@
+{
+  "nodes": [
+    {
+      "name": "读入手册",
+      "type": "readFile",
+      "params": {},
+      "blanks": [
+        "folder"
+      ],
+      "note": "手册所在的文件夹还没定，留给用户填。",
+      "step": "s6"
+    },
+    {
+      "name": "提取文字层",
+      "type": "parseDocument",
+      "params": {},
+      "blanks": [],
+      "note": "用解析文档能否取到文字层来区分形态：电子版取得到，扫描件取不到。",
+      "step": "s6"
+    },
+    {
+      "name": "有文字层？",
+      "type": "condition",
+      "params": {
+        "condition": "(input.text || \"\").trim() != \"\""
+      },
+      "blanks": [],
+      "note": "取到文字的是电子版走 true，取不到的是扫描件走 false，文件仍随条目保留供后续 OCR 用。",
+      "step": "s6"
+    },
+    {
+      "name": "电子版提取文本",
+      "type": "parseDocument",
+      "params": {},
+      "blanks": [],
+      "note": "电子版走解析文档正式取全文；表格内容随文字层进入文本，图片不会被提取。",
+      "step": "s1"
+    },
+    {
+      "name": "扫描件 OCR",
+      "type": "ocr",
+      "params": {
+        "engine": "Mistral OCR"
+      },
+      "blanks": [],
+      "note": "取不到文字层的手册走「有文字层？」的 false 出口接 OCR；OCR 只产出文本，图片内容自然不会被提取，表格也随文本保留。",
+      "step": "s7"
+    },
+    {
+      "name": "按段落切分",
+      "type": "splitText",
+      "params": {},
+      "blanks": [],
+      "note": "两路文本汇到同一个切分节点；切分粒度还没定，先用默认 500 字块，来源文件路径会随条目保留作定位。",
+      "step": "s2"
+    },
+    {
+      "name": "文本块向量化",
+      "type": "embedText",
+      "params": {
+        "model": "BGE-M3"
+      },
+      "blanks": [],
+      "note": "切分后的每个文本块过一次向量模型，原文随向量继续往下走，供写向量库时保留。",
+      "step": "s3"
+    },
+    {
+      "name": "写入向量库",
+      "type": "writeVectorStore",
+      "params": {},
+      "blanks": [
+        "connection",
+        "collection"
+      ],
+      "note": "这是把文本块和向量落成可语义检索索引的唯一节点；向量库连接和集合属于用户自己的资源，所以留空待选。",
+      "step": "s4"
+    },
+    {
+      "name": "语义检索",
+      "type": "code",
+      "params": {
+        "language": "JavaScript",
+        "code": "// 平台没有“语义检索”节点，也没有接收外部自然语言查询的节点；\n// 这里先用代码占位：查询原样保留并标记未检索。\n// 待平台提供向量库查询能力后，在此实现：向量化查询 -> 检索向量库 -> 返回命中段落/表格及来源。\nreturn items.map(item => {\n  const query = (item.input && item.input.text) || \"\";\n  return { ...item, query, hits: [], retrieved: false };\n});"
+      },
+      "blanks": [],
+      "note": "平台只有写入向量库的节点，没有查询向量库或接收外部查询的节点，代码节点也调不到你的向量库，这一步只能先占位。",
+      "step": "s5"
+    }
+  ],
+  "edges": [
+    {
+      "from": "读入手册",
+      "to": "提取文字层"
+    },
+    {
+      "from": "提取文字层",
+      "to": "有文字层？"
+    },
+    {
+      "from": "有文字层？",
+      "to": "电子版提取文本",
+      "output": "true"
+    },
+    {
+      "from": "有文字层？",
+      "to": "扫描件 OCR",
+      "output": "false"
+    },
+    {
+      "from": "电子版提取文本",
+      "to": "按段落切分"
+    },
+    {
+      "from": "扫描件 OCR",
+      "to": "按段落切分"
+    },
+    {
+      "from": "按段落切分",
+      "to": "文本块向量化"
+    },
+    {
+      "from": "文本块向量化",
+      "to": "写入向量库"
+    }
+  ],
+  "version": 7
+}

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
+  <a href="product/moi-platform-prototype/data-processing/workflow-demo.html"><img src="product/canvasflow-workflow/docs/assets/canvasflow-restored-en.png" alt="Workflow interaction demo" width="900" /></a>
 </p>
 
 # MatrixOne Intelligence Casebook
@@ -10,6 +10,10 @@
 
 <p align="center">
   <a href="https://moi-platform-prototype-qz3dx8ua9-vit30570-4455s-projects.vercel.app/app-dev/index.html"><strong>▶ Explore the MOI platform prototype</strong></a>
+</p>
+
+<p align="center">
+  <a href="product/moi-platform-prototype/data-processing/workflow-demo.html"><strong>▶ Workflow interaction demo</strong></a> · <a href="product/canvasflow-workflow/"><strong>Read the original workflow design documents</strong></a>
 </p>
 
 <details>
@@ -28,14 +32,6 @@
 <em>Data workbench: an overview of data objects, workflows, compute resources, and knowledge bases.</em>
 
 </details>
-
-## Workflow interaction demo
-
-<a href="product/moi-platform-prototype/videos/workflow-interaction-demo.mp4">
-  <img src="product/moi-platform-prototype/videos/workflow-interaction-poster.jpg" alt="Workflow interaction demo" width="900" />
-</a>
-
-[Play video](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [Design and implementation notes (Chinese)](product/canvasflow-workflow/) · [CanvasFlow by Bai-009](https://github.com/Bai-009/canvas-first-workflow)
 
 ## Start here: product overview and my work
 

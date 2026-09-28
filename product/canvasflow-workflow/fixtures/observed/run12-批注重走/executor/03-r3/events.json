@@ -1,0 +1,613 @@
+[
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor"
+    },
+    "answer": {
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "displayName": "Information Extractor",
+      "description": "Extract information from text in a structured format",
+      "version": 1.2,
+      "inputs": [
+        {
+          "displayName": "",
+          "type": "main"
+        },
+        {
+          "displayName": "Model",
+          "maxConnections": 1,
+          "type": "ai_languageModel",
+          "required": true
+        }
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [],
+      "properties": [
+        {
+          "displayName": "Text",
+          "name": "text",
+          "type": "string",
+          "default": "",
+          "description": "The text to extract information from"
+        },
+        {
+          "displayName": "Schema Type",
+          "name": "schemaType",
+          "type": "options",
+          "default": "fromAttributes",
+          "description": "How to specify the schema for the desired output",
+          "options": [
+            {
+              "name": "From Attribute Descriptions",
+              "value": "fromAttributes",
+              "description": "Extract specific attributes from the text based on types and descriptions"
+            },
+            {
+              "name": "Generate From JSON Example",
+              "value": "fromJson",
+              "description": "Generate a schema from an example JSON object"
+            },
+            {
+              "name": "Define using JSON Schema",
+              "value": "manual",
+              "description": "Define the JSON schema manually"
+            }
+          ]
+        },
+        {
+          "displayName": "JSON Example",
+          "name": "jsonSchemaExample",
+          "type": "json",
+          "default": "{\n\t\"state\": \"California\",\n\t\"cities\": [\"Los Angeles\", \"San Francisco\", \"San Diego\"]\n}",
+          "description": "Example JSON object to use to generate the schema",
+          "displayOptions": {
+            "show": {
+              "schemaType": [
+                "fromJson"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Input Schema",
+          "name": "inputSchema",
+          "type": "json",
+          "default": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"state\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"cities\": {\n\t\t\t\"type\": \"array\",\n\t\t\t\"items\": {\n\t\t\t\t\"type\": \"string\"\n\t\t\t}\n\t\t}\n\t}\n}",
+          "description": "Schema to use for the function",
+          "displayOptions": {
+            "show": {
+              "schemaType": [
+                "manual"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Attributes",
+          "name": "attributes",
+          "type": "fixedCollection",
+          "default": {},
+          "placeholder": "Add Attribute",
+          "displayOptions": {
+            "show": {
+              "schemaType": [
+                "fromAttributes"
+              ]
+            }
+          },
+          "multipleValues": true,
+          "options": [
+            {
+              "displayName": "Attribute List",
+              "name": "attributes",
+              "values": [
+                {
+                  "displayName": "Name",
+                  "name": "name",
+                  "type": "string",
+                  "default": "",
+                  "required": true,
+                  "description": "Attribute to extract",
+                  "placeholder": "e.g. company_name"
+                },
+                {
+                  "displayName": "Type",
+                  "name": "type",
+                  "type": "options",
+                  "default": "string",
+                  "required": true,
+                  "description": "Data type of the attribute",
+                  "options": [
+                    {
+                      "name": "Boolean",
+                      "value": "boolean"
+                    },
+                    {
+                      "name": "Date",
+                      "value": "date"
+                    },
+                    {
+                      "name": "Number",
+                      "value": "number"
+                    },
+                    {
+                      "name": "String",
+                      "value": "string"
+                    }
+                  ]
+                },
+                {
+                  "displayName": "Description",
+                  "name": "description",
+                  "type": "string",
+                  "default": "",
+                  "required": true,
+                  "description": "Describe your attribute",
+                  "placeholder": "Add description for the attribute"
+                },
+                {
+                  "displayName": "Required",
+                  "name": "required",
+                  "type": "boolean",
+                  "default": false,
+                  "required": true,
+                  "description": "Whether attribute is required"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "displayName": "Options",
+          "name": "options",
+          "type": "collection",
+          "default": {},
+          "placeholder": "Add Option",
+          "options": [
+            {
+              "displayName": "System Prompt Template",
+              "name": "systemPromptTemplate",
+              "type": "string",
+              "default": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value.",
+              "description": "String to use directly as the system prompt template"
+            },
+            {
+              "displayName": "Batch Processing",
+              "name": "batching",
+              "type": "collection",
+              "default": {},
+              "description": "Batch processing options for rate limiting",
+              "placeholder": "Add Batch Processing Option",
+              "displayOptions": {
+                "show": {
+                  "@version": [
+                    {
+                      "_cnd": {
+                        "gte": 1.1
+                      }
+                    }
+                  ]
+                }
+              },
+              "options": [
+                {
+                  "displayName": "Batch Size",
+                  "name": "batchSize",
+                  "type": "number",
+                  "default": 5,
+                  "description": "How many items to process in parallel. This is useful for rate limiting, but might impact the log output ordering."
+                },
+                {
+                  "displayName": "Delay Between Batches",
+                  "name": "delayBetweenBatches",
+                  "type": "number",
+                  "default": 0,
+                  "description": "Delay in milliseconds between batches. This is useful for rate limiting."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "round": 1,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek"
+    },
+    "answer": {
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "displayName": "DeepSeek Chat Model",
+      "description": "For advanced usage with an AI chain",
+      "version": 1,
+      "inputs": [],
+      "outputs": [
+        "ai_languageModel"
+      ],
+      "credentials": [
+        {
+          "name": "deepSeekApi",
+          "required": true
+        }
+      ],
+      "properties": [
+        {
+          "displayName": "Model",
+          "name": "model",
+          "type": "options",
+          "default": "deepseek-chat",
+          "description": "The model which will generate the completion. <a href=\"https://api-docs.deepseek.com/quick_start/pricing\">Learn more</a>."
+        },
+        {
+          "displayName": "Options",
+          "name": "options",
+          "type": "collection",
+          "default": {},
+          "description": "Additional options to add",
+          "placeholder": "Add Option",
+          "options": [
+            {
+              "displayName": "Frequency Penalty",
+              "name": "frequencyPenalty",
+              "type": "number",
+              "default": 0,
+              "description": "Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim"
+            },
+            {
+              "displayName": "Maximum Number of Tokens",
+              "name": "maxTokens",
+              "type": "number",
+              "default": -1,
+              "description": "The maximum number of tokens to generate in the completion. Most models have a context length of 2048 tokens (except for the newest models, which support 32,768)."
+            },
+            {
+              "displayName": "Response Format",
+              "name": "responseFormat",
+              "type": "options",
+              "default": "text",
+              "options": [
+                {
+                  "name": "Text",
+                  "value": "text",
+                  "description": "Regular text response"
+                },
+                {
+                  "name": "JSON",
+                  "value": "json_object",
+                  "description": "Enables JSON mode, which should guarantee the message the model generates is valid JSON"
+                }
+              ]
+            },
+            {
+              "displayName": "Presence Penalty",
+              "name": "presencePenalty",
+              "type": "number",
+              "default": 0,
+              "description": "Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics"
+            },
+            {
+              "displayName": "Sampling Temperature",
+              "name": "temperature",
+              "type": "number",
+              "default": 0.7,
+              "description": "Controls randomness: Lowering results in less random completions. As the temperature approaches zero, the model will become deterministic and repetitive."
+            },
+            {
+              "displayName": "Timeout",
+              "name": "timeout",
+              "type": "number",
+              "default": 360000,
+              "description": "Maximum amount of time a request is allowed to take in milliseconds"
+            },
+            {
+              "displayName": "Max Retries",
+              "name": "maxRetries",
+              "type": "number",
+              "default": 2,
+              "description": "Maximum number of retries to attempt"
+            },
+            {
+              "displayName": "Top P",
+              "name": "topP",
+              "type": "number",
+              "default": 1,
+              "description": "Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered. We generally recommend altering this or temperature but not both."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "round": 2,
+    "kind": "tool",
+    "tool": "describe_node",
+    "args": {
+      "type": "n8n-nodes-base.mistralAi",
+      "resource": "document",
+      "operation": "extractText"
+    },
+    "answer": {
+      "type": "n8n-nodes-base.mistralAi",
+      "displayName": "Mistral AI",
+      "description": "Consume Mistral AI API",
+      "version": 1,
+      "inputs": [
+        "main"
+      ],
+      "outputs": [
+        "main"
+      ],
+      "credentials": [
+        {
+          "name": "mistralCloudApi",
+          "required": true
+        }
+      ],
+      "properties": [
+        {
+          "displayName": "Resource",
+          "name": "resource",
+          "type": "options",
+          "default": "document",
+          "options": [
+            {
+              "name": "Document",
+              "value": "document"
+            }
+          ]
+        },
+        {
+          "displayName": "Operation",
+          "name": "operation",
+          "type": "options",
+          "default": "extractText",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Extract Text",
+              "value": "extractText",
+              "description": "Extract text from document using OCR"
+            }
+          ]
+        },
+        {
+          "displayName": "Model",
+          "name": "model",
+          "type": "options",
+          "default": "mistral-ocr-latest",
+          "required": true,
+          "description": "The OCR model to use",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "mistral-ocr-latest",
+              "value": "mistral-ocr-latest"
+            }
+          ]
+        },
+        {
+          "displayName": "Document Type",
+          "name": "documentType",
+          "type": "options",
+          "default": "document_url",
+          "required": true,
+          "description": "The type of document to process",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Document",
+              "value": "document_url"
+            },
+            {
+              "name": "Image",
+              "value": "image_url"
+            }
+          ]
+        },
+        {
+          "displayName": "Input Type",
+          "name": "inputType",
+          "type": "options",
+          "default": "binary",
+          "required": true,
+          "description": "How the document will be provided",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "name": "Binary Data",
+              "value": "binary"
+            },
+            {
+              "name": "URL",
+              "value": "url"
+            }
+          ]
+        },
+        {
+          "displayName": "Input Binary Field",
+          "name": "binaryProperty",
+          "type": "string",
+          "default": "data",
+          "required": true,
+          "description": "Name of the input binary field that contains the file to process",
+          "placeholder": "e.g. data",
+          "displayOptions": {
+            "show": {
+              "inputType": [
+                "binary"
+              ],
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "URL",
+          "name": "url",
+          "type": "string",
+          "default": "",
+          "required": true,
+          "description": "URL of the document or image to process",
+          "placeholder": "e.g. https://example.com/document.pdf",
+          "displayOptions": {
+            "show": {
+              "inputType": [
+                "url"
+              ],
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "Options",
+          "name": "options",
+          "type": "collection",
+          "default": {},
+          "placeholder": "Add Option",
+          "displayOptions": {
+            "show": {
+              "resource": [
+                "document"
+              ],
+              "operation": [
+                "extractText"
+              ]
+            }
+          },
+          "options": [
+            {
+              "displayName": "Enable Batch Processing",
+              "name": "batch",
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to process multiple documents in a single API call (more cost-efficient)"
+            },
+            {
+              "displayName": "Batch Size",
+              "name": "batchSize",
+              "type": "number",
+              "default": 50,
+              "required": true,
+              "description": "Maximum number of documents to process in a single batch",
+              "displayOptions": {
+                "show": {
+                  "batch": [
+                    true
+                  ]
+                }
+              }
+            },
+            {
+              "displayName": "Delete Files After Processing",
+              "name": "deleteFiles",
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to delete the files on Mistral Cloud after processing",
+              "displayOptions": {
+                "show": {
+                  "batch": [
+                    true
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "round": 3,
+    "kind": "submitted",
+    "submission": {
+      "kind": "patch",
+      "nodes": [
+        {
+          "name": "抽取合同关键字段",
+          "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+          "params": {
+            "text": "={{ $json.text }}",
+            "schemaType": "fromAttributes",
+            "attributes": {}
+          },
+          "blanks": [
+            "attributes"
+          ],
+          "note": "用 Information Extractor 从 OCR 文本里抽结构化字段；关键字段是哪几个你还没定，我把 attributes 留空给你按合同字段填（名称/类型/描述）。输入取上一节点 OCR 产出的 text。"
+        },
+        {
+          "name": "DeepSeek Chat 模型",
+          "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+          "params": {
+            "model": "deepseek-chat"
+          },
+          "blanks": [
+            "deepSeekApi"
+          ],
+          "note": "Information Extractor 的模型子节点，凭据 deepSeekApi 留空给你填；模型用默认 deepseek-chat。"
+        }
+      ],
+      "edges": [
+        {
+          "from": "OCR 识别扫描件文本",
+          "to": "抽取合同关键字段"
+        },
+        {
+          "from": "DeepSeek Chat 模型",
+          "to": "抽取合同关键字段"
+        }
+      ]
+    }
+  }
+]
