@@ -1,8 +1,8 @@
 # PlanProposal 契约
 
-Schema 在 [contracts/plan-proposal.schema.json](../contracts/plan-proposal.schema.json)，Gate 在 [src/plan/validate-plan-proposal.mjs](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/plan/validate-plan-proposal.mts)，提示词在 [prompts/plan-agent.md](../prompts/plan-agent.md)。这份文件说的是各字段为什么长这样。每一刀背后放弃了什么，在 [取舍.md](取舍.md)；真模型实际填出来的样子，在 `fixtures/observed/` 和 [观察.md](观察.md)。
+Schema 在 [contracts/plan-proposal.schema.json](../contracts/plan-proposal.schema.json)，Gate 在 [src/plan/validate-plan-proposal.mjs](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/plan/validate-plan-proposal.mts)，提示词在 [prompts/plan-agent.md](../prompts/plan-agent.md)。这份文件说的是各字段为什么长这样。每一刀背后放弃了什么，在 [design-tradeoffs.md](design-tradeoffs.md)；真模型实际填出来的样子，在 `fixtures/observed/` 和 [observations.md](observations.md)。
 
-角色边界见 [架构.md](架构.md)。
+角色边界见 [architecture.md](architecture.md)。
 
 ## 这份契约要解决什么
 
@@ -118,7 +118,7 @@ Plan Agent 每一轮吐一整份，不吐增量。它认为这次是小修，就
 
 `ref` 沿用不保证内容不变，只表示模型认为这还是那一条。Gate 能看见两版之间哪些 `ref` 消失了、哪些新增了，但**不拦**——模型砍掉一条理解可能是对的，界面只要知道它没了，好演退场。
 
-这套机制在真模型上验过一轮：用户补一句之后，s1–s4 全部沿用，s2 原地改成 OCR 口径，被回答的 q1、q2 消失，q3、q4 保留原编号，u5、u6 新增。记录在 [观察.md](观察.md)。原型的演示数据就是拿这两份方案按 `ref` 差异算出来的。
+这套机制在真模型上验过一轮：用户补一句之后，s1–s4 全部沿用，s2 原地改成 OCR 口径，被回答的 q1、q2 消失，q3、q4 保留原编号，u5、u6 新增。记录在 [observations.md](observations.md)。原型的演示数据就是拿这两份方案按 `ref` 差异算出来的。
 
 ## 模型输出与系统状态
 

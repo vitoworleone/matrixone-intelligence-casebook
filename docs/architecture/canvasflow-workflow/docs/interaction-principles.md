@@ -1,6 +1,6 @@
 # 交互理念与项目边界
 
-![CanvasFlow 工作流交互概念图](assets/canvasflow-restored-zh-CN.png)
+![CanvasFlow 工作流交互概念图](assets/canvasflow-restored-zh-cn.png)
 
 **与 AI 共同构建数据工作流的画布。**
 
@@ -51,7 +51,7 @@
 
 ## 画布背后
 
-![CanvasFlow 架构：画布交流、状态机、Agent、校验与本地会话。](assets/architecture-paper-zh-CN.png)
+![CanvasFlow 架构：画布交流、状态机、Agent、校验与本地会话。](assets/architecture-paper-zh-cn.png)
 
 前端和后端都使用 TypeScript，分别按浏览器与 Node.js 环境检查。浏览器负责画布和交互，Node.js 服务负责模型调用、状态管理、校验与本地存储，通过 HTTP 和服务端事件流连接。
 
@@ -68,4 +68,4 @@ Agent 架构围绕这段协作过程分工：规划负责整体意图，构建�
 
 这些检查能拦住一部分结构错误，**不能证明业务语义一定正确**。例如字段单位是否一致，仍需要模型判断和用户审阅。
 
-会话默认存放在 `.sessions/`，运行记录在 `.runs/`，未发送草稿保存在当前浏览器。服务重启后保留已提交结果，进行中的任务会标记为中断，不会自动再次调用模型。模型密钥留在服务端 `.env`。更多存储与开发说明见[开发指南](开发指南.md)。
+会话默认存放在 `.sessions/`，运行记录在 `.runs/`，未发送草稿保存在当前浏览器。服务重启后保留已提交结果，进行中的任务会标记为中断，不会自动再次调用模型。模型密钥留在服务端 `.env`。更多存储与开发说明见[开发指南](development-guide.md)。

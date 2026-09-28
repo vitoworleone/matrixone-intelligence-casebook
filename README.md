@@ -20,6 +20,12 @@
 
 [观看 1080p 视频](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [阅读工作流设计原始资料](docs/architecture/canvasflow-workflow/)
 
+## Astra 运行时演示
+
+长任务在 CLI 中执行时，Astra 如何保留上下文、说明取舍，并展示执行分析。视频来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)，时长约 90 秒。
+
+https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
+
 ## 原型界面预览
 
 <img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="100%" />

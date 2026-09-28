@@ -8,7 +8,7 @@
 
 修订共用规划／构建的执行权，处理期间允许写草稿，下一条写操作须等完成或停止。会话保存 `processing → checking → applied / unchanged / needs_plan / failed / stopped` 记录。只有 `applied` 替换画布；`applied` 与 `unchanged` 的要求进入后续上下文。拒绝、失败、停止和过期提交都不替换画布。当前计划未构建完，或请求引用旧画布版本时，发送前直接拒绝。
 
-刷新和事件重连从当前服务会话恢复画布及修订记录；不包含服务重启持久化。真实连续修订见 [run14](../fixtures/observed/run14-节点整图修订/README.md)，实现见 [workflow-session.mjs](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/state-machine/workflow-session.mts) 与 [workflow-revision.mjs](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/state-machine/workflow-revision.mts)。
+刷新和事件重连从当前服务会话恢复画布及修订记录；不包含服务重启持久化。真实连续修订见 [run14](../fixtures/observed/run-14-node-workflow-revision/README.md)，实现见 [workflow-session.mjs](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/state-machine/workflow-session.mts) 与 [workflow-revision.mjs](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/state-machine/workflow-revision.mts)。
 
 以下保留初次构建机制的推导历史；其中“全局一致由重走保证”不是对节点内整图修订的约束，也不能理解为重走能证明业务语义正确。
 
@@ -39,7 +39,7 @@
 
 ## 执行阶段（状态机已做，执行者是插口）
 
-先看一遍画面，再列规则。画面用 [run8](../fixtures/observed/run8-原因版提示词/turn-2.plan.json) 那份方案：四步，s1 圈昨天落库的 PDF，s2 OCR 出文本，s3 抽字段，s4 写表；q3 抽哪些字段、q4 写哪张表没答。画布空着。
+先看一遍画面，再列规则。画面用 [run8](../fixtures/observed/run-08-causal-prompt/turn-2.plan.json) 那份方案：四步，s1 圈昨天落库的 PDF，s2 OCR 出文本，s3 抽字段，s4 写表；q3 抽哪些字段、q4 写哪张表没答。画布空着。
 
 ### 画面
 

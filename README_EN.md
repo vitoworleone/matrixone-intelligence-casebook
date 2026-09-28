@@ -20,6 +20,12 @@
 
 [Watch the 1080p video](product/moi-platform-prototype/videos/workflow-interaction-demo.mp4) · [Read the original workflow design documents](docs/architecture/canvasflow-workflow/)
 
+## Astra runtime demo
+
+See how Astra keeps context for a long CLI task, explains what it cut, and shows the execution analysis. This 90-second video comes from the [official Astra repository](https://github.com/matrixorigin/Astra).
+
+https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
+
 ## Prototype previews
 
 <img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="100%" />

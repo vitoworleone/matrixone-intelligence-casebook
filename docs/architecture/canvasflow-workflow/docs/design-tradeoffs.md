@@ -8,7 +8,7 @@
 
 真身在 [contracts/plan-proposal.schema.json](../contracts/plan-proposal.schema.json)，
 以那份为准。这里放一份当前快照，方便对着下面的取舍看——留下来的每一行和没出现的每一个
-字段，都对应下面的某一刀。各字段的中文说法见 [词表](词表.md)。
+字段，都对应下面的某一刀。各字段的中文说法见 [词表](glossary.md)。
 
 ```json
 {

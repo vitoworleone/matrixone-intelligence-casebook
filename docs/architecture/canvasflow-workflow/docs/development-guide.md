@@ -8,7 +8,7 @@
 
 服务默认监听 `127.0.0.1:5174`。修改端口可运行 `PORT=5175 npm run web`。实时应用的执行 Agent 和修订 Agent 默认已接入；节点生成使用真实模型，但不会执行节点描述的数据处理任务。
 
-配置的模型服务需要支持 Chat Completions 和工具调用，规划路径使用流式响应。不同兼容服务的工具调用行为可能存在差异，已有实测记录见[观察](观察.md)。
+配置的模型服务需要支持 Chat Completions 和工具调用，规划路径使用流式响应。不同兼容服务的工具调用行为可能存在差异，已有实测记录见[观察](observations.md)。
 
 ## 构建与检查
 
@@ -115,4 +115,4 @@ node dist/src/plan/validate-plan-proposal.mjs fixtures/contract-processing.plan.
 
 模型接口适配会归一化部分兼容格式，例如省略的函数调用类型和对象形式的参数；不合法的 JSON 参数文本保留给 Agent 的纠错循环。缺失必要工具标识等接口问题仍会报错，不能把“兼容”理解为所有模型服务都已验证。
 
-更完整的类型边界与迁移验证见 [TypeScript 迁移记录](TypeScript迁移.md)。首页重写前的设计约定与实现说明保存在 [2026-09-07 README 存档](archive/readme-2026-09-07.md)，其中旧进度应结合当前代码判断。
+更完整的类型边界与迁移验证见 [TypeScript 迁移记录](typescript-migration.md)。首页重写前的设计约定与实现说明保存在 [2026-09-07 README 存档](archive/readme-2026-09-07.md)，其中旧进度应结合当前代码判断。

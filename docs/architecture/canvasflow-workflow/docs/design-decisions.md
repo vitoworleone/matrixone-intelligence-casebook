@@ -2,9 +2,9 @@
 
 这是建造过程的逐步记录，按讨论顺序累积。
 
-它不是当前架构的权威说明——那份在 [架构.md](架构.md)。这里保留的是每一步当时是怎么想的、为什么这么定。后来被修正的结论也留在原处，修正本身记在架构.md 末尾的「一路上纠正过的几处偏差」。
+它不是当前架构的权威说明——那份在 [architecture.md](architecture.md)。这里保留的是每一步当时是怎么想的、为什么这么定。后来被修正的结论也留在原处，修正本身记在architecture.md 末尾的「一路上纠正过的几处偏差」。
 
-2026-09-02 起本文停止累积，只作早期过程留档。之后契约与提示词的口径变化——数据形态、两档 `readiness`、必问判据、工具路线、厂商中立——记在 [取舍.md](取舍.md)，字段现状以 [plan-契约.md](plan-契约.md) 为准。下面与现状不一致的地方：第四步说的卡片与查询工具没有做，Plan Agent 现在只有一个提交工具；第七步里「骨架」的解释保留，但 `partial` 的定义已收窄为「形状对了，参数用户填」。
+2026-09-02 起本文停止累积，只作早期过程留档。之后契约与提示词的口径变化——数据形态、两档 `readiness`、必问判据、工具路线、厂商中立——记在 [design-tradeoffs.md](design-tradeoffs.md)，字段现状以 [plan-proposal-contract.md](plan-proposal-contract.md) 为准。下面与现状不一致的地方：第四步说的卡片与查询工具没有做，Plan Agent 现在只有一个提交工具；第七步里「骨架」的解释保留，但 `partial` 的定义已收窄为「形状对了，参数用户填」。
 
 规矩：
 
@@ -88,10 +88,10 @@ Plan 的 `partial` 表示用户意图仍不完整；画布中的骨架状态表�
 
 ### 第八步：四个角色的分工
 
-Plan Agent、状态机、Execution Agent、Gate 各自负责什么，以及一份东西从用户的话走到画布要经过谁——见 [架构.md](架构.md)。这一步的讨论量大，单独成篇。
+Plan Agent、状态机、Execution Agent、Gate 各自负责什么，以及一份东西从用户的话走到画布要经过谁——见 [architecture.md](architecture.md)。这一步的讨论量大，单独成篇。
 
 ## 下一步待决定
 
-- Plan Agent 的系统提示词。架构.md 里 Plan Agent 与 Execution Agent 的两张清单是它的原料，「不应该决定」那几条进提示词时要写成带理由的逻辑链，不写成光秃秃的禁令。
+- Plan Agent 的系统提示词。architecture.md 里 Plan Agent 与 Execution Agent 的两张清单是它的原料，「不应该决定」那几条进提示词时要写成带理由的逻辑链，不写成光秃秃的禁令。
 - Execution Agent 的输出契约（五类输出的 tagged union）与画布侧 Gate。
 - 前端从写死常量改成读一份 PlanProposal。

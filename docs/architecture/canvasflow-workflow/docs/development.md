@@ -1,6 +1,6 @@
 # Development guide
 
-[Project overview](../README.md) · [中文](开发指南.md)
+[Project overview](../README.md) · [中文](development-guide.md)
 
 ## Run locally
 
@@ -8,7 +8,7 @@ Use Node.js 22.9 or later. Run `npm ci` after cloning or when the lockfile chang
 
 The server listens on `127.0.0.1:5174` by default. To use another port, run `PORT=5175 npm run web`. The web application connects the execution and revision agents by default. These agents generate workflow configurations using a real model; they do not execute the data-processing tasks described by the nodes.
 
-The model service must support Chat Completions and tool calling. Planning uses streaming responses. Provider compatibility varies; see the [observations](观察.md) for recorded behavior.
+The model service must support Chat Completions and tool calling. Planning uses streaming responses. Provider compatibility varies; see the [observations](observations.md) for recorded behavior.
 
 ## Build and check
 
@@ -115,4 +115,4 @@ The planning prompt defaults to Chinese. Set `PLAN_PROMPT_LANG=en` to select the
 
 The model adapter normalizes some compatible formats, such as omitted function-call types and object-valued arguments. Invalid JSON argument strings are left for the agent's correction loop. Missing required tool identifiers and other interface errors still fail; compatibility does not mean every provider has been tested.
 
-See the [TypeScript migration record](TypeScript迁移.md) for boundary checks and migration details. Earlier design agreements and implementation notes are preserved in the [2026-09-07 README archive](archive/readme-2026-09-07.md). Those historical documents are in Chinese; check old progress claims against the current code.
+See the [TypeScript migration record](typescript-migration.md) for boundary checks and migration details. Earlier design agreements and implementation notes are preserved in the [2026-09-07 README archive](archive/readme-2026-09-07.md). Those historical documents are in Chinese; check old progress claims against the current code.

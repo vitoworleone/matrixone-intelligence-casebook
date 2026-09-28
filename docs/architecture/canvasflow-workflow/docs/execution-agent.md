@@ -6,7 +6,7 @@
 
 每轮读取完整计划和最新完整画布、发起节点、当前要求、已应用要求及相关记录。输出每一步的影响说明，只提交必要的节点与连线差量；共享门禁检查完整候选，拒绝原因反馈给同一轮 Agent 修正。保持目标及步骤职责的字段、单位等实现修改可以在这里完成；真正改变目标或步骤结构则返回 `needs_plan`，节点内说明原因，不擅自改计划。
 
-实际 S3→S5 跨步骤修改与第二轮要求延续见 [run14](../fixtures/observed/run14-节点整图修订/README.md)。以下是首次构建提示词的历史推导；早期 n8n 描述由文末“换到自己的节点表”取代。所有节点依旧只生成配置，不运行真实数据处理。
+实际 S3→S5 跨步骤修改与第二轮要求延续见 [run14](../fixtures/observed/run-14-node-workflow-revision/README.md)。以下是首次构建提示词的历史推导；早期 n8n 描述由文末“换到自己的节点表”取代。所有节点依旧只生成配置，不运行真实数据处理。
 
 执行者拿到一步，把它在平台上做出来：选节点、填参数、连线，交回去。平台是 n8n。这份文档记的是它的提示词是怎么一条条推出来的（2026-09-02，逐条确定），以及还没做的部分。它眼前的东西是三样：提示词 [prompts/executor.en.md](../prompts/executor.en.md)、三个工具的说明（[src/executor/node-catalog.mts](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/executor/node-catalog.mts) 里的搜索和详情，[src/executor/submit-step-tool.mts](https://github.com/Bai-009/canvas-first-workflow/blob/824397ed995dc7e1293a383bf3b90d1bc1cdf63e/src/executor/submit-step-tool.mts) 里的交）、提示词里的一个例子。
 
