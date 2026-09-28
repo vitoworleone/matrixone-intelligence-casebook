@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="28" viewBox="0 0 32 28" role="img" aria-labelledby="title">
+  <title id="title">文件夹</title>
+  <defs>
+    <linearGradient id="folder-back" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f9c45c"/>
+      <stop offset="1" stop-color="#e9a73a"/>
+    </linearGradient>
+    <linearGradient id="folder-front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe18b"/>
+      <stop offset="0.38" stop-color="#ffd264"/>
+      <stop offset="1" stop-color="#f0ab35"/>
+    </linearGradient>
+  </defs>
+  <path d="M2.5 7.25A2.75 2.75 0 0 1 5.25 4.5h7.1l2.2 2.45h12.2a2.75 2.75 0 0 1 2.75 2.75v13.05A2.75 2.75 0 0 1 26.75 25.5H5.25a2.75 2.75 0 0 1-2.75-2.75Z" fill="url(#folder-back)" stroke="#cd871e"/>
+  <path d="M2.5 11.5h27v11.25a2.75 2.75 0 0 1-2.75 2.75H5.25a2.75 2.75 0 0 1-2.75-2.75Z" fill="url(#folder-front)" stroke="#d99622"/>
+  <path d="M4 12.5h24" stroke="#fff0b8" stroke-linecap="round" opacity=".9"/>
+</svg>

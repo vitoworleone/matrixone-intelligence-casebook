@@ -61,7 +61,7 @@ https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
   <a href="docs/product-overview.md#产品手册把概念操作和异常处理连起来"><img src="assets/cards/product-manual-en.svg" width="245" alt="Product manual: configure, operate, troubleshoot"></a>
 </p>
 
-## 📁 Repository structure
+## <img src="assets/icons/folder.svg" width="32" height="28" align="middle" alt=""> Repository structure
 
 > [!IMPORTANT]
 > The repository presents MOI through product design, interactive prototypes, and scenario acceptance. The directory tree below shows where each type of material lives and what it covers.
