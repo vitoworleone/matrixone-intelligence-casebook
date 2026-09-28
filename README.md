@@ -2,11 +2,7 @@
   <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
-# MatrixOne Intelligence Casebook
-
-这份案例集记录 MatrixOne Intelligence（MOI）从企业数据到业务智能体的产品设计：文件与业务表如何加工为可用知识，智能体如何调用知识与工具完成任务，以及结果如何被检查和复现。仓库收录产品需求、架构、交互原型、场景验收与评测材料；[产品全景与工作范围](docs/product-overview.md)说明各部分之间的关系。
-
-我的工作集中在**工作流和知识库产品设计**，并参与智能体与 Astra 的产品适配梳理；Storybook 场景、产品手册和远程演示用于把设计落到可操作、可验证的任务中。
+# MatrixOne Intelligence
 
 <p><strong>中文</strong> | <a href="README_EN.md">English</a></p>
 
@@ -16,33 +12,39 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT 许可证" /></a>
 </p>
 
+> 从企业数据到可验证的智能体任务：加工资料、组织知识、调用能力并检查结果。
+
+这份产品设计案例集以**工作流和知识库**为主线，收录需求、架构、原型、场景验收与评测材料，也记录智能体和 Astra 的产品适配。[产品全景与工作范围](docs/product-overview.md)说明各部分的关系及参与范围。
+
 ## 演示视频
 
 ### 工作流交互演示
 
-1080p 视频沿一次任务展示目标输入、流程方案形成、画布节点生成与修改。对应的[工作流设计原始资料](docs/architecture/canvasflow-workflow/)完整保留交互理念、架构取舍、状态机、契约、提示词与实测记录；[MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)描述平台侧的产品规则。
+1080p 视频展示目标输入、流程方案形成，以及画布节点的生成与修改。
 
 https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
 
+> [!NOTE]
+> **阅读工作流设计**：[原始资料](docs/architecture/canvasflow-workflow/)保留交互理念、架构取舍、状态机、契约、提示词与实测记录；[MOI 工作流管理 PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md)说明平台侧的创建、编辑和运行规则。
+
 ### Astra 运行时演示
 
-这段来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)的视频展示长任务在 CLI 中的执行过程，包括上下文保留、执行取舍与运行分析。案例集中的[Astra 适配讨论](docs/product-overview.md)关注 MOI 平台配置与运行能力的衔接。
+视频展示 Astra 在 CLI 中执行长任务时的上下文管理、执行过程与运行分析。
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
+> [!NOTE]
+> 视频来自 [Astra 官方仓库](https://github.com/matrixorigin/Astra)。本案例集中的[Astra 适配讨论](docs/product-overview.md)聚焦 MOI 平台配置如何与运行能力衔接。
+
 ## 原型界面预览
 
-下面保留原有的 MOI 原型截图，分别呈现智能体工作台和数据工作台。可交互页面与相关工程材料位于[产品原型目录](product/moi-platform-prototype/)。
+<a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="560" /></a>
 
-<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI 智能体工作台首页" width="100%" />
+- [**智能体工作台**](product/moi-platform-prototype/) — 在首页发起对话，进入智能体与资源中心；点击图片可查看原尺寸界面。
 
-*智能体工作台：首页对话入口、智能体使用入口与资源中心。*
+<a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="560" /></a>
 
-<br />
-
-<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI 数据工作台概览" width="100%" />
-
-*数据工作台：数据对象、工作流、计算资源与知识库的统一入口。*
+- [**数据工作台**](product/moi-platform-prototype/) — 集中查看数据对象、工作流、计算资源与知识库，进入相应的管理流程；点击图片可查看原尺寸界面。
 
 ## 设计资料与验证
 

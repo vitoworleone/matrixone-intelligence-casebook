@@ -2,11 +2,7 @@
   <img src="assets/architecture/casebook-banner.png" alt="MatrixOne Intelligence Casebook" width="900" />
 </p>
 
-# MatrixOne Intelligence Casebook
-
-This casebook documents the product design behind MatrixOne Intelligence (MOI), from enterprise data to business agents: how files and business tables become usable knowledge, how agents use knowledge and tools to complete tasks, and how their results can be checked and reproduced. It brings together product requirements, architecture, interactive prototypes, scenario acceptance, and evaluation materials. The [product overview](docs/product-overview.md) explains how these pieces fit together.
-
-My work focused on **workflow and knowledge-base product design**. I also participated in planning the connection between agents and Astra; Storybook scenarios, product manuals, and remote demos helped turn the designs into tasks that can be operated and verified.
+# MatrixOne Intelligence
 
 <p><a href="README.md">中文</a> | <strong>English</strong></p>
 
@@ -16,33 +12,39 @@ My work focused on **workflow and knowledge-base product design**. I also partic
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-b89916?style=flat-square" alt="MIT license" /></a>
 </p>
 
+> From enterprise data to verifiable agent tasks: process source material, organize knowledge, call capabilities, and inspect results.
+
+This product design casebook centers on **workflows and knowledge bases**. It brings together requirements, architecture, prototypes, acceptance scenarios, and evaluation materials, alongside agent and Astra integration planning. The [product overview and work scope](docs/product-overview.md) explain how the pieces fit together and the scope of participation.
+
 ## Demo videos
 
 ### Workflow interaction demo
 
-The 1080p video follows one task from goal entry and plan formation to canvas node creation and edits. The [original workflow design archive](docs/architecture/canvasflow-workflow/) retains the interaction principles, architecture decisions, state machine, contracts, prompts, and observed runs in full. The [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) covers the platform's product rules.
+The 1080p video shows goal entry, plan formation, and canvas node creation and edits.
 
 https://github.com/user-attachments/assets/242fd58e-8d4c-488a-b59d-9a357e252049
 
+> [!NOTE]
+> **Explore the workflow design:** The [original archive](docs/architecture/canvasflow-workflow/) retains the interaction principles, architecture decisions, state machine, contracts, prompts, and observed runs in full. The [MOI workflow PRD](docs/prd/02-workflow-processing/complex-workflow-management-prd.md) defines the platform's creation, editing, and run behavior.
+
 ### Astra runtime demo
 
-This video from the [official Astra repository](https://github.com/matrixorigin/Astra) shows a long task running in the CLI, including retained context, execution decisions, and run analysis. The [Astra integration discussion](docs/product-overview.md) in this casebook focuses on how MOI platform configuration connects to runtime capabilities.
+The video shows Astra managing context, execution, and run analysis for a long task in the CLI.
 
 https://github.com/user-attachments/assets/c008be26-4320-413c-9ad6-100aefcfa728
 
+> [!NOTE]
+> This video comes from the [official Astra repository](https://github.com/matrixorigin/Astra). The [Astra integration discussion](docs/product-overview.md) in this casebook focuses on how MOI platform configuration connects to runtime capabilities.
+
 ## Prototype interface previews
 
-These are the original MOI prototype screenshots for the agent and data workbenches. Interactive pages and related engineering materials are in the [prototype directory](product/moi-platform-prototype/).
+<a href="assets/screenshots/moi-platform/agent-workbench-home.png"><img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="560" /></a>
 
-<img src="assets/screenshots/moi-platform/agent-workbench-home.png" alt="MOI Agent workbench home" width="100%" />
+- [**Agent workbench**](product/moi-platform-prototype/) — Start a conversation and enter the agent and resource centers from the home page. Click the image to view it at full resolution.
 
-*Agent workbench: the home conversation entry point, agent access, and resource center.*
+<a href="assets/screenshots/moi-platform/data-workbench-overview.png"><img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="560" /></a>
 
-<br />
-
-<img src="assets/screenshots/moi-platform/data-workbench-overview.png" alt="MOI data workbench overview" width="100%" />
-
-*Data workbench: a unified entry point for data objects, workflows, compute resources, and knowledge bases.*
+- [**Data workbench**](product/moi-platform-prototype/) — Review data objects, workflows, compute resources, and knowledge bases together, then open the relevant management flow. Click the image to view it at full resolution.
 
 ## Design documents and validation
 
